@@ -1,0 +1,40 @@
+{
+ "source": {
+  "mirror_url": "https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints/resolve/main/complaints.csv.zip",
+  "official_bulk_url": "https://files.consumerfinance.gov/ccdb/complaints.csv.zip",
+  "mirror_as_of": "2026-08-11",
+  "live_api": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/",
+  "note": "Consumer narratives were removed from the live CFPB database in September 2026 (API release 24). Narratives come from an archived copy of the official bulk export; labels and metadata are checked against the live API."
+ },
+ "funnel": {
+  "slice_with_narrative": 22044,
+  "dropped_status_not_mapped": 10,
+  "dropped_metadata_mismatch_vs_live_api": 4,
+  "after_live_check_and_label_map": 22030,
+  "near_duplicate_groups_size_gt1": 374,
+  "records_removed_as_near_duplicates": 512,
+  "sampling_frame": 21518
+ },
+ "status_counts_in_slice_with_narrative": {
+  "Closed with explanation": 13995,
+  "Closed with monetary relief": 6576,
+  "Closed with non-monetary relief": 1463,
+  "Untimely response": 10
+ },
+ "label_map": {
+  "Closed with monetary relief": 1,
+  "Closed with explanation": 0,
+  "Closed with non-monetary relief": 0
+ },
+ "frame_base_rate": 0.30081791988102985,
+ "extract": {
+  "mirror_sha256": "d92239489715c816fa4fc77a27324878cfc88de5b417065ea185e80ac92a6658",
+  "mirror_rows_total": 17021062,
+  "slice_rows": 39044,
+  "slice_rows_with_narrative": 22044
+ },
+ "live": {
+  "live_api_url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?product=Credit+card&issue=Problem+with+a+purchase+shown+on+your+statement&date_received_min=2022-12-30&date_received_max=2026-01-03&format=csv&no_aggs=true",
+  "live_rows": 39273
+ }
+}

@@ -1,0 +1,79 @@
+{
+ "base_rates": {
+  "debug": {
+   "base_rate": 0.3333333333333333,
+   "n": 12
+  },
+  "dev": {
+   "base_rate": 0.3,
+   "n": 200
+  },
+  "test": {
+   "base_rate": 0.3,
+   "n": 250
+  },
+  "train": {
+   "base_rate": 0.300875,
+   "n": 8000
+  }
+ },
+ "data": {
+  "funnel": {
+   "after_live_check_and_label_map": 22030,
+   "dropped_metadata_mismatch_vs_live_api": 4,
+   "dropped_status_not_mapped": 10,
+   "near_duplicate_groups_size_gt1": 374,
+   "records_removed_as_near_duplicates": 512,
+   "sampling_frame": 21518,
+   "slice_with_narrative": 22044
+  },
+  "label_map": {
+   "Closed with explanation": 0,
+   "Closed with monetary relief": 1,
+   "Closed with non-monetary relief": 0
+  },
+  "mirror_rows_total": 17021062,
+  "slice_rows": 39044,
+  "status_counts": {
+   "Closed with explanation": 13995,
+   "Closed with monetary relief": 6576,
+   "Closed with non-monetary relief": 1463,
+   "Untimely response": 10
+  }
+ },
+ "environment": {
+  "model_digest": "47951e4a666180bc2aedfc93c169472f2de783696fe196efbf063f5730ecf163",
+  "ollama_version": "0.40.15"
+ },
+ "settings": {
+  "bootstrap_b": 10000,
+  "bootstrap_seed": 0,
+  "ceiling_pair_cosine": 0.9,
+  "gaming_seed": 7,
+  "label_map": {
+   "Closed with explanation": 0,
+   "Closed with monetary relief": 1,
+   "Closed with non-monetary relief": 0
+  },
+  "max_narrative_chars": 6000,
+  "min_automated": 20,
+  "model": "qwen3.8:27b",
+  "n_attacks": 5,
+  "n_gaming": 30,
+  "near_dup_cosine": 0.5,
+  "options": {
+   "num_ctx": 8192,
+   "num_predict": 512,
+   "seed": 42,
+   "temperature": 0
+  },
+  "sizes": {
+   "debug": 12,
+   "dev": 200,
+   "test": 250,
+   "train": 8000
+  },
+  "split_seed": 20261109,
+  "target_agreement": 0.9
+ }
+}

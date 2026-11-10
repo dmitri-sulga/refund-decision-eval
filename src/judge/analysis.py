@@ -33,7 +33,8 @@ SYSTEMS = (("majority", "keyword_rule", "company_rule", "issuer_rate", "tfidf_ma
            + JUDGE_VERSIONS + ("guarded",))
 SCORED = ("issuer_rate", "tfidf_masked", "tfidf_lr") + JUDGE_VERSIONS + ("guarded",)   # systems with a score
 PAIRS = (("v1", "v2"), ("v2", "guarded"), ("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("issuer_rate", "v1"),
-         ("issuer_rate", "v2"), ("company_rule", "v1"), ("company_rule", "v2"), ("tfidf_masked", "tfidf_lr"))
+         ("issuer_rate", "v2"), ("company_rule", "v1"), ("company_rule", "v2"), ("tfidf_masked", "tfidf_lr"),
+         ("v1", "tfidf_masked"), ("v2", "tfidf_masked"))
 CONFIDENT = ("tfidf_lr",) + JUDGE_VERSIONS + ("guarded",)   # systems with a confidence signal
 
 
@@ -741,9 +742,11 @@ def cost(cache: Cache, splits) -> dict:
     for r in cache.records.values():
         groups.setdefault((r["prompt_version"], _set_of(r["item_id"], split_of)), []).append(r)
     replays = _replays()
-    if replays:
+    if replays:                     # DEV test-retest replays, and the noise pass of the held-out run
         for r in replays.records.values():
-            groups.setdefault((r["prompt_version"], "dev (replay file)"), []).append(r)
+            s = _set_of(r["item_id"], split_of)
+            groups.setdefault((r["prompt_version"], "test noise pass (replay file)" if s.startswith("test")
+                               else f"{s} (replay file)"), []).append(r)
     out["by_run"] = [{"version": v, "set": k, "calls": len(rs), "hours": float(sum(r["wall_s"] for r in rs) / 3600),
                       "median_s": float(np.median([r["wall_s"] for r in rs])),
                       "first_call": min(r["requested_at"] for r in rs),
@@ -758,6 +761,7 @@ def cost(cache: Cache, splits) -> dict:
     recent = sorted(cache.records.values(), key=lambda r: r["requested_at"])[-200:]
     out["recent_s_per_call"] = round(float(np.median([r["wall_s"] for r in recent])), 2) if recent else None
     events = [json.loads(line) for line in C.RUN_LOG.read_text().splitlines() if line.strip()]
+    out["translation_calls_not_counted"] = sum(e.get("new_calls", 0) for e in events if e.get("event") == "translation")
     out["run_speed"] = [e for e in events if e.get("event") == "run_speed"]
     out["concurrency"] = compare_concurrency(load_concurrency_replays(), cache)
     out["concurrency_decision"] = next((e for e in reversed(events)
@@ -855,6 +859,10 @@ def test_results(S: Systems, frozen: dict | None) -> dict | None:
     out["noise"] = {v: {k: r[k] for k in ("n", "n_split", "same_decision", "same_decision_rate", "same_decision_ci",
                                           "byte_identical", "same_probability", "shift", "kappa_between_runs")}
                     for v, r in noise.items()}                    # never scored against recorded decisions
+    from .run import read_journal
+    sent = Counter((e["pass"], e["key"]) for e in read_journal())
+    out["requests"] = {p: sum(1 for (q, _) in sent if q == p) for p in ("scored", "noise")}
+    out["requests"]["sent_more_than_once"] = sorted(f"{k} ({p} pass, {c} times)" for (p, k), c in sent.items() if c > 1)
     out.update({"started_at": marker["started_at"], "finished_at": marker["finished_at"],
                 "versions": marker["versions"], "workers": marker["workers"], "commit": marker["commit"]})
     return out

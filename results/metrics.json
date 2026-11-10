@@ -5739,6 +5739,7 @@
    "predict_ms_per_item_batched": 0.4742,
    "predict_ms_per_item_one_by_one": 1.417
   },
+  "translation_calls_not_counted": 120,
   "v1": {
    "calls": 200,
    "hours_per_1000": 3.063531,
@@ -6429,6 +6430,50 @@
     "value": 0.566667
    }
   },
+  "tfidf_masked_minus_v1": {
+   "accuracy": {
+    "hi": 0.285,
+    "lo": 0.1,
+    "value": 0.195
+   },
+   "kappa": {
+    "hi": 0.319874,
+    "lo": 0.024489,
+    "value": 0.175245
+   },
+   "transitions": {
+    "both_agree": 73,
+    "both_disagree": 36,
+    "gained_no_relief_cases": 62,
+    "gained_relief_cases": 3,
+    "lost_no_relief_cases": 9,
+    "lost_relief_cases": 17,
+    "only_first_agrees": 26,
+    "only_second_agrees": 65
+   }
+  },
+  "tfidf_masked_minus_v2": {
+   "accuracy": {
+    "hi": 0.09,
+    "lo": -0.07,
+    "value": 0.01
+   },
+   "kappa": {
+    "hi": 0.398769,
+    "lo": 0.044419,
+    "value": 0.225687
+   },
+   "transitions": {
+    "both_agree": 103,
+    "both_disagree": 29,
+    "gained_no_relief_cases": 7,
+    "gained_relief_cases": 28,
+    "lost_no_relief_cases": 30,
+    "lost_relief_cases": 3,
+    "only_first_agrees": 33,
+    "only_second_agrees": 35
+   }
+  },
   "v1": {
    "accuracy": {
     "hi": 0.565,
@@ -7107,7 +7152,7 @@
  "figure": "results/automation_curve.png",
  "frozen": {
   "problems": [],
-  "sha256": "2ddde4cd2f6131165c4defba0a018f2e6c92c1dc447c743acf5110b979d257ef"
+  "sha256": "cd8950249f3e1997e1e295091f688a752f5635850aa74898bd7a4170dff841fb"
  },
  "gaming": {
   "attacks": [
@@ -11153,6 +11198,50 @@
      "hi": 0.611111,
      "lo": 0.258065,
      "value": 0.433333
+    }
+   },
+   "tfidf_masked_minus_v1": {
+    "accuracy": {
+     "hi": 0.25,
+     "lo": 0.0,
+     "value": 0.13
+    },
+    "kappa": {
+     "hi": 0.233828,
+     "lo": -0.196662,
+     "value": 0.025592
+    },
+    "transitions": {
+     "both_agree": 36,
+     "both_disagree": 19,
+     "gained_no_relief_cases": 28,
+     "gained_relief_cases": 1,
+     "lost_no_relief_cases": 4,
+     "lost_relief_cases": 12,
+     "only_first_agrees": 16,
+     "only_second_agrees": 29
+    }
+   },
+   "tfidf_masked_minus_v2": {
+    "accuracy": {
+     "hi": 0.08,
+     "lo": -0.13,
+     "value": -0.03
+    },
+    "kappa": {
+     "hi": 0.322263,
+     "lo": -0.127826,
+     "value": 0.094069
+    },
+    "transitions": {
+     "both_agree": 53,
+     "both_disagree": 20,
+     "gained_no_relief_cases": 3,
+     "gained_relief_cases": 9,
+     "lost_no_relief_cases": 14,
+     "lost_relief_cases": 1,
+     "only_first_agrees": 15,
+     "only_second_agrees": 12
     }
    },
    "v1": {

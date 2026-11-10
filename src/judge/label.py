@@ -42,7 +42,8 @@ PROMPT = ("[1] вернуть деньги / money back   [2] не возвра�
           "[3] не могу решить / cannot tell   [u] отменить предыдущий / undo   [q] выйти / quit > ")
 AID_NOTE = ("Русский текст — машинный перевод, сделанный отдельной моделью (не той, которую проверяют), "
             "только для удобства чтения; он может содержать ошибки. Оригинал — английский текст.")
-# header terms, translated by hand (the narratives are machine-translated by a separate model)
+# header terms, translated by the AI coding assistant that wrote this code (the narratives are
+# machine-translated by a separate model, see translate.py)
 HEADER_RU = {
     "Credit card": "Кредитная карта",
     "General-purpose credit card or charge card": "Кредитная или расчётная (charge) карта общего назначения",

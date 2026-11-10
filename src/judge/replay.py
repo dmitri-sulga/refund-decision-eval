@@ -24,27 +24,43 @@ def replay_key(version: str, item_id: str) -> str:
     return llm.Cache.key(f"{version}@{TAG}", item_id)
 
 
-def replay(version: str, ids: list, records: dict, label: str = "replay") -> int:
-    """Send the cached requests of `ids` again and store the answers in the replay file."""
-    from .run import _speed, log_event
+def replay(version: str, ids: list, records: dict, label: str = "replay", journal=None) -> int:
+    """Send the cached requests of `ids` again and store the answers in the replay file,
+    one by one, each answer cached as it arrives (see run.send_each for interruptions).
+    With a journal every request is recorded before it is sent, as pass "noise"."""
+    from .run import _speed, journal_sent, log_event, send_each
 
     cache, replays = llm.Cache(), llm.Cache(REPLAY_FILE)
     env = llm.environment()
-    done = []
+    todo, done = [], []
     for n, i in enumerate(ids, 1):
         messages, schema = build_messages(version, records[i], visible_narrative(records[i]["narrative"]))
         body = llm.request_body(messages, schema)
         rhash = llm.request_hash(body)
         if cache.get(llm.Cache.key(version, i), rhash) is None:
             raise SystemExit(f"{version}|{i} is not in the response cache")
-        if replays.get(replay_key(version, i), rhash) is not None:
-            continue
-        r = llm.fetch(env, f"{version}@{TAG}", i, body, rhash)
+        if replays.get(replay_key(version, i), rhash) is None:
+            todo.append((n, i, body, rhash))
+
+    def keep(item_and_answer):
+        (n, i), r = item_and_answer
         replays.put(r)
         done.append(r)
         print(f"[{label} {version} {n}/{len(ids)}] {i} {r['wall_s']:.1f}s", flush=True)
         if len(done) == 5:
             log_event({"event": "run_speed", "version": version, "label": label, "workers": 1, **_speed(done)})
+
+    def before_send(t):
+        if journal is not None:
+            journal_sent(journal, replay_key(version, t[1]), "noise")
+
+    try:
+        send_each(todo, lambda t: ((t[0], t[1]), llm.fetch(env, f"{version}@{TAG}", t[1], t[2], t[3])), keep, 1,
+                  before_send)
+    except BaseException as e:
+        log_event({"event": "replay_stopped", "version": version, "label": label, "new_calls": len(done),
+                   "remaining": len(todo) - len(done), "reason": type(e).__name__})
+        raise
     if done:
         log_event({"event": "replay", "version": version, "label": label, "n_items": len(ids),
                    "new_calls": len(done), "workers": 1,

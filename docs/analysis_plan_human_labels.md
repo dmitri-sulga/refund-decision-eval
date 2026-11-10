@@ -17,6 +17,13 @@ does not contain. Agreement with recorded decisions therefore says little about
 whether the judge reads a complaint the way a person would. The human labels
 are the measurement of that.
 
+(Withdrawn later; note added 2026-11-10 before the held-out run, the rest of
+this plan unchanged: the figure this motive rests on, that most disagreements
+are not decidable from the text, came from a machine pass by an AI coding
+assistant and was withdrawn; see "Error reading" in the README. Whether the
+record turns on evidence outside the complaint is a hypothesis these labels
+test, not a finding.)
+
 ## What a label is
 
 One person (the author) decides each sampled complaint from the complaint text

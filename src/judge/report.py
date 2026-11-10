@@ -158,7 +158,8 @@ def b_dev_results(m):
     d = m["dev"]
     out = [results_table(d), "\nConfusion counts:\n", confusion_table(d)]
     for a, b in (("v1", "v2"), ("v2", "guarded"), ("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("issuer_rate", "v1"),
-                 ("issuer_rate", "v2"), ("company_rule", "v1"), ("company_rule", "v2"), ("tfidf_masked", "tfidf_lr")):
+                 ("issuer_rate", "v2"), ("company_rule", "v1"), ("company_rule", "v2"), ("tfidf_masked", "tfidf_lr"),
+                 ("v1", "tfidf_masked"), ("v2", "tfidf_masked")):
         sent = diff_sentence(d, a, b, "DEV")
         if sent:
             out.append("\n" + sent)
@@ -333,19 +334,40 @@ def b_issuer(m):
             f"same issuer {ci(x['within_issuer_auc'], lambda v: f'{v:+.3f}')}" for k, x in rk["differences"].items()) + "."])
 
 
+def _tfidf_lead(m) -> str:
+    """What the TF-IDF lead over the judges consists of, in the words the intervals allow."""
+    d, rk = m["dev"], m["ranking_dev"]
+    out = f"Both versions are below a TF-IDF baseline (kappa {num(d['tfidf_lr']['kappa']['value'], 2)})."
+    issuer = rk["differences"].get("issuer_rate_minus_tfidf_lr")
+    if issuer and issuer["auc"]["lo"] <= 0 <= issuer["auc"]["hi"]:
+        out += (" The issuer's relief rate alone, without reading the complaint, orders complaints about as well "
+                f"(AUC {num(rk['systems']['issuer_rate']['auc']['value'], 2)} against "
+                f"{num(rk['systems']['tfidf_lr']['auc']['value'], 2)}), so part of that lead may be knowing how "
+                "each issuer usually answers")
+    masked = [d.get(f"tfidf_masked_minus_{v}") for v in ("v1", "v2")]
+    if all(masked):
+        diffs = " and ".join(ci(x["kappa"], lambda v: f"{v:+.2f}") for x in masked)
+        sep = "; but" if out.endswith("answers") else "."
+        if all(x["kappa"]["lo"] > 0 for x in masked):
+            out += f"{sep} with issuer names masked, TF-IDF is still above both judges (kappa difference {diffs})"
+        else:
+            out += f"{sep} with issuer names masked, its lead over the judges is not demonstrated (kappa difference {diffs})"
+    return out + ". " if not out.endswith(".") else out + " "
+
+
 def b_lead(m):
     """The result, stated before anything else."""
     d = m["dev"]
     k = d["v2_minus_v1"]["kappa"]
     below = all(d[f"{v}_minus_tfidf_lr"]["kappa"]["hi"] < 0 for v in ("v1", "v2"))
     none = all(m["automation_dev"][n]["token"]["threshold"] is None for n in ("v1", "v2", "guarded"))
-    return (f"**Result so far (DEV, {d['v1']['n']} complaints; the held-out split has not been run).** The judge "
+    where = ("the held-out results are below" if m.get("test") else "the held-out split has not been run")
+    return (f"**Result so far (DEV, {d['v1']['n']} complaints; {where}).** The judge "
             f"agrees with recorded company decisions little better than chance: kappa {num(d['v1']['kappa']['value'], 2)} "
             f"for the first prompt and {num(d['v2']['kappa']['value'], 2)} for the revised one. The revision "
             + ("did not help" if k["lo"] <= 0 else "helped") +
             f" ({ci(k, lambda v: f'{v:+.2f}')}). " +
-            (f"Both versions are below a TF-IDF baseline (kappa {num(d['tfidf_lr']['kappa']['value'], 2)}), whose "
-             "lead is mostly knowing how each issuer usually answers. " if below else "") +
+            (_tfidf_lead(m) if below else "") +
             ("No judge configuration qualifies for automation at the planned target. " if none else "") +
             "What a careful person would decide from the same text is not known yet; blind human labels are "
             "being collected.")
@@ -645,7 +667,8 @@ def _human_head(h: dict) -> str:
             f"label existed (`docs/analysis_plan_human_labels.md`, {h['plan_registered_at'][:16].replace('T', ' ')} "
             f"UTC, amended {h['amended_at'][:16].replace('T', ' ')} UTC). The annotator reads a Russian machine "
             "translation beside the English original: a reading aid made by a separate model, not the judged "
-            f"one, never part of a judged input ({t['flagged']} of {h['sample_n']} translations fail a "
+            "one (Anthropic's `claude-fable-5-2`, run as sub-agents of the AI coding assistant working on this "
+            f"repository), never part of a judged input ({t['flagged']} of {h['sample_n']} translations fail a "
             f"completeness check, {t['missing']} are missing). The classic baselines are refitted without the "
             "sampled complaints.")
 
@@ -877,6 +900,17 @@ def b_frozen(m):
     return "\n".join(out)
 
 
+def _requests_sentence(t) -> str:
+    q = t.get("requests")
+    if not q:
+        return ""
+    again = q["sent_more_than_once"]
+    return (f"Requests recorded before sending (`results/cache/sent.jsonl`): {q['scored']} in the scored pass and "
+            f"{q['noise']}, each under its own label, in the noise pass; " +
+            ("none was sent twice." if not again else
+             f"sent again after a first send that returned no answer: {', '.join(again)}."))
+
+
 def b_test_results(m):
     t = m.get("test")
     if not t:
@@ -892,7 +926,7 @@ def b_test_results(m):
                 "and committed, and refuses to run twice; a second pass over the same requests is stored apart "
                 "and reported as noise only.")
     out = [f"Run once from commit `{t['commit'][:12]}`: started {t['started_at']}, finished {t['finished_at']} "
-           f"(UTC), versions {', '.join(t['versions'])}.\n", results_table(t["results"]),
+           f"(UTC), versions {', '.join(t['versions'])}. " + _requests_sentence(t) + "\n", results_table(t["results"]),
            "\nThe frozen claims, each decided by its rule:\n",
            "\n".join(f"- {c['verdict']}" + (f" ({ci(c['interval'], lambda v: f'{v:+.3f}')})" if c["interval"] else "")
                      for c in t["claims"])]
@@ -994,7 +1028,11 @@ def b_cost(m):
     a = c["all_calls"]
     out.append(f"\nAll model calls on record: {a['calls']:,}, {a['hours']:.2f} hours of model time "
                f"(sum of per-call wall time); answers cut off by the output limit: {a['truncated']}; "
-               f"calls on held-out complaints: {a['held_out_calls']}.\n")
+               f"calls on held-out complaints: {a['held_out_calls']}." +
+               (f" Not counted here: {c['translation_calls_not_counted']} calls in which the judged model translated "
+                "an earlier labelling sample into Russian (run log, event 'translation'); those translations "
+                "were discarded without being shown to the annotator." if c.get("translation_calls_not_counted")
+                else "") + "\n")
     out.append(table(("Version", "Set", "Calls", "Model time", "Median per call", "First call (UTC)", "Last call (UTC)"),
                      [(r["version"], r["set"], r["calls"], f"{60 * r['hours']:.1f} min", f"{r['median_s']:.1f} s",
                        r["first_call"][:16].replace("T", " "), r["last_call"][:16].replace("T", " "))

@@ -2,8 +2,9 @@
 
 The person who labels the sample reads English at an intermediate level, so the
 labelling tool shows a Russian translation beside the original English text.
-The translations were produced by a separate model, not the judged one, and
-imported here as plain text; they may contain errors, and the English original
+The translations were produced by a separate model, not the judged one
+(Anthropic's claude-fable-5-2, run on 2026-11-10 as sub-agents of the AI coding
+assistant working on this repository), and imported here as plain text; they may contain errors, and the English original
 is what counts. No judge, baseline or metric reads this file.
 
 python -m judge.translate --import-dir DIR --index FILE   # build results/cache/translations.jsonl

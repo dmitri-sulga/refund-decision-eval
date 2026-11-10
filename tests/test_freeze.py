@@ -30,7 +30,8 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(R, "log_event", lambda e: calls.append(("log", e["event"])))
     monkeypatch.setattr(R, "run", lambda v, items, **k: calls.append(("run", v, len(list(items)))) or
                         {"version": v, "new_calls": 0})
-    monkeypatch.setattr(P, "replay", lambda v, ids, records, label="": calls.append(("noise", v, len(ids))))
+    monkeypatch.setattr(P, "replay", lambda v, ids, records, label="", **k: calls.append(("noise", v, len(ids))))
+    monkeypatch.setattr(R, "SENT_FILE", tmp_path / "sent.jsonl")
     return calls, tmp_path
 
 

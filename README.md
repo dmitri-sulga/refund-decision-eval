@@ -114,7 +114,7 @@ _Not labelled yet._ A fixed sample of 100 DEV complaints (`data/label_sample.jso
 ## Held-out TEST
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
+_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `aaf9328241d00633...`): prompts, parser, defence, baselines, the DEV operating points and the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`). Acceptance rule: v2 replaces v1 only if the 95% paired-bootstrap interval of the held-out kappa difference (v2 minus v1) lies entirely above zero; otherwise the report says that no improvement was demonstrated. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
 <!-- END test_results -->
 
 The realistic estimate is the held-out result at the frozen thresholds; the ceiling discussion (label noise among near-identical complaints, the judge's agreement with itself) is in the full report.

@@ -1,0 +1,120 @@
+{
+ "acceptance_rule": "v2 replaces v1 only if the 95% paired-bootstrap interval of the held-out kappa difference (v2 minus v1) lies entirely above zero; otherwise the report says that no improvement was demonstrated.",
+ "environment": {
+  "model_digest": "47951e4a666180bc2aedfc93c169472f2de783696fe196efbf063f5730ecf163",
+  "ollama_version": "0.40.15"
+ },
+ "expected_s_per_call": 9.02,
+ "fact_model": {
+  "C": 1.0,
+  "coef": [
+   -0.06542995370054994,
+   0.06639076501243465,
+   -0.12715841229695493,
+   -0.15292350782685168,
+   -0.4449699192628614,
+   0.30671676328101954,
+   -0.5778564690500225,
+   0.9971523564675552,
+   0.08594881142913412,
+   -0.08498800011724894,
+   -0.20273148973453461,
+   0.20369230104641906,
+   -0.25279602365377013,
+   0.517751483495741,
+   -0.07322716269445786,
+   0.7434012962074297,
+   -0.20467889644347098,
+   -0.7294898855995867,
+   -0.1980323321239658,
+   -0.11076885144559935,
+   0.30976199488144934,
+   -0.01058956577598491,
+   0.011550377087869787
+  ],
+  "intercept": -1.4777223044837906,
+  "vocab": [
+   "ask=money",
+   "ask=non_money",
+   "claim=billing_error",
+   "claim=cancellation",
+   "claim=not_as_described",
+   "claim=not_received",
+   "claim=other",
+   "claim=unauthorized",
+   "detail=specific",
+   "detail=vague",
+   "issuer_error=False",
+   "issuer_error=True",
+   "issuer_status=credited",
+   "issuer_status=denied",
+   "issuer_status=not_contacted",
+   "issuer_status=partly_credited",
+   "issuer_status=pending",
+   "issuer_status=unclear",
+   "sub_issue=Card was charged for something you did not purchase with the card",
+   "sub_issue=Credit card company isn't resolving a dispute about a purchase on your statement",
+   "sub_issue=Overcharged for something you did purchase with the card",
+   "sub_product=General-purpose credit card or charge card",
+   "sub_product=Store credit card"
+  ]
+ },
+ "files": {
+  "data/records.jsonl.gz": "aa485c77ccb6e5f72f57976fc723cbc5adbcecd19d18c0cbe8d2279c813e6b24",
+  "data/splits.json": "5bbd43d5d863e133c83c52299532fcbef90546a632a7cb5bf02f7c97d4c67bc0",
+  "src/judge/baselines.py": "fab4f9d12ba9a20112ca43980600b1251a7adbf6847815f16c6afdd54e68f5e2",
+  "src/judge/config.py": "8584aedd31aabf7a81f0e3f82de0d862a80f463dd7964dc8e3fa8bdf25e04227",
+  "src/judge/defence.py": "0af8a9d2e6453a055d23a9a8e2b82cdeeda422c8a59ee3b0108d6441301e2a99",
+  "src/judge/freeze.py": "27acd65776444ee07f09953dd4dc467657b6cf67914f10f2a917a4dc4538e266",
+  "src/judge/gaming.py": "c33b41958727275c20bd5d4879ae6bfc1eb4a1becb37f5fc2bc743cacdab07a2",
+  "src/judge/judgments.py": "fe0d2549f989f3876cbcd4ae605478e9fb267978f68055621f3b575d77021971",
+  "src/judge/llm.py": "72765954c21e200a69dc57e02f8210ca07e33c46cf4ec6d1a0ec8a08c73c05f2",
+  "src/judge/metrics.py": "322fa9df20266500cdf5d408e4a1e1228fdcfe2ae45afe0458e85f9ddc02624a",
+  "src/judge/prompts.py": "e15245c275b891cd0ece2cb5556f2b9052e75d965ddc6c7f3133c7a9320f180a",
+  "src/judge/run.py": "297e793d7cd5880c76f757af101d00c6a713b29346373b926fae509782d9ea12"
+ },
+ "final_versions": [
+  "v1",
+  "v2"
+ ],
+ "guarded_facts_version": "v2",
+ "heldout": {
+  "ids_sha256": "25a48d7a40a3214086f0b2f49068a490cef5a0bab81ad16a47781934e7678dfc",
+  "n": 250
+ },
+ "operating_points": {
+  "guarded": {
+   "dev_agreement_on_automated": null,
+   "dev_automated": 0,
+   "signal": "token",
+   "threshold": null
+  },
+  "tfidf_lr": {
+   "dev_agreement_on_automated": 0.9,
+   "dev_automated": 20,
+   "signal": "token",
+   "threshold": 0.7316803363204014
+  },
+  "v1": {
+   "dev_agreement_on_automated": null,
+   "dev_automated": 0,
+   "signal": "token",
+   "threshold": null
+  },
+  "v2": {
+   "dev_agreement_on_automated": null,
+   "dev_automated": 0,
+   "signal": "token",
+   "threshold": null
+  }
+ },
+ "request_templates": {
+  "v1": "2d88613f39ab8a646d1ad41fb0bc2689afa1f6d6535217db46e646429bf70638",
+  "v2": "6b294253af71dcb3e84eecc31827702028ec7aadb4eee621f74edeb320226d71"
+ },
+ "tfidf_lr": {
+  "C": 1.0,
+  "class_weight": "balanced"
+ },
+ "workers": 1
+}

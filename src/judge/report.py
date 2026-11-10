@@ -653,8 +653,14 @@ def b_test_results(m):
     t = m.get("test")
     if not t:
         sent = m["cost"]["all_calls"]["held_out_calls"]
-        return (f"_Not yet run._ Held-out complaints sent to the model so far: {sent}. The run is a single "
-                "command (`make heldout`) that refuses to start unless the frozen method is unchanged, "
+        f = m.get("frozen")
+        frozen = ("The method is not frozen yet." if not f else
+                  f"The method is frozen in `results/frozen.json` (SHA-256 `{f['sha256'][:16]}...`): prompts, "
+                  f"parser, defence, baselines, the DEV operating points and the {f['content']['heldout']['n']} "
+                  f"held-out complaint IDs (SHA-256 of the sorted IDs `{f['content']['heldout']['ids_sha256'][:16]}...`). "
+                  f"Acceptance rule: {f['content']['acceptance_rule']}")
+        return (f"_Not yet run._ Held-out complaints sent to the model so far: {sent}. {frozen} The run is a "
+                "single command (`make heldout`) that refuses to start unless the frozen method is unchanged, "
                 "and refuses to run twice.")
     out = [f"Run once: started {t['started_at']}, finished {t['finished_at']} (UTC), versions "
            f"{', '.join(t['versions'])}.\n", results_table(t["results"])]

@@ -393,13 +393,26 @@ _Not labelled yet._ A fixed sample of 100 DEV complaints (`data/label_sample.jso
 ## Frozen
 
 <!-- BEGIN frozen -->
-_Not frozen yet._
+Frozen in `results/frozen.json` before any held-out complaint was sent to the model. The held-out report reads its thresholds from that file.
+
+| System | Confidence | Threshold for the held-out run | DEV cases automated | DEV agreement on automated |
+|---|---|---|---|---|
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | token | none (automates nothing) | 0 | n/a |
+| TF-IDF + logistic regression (trained on TRAIN) | token | 0.731680 | 20 | 90.0% |
+| LLM judge v1 (plain rubric) | token | none (automates nothing) | 0 | n/a |
+| LLM judge v2 (facts first, then decision) | token | none (automates nothing) | 0 | n/a |
+
+Judge versions to run on the held-out split: v1, v2 (500 model calls, sequential, about 75 minutes at the recent median of 9.0 s per call). Baseline hyperparameters: C = 1.0, class weighting = balanced. Fact model: logistic regression on 23 one-hot fact features, weights in the frozen file. Model build: Ollama 0.40.15, digest `47951e4a6661`.
+
+Held-out complaint IDs: 250, SHA-256 of the sorted IDs `25a48d7a40a3214086f0b2f49068a490cef5a0bab81ad16a47781934e7678dfc`. Acceptance rule for the prompt change: v2 replaces v1 only if the 95% paired-bootstrap interval of the held-out kappa difference (v2 minus v1) lies entirely above zero; otherwise the report says that no improvement was demonstrated.
+
+Files whose SHA-256 is recorded and checked before the run: `data/records.jsonl.gz`, `data/splits.json`, `src/judge/baselines.py`, `src/judge/config.py`, `src/judge/defence.py`, `src/judge/freeze.py`, `src/judge/gaming.py`, `src/judge/judgments.py`, `src/judge/llm.py`, `src/judge/metrics.py`, `src/judge/prompts.py`, `src/judge/run.py`.
 <!-- END frozen -->
 
 ## Test results
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
+_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `aaf9328241d00633...`): prompts, parser, defence, baselines, the DEV operating points and the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`). Acceptance rule: v2 replaces v1 only if the 95% paired-bootstrap interval of the held-out kappa difference (v2 minus v1) lies entirely above zero; otherwise the report says that no improvement was demonstrated. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
 <!-- END test_results -->
 
 ## Estimates

@@ -37,7 +37,6 @@ replay: venv
 # record the method and the DEV operating points before the held-out run
 freeze: venv
 	$(PY) -m judge.freeze
-	$(PY) -m judge.report
 
 # the single held-out run: refuses unless the frozen method is unchanged, refuses to run twice
 heldout: venv

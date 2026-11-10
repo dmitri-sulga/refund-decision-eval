@@ -295,12 +295,39 @@ def human_extras(m) -> dict:
         rev = load_reviews(review_path(who))
         out[who] = {"seconds": {"p25": float(np.percentile(secs, 25)), "median": float(np.median(secs)),
                                 "p75": float(np.percentile(secs, 75)), "under_30": int((secs < 30).sum()),
-                                "n": int(len(secs))},
+                                "n": int(len(secs)), "max": float(secs.max())},
                     "translation_shown": sum(bool(r.get("translation_shown")) for r in labels.values()),
                     "review": [{"complaint_id": i, "drafted": rows[i]["group"], "author": r["group"],
                                 "confirmed": bool(r["confirmed"]), "note": r["note"]}
                                for i, r in sorted(rev.items(), key=lambda kv: int(kv[0])) if i in rows],
-                    "paired_sensitivity": sens.get(who, {})}
+                    "paired_sensitivity": sens.get(who, {}),
+                    **human_summary(m, who)}
+    return out
+
+
+EIGHT = ("keyword_rule", "company_rule", "issuer_rate", "tfidf_masked", "tfidf_lr", "v1", "v2", "guarded")
+
+
+def human_summary(m, who) -> dict:
+    """Fourth post-run change (after the lock), descriptive, from figures already computed: the range of the
+    eight systems' kappa against the record on the person's decided cases and on the held-out split (what the
+    person's own kappa against the record is set beside), and, for the decision not to write a v3 prompt, the
+    decided labels per half and the half-width of each paired kappa interval against the person on the
+    evaluation half."""
+    r = m["human"]["annotators"][who]
+    f = r["all"]
+    out = {}
+    if "person_vs_recorded" in f:
+        same = {n: x["kappa"]["value"] for n, x in f["systems_vs_recorded_same_cases"].items() if n in EIGHT}
+        held = {n: m["test"]["results"][n]["kappa"]["value"] for n in EIGHT if n in (m.get("test") or {}).get("results", {})}
+        rng = lambda d: {"n": len(d), "min": min(d.values()), "min_system": min(d, key=d.get),  # noqa: E731
+                         "max": max(d.values()), "max_system": max(d, key=d.get)} if d else None
+        out["kappa_ranges_vs_record"] = {"same_decided_cases": rng(same), "held_out": rng(held)}
+    ev = r["halves"].get("evaluation", {})
+    out["v3_decision"] = {"decided_per_half": {k: g["decided"] for k, g in r["halves"].items()},
+                          "evaluation_paired_kappa_half_width": {
+                              k: (x["kappa"]["hi"] - x["kappa"]["lo"]) / 2
+                              for k, x in (ev.get("paired_vs_person") or {}).items()}}
     return out
 
 

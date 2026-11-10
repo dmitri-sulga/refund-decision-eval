@@ -1,5 +1,11 @@
 """The human-label output once labels lock, tested with synthetic labels in a temporary directory.
-Nothing is written under results/human_labels/."""
+Nothing is written under results/human_labels/.
+
+The synthetic labels are locked now, while the real cache holds the judges' answers for the labelled sample
+(requested after the real lock). The fixture therefore reads a view of the cache without any answer for a
+labelled complaint (the judges' answers are synthetic, see predict below), so the production guard in
+analysis.human_labels is left as it is; test_the_guard_refuses_an_answer_that_predates_the_lock checks that it
+still refuses."""
 import copy
 import json
 
@@ -17,6 +23,15 @@ from judge.llm import Cache
 
 METRICS = json.loads((C.RESULTS / "metrics.json").read_text())
 REAL_DIR = C.RESULTS / "human_labels"
+
+
+def cache_without(ids, extra=()):
+    """The response cache as a view without any answer for the given complaints, plus extra records."""
+    c = Cache()
+    drop = set(ids)
+    c.records = {k: r for k, r in c.records.items() if r["item_id"].split("~")[0] not in drop}
+    c.records.update({r["key"]: r for r in extra})
+    return c
 
 
 def _names():
@@ -52,11 +67,11 @@ def locked(tmp_path_factory):
         return orig(self, name, split)
 
     mp.setattr(A.Systems, "predict", predict)
-    S = A.Systems(load_records(), load_splits(), Cache(), lr_params=METRICS["tfidf_lr"]["chosen"])
+    S = A.Systems(load_records(), load_splits(), cache_without(ids), lr_params=METRICS["tfidf_lr"]["chosen"])
     m = copy.deepcopy(METRICS)
     m["human"] = A.human_labels(S)
     m["posthoc"]["human"] = P.human_extras(m)
-    yield m, ids
+    yield m, ids, S
     mp.undo()
     assert _names() == before                # the real label directory was not touched
 
@@ -73,31 +88,46 @@ def _table_rows(text, header_word):
     return rows
 
 
+def test_the_guard_refuses_an_answer_that_predates_the_lock(locked):
+    _, ids, S = locked
+    early = {"key": f"v1|{ids[0]}", "item_id": ids[0], "prompt_version": "v1",
+             "requested_at": "2026-11-10T00:00:00+00:00"}        # before the synthetic lock, which is now
+    S2 = A.Systems(S.records, S.splits, cache_without(ids, [early]), lr_params=METRICS["tfidf_lr"]["chosen"])
+    with pytest.raises(RuntimeError, match="predates the lock"):
+        A.human_labels(S2)
+
+
 def test_the_person_never_sits_in_a_dev_or_held_out_column(locked):
-    m, _ = locked
-    for text in (Rp.b_headline(m), Rp.b_summary(m)):
+    m, _, _ = locked
+    head, summary, human = Rp.b_headline(m), Rp.b_summary(m), Rp.BLOCKS["human"](m)
+    for text in (head, summary):
         rows = _table_rows(text, "DEV kappa")
         assert rows and not any("Person" in r for r in rows)
+    assert "**Blind human labels**" in head and "| Person" not in head     # the full tables print once, below
+    assert "(registered)" in head and "registered sensitivity line" in head
+    for text in (summary, human):
         assert "same " in text and "decided cases of the 100-complaint TRAIN labelling sample" in text
         person = _table_rows(text, "Kappa against the record")
         assert person[0].startswith("| Person") and any(r.startswith("| Issuer relief rate") for r in person)
 
 
 def test_human_section_has_the_required_parts(locked):
-    m, ids = locked
+    m, ids, _ = locked
     text, detail = Rp.BLOCKS["human"](m), Rp.BLOCKS["human_detail"](m)
     against = _table_rows(text, "System against the person")
     assert any(r.startswith("| LLM judge v1") and "same question as the rubric" in r for r in against)
     assert any(r.startswith("| LLM judge v2") for r in against) and any(r.startswith("| TF-IDF + logistic") for r in against)
     assert "person would pay, system would not" in text and "not in the registered plan" in text
     assert "rules the judge v1 prompt was given" in text and "not ground truth" in text
-    assert "median" in text and "quartiles" in text and "No v3 prompt exists" in text
+    assert "median" in text and "quartiles" in text and "No v3 prompt" in text and "not carried out" in text
+    assert "minutes in all" not in text and "include the annotator's breaks" in text
+    assert "'Cannot tell' in" in text and "not recorded as a field" in text
     assert "minus TF-IDF + logistic regression (registered)" in text
     assert "minus LLM judge v1 (plain rubric) (not in the registered plan" in text
     assert "Registered check of the two readings" in text and "Accuracy [95% CI], decided cases" in text
     assert "Person against the recorded company decision (registered)" in detail
     assert "'cannot tell' as no money back" in text and "Time per label (not in the registered plan" in text
-    for t in (Rp.b_headline(m), Rp.b_summary(m)):
+    for t in (text, Rp.b_summary(m)):
         assert "Issuer relief rate (added later) (not in the registered plan" in t
     review = _table_rows(detail, "Author's reading")
     assert len(review) == 1 and "synthetic" in review[0]

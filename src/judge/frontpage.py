@@ -154,7 +154,7 @@ def b_first_screen(m):
         f"records that the issuer had already refused (a cruder keyword search finds a refusal in "
         f"{R.pct(proxy['n_with'] / m['cues']['n_train'], 0)} of the training complaints). The label is how the "
         "company closed the complaint with the regulator, with money back (goodwill credits included) or without, so "
-        "every figure here is agreement with what the company did, not correctness.",
+        "every figure here is agreement with what the company did, not correctness." + _person_first_screen(m),
         "",
         f"- **Always answering \"no money back\" matches the record in {R.pct(r['majority']['accuracy']['value'])} of "
         f"the {n} held-out complaints" +
@@ -293,9 +293,77 @@ def b_headline(m):
            "gist created before the run holds its hashes (see the freeze section below). **Claims frozen before the run**, each with the verdict its rule "
            "in `results/frozen.json` gives, in the words the frozen code prints:\n", _claims(m),
            "\n" + _table(m)]
-    out.append("\n" + person_table(m) if _people(m) else
+    out.append("\n" + human_summary(m) if _people(m) else
                "\nBlind human labels are being collected; nothing is reported until the set is complete and locked.")
     return "\n".join(out)
+
+
+# ------------------------------------------------------------------ the blind labels, in short (after the lock)
+AFTER_LOCK = "added after the labels were locked and read; descriptive"
+
+
+def _person_facts(m):
+    """(annotator, figures on all labelled cases, posthoc extras) of the first locked annotator with figures."""
+    who, r = _people(m)[0]
+    return who, r["all"], ((m.get("posthoc") or {}).get("human") or {}).get(who, {})
+
+
+def _as_weakly(f, ex) -> bool:
+    """True when the person's kappa against the record lies inside the range of the eight systems both on his
+    decided cases and on the held-out split: the condition for saying 'about as weakly as the systems do'."""
+    k = f["person_vs_recorded"]["kappa"]["value"]
+    rg = ex.get("kappa_ranges_vs_record") or {}
+    return all(x and x["min"] <= k <= x["max"] for x in (rg.get("same_decided_cases"), rg.get("held_out")))
+
+
+def _person_first_screen(m) -> str:
+    if not _people(m):
+        return ""
+    _, f, ex = _person_facts(m)
+    k = R.ci(f["person_vs_recorded"]["kappa"])
+    return (f" A person reading only the complaint, blind (one annotator, the author), could not decide "
+            f"{f['cannot_tell']} of {f['n']}; on the {f['decided']} he decided, he agreed with the record "
+            + ("about as weakly as the systems do" if _as_weakly(f, ex) else "with") +
+            f" (kappa {k}; registered; see below).")
+
+
+def human_summary(m) -> str:
+    """The registered human-label figures in a few lines for the held-out section; the full tables print
+    once, in the human-label section."""
+    who, f, ex = _person_facts(m)
+    pv, sv = f["person_vs_recorded"]["kappa"], f["sensitivity"]["person_vs_recorded"]["kappa"]
+    sp = f["systems_vs_person"]
+    rg = ex.get("kappa_ranges_vs_record") or {}
+    same, held = rg.get("same_decided_cases"), rg.get("held_out")
+    if same and held:
+        side = lambda x: "inside" if x["min"] <= pv["value"] <= x["max"] else "outside"   # noqa: E731
+        where = (f"His {R.num(pv['value'])} lies {side(same)} the range of the {same['n']} systems' kappa against the "
+                 f"record on the same {f['decided']} cases ({R.num(same['min'])}, {NAME[same['min_system']]}, to "
+                 f"{R.num(same['max'])}, {NAME[same['max_system']]}) and {side(held)} their range on the held-out split "
+                 f"({R.num(held['min'])} to {R.num(held['max'])}) ({AFTER_LOCK}); no difference between the person and "
+                 "any system was tested.")
+    else:
+        where = ""
+    agree = [n for n, x in sp.items() if x["kappa"]["lo"] > TINY]
+    judges = "; ".join(f"{NAME[v]} {R.ci(sp[v]['kappa'])}" for v in ("v1", "v2") if v in sp)
+    touches = [NAME[v] for v in ("v1", "v2") if v in sp and abs(sp[v]["kappa"]["lo"]) <= TINY]
+    return "\n".join([
+        f"**Blind human labels** (a separate analysis on {f['n']} TRAIN complaints, not the held-out split; "
+        "registered in `docs/analysis_plan_human_labels.md` before any label existed; full tables under \"A person's "
+        "blind labels\" below):\n",
+        f"- One annotator, the author: not a lawyer, and not a native English reader, who read the English original "
+        f"with a machine translation beside it. He labelled {f['n']} complaints blind and could not decide "
+        f"{f['cannot_tell']} of them from the text (registered).",
+        f"- On the {f['decided']} he decided, his agreement with the company's record is kappa {R.ci(pv)} (registered)" +
+        (": a person reading only the complaint agrees with the record about as weakly as the systems do. "
+         if _as_weakly(f, ex) else ". ") + where +
+        f" With 'cannot tell' counted as no money back, over all {f['n']} (registered sensitivity line): kappa {R.ci(sv)}.",
+        f"- The judges against the person, decided cases (registered): {judges}; " +
+        ("no system is shown to agree with the person (no interval lies entirely above zero" +
+         (f"; {' and '.join(touches)}'s reaches down to zero)." if touches else ").")
+         if not agree else "the interval lies entirely above zero for " + ", ".join(NAME[n] for n in agree) + ".") +
+        " " + _sign_check(_figures(f, ex.get("paired_sensitivity", {}).get("all"))),
+    ])
 
 
 # ------------------------------------------------------------------ practitioner reading
@@ -463,7 +531,9 @@ def b_practice(m):
         f"judge v2 {c['v2']['hours_per_1000']:.1f} h" +
         (" (on the held-out run " + " and ".join(f"{v} {x:.1f} h" for v, x in held_h.items()) + ")" if held_h else "") +
         "; "
-        "a person: " + (f"about {_people(m)[0][1]['median_seconds'] * 1000 / 3600:.0f} h at the median labelling time."
+        "a person: " + (f"about {_people(m)[0][1]['median_seconds'] * 1000 / 3600:.0f} h, the median time per label "
+                        f"({_people(m)[0][1]['median_seconds']:.0f} s) times 1,000, which leaves out breaks (the recorded "
+                        "times include pauses with the page open); not a measured handle time."
                         if _people(m) else "not measured until the blind labels are locked."),
         (f"- **Realistic against optimistic** (plan item 9; full table in the report's Estimates): TF-IDF automates "
          f"{R.pct(est['realistic']['coverage'])} at {R.pct(est['realistic']['agreement']['value'])} on held-out at the "
@@ -754,14 +824,56 @@ def _human_figures(f, ps) -> list[str]:
     return out
 
 
+RULE_V3 = ("drafted from the calibration half only, frozen, run once on the evaluation half, and accepted only if the "
+           "paired interval of kappa against the person, v3 minus the better of v1 and v2 on the calibration half, lies "
+           "entirely above zero on the evaluation half")
+
+
 def _v3(m) -> str:
     from .prompts import VERSIONS
-    if "v3" not in VERSIONS:
-        return ("No v3 prompt exists. If one is written, it is drafted from the calibration half only, frozen, run "
-                "once on the evaluation half, and accepted only if the paired interval of kappa against the person "
-                "(v3 minus the better of v1 and v2 on the calibration half) lies entirely above zero on the evaluation "
-                "half, as registered; otherwise the report says that no improvement was demonstrated.")
-    return "A v3 prompt exists; its evaluation-half result is reported only through the registered rule."
+    if "v3" in VERSIONS:
+        return "A v3 prompt exists; its evaluation-half result is reported only through the registered rule."
+    people = _people(m)
+    d = (((m.get("posthoc") or {}).get("human") or {}).get(people[0][0], {}).get("v3_decision") if people else None)
+    if not d:
+        return (f"No v3 prompt exists. If one is written, it is {RULE_V3}, as registered; otherwise the report says "
+                "that no improvement was demonstrated.")
+    per = sorted(set(d["decided_per_half"].values()))
+    hw = sorted(d["evaluation_paired_kappa_half_width"].values())
+    return ("**No v3 prompt.** None was written, and none will be in this release: a decision taken after the labels "
+            f"were locked, because each half holds {' or '.join(str(x) for x in per)} decided labels, too few for the "
+            "registered acceptance rule to have a realistic chance of showing anything" +
+            (f". On the evaluation half, the paired kappa intervals against the person that were computed reach "
+             f"{R.num(hw[0], 2)} to {R.num(hw[-1], 2)} either side of their estimates, so v3 would have to beat the "
+             f"comparator by roughly that much before its interval could clear zero ({AFTER_LOCK})" if hw else "") +
+            f". The registered rule stays as written: a v3 prompt would be {RULE_V3}. That the registered v3 step was "
+            "not carried out is recorded in `docs/deviations.md`.")
+
+
+# ------------------------------------------------------------------ who did what (README)
+def b_who(m):
+    people = _people(m)
+    rev = people[0][1]["error_review"] if people else None
+    e = m["error_analysis"]
+    tail = ("The AI coding assistant chose the data and the label, wrote or drafted the code, the prompts, the gaming "
+            "rewrites, the defence and the first reading of the disagreements, wrote the rules that were frozen before "
+            "the held-out run, and started that run" +
+            (" and, after the lock, the run of the judges on the labelled sample" if people else "") +
+            "; the reviews named in `docs/deviations.md` were separate AI-agent sessions, not people, and there is no "
+            "independent second author. Where a code comment says \"by hand\" (for example the issuer alias list in "
+            "`src/judge/baselines.py`), it means a fixed list written into the code by that assistant.")
+    if not (people and rev and rev["reviewed"]):
+        return ("**Who did what.** The author set the task and directed the work, ran it on his own laptop through an "
+                "AI coding assistant, decided to publish the result as it came out, and is reading and labelling the "
+                "complaints himself, blind. " + tail)
+    f = people[0][1]["all"]
+    return ("**Who did what.** The author set the task and directed the work, ran it on his own laptop through an AI "
+            f"coding assistant, and decided to publish the result as it came out. He read and labelled the {f['n']} "
+            "complaints of the labelling sample himself, blind; after the labels were locked he reviewed, on a second "
+            f"screen, the {rev['reviewed']} individually sorted disagreements of judge v1 on DEV ({rev['confirmed']} "
+            f"drafted readings confirmed, {len(rev['changed'])} changed). The drafted readings of the other "
+            f"{e['n_disagreements'] - rev['reviewed']} of the {e['n_disagreements']} DEV disagreements are still the "
+            "assistant's and unconfirmed. " + tail)
 
 
 def b_human(m):
@@ -783,7 +895,10 @@ def b_human(m):
                    f"({R.pct(f['cannot_tell'] / f['n'], 0)}; registered). Time per label ({NOT_REGISTERED}): median "
                    f"{r['median_seconds']:.0f} s" +
                    (f", quartiles {s['p25']:.0f} s and {s['p75']:.0f} s, {s['under_30']} under 30 s" if s else "") +
-                   f", {r['total_minutes']:.0f} minutes in all.")
+                   ". The recorded times also run while the page is open between labels, so they include the "
+                   "annotator's breaks" + (f" (the longest single record is {s['max'] / 60:.0f} minutes; {AFTER_LOCK})"
+                                           if s and "max" in s else "") +
+                   f"; their sum, {r['total_minutes']:.0f} minutes, is therefore not the time spent labelling.")
         if "person_vs_recorded" not in f:
             out.append("\nToo few decided cases for agreement figures.")
             continue
@@ -791,9 +906,24 @@ def b_human(m):
         if not any(v in f["systems_vs_person"] for v in ("v1", "v2")):
             out.append("\nThe judges have not answered these complaints yet (`make judge-labelled`).")
         out += _human_figures(f, ps.get("all"))[1:]        # the person's row is in the table above
+        out.append("\n" + _cannot_tell(f, r))
     out.append("\n" + _v3(m) + " The author's own reading of each sorted disagreement, from the second screen, is in "
                "the full report.")
     return "\n".join(out)
+
+
+def _cannot_tell(f, r) -> str:
+    """What the share of 'cannot tell' means for anyone planning to use labels like these. Facts only: the
+    rubric's definition, the registered count and recorded relief rate, and whether reasons were recorded."""
+    return (f"**'Cannot tell' in {f['cannot_tell']} of {f['n']}.** The rubric asks for 'cannot tell' when the text does "
+            "not describe a transaction the reader can identify, or when the decision turns entirely on evidence the "
+            "text does not give. For anyone planning to use labels like these: a reader of the complaint text alone "
+            f"left {f['cannot_tell']} of {f['n']} complaints without a decision, so such labels cover only part of the "
+            "cases, and which part is chosen by the reader, not at random (registered: the companies paid in "
+            f"{R.pct(f['cannot_tell_recorded_relief'])} of the 'cannot tell' cases, {R.pct(f['recorded_relief_share'])} "
+            "of the whole sample). Which of the two reasons applied to a case was not recorded as a field "
+            f"({r['with_note']} of {f['n']} labels " + ("carries" if r["with_note"] == 1 else "carry") +
+            " a free-text note), so the reasons are not counted.")
 
 
 def b_human_detail(m):

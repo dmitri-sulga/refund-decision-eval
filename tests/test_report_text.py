@@ -62,8 +62,19 @@ def test_headline_states_each_frozen_claim_as_its_rule_decides():
     assert "*v2 replaces v1*" in head and "**no improvement of v2 over v1 was demonstrated**" in head
     assert "**the frozen TF-IDF operating point: not shown to meet the target**" in head
     assert "outcome words were chosen after the run" not in head
-    assert "Blind human labels are being collected" in head  # placeholder until the blind labels are locked
-    assert "Person" not in head
+    assert "| Person" not in head                      # the person's full tables print once, in the human section
+    if m["human"]["annotators"]:
+        f = m["human"]["annotators"]["owner"]["all"]
+        assert "**Blind human labels**" in head and "Blind human labels are being collected" not in head
+        assert f"could not decide {f['cannot_tell']} of them from the text (registered)" in head
+        assert "agrees with the record about as weakly as the systems do" in head
+        assert "no difference between the person and any system was tested" in head
+        assert "no system is shown to agree with the person" in head and "Registered check of the two readings" in head
+        assert "not a lawyer" in head and "machine translation" in head
+        assert len([ln for ln in head.split("**Blind human labels**")[1].splitlines() if ln.strip()]) <= 4
+    pending = copy.deepcopy(m)
+    pending["human"]["annotators"] = {}
+    assert "Blind human labels are being collected" in Rp.b_headline(pending)   # before the lock
     for c in m["test"]["claims"]:
         if c["id"] == "v2_vs_v1":
             c["verdict"] = "v2 replaces v1"
@@ -82,6 +93,8 @@ def test_practice_says_what_is_not_measured_while_labels_are_pending():
     text = Rp.b_practice(m)
     if not m["human"]["annotators"]:
         assert "a person: not measured until the blind labels are locked" in text
+    else:
+        assert "the median time per label" in text and "times 1,000, which leaves out breaks" in text
     assert text.startswith("Only the claims above were frozen before the run. Everything in this section is exploratory")
     assert "Only the prompt that asks the model to predict the record is moved" not in text
     assert "at least as well" not in text and "0 of 10 other wordings" in text

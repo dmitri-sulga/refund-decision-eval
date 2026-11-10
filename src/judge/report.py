@@ -376,8 +376,10 @@ def b_lead(m):
             f" ({ci(k, lambda v: f'{v:+.2f}')}). " +
             (_tfidf_lead(m) if below else "") +
             ("No judge configuration qualifies for automation at the planned target. " if none else "") +
-            "What a careful person would decide from the same text is not known yet; blind human labels are "
-            "being collected.")
+            ("Blind human labels on a separate TRAIN sample are reported in the human-label section."
+             if m["human"]["annotators"] else
+             "What a careful person would decide from the same text is not known yet; blind human labels are "
+             "being collected."))
 
 
 def b_deviation_facts(m):
@@ -401,15 +403,20 @@ def _who_read(m) -> str:
     pv = e["provenance"]
     t = lambda k: pv[k][11:16]                      # noqa: E731  (UTC hour and minute)
     rev = [r["error_review"] for r in m["human"]["annotators"].values() if r["error_review"]["reviewed"]]
-    return (f"The categories, quotes and notes were drafted by {pv['produced_by']}; the author has read "
-            f"{pv['cases_read_by_the_author']} of the cases. The {e['n_disagreements']} narratives hold "
+    return (f"The categories, quotes and notes were drafted by {pv['produced_by']}; " +
+            (f"when they were drafted the author had read {pv['cases_read_by_the_author']} of the cases"
+             if rev else f"the author has read {pv['cases_read_by_the_author']} of the cases") +
+            f". The {e['n_disagreements']} narratives hold "
             f"{e['words_in_disagreements']:,} words. The v1 run ended at {t('v1_dev_run_finished')} UTC, the "
             f"disagreements were exported at {t('disagreements_exported_for_reading')}, the v2 prompt was first "
             f"used at {t('v2_prompt_first_used')} and the category file was last written at "
             f"{t('category_file_last_written')}: the v2 prompt rests on a machine pass of minutes over these "
             "cases, not on a person's reading. " +
-            (f"The author has since reviewed {rev[0]['reviewed']} of the {rev[0]['total']} individually sorted "
-             f"cases and confirmed {rev[0]['confirmed']} of the drafted readings." if rev else
+            (f"After the blind labels were locked, the author read the {rev[0]['reviewed']} of the {rev[0]['total']} "
+             f"individually sorted cases on a second screen: {rev[0]['confirmed']} drafted readings confirmed, "
+             f"{len(rev[0]['changed'])} changed (case by case in the human detail section). The drafted readings of "
+             f"the other {e['n_disagreements'] - rev[0]['reviewed']} of the {e['n_disagreements']} disagreements are "
+             "still the assistant's and unconfirmed." if rev else
              "The author's own reading of the individually sorted cases will be reported separately when it exists."))
 
 
@@ -423,8 +430,9 @@ def _denial(m) -> str:
             f"{pct(d['relief_rate_denied'])} with it, {pct(d['relief_rate_other'])} without), and judge v1 agreed "
             f"with the record on {d['v1_agrees_among_denied']} of those {d['n_denied']} "
             f"({d['v1_agrees_among_denied_relief']} of them closed with relief). That the record often turns on "
-            "evidence outside the complaint is a hypothesis here, which the blind human labels are meant to test; "
-            "it is not a finding.")
+            "evidence outside the complaint is a hypothesis here, which the blind human labels " +
+            ("test (see the human-label section)" if m["human"]["annotators"] else "are meant to test") +
+            "; it is not a finding.")
 
 
 def b_error_groups(m):
@@ -439,7 +447,9 @@ def b_error_groups(m):
                      if ex else ""))
     return (f"Judge v1 disagreed with the record on {e['n_disagreements']} of {e['n_dev']} DEV complaints. "
             f"{_who_read(m)}\n\n{e['n_read']} disagreements were sorted one by one into a three-way reading:\n\n" +
-            table(("Reading (drafted, not yet confirmed by the author)", "Cases", "Example"), rows) +
+            table(("Reading as drafted (the author's review of each case is in the human detail section)"
+                   if any(r["error_review"]["reviewed"] for r in m["human"]["annotators"].values())
+                   else "Reading (drafted, not yet confirmed by the author)", "Cases", "Example"), rows) +
             "\n\n" + _denial(m))
 
 
@@ -1131,6 +1141,7 @@ def accept_post_run_changes(m: dict) -> dict:
 
 BLOCKS = {            # every block, in the order of results/report.md
     "first_screen": F.b_first_screen,
+    "who": F.b_who,
     "headline": b_headline,
     "practice": b_practice,
     "exploratory": F.b_exploratory,
@@ -1163,7 +1174,7 @@ BLOCKS = {            # every block, in the order of results/report.md
     "deviation_facts": b_deviation_facts,
     "data_licence": F.b_data_licence,
 }
-README_BLOCKS = ("first_screen", "headline", "practice", "inputs", "human", "freeze_record",
+README_BLOCKS = ("first_screen", "who", "headline", "practice", "inputs", "human", "freeze_record",
                  "deviation_facts", "data_licence")   # the README must contain at least these
 
 

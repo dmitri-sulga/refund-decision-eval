@@ -7338,26 +7338,26 @@
    {
     "file": "docs/deviations.md",
     "frozen_sha256": null,
-    "sha256": "9a04e31735a0ebb02706b7f3bb3412f0fac2df3037126d7ea2f996ddde74d33a",
-    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator."
+    "sha256": "927b524d95abbb1148b9b229a92dd9077f6a74801c1e2d6aa88e182548a288b4",
+    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out."
    },
    {
     "file": "src/judge/frontpage.py",
     "frozen_sha256": null,
-    "sha256": "13c0189a26bb5e62a50ad0a092f5cb749e266c7ea9a137914b7d8a35e098f9de",
-    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block."
+    "sha256": "d651ee9b8d557f626616b40f1cbba26af599091ca20609914fb87ef5137fd13e",
+    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense."
    },
    {
     "file": "src/judge/posthoc.py",
     "frozen_sha256": null,
-    "sha256": "22d96f292eff9c6b2e8e465a677e00de7080e17832efed6102898d472f2f0f87",
-    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim."
+    "sha256": "3964071fbe36f75b6a82f5b3b6b185c2cbf81c4f967e69cac777091a6ad6dce4",
+    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim. Fourth change (after the blind labels were locked): the longest single time record, the range of the eight systems' kappa against the record on the person's decided cases and on the held-out split, and the decided labels per half with the half-width of each paired kappa interval on the evaluation half (for the v3 decision); descriptive, from figures already computed. None decides a frozen claim."
    },
    {
     "file": "src/judge/report.py",
     "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-    "sha256": "1a32e65eb49f5e85b2c42b9d4300d681ce41c9c8d99af93c61ca3327f27355ef",
-    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file."
+    "sha256": "0fd6281dce80f5120c3bb61a2aec884c2c98368b21bf0b673ee3b9c8d4ade879",
+    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README."
    }
   ],
   "problems": [],
@@ -12353,6 +12353,22 @@
   },
   "human": {
    "owner": {
+    "kappa_ranges_vs_record": {
+     "held_out": {
+      "max": 0.35368,
+      "max_system": "issuer_rate",
+      "min": 0.085282,
+      "min_system": "v1",
+      "n": 8
+     },
+     "same_decided_cases": {
+      "max": 0.467391,
+      "max_system": "issuer_rate",
+      "min": 0.032258,
+      "min_system": "v1",
+      "n": 8
+     }
+    },
     "paired_sensitivity": {
      "all": {
       "v1_minus_tfidf_lr": {
@@ -12640,13 +12656,25 @@
      }
     ],
     "seconds": {
+     "max": 15161.8,
      "median": 58.3,
      "n": 100,
      "p25": 36.55,
      "p75": 111.75,
      "under_30": 16
     },
-    "translation_shown": 100
+    "translation_shown": 100,
+    "v3_decision": {
+     "decided_per_half": {
+      "calibration": 28,
+      "evaluation": 28
+     },
+     "evaluation_paired_kappa_half_width": {
+      "v1_minus_tfidf_lr": 0.410753,
+      "v2_minus_tfidf_lr": 0.373209,
+      "v2_minus_v1": 0.406008
+     }
+    }
    }
   },
   "integrity": {

@@ -89,7 +89,12 @@ def test_first_screen_fits_in_the_first_twelve_lines_of_the_readme():
         assert phrase in head, phrase
     for phrase in ("the best system", "+3.6", "quiet", "coin toss."):    # post-hoc pick and unmeasured causes
         assert phrase not in head, phrase
-    assert len(lines) <= 170
+    # The cap was 170 while the human-label block was a 5-line placeholder. The locked labels add the registered
+    # output once (the person against the record, the systems against the person, the paired differences, the
+    # check of the two readings: 35 lines), a 4-line summary in the held-out section and the markers of the
+    # 'who' block; nothing else grew. The cap is the length that needs, so any repeat of a table fails it.
+    assert len(lines) <= 200
+    assert sum(ln.startswith("| Person (blind") for ln in lines) == 1      # the person's table prints once
 
 
 def test_the_registered_check_of_the_two_readings_flags_a_sign_change_or_a_crossing_of_zero():

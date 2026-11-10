@@ -412,8 +412,10 @@ def _who_read(m) -> str:
             f"used at {t('v2_prompt_first_used')} and the category file was last written at "
             f"{t('category_file_last_written')}: the v2 prompt rests on a machine pass of minutes over these "
             "cases, not on a person's reading. " +
-            (f"After the blind labels were locked, the author read the {rev[0]['reviewed']} of the {rev[0]['total']} "
-             f"individually sorted cases on a second screen: {rev[0]['confirmed']} drafted readings confirmed, "
+            (f"After the blind labels were locked, the author read " +
+             (f"all {rev[0]['total']}" if rev[0]["reviewed"] == rev[0]["total"] else
+              f"{rev[0]['reviewed']} of the {rev[0]['total']}") +
+             f" individually sorted cases on a second screen: {rev[0]['confirmed']} drafted readings confirmed, "
              f"{len(rev[0]['changed'])} changed (case by case in the human detail section). The drafted readings of "
              f"the other {e['n_disagreements'] - rev[0]['reviewed']} of the {e['n_disagreements']} disagreements are "
              "still the assistant's and unconfirmed." if rev else

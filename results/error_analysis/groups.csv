@@ -1,0 +1,4 @@
+group,label
+model_wrong,Model wrong: the judge misread the narrative or misapplied its own rubric
+record_questionable,"Recorded decision questionable or discretionary: the company paid a claim the rubric refuses, or reversed its own earlier answer"
+undecidable,"Not decidable from the text: the outcome turns on evidence the narrative does not contain (the issuer's investigation, a pending dispute, missing facts)"

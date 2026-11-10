@@ -1,0 +1,12 @@
+{
+ "n_train": 8000,
+ "chosen": {
+  "C": 1.0,
+  "class_weight": "balanced"
+ },
+ "fit_seconds": 6.67,
+ "keyword_rule_ms_per_item": 0.132,
+ "cv_select_plus_fit_seconds": 174.9,
+ "predict_ms_per_item_batched": 0.4742,
+ "predict_ms_per_item_one_by_one": 1.417
+}

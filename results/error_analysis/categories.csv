@@ -1,0 +1,12 @@
+category,label,fix
+issuer_already_denied,"Issuer had already investigated and turned the cardholder down; the complaint contests that decision","Kept as a fact (issuer_status), not a rule: on TRAIN a prior denial did not separate outcomes"
+investigation_pending,"Dispute or fraud claim still open, or only just filed","Kept as a fact (issuer_status), not a rule: on TRAIN, pending investigations went with slightly more relief"
+vague_or_silent,"Too vague to identify the transaction, or silent on what the issuer did","Rubric: short or vague narratives ended in relief less often (checked on TRAIN); detail fact"
+already_credited,"Money already credited, or the issuer already handling the fraud","Kept as a fact (issuer_status), no rule"
+statement_mechanics,"Statement mechanics read as errors (pending authorisations, balance moved to a replacement card)","No change: too few cases to justify a rule"
+issuer_error_missed,"Judge missed a specific issuer mistake or procedural failure","Rubric names issuer mistakes as a relief signal; issuer_error fact"
+company_goodwill,"Company paid a small or arguable claim that the rubric would refuse","Rubric: small disputed amounts ended in relief more often (checked on TRAIN)"
+judge_misread,"Judge misread the narrative or invented a rule (for example an exclusion for dental work)","Rubric: use only what the narrative says, no invented rules"
+service_quality,"Dissatisfaction with a service that was delivered","Rubric: service-quality complaints ended in relief less often"
+not_a_money_request,"Main request is not money (remove an account, issue hardship letters)","Kept as a fact (ask), no rule"
+company_reversed_denial,"Issuer had turned the cardholder down but paid after the regulator complaint","No change: the mirror image of the largest category, not predictable from the text"

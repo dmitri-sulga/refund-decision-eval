@@ -57,6 +57,17 @@ def test_integrity_fails_on_a_changed_answer_file_or_gist_hash(monkeypatch):
     assert any("gist" in p for p in P.integrity(m)["problems"])
 
 
+def test_integrity_covers_the_labelled_answers_once_labels_are_locked(monkeypatch):
+    m = {"frozen": {"sha256": P.GIST["revisions"][-1]["frozen_sha256"]},
+         "test": {"commit": P.GIST["revisions"][-1]["commit"]}, "human": {"annotators": {"owner": {}}}}
+    assert P.integrity(m)["problems"] == []
+    f = "results/cache/responses.jsonl"
+    monkeypatch.setitem(P.LABELLED_RUN_FILES, f, (P.LABELLED_RUN_FILES[f][0], "0" * 64))
+    assert any("labelled-run commit" in p for p in P.integrity(m)["problems"])
+    m["human"]["annotators"] = {}                       # before the lock the labelled answers did not exist
+    assert P.integrity(m)["problems"] == []
+
+
 def test_a_file_added_after_the_freeze_is_accepted_only_when_recorded(tmp_path, monkeypatch):
     from judge import freeze
 

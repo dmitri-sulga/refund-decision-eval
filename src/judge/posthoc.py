@@ -52,6 +52,12 @@ RUN_FILES = {
     "results/cache/replays.jsonl": (1617642, "f96418534474e7749aed6c7f63eececba8d083394d5108f8f0dbd7753f3db2fa"),
     "results/cache/sent.jsonl": (78604, "630f3bb19cd364fd8b58c649ff43c5e3a6393de8413591e40bed06832067e81e"),
 }
+# the judges' answers for the labelled sample, appended after the lock and committed in 7194269 (fourth change):
+# the response cache as it was at that commit, the run-commit bytes above included
+LABELLED_RUN_COMMIT = "7194269"
+LABELLED_RUN_FILES = {
+    "results/cache/responses.jsonl": (2924507, "8f4a66c923a8b3a3766c5d1e83294de373cd38b9846fa585afe6639430b8f250"),
+}
 
 # Gaming the TF-IDF baseline (no model call). Two sentences name card issuers: the first names four
 # issuers whose names are among the twelve TF-IDF features weighted most towards relief in the report,
@@ -337,12 +343,19 @@ def integrity(m) -> dict:
         data = (C.ROOT / f).read_bytes()
         if len(data) < n or hashlib.sha256(data[:n]).hexdigest() != sha:
             problems.append(f"{f}: the answers recorded at the run commit {RUN_COMMIT} were changed")
+    if (m.get("human") or {}).get("annotators"):          # the labelled answers exist only after the lock
+        for f, (n, sha) in LABELLED_RUN_FILES.items():
+            data = (C.ROOT / f).read_bytes()
+            if len(data) < n or hashlib.sha256(data[:n]).hexdigest() != sha:
+                problems.append(f"{f}: the answers recorded at the labelled-run commit {LABELLED_RUN_COMMIT} were changed")
     last = GIST["revisions"][-1]
     frozen, marker = m.get("frozen") or {}, m.get("test") or {}
     if frozen.get("sha256") != last["frozen_sha256"] or marker.get("commit") != last["commit"]:
         problems.append("the frozen file or the run commit differs from the hashes recorded in the gist")
     return {"problems": problems, "gist": GIST, "run_commit": RUN_COMMIT,
-            "run_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in RUN_FILES.items()}}
+            "run_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in RUN_FILES.items()},
+            "labelled_run_commit": LABELLED_RUN_COMMIT,
+            "labelled_run_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in LABELLED_RUN_FILES.items()}}
 
 
 def sub_issues(S) -> dict:

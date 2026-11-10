@@ -898,7 +898,8 @@ def b_human(m):
                    ". The recorded times also run while the page is open between labels, so they include the "
                    "annotator's breaks" + (f" (the longest single record is {s['max'] / 60:.0f} minutes; {AFTER_LOCK})"
                                            if s and "max" in s else "") +
-                   f"; their sum, {r['total_minutes']:.0f} minutes, is therefore not the time spent labelling.")
+                   f"; their sum, {r['total_minutes']:.0f} minutes, is therefore not the time spent labelling." +
+                   _labelled_anchor(m))
         if "person_vs_recorded" not in f:
             out.append("\nToo few decided cases for agreement figures.")
             continue
@@ -910,6 +911,18 @@ def b_human(m):
     out.append("\n" + _v3(m) + " The author's own reading of each sorted disagreement, from the second screen, is in "
                "the full report.")
     return "\n".join(out)
+
+
+def _labelled_anchor(m) -> str:
+    """The bytes of the judges' answers for the labelled sample, as committed after the lock."""
+    ig = (m.get("posthoc") or {}).get("integrity") or {}
+    files = ig.get("labelled_run_files")
+    if not files:
+        return ""
+    return (" The judges' answers for these complaints were added to the response cache after the lock and committed "
+            f"in `{ig['labelled_run_commit']}`: " + "; ".join(f"`{k}` {v['bytes']:,} bytes, SHA-256 `{v['sha256'][:16]}...`"
+                                                         for k, v in files.items()) +
+            "; `make check` fails if these bytes change.")
 
 
 def _cannot_tell(f, r) -> str:

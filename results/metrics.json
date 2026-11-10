@@ -7338,20 +7338,20 @@
    {
     "file": "docs/deviations.md",
     "frozen_sha256": null,
-    "sha256": "927b524d95abbb1148b9b229a92dd9077f6a74801c1e2d6aa88e182548a288b4",
+    "sha256": "cd40cc4e22282400991f2efe1fe24ae46c0c72b6503fde2af57f56c5975543a1",
     "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out."
    },
    {
     "file": "src/judge/frontpage.py",
     "frozen_sha256": null,
-    "sha256": "d651ee9b8d557f626616b40f1cbba26af599091ca20609914fb87ef5137fd13e",
-    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense."
+    "sha256": "c53e2ac9878d530241cd9b4e0a0fb7bc480841f0cdb0adf9e73a77abde01f78e",
+    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers."
    },
    {
     "file": "src/judge/posthoc.py",
     "frozen_sha256": null,
-    "sha256": "3964071fbe36f75b6a82f5b3b6b185c2cbf81c4f967e69cac777091a6ad6dce4",
-    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim. Fourth change (after the blind labels were locked): the longest single time record, the range of the eight systems' kappa against the record on the person's decided cases and on the held-out split, and the decided labels per half with the half-width of each paired kappa interval on the evaluation half (for the v3 decision); descriptive, from figures already computed. None decides a frozen claim."
+    "sha256": "83b26e63b3ba2e835e631c4ffc3e16e7ef4ec77c561deb5b3b4e9d3110942eb8",
+    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim. Fourth change (after the blind labels were locked): the longest single time record, the range of the eight systems' kappa against the record on the person's decided cases and on the held-out split, and the decided labels per half with the half-width of each paired kappa interval on the evaluation half (for the v3 decision); descriptive, from figures already computed. None decides a frozen claim. Also in the fourth change: the response cache as committed in 7194269, with the judges' answers for the labelled sample, is anchored like the run-commit files; the check fails if those bytes change."
    },
    {
     "file": "src/judge/report.py",
@@ -12694,6 +12694,13 @@
     ],
     "updated_at": "2026-11-10T08:16:37Z",
     "url": "https://gist.github.com/dmitri-sulga/dc5fd5e1dd67532a64698ce11b0d3ea5"
+   },
+   "labelled_run_commit": "7194269",
+   "labelled_run_files": {
+    "results/cache/responses.jsonl": {
+     "bytes": 2924507,
+     "sha256": "8f4a66c923a8b3a3766c5d1e83294de373cd38b9846fa585afe6639430b8f250"
+    }
    },
    "problems": [],
    "run_commit": "81f37e5",

@@ -46,6 +46,13 @@ PENDING = "_Not run yet._"
 
 
 # ----------------------------------------------------------------- blocks
+def _auc_b() -> int:
+    import inspect
+
+    from . import metrics as M
+    return inspect.signature(M.bootstrap_stat).parameters["B"].default
+
+
 def b_settings(m):
     s = m["settings"]
     env = m.get("environment") or {}
@@ -59,7 +66,9 @@ def b_settings(m):
         ("Split sizes (DEBUG / DEV / TEST / TRAIN)", " / ".join(str(s['sizes'][k]) for k in
                                                                ("debug", "dev", "test", "train"))),
         ("Split seed", s["split_seed"]),
-        ("Bootstrap", f"{s['bootstrap_b']} resamples, seed {s['bootstrap_seed']}, percentile 95% CI"),
+        ("Bootstrap", f"{s['bootstrap_b']} resamples for kappa, accuracy, paired differences and coverage; "
+                      f"{_auc_b()} for AUC intervals (the default of `metrics.bootstrap_stat`, as frozen); seed "
+                      f"{s['bootstrap_seed']}, percentile 95% CI"),
         ("Automation target", f"agreement >= {s['target_agreement']:.2f} on automated DEV cases, "
                               f"at least {s['min_automated']} automated"),
         ("Gaming subset", f"{s['n_gaming']} DEV complaints x {s['n_attacks']} rewrites, seed {s['gaming_seed']}"
@@ -242,17 +251,13 @@ def b_summary(m):
                if name in rank else "n/a")
         held = kappa_cell(t["results"][name]) if t and name in t["results"] else "not run"
         rows.append((LABELS[name], READS[name], kappa_cell(r), auc, auto, held, time_per_1000(m, name)))
-    people = [(who, r) for who, r in m["human"]["annotators"].items() if "person_vs_recorded" in r["all"]]
-    for who, r in people:
-        f = r["all"]
-        rows.append((f"Person, blind (one annotator, {f['decided']} decided TRAIN cases; see below)",
-                     "header + narrative", ci(f["person_vs_recorded"]["kappa"]), "n/a", "n/a", "n/a",
-                     f"about {r['median_seconds'] * 1000 / 3600:.0f} h (median labelling time)"))
-    if not people:
-        rows.append(("Person, blind (one annotator)", "header + narrative", "not labelled yet", "", "n/a", "n/a", ""))
+    people = F._people(m)
+    tail = ("\n\n" + F.person_table(m) if people else
+            "\n\nThe blind human labels are a TRAIN sample, so the person never appears in a DEV column; see the "
+            "human-label sections.")
     return head + "\n" + table(("System", "Reads", "DEV kappa [95% CI]", "DEV AUC: all pairs / same issuer",
                                 "Automated on DEV at the planned target", "Held-out kappa [95% CI]",
-                                "Time per 1,000 decisions"), rows)
+                                "Time per 1,000 decisions"), rows) + tail
 
 
 SUMMARY_ROWS = ("majority", "keyword_rule", "company_rule", "issuer_rate", "tfidf_masked", "tfidf_lr", "v1", "v2",
@@ -378,7 +383,7 @@ def b_lead(m):
 def b_deviation_facts(m):
     i, f = m["issuer"], m["data"]["funnel"]
     g = i["first_commit_grid"]
-    return (f"Numbers behind the list above: the first commit's grid would have chosen C = {g['chosen']['C']} without "
+    return (f"Numbers behind the deviations list: the first commit's grid would have chosen C = {g['chosen']['C']} without "
             f"class weighting, DEV kappa {num(g['dev_kappa'])}, against {num(m['dev']['tfidf_lr']['kappa']['value'])} "
             f"for the grid that follows the plan text. Label cross-check against the live API: "
             f"{f['dropped_metadata_mismatch_vs_live_api']} of {f['slice_with_narrative']:,} complaints with a narrative "
@@ -506,7 +511,12 @@ def _gaming_notes(m) -> list[str]:
              for n in names}
     out.append("Against the neutral-sentence control on the same complaints (exact McNemar test, p below 0.05), "
                "the rewrites that flip more decisions are: " +
-               "; ".join(f"{SHORT[n]}: {', '.join(above[n]) or 'none'}" for n in names) + ".")
+               "; ".join(f"{SHORT[n]}: {', '.join(above[n]) or 'none'}" for n in names) + ". 'None' is a statement "
+               "about power, not robustness: " + "; ".join(
+                   f"{SHORT[n]} starts from {g['n_items'] - g['systems'][n]['base_relief']} denials and the fake note "
+                   f"turned {g['systems'][n]['fake_case_note']['to_relief']} of them into relief"
+                   for n in names if not above[n]) + ". Ten tests are uncorrected here; the exploratory section gives "
+               "the Holm correction.")
     d = m["dev"]
     if "guarded" in names:
         out.append(f"The guarded pipeline answers relief for {d['guarded']['confusion']['relief_relief'] + d['guarded']['confusion']['none_relief']} "
@@ -785,7 +795,7 @@ def b_automation(m):
                          pct(at["majority_agreement_on_auto"])))
     out = ["Operating points chosen on DEV with the pre-registered rule (agreement on automated "
            "cases at or above the target; see settings). Everything not automated goes to a human.\n",
-           table(("System", "Confidence", "Threshold", "Automated", "Agreement on automated [95% CI]",
+           table(("System", "Confidence", "Threshold", "Automated", "Agreement on automated [95% percentile-bootstrap CI]",
                   "Automated no-relief / relief", "Agreement of 'always no relief' on the same cases"), rows)]
     levels = sorted({lv["level"] for s in a.values() for r in s.values() for lv in r["fixed_coverage"]})
     rows = []
@@ -880,8 +890,10 @@ def b_frozen(m):
     calls = len(c["final_versions"]) * m["base_rates"]["test"]["n"]
     out = [f"Frozen in `results/frozen.json` (SHA-256 `{f['sha256']}`) before any held-out complaint was sent "
            "to the model. The held-out report reads its thresholds and decision rules from that file. A local "
-           "file proves nothing about when it was written: the commit that contains it is to be published "
-           "before the run.\n",
+           "file proves nothing about when it was written: " +
+           ("the commit was not published before the run, but its hash and the file's SHA-256 were written to a "
+            "GitHub gist before the run (see Freeze record)." if m.get("test") else
+            "the commit that contains it is to be published before the run.") + "\n",
            table(("System", "Confidence", "Threshold for the held-out run", "DEV cases automated",
                   "DEV agreement on automated"), rows),
            f"\nJudge versions to run on the held-out split: {', '.join(c['final_versions'])} "
@@ -900,8 +912,9 @@ def b_frozen(m):
            f"\nFiles whose SHA-256 is recorded and checked before the run ({len(c['files'])}): " +
            ", ".join(f"`{p}`" for p in c["files"]) + "."]
     for x in f.get("post_run_changes") or []:
+        was = f"`{x['frozen_sha256'][:16]}...`" if x["frozen_sha256"] else "none, added after the freeze"
         out.append(f"\nChanged after the held-out run and accepted only because `results/post_run_changes.json` "
-                   f"records it: `{x['file']}` (SHA-256 at the freeze `{x['frozen_sha256'][:16]}...`, now "
+                   f"records it: `{x['file']}` (SHA-256 at the freeze {was}, now "
                    f"`{x['sha256'][:16]}...`): {x['what']}")
     return "\n".join(out)
 
@@ -952,8 +965,10 @@ def b_test_results(m):
                    "; ".join(f"{LABELS[v]} repeated its decision in {r['same_decision']}/{r['n']} = "
                              f"{pct(r['same_decision_rate'])} [{pct(r['same_decision_ci'][0])}, "
                              f"{pct(r['same_decision_ci'][1])}], kappa between the two passes "
-                             f"{num(r['kappa_between_runs'], 2)}, largest shift in P(relief) {num(r['shift']['max'], 2)}"
-                             for v, r in t["noise"].items()) + ".")
+                             f"{num(r['kappa_between_runs'], 2)}, largest shift in P(relief) {num(r['shift']['max'], 2)}, "
+                             f"byte-identical answers {r['byte_identical']}/{r['n']}"
+                             for v, r in t["noise"].items()) + ". The DEV retest above ran while the laptop was short "
+                   "of memory; the held-out noise pass did not, so it measures a quieter machine.")
     else:
         out.append("\nThe noise pass has not finished yet.")
     return "\n".join(out)
@@ -969,8 +984,12 @@ def b_estimates(m):
             return "nothing automated"
         if c["n_auto"] == 0:
             return f"0/{c['n']}"
+        from .metrics import wilson
+        k = round(c["agreement"]["value"] * c["n_auto"])
+        lo, hi = wilson(k, c["n_auto"])
         return (f"{c['n_auto']}/{c['n']} = {pct(c['coverage'])} automated, agreement "
-                f"{ci(c['agreement'], pct)} (always-no-relief on the same cases: {pct(c['majority'])})")
+                f"{ci(c['agreement'], pct)} (percentile bootstrap; Wilson [{pct(lo)}, {pct(hi)}]) "
+                f"(always-no-relief on the same cases: {pct(c['majority'])})")
 
     if e:
         out.append(table(("System", "Realistic: TEST, threshold frozen on DEV",
@@ -1068,323 +1087,25 @@ def b_cost(m):
 
 
 # ------------------------------------------------- first screen (added after the held-out run)
-SHORT_LABELS = {
-    "majority": "Always no relief",
-    "keyword_rule": "Keyword rule (added later)",
-    "company_rule": "Company rule (planned)",
-    "issuer_rate": "Issuer relief rate (added later)",
-    "tfidf_masked": "TF-IDF, issuer names masked (added later)",
-    "tfidf_lr": "TF-IDF + logistic regression",
-    "v1": "LLM judge v1 (plain rubric)",
-    "v2": "LLM judge v2 (predicts the record)",
-    "guarded": "Guarded pipeline (v2 facts -> fact model)",
-}
-READS_SHORT = {"majority": "nothing", "keyword_rule": "narrative", "company_rule": "issuer only",
-               "issuer_rate": "issuer only", "tfidf_masked": "text, issuer names masked", "tfidf_lr": "text",
-               "v1": "text", "v2": "text", "guarded": "text"}
+# The post-run presentation lives in frontpage.py and the exploratory analyses in posthoc.py; both
+# were added after the held-out run and are recorded in results/post_run_changes.json.
+from . import frontpage as F  # noqa: E402  (imported here: it reads the helpers above at call time)
 
-
-ATTACK_WORDS = {"promise": "claimed promise", "emotion": "emotional pressure", "legal_threat": "legal threat",
-                "injection": "instruction to the reviewer", "fake_case_note": "fake internal note"}
-
-
-def _sg(x: dict) -> str:
-    return ci(x, lambda v: f"{v:+.3f}")
-
-
-def _relation(k: dict) -> str:
-    return "is below" if k["hi"] < 0 else "is above" if k["lo"] > 0 else "is not distinguishable from"
-
-
-def _wilson(at: dict) -> str:
-    return f"Wilson [{pct(at['agreement_wilson'][0])}, {pct(at['agreement_wilson'][1])}]"
-
-
-def _claim_status(c: dict) -> str:
-    """met / not met / undetermined, read off the verdict that the frozen rule produced."""
-    v = c["verdict"]
-    if c["id"] == "v2_vs_v1":
-        return "met" if v == "v2 replaces v1" else "not met"
-    if c["id"] == "tfidf_operating_point":
-        return ("met" if "meets the target" in v and "not shown" not in v else
-                "not met" if "misses the target" in v else "undetermined")
-    if c["id"] in ("judge_vs_baseline", "within_issuer"):
-        return "undetermined" if ("not distinguishable" in v or "not demonstrated" in v) else "decided"
-    return "met"
-
-
-def _claims_list(m) -> str:
-    t, st = m["test"], m["settings"]
-    cl = t["claims"]
-    who = {"guarded": "the guarded pipeline", "v1": "judge v1", "v2": "judge v2"}
-    out = []
-    for c in cl:
-        if c["id"] == "v2_vs_v1":
-            out.append(f"- *v2 replaces v1* (accepted only if the paired kappa difference lies entirely above zero): "
-                       f"**{_claim_status(c)}**, {_sg(c['interval'])}; in the rule's words, {c['verdict']}.")
-    jb = [c for c in cl if c["id"] == "judge_vs_baseline"]
-    if jb:
-        dec = [c for c in jb if _claim_status(c) == "decided"]
-        und = [c for c in jb if _claim_status(c) != "decided"]
-        parts = []
-        if dec:
-            parts.append("**decided:** " + "; ".join(f"{c['verdict']} ({_sg(c['interval'])})" for c in dec) + ".")
-        if und:
-            parts.append("**Undetermined**, 'not distinguishable' (the interval includes zero): " + "; ".join(
-                f"{c['verdict'].replace(' is not distinguishable from ', ' against ')} ({_sg(c['interval'])})"
-                for c in und) + ".")
-        out.append(f"- *Each judge against TF-IDF, the issuer relief rate and the company rule* ({len(jb)} paired "
-                   "kappa differences): " + " ".join(parts))
-    wi = [c for c in cl if c["id"] == "within_issuer"]
-    if wi:
-        st_wi = {_claim_status(c) for c in wi}
-        if len(st_wi) == 1 and all("not demonstrated" in c["verdict"] for c in wi):
-            out.append(f"- *TF-IDF orders complaints better than the judge within one issuer*: **{st_wi.pop()}** for "
-                       "both versions, in the rule's words 'the lead of TF-IDF is not demonstrated once the issuer is "
-                       "held fixed' (AUC difference " + ", ".join(
-                           f"{_sg(c['interval'])} against {c['verdict'].split(' over ')[1].split(' is ')[0]}"
-                           for c in wi) + ").")
-        else:
-            out.append("- *TF-IDF orders complaints better than the judge within one issuer*: " + "; ".join(
-                f"**{_claim_status(c)}**, {c['verdict']} (AUC difference {_sg(c['interval'])})" for c in wi) + ".")
-    at = (t["automation"].get("tfidf_lr") or {}).get("at_dev_threshold")
-    for c in cl:
-        if c["id"] == "tfidf_operating_point":
-            extra = (f" ({at['n_auto']}/{at['n']} automated, agreement {pct(at['agreement']['value'])}, "
-                     f"{_wilson(at)}; always answering no relief agrees on {pct(at['majority_agreement_on_auto'])} "
-                     "of the same cases)") if at and at["n_auto"] else ""
-            out.append(f"- *The TF-IDF threshold frozen on DEV meets the {pct(st['target_agreement'], 0)} agreement "
-                       f"target on held-out cases*: **{_claim_status(c)}**, {c['verdict'].split(': ', 1)[-1]}{extra}.")
-        if c["id"] == "llm_automation":
-            none = [n for n, r in t["automation"].items() if r["threshold"] is None]
-            out.append(f"- *The LLM judge automates nothing*: **met**, by construction (no DEV threshold reached the "
-                       f"target for {', '.join(who.get(n, n) for n in sorted(none))}).")
-    if t["noise"]:
-        out.append("- *Noise pass* (no decision rule; never scored against the record): **done**; " + ", ".join(
-            f"judge {v} repeated {r['same_decision']}/{r['n']} of its decisions" for v, r in t["noise"].items()) + ".")
-    return "\n".join(out)
-
-
-def _automated_cell(t: dict, name: str) -> str:
-    a = t["automation"].get(name)
-    if a is None:
-        return "not assessed"
-    at = a["at_dev_threshold"]
-    if at is None:
-        return "none (no DEV threshold)"
-    if at["n_auto"] == 0:
-        return f"0/{at['n']}"
-    return f"{at['n_auto']}/{at['n']}, agreement {pct(at['agreement']['value'])} ({_wilson(at)})"
-
-
-def _glance_table(m) -> str:
-    t, d = m["test"], m["dev"]
-    rows = []
-    for name in SUMMARY_ROWS:
-        if name not in d:
-            continue
-        held = kappa_cell(t["results"][name]) if name in t["results"] else "not run"
-        rows.append((SHORT_LABELS[name], READS_SHORT[name], held, kappa_cell(d[name]), _automated_cell(t, name),
-                     time_per_1000(m, name)))
-    people = [(who, r) for who, r in m["human"]["annotators"].items() if "person_vs_recorded" in r["all"]]
-    for who, r in people:
-        f = r["all"]
-        rows.append((f"Person, blind (one annotator, {f['decided']} decided TRAIN cases; see below)", "text", "n/a",
-                     "TRAIN sample: " + ci(f["person_vs_recorded"]["kappa"]), "n/a",
-                     f"about {r['median_seconds'] * 1000 / 3600:.0f} h (median labelling time)"))
-    if not people:
-        rows.append(("Person, blind (one annotator)", "text", "n/a", "not labelled yet", "n/a", ""))
-    b = m["base_rates"]
-    return (table(("System", "Reads", f"Held-out kappa [95% CI], n={b['test']['n']}",
-                   f"DEV kappa [95% CI], n={b['dev']['n']}", "Automated on held-out at the frozen threshold",
-                   "Time per 1,000 decisions"), rows) +
-            f"\n\nRelief base rate: {pct(b['test']['base_rate'])} held-out, {pct(b['dev']['base_rate'])} DEV. "
-            "Text: the product and issue fields and the narrative the consumer wrote; issuer only: the issuer's "
-            f"relief rate on the {b['train']['n']:,} TRAIN complaints. DEV was used for every choice after the "
-            "first prompt, so the DEV column is optimistic.")
-
-
-def b_headline(m):
-    """The held-out result first, then the frozen claims and a compact table."""
-    t = m.get("test")
-    if not t:
-        return b_lead(m)
-    r, d, st = t["results"], m["dev"], m["settings"]
-    best = max((n for n in SUMMARY_ROWS if n in r), key=lambda n: r[n]["kappa"]["value"])
-    out = [f"**Held-out result ({t['n']} complaints, scored once, after the method and every claim were frozen).** "
-           "The highest kappa against the recorded decision comes from "
-           + ("looking up how often the issuer pays, without reading the complaint" if best == "issuer_rate"
-              else SHORT_LABELS[best]) +
-           f" (kappa {ci(r[best]['kappa'])}); TF-IDF reaches {ci(r['tfidf_lr']['kappa'])}, LLM judge v2 "
-           f"{ci(r['v2']['kappa'])}, LLM judge v1 {ci(r['v1']['kappa'])}."]
-    rel = {(v, b): _relation(r[f"{v}_minus_{b}"]["kappa"]) for v in ("v1", "v2") for b in ("tfidf_lr", "issuer_rate")}
-    if not any(x == "is above" for x in rel.values()):
-        words = {"is below": "is below both", "is not distinguishable from": "cannot be told apart from either"}
-        same = {v: rel[(v, "tfidf_lr")] if rel[(v, "tfidf_lr")] == rel[(v, "issuer_rate")] else None for v in ("v1", "v2")}
-        out.append(" Neither prompt is shown to do better than that lookup or than TF-IDF" +
-                   ("; " + ", ".join(f"judge {v} {words[same[v]]}" for v in ("v1", "v2")) if all(same.values()) else "")
-                   + " (paired differences in the claims below).")
-    at = (t["automation"].get("tfidf_lr") or {}).get("at_dev_threshold")
-    llm_none = all(t["automation"][n]["threshold"] is None for n in ("v1", "v2", "guarded") if n in t["automation"])
-    if llm_none and at and at["agreement_wilson"][0] < st["target_agreement"]:
-        out.append(f" No system is shown to decide alone at the planned {pct(st['target_agreement'], 0)} agreement "
-                   "target: the LLM configurations never had a qualifying threshold, and TF-IDF at its frozen "
-                   f"threshold automated {at['n_auto']}/{at['n']} at {pct(at['agreement']['value'])} agreement "
-                   f"({_wilson(at)}).")
-    dk, hk = d["v2_minus_v1"]["kappa"], r["v2_minus_v1"]["kappa"]
-    both_zero = dk["lo"] <= 0 <= dk["hi"] and hk["lo"] <= 0 <= hk["hi"]
-    out.append(f" DEV and held-out disagree on the revised prompt (v2 {ci(d['v2']['kappa'])} on DEV, "
-               f"{ci(r['v2']['kappa'])} held out; v2 minus v1 {_sg(dk)} and {_sg(hk)}). " +
-               ("Both paired intervals include zero, so neither split shows that one prompt beats the other, and "
-                "no DEV-to-held-out test was registered: the change is reported, not explained."
-                if both_zero else "No DEV-to-held-out test was registered."))
-    return "".join(out) + ("\n\n**Pre-registered held-out claims**, each with the outcome its rule in "
-                           "`results/frozen.json` dictates:\n\n" + _claims_list(m) + "\n\n" + _glance_table(m))
-
-
-def b_practice(m):
-    """The practitioner's reading; every statement carries the number it rests on."""
-    t = m.get("test")
-    if not t:
-        return PENDING
-    r, rk, c, g = t["results"], t["ranking"], m["cost"], m["gaming"]
-    st = m["settings"]
-    out = []
-    # 1. issuer against text
-    sy, df = rk["systems"], rk["differences"]
-    texts = [n for n in ("tfidf_lr", "tfidf_masked", "v1", "v2", "guarded") if n in sy]
-    wi = [sy[n]["within_issuer_auc"] for n in texts]
-    chance = all(x["lo"] <= 0.5 <= x["hi"] for x in wi)
-    masked = df.get("tfidf_masked_minus_tfidf_lr")
-    out.append(
-        f"- **The issuer explains the record at least as well as the text does.** A lookup of the issuer's TRAIN relief rate has "
-        f"held-out kappa {ci(r['issuer_rate']['kappa'])}, and TF-IDF "
-        + ("cannot be told apart from it in ordering complaints" if df["issuer_rate_minus_tfidf_lr"]["auc"]["lo"] <= 0 <= df["issuer_rate_minus_tfidf_lr"]["auc"]["hi"]
-           else "orders complaints differently") +
-        f" (AUC {num(sy['issuer_rate']['auc']['value'])} against {num(sy['tfidf_lr']['auc']['value'])}, difference "
-        f"{_sg(df['issuer_rate_minus_tfidf_lr']['auc'])})."
-        + (f" Masking issuer names in TF-IDF {'lowers' if masked['auc']['hi'] < 0 else 'changes'} its AUC "
-           f"(masked minus unmasked {_sg(masked['auc'])})." if masked else "") +
-        f" Within one issuer, the text systems reach AUC {num(min(x['value'] for x in wi), 2)} to "
-        f"{num(max(x['value'] for x in wi), 2)}" +
-        (", and every one of those intervals includes 0.5: no system that reads the text is shown to order "
-         "complaints from the same issuer better than chance." if chance else "."))
-    # 2. what the LLM adds
-    cmp = [(v, b) for v in ("v1", "v2") for b in ("issuer_rate", "tfidf_lr", "company_rule") if f"{v}_minus_{b}" in r]
-    above = [x for x in cmp if r[f"{x[0]}_minus_{x[1]}"]["kappa"]["lo"] > 0]
-    out.append(
-        "- **What the LLM adds over a lookup or TF-IDF:** "
-        + ("nothing that this sample can show. " if not above else "see the claims above. ") +
-        f"In {len(cmp)} paired comparisons with the issuer lookup, TF-IDF and the company rule, the judges are "
-        f"below in {sum(r[f'{v}_minus_{b}']['kappa']['hi'] < 0 for v, b in cmp)}, above in {len(above)}, and "
-        f"not distinguishable in the rest; within one issuer TF-IDF minus the judge is "
-        f"{_sg(df['tfidf_lr_minus_v1']['within_issuer_auc'])} (v1) and {_sg(df['tfidf_lr_minus_v2']['within_issuer_auc'])} "
-        "(v2) in AUC" + (", no lead shown in either direction." if all(
-            df[f"tfidf_lr_minus_{v}"]["within_issuer_auc"]["lo"] <= 0 <= df[f"tfidf_lr_minus_{v}"]["within_issuer_auc"]["hi"]
-            for v in ("v1", "v2")) else "."))
-    # 3. gaming
-    sv = g["systems"]
-    f = g.get("filter") or {}
-    sig = {n: [a for a in g["attacks"] if sv[n][a].get("vs_neutral", {}).get("p", 1) < 0.05] for n in sv}
-    v2n, v2i = sv["v2"]["fake_case_note"], sv["v2"]["injection"]
-    dg = m["dev"]["guarded"]["confusion"]
-    out.append(
-        f"- **Text supplied by the party who benefits** (gaming test, {g['n_items']} DEV complaints, one fixed "
-        f"sentence per rewrite): a fake internal note turned {v2n['to_relief']} of {v2n['n_base_no_relief']} of judge "
-        f"v2's denials into relief, an instruction to the reviewer {v2i['to_relief']} of {v2i['n_base_no_relief']}; "
-        f"rewrites that flip more decisions than a neutral sentence does (exact McNemar, p below 0.05): for v2 "
-        f"{' and '.join(ATTACK_WORDS.get(a, a) for a in sig.get('v2', [])) or 'none'}, for v1 "
-        f"{' and '.join(ATTACK_WORDS.get(a, a) for a in sig.get('v1', [])) or 'none'}. The code filter "
-        f"caught {f.get('attacked_flagged', {}).get('injection', 0)}/{g['n_items']} injected instructions and "
-        f"{f.get('attacked_flagged', {}).get('fake_case_note', 0)}/{g['n_items']} fake notes; the guarded pipeline "
-        f"still flipped {sv['guarded']['fake_case_note']['flips']}/{g['n_items']} on the note and answers relief for "
-        f"only {dg['relief_relief'] + dg['none_relief']} of {m['dev']['guarded']['n']} DEV complaints, so its low flip "
-        "rate says little. " +
-        ("Only the prompt that asks the model to predict the record is moved by these rewrites more than by a "
-         "neutral sentence. " if sig.get("v2") and not sig.get("v1") else "") +
-        "Text written by the claimant is evidence to check, not an instruction: a claimed promise or internal "
-        "note has to be confirmed in the system of record, and a defence tuned to these templates overstates "
-        "robustness.")
-    # 4. repeatability
-    nz, rt = t["noise"], m.get("retest") or {}
-    out.append(
-        "- **Repeatability.** Every held-out request was sent a second time: " + "; ".join(
-            f"judge {v} repeated {x['same_decision']}/{x['n']} decisions, largest shift in P(relief) "
-            f"{num(x['shift']['max'], 2)}" for v, x in nz.items()) + ". On DEV, " + "; ".join(
-            f"judge {v} repeated {x['same_decision']}/{x['n']} with P(relief) moving by up to {num(x['shift']['max'], 2)}"
-            for v, x in rt.items()) +
-        ". The decisions are mostly stable, but a token probability that can move that far is not a stable "
-        "confidence near a threshold; the report is reproducible from cached answers, not by asking again.")
-    # 5. routing
-    people = [r for r in m["human"]["annotators"].values() if "person_vs_recorded" in r["all"]]
-    at = (t["automation"].get("tfidf_lr") or {}).get("at_dev_threshold")
-    llm_none = all(t["automation"][n]["threshold"] is None for n in ("v1", "v2", "guarded") if n in t["automation"])
-    if at and at["n_auto"]:
-        rest = at["n"] - at["n_auto"]
-        out.append(
-            "- **Routing in three outcomes, as far as the held-out data supports it.** *Decide automatically:* "
-            + ("nothing. " if at["agreement_wilson"][0] < st["target_agreement"] else "the TF-IDF slice below. ") +
-            f"The only system with a frozen threshold, TF-IDF, automated {at['n_auto']}/{at['n']} = "
-            f"{ci(at['coverage'], pct)} at {pct(at['agreement']['value'])} agreement, but {_wilson(at)} does not "
-            f"exclude falling below the {pct(st['target_agreement'], 0)} target"
-            + (", and the LLM configurations had no threshold at all" if llm_none else "") +
-            f". *A person approves:* that slice is the one measured candidate for a pre-filled proposal: "
-            f"{at['auto_no_relief']} proposed denials (the company paid in {at['wrong_no_relief']}) and "
-            f"{at['auto_relief']} proposed refunds (the company paid in "
-            f"{'all of them' if at['wrong_relief'] == 0 else at['auto_relief'] - at['wrong_relief']}); "
-            f"whether that saves a reviewer time was not measured. *Escalate:* the other {rest}/{at['n']} = "
-            f"{pct(rest / at['n'])} and every complaint the input filter flags; beyond the issuer's usual answer, "
-            "no system orders complaints demonstrably better than chance, so the data say nothing about which of "
-            "them a person should see first. " +
-            ("How one person reading the same text agrees with the record is in the blind-label section below "
-             "(a TRAIN sample, not the held-out split); no money cost was measured." if people else
-             "Not supported by any measurement here: whether a person reading the same text agrees with the "
-             "record more often (blind labels pending) and any money cost."))
-    # 6. cost and latency
-    out.append(
-        "- **Cost and latency per 1,000 decisions** (compute time on one laptop with a local model; no money "
-        f"cost was measured): issuer lookup or company rule, a table lookup; keyword rule "
-        f"{c['tfidf_lr']['keyword_rule_ms_per_item']:.1f} s; TF-IDF {c['tfidf_lr']['predict_ms_per_item_one_by_one']:.1f} s "
-        f"of CPU; judge v1 {c['v1']['hours_per_1000']:.1f} h (median {c['v1']['median_s']:.1f} s per decision, p90 "
-        f"{c['v1']['p90_s']:.1f} s); judge v2 and the guarded pipeline {c['v2']['hours_per_1000']:.1f} h (median "
-        f"{c['v2']['median_s']:.1f} s, p90 {c['v2']['p90_s']:.1f} s); a person: " +
-        (f"about {people[0]['median_seconds'] * 1000 / 3600:.0f} h at one annotator's median labelling time."
-         if people else "not measured yet."))
-    # 7. realistic against ceiling
-    e = {x["system"]: x for x in (m.get("estimates") or {}).get("rows", [])}.get("tfidf_lr")
-    lc = m["label_consistency"]
-    s = lc.get("same_company")
-    if e and e["realistic"] and at:
-        o, b = e["optimistic"], e["best_on_scored_split"]
-        out.append(
-            "- **Realistic estimate against the ceiling** (plan item 9). *Realistic*, the held-out split at the "
-            f"threshold frozen on DEV: TF-IDF automates {pct(e['realistic']['coverage'])} at "
-            f"{pct(e['realistic']['agreement']['value'])} agreement ({_wilson(at)}); the LLM configurations "
-            "automate nothing. *Optimistic*, DEV where the threshold was chosen: "
-            + (f"{pct(o['coverage'])} at {pct(o['agreement']['value'])}. " if o else "nothing. ") +
-            "*Ceiling for this system*, the best threshold chosen on the held-out split itself: "
-            + (f"{pct(b['coverage'])} at {pct(b['agreement']['value'])}. " if b else "nothing. ") +
-            (f"*Ceiling for any reader of the text*: near-identical narratives against the same company got the "
-             f"same recorded outcome in {pct(s['agreement'])} [{pct(s['agreement_ci'][0])}, {pct(s['agreement_ci'][1])}] "
-             f"of {s['pairs']} pairs, which would cap accuracy near {pct(s['accuracy_upper_bound'])} if the two outcomes "
-             f"were independent draws; they are not ({pct(lc['same_company_within_7_days']['agreement'])} within a "
-             f"week, {pct(lc['same_company_over_7_days']['agreement'])} further apart), so this is a rough proxy, "
-             "not a measured ceiling. " if s else "") +
-            f"Caveats: {at['n_auto']} automated held-out cases; the thresholds and prompts were chosen with DEV in view; the label is what the company did, not "
-            "what was right.")
-    return "\n".join(out)
+b_headline, b_practice = F.b_headline, F.b_practice
 
 
 # ------------------------------------------- changes after the held-out run (presentation only)
 POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
-PRESENTATION_FILES = ("src/judge/report.py",)     # the only frozen file a post-run change may touch
+# the only files a post-run change may touch: the presentation code, the exploratory module and the
+# deviations note (the last two did not exist at the freeze: their frozen hash is recorded as null)
+PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md")
 
 
 def accept_post_run_changes(m: dict) -> dict:
-    """After the held-out run the method can no longer be re-frozen. A later change to the
-    presentation code is accepted only when results/post_run_changes.json records it with the
-    file's hash at the freeze (as in results/frozen.json) and its hash now; every other
-    difference from the frozen method stays a problem and fails the check."""
+    """After the held-out run the method can no longer be re-frozen. A later change to a presentation
+    file is accepted only when results/post_run_changes.json records it with the file's hash at the
+    freeze (as in results/frozen.json; null for a file added after the freeze) and its hash now;
+    every other difference from the frozen method stays a problem and fails the check."""
     f = m.get("frozen")
     if not f or not m.get("test") or not POST_RUN_FILE.exists():
         return m
@@ -1405,8 +1126,10 @@ def accept_post_run_changes(m: dict) -> dict:
 
 
 BLOCKS = {            # every block, in the order of results/report.md
+    "first_screen": F.b_first_screen,
     "headline": b_headline,
     "practice": b_practice,
+    "exploratory": F.b_exploratory,
     "lead": b_lead,
     "summary": b_summary,
     "settings": b_settings,
@@ -1426,15 +1149,17 @@ BLOCKS = {            # every block, in the order of results/report.md
     "automation_summary": b_automation_summary,
     "automation": b_automation,
     "rehearsal": b_rehearsal,
-    "human": b_human,
-    "human_detail": b_human_detail,
+    "human": F.b_human,
+    "human_detail": F.b_human_detail,
     "frozen": b_frozen,
+    "freeze_record": F.b_freeze_record,
     "test_results": b_test_results,
     "estimates": b_estimates,
     "cost": b_cost,
     "deviation_facts": b_deviation_facts,
 }
-README_BLOCKS = ("headline", "practice", "inputs", "human", "deviation_facts")   # the README must contain at least these
+README_BLOCKS = ("first_screen", "headline", "practice", "inputs", "human", "freeze_record",
+                 "deviation_facts")   # the README must contain at least these
 
 
 def render(text: str, m: dict) -> str:
@@ -1507,6 +1232,9 @@ def emit(m: dict, check: bool = False) -> list[str]:
     bad = number_guard(readme_new)
     if bad:
         problems.append("README has result-like numbers outside generated blocks: " + ", ".join(bad))
+    integrity = (m.get("posthoc") or {}).get("integrity") or {}
+    if integrity.get("problems"):
+        problems.append("the record of the held-out run no longer matches:\n- " + "\n- ".join(integrity["problems"]))
     if m.get("frozen") and m["frozen"]["problems"]:
         problems.append("the frozen method no longer matches (re-freeze only if the held-out run has "
                         "not started):\n- " + "\n- ".join(m["frozen"]["problems"]))
@@ -1517,7 +1245,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     check = ap.parse_args().check
-    problems = emit(compute(), check)
+    from . import posthoc
+
+    m = compute()
+    m["posthoc"] = posthoc.compute(m)             # exploratory, after the held-out run
+    problems = emit(m, check)
     if problems:
         print("\n\n".join(problems))
         sys.exit(1)

@@ -58,17 +58,18 @@ def test_cost_table_files_noise_pass_calls_under_the_held_out_split(tmp_path, mo
 def test_headline_states_each_frozen_claim_as_its_rule_decides():
     m = copy.deepcopy(METRICS)
     head = Rp.b_headline(m)
-    assert head.startswith("**Held-out result") and "Result so far" not in head
+    assert head.startswith("**Held-out run**") and "Result so far" not in head
     assert "*v2 replaces v1*" in head and "**not met**" in head
     assert "**undetermined**, not shown to meet the target" in head
-    assert "not labelled yet" in head                       # placeholder until the blind labels are locked
+    assert "Blind human labels are being collected" in head  # placeholder until the blind labels are locked
+    assert "Person" not in head
     for c in m["test"]["claims"]:
         if c["id"] == "v2_vs_v1":
             c["verdict"] = "v2 replaces v1"
         if c["id"] == "tfidf_operating_point":
             c["verdict"] = "the frozen TF-IDF operating point: misses the target"
     head = Rp.b_headline(m)
-    assert "*v2 replaces v1* (accepted only if the paired kappa difference lies entirely above zero): **met**" in head
+    assert "*v2 replaces v1* (only if the paired kappa difference lies entirely above zero): **met**" in head
     assert "**not met**, misses the target" in head
     m["test"] = None
     assert Rp.b_headline(m) == Rp.b_lead(m)
@@ -78,7 +79,10 @@ def test_practice_says_what_is_not_measured_while_labels_are_pending():
     m = copy.deepcopy(METRICS)
     text = Rp.b_practice(m)
     if not m["human"]["annotators"]:
-        assert "blind labels pending" in text and "a person: not measured yet" in text
+        assert "a person: not measured until the blind labels are locked" in text
+    assert text.startswith("Only the claims above were frozen before the run. Everything in this section is exploratory")
+    assert "Only the prompt that asks the model to predict the record is moved" not in text
+    assert "at least as well" not in text and "0 of 10 other wordings" in text
     m["test"] = None
     assert Rp.b_practice(m) == Rp.PENDING
 

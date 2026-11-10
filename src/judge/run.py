@@ -186,6 +186,9 @@ def main() -> None:
     ap.add_argument("--version", choices=sorted(VERSIONS))
     ap.add_argument("--split", choices=("debug", "dev"))
     ap.add_argument("--gaming", action="store_true")
+    ap.add_argument("--labelled", action="store_true",
+                    help="the human-labelled sample; allowed only after the blind labels are locked")
+    ap.add_argument("--annotator", default="owner")
     ap.add_argument("--limit", type=int)
     ap.add_argument("--final", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="with --final: checks only, no model call")
@@ -196,7 +199,17 @@ def main() -> None:
         final_test_run(dry_run=a.dry_run)
         return
     records, splits = load_records(), load_splits()
-    if a.gaming:
+    if a.labelled:
+        from . import label as L
+        if not L.is_locked(a.annotator):
+            sys.exit("the blind labels are not locked: the judge may not see the labelled sample yet.")
+        items = [(i, records[i], visible_narrative(records[i]["narrative"])) for i in L.load_sample()["ids"]]
+        if a.version == freeze.GUARDED_FACTS_VERSION:
+            for i, rec, text in list(items):
+                clean, flagged = sanitize(text)
+                if flagged and clean != text:
+                    items.append((filtered_item_id(i), rec, clean))
+    elif a.gaming:
         items = list(gaming_items(records, splits))
     else:
         items = list(split_items(a.split, records, splits))
@@ -204,7 +217,7 @@ def main() -> None:
             items += list(filtered_items("dev", records, splits))
     if a.limit:
         items = items[: a.limit]
-    label = "gaming" if a.gaming else a.split
+    label = "labelled" if a.labelled else "gaming" if a.gaming else a.split
     s = run(a.version, items, label=label, cache_tag=a.rerun_tag, workers=a.workers)
     log_event({"event": "run", "cache_tag": a.rerun_tag, **s})
 

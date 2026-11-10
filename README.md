@@ -61,7 +61,7 @@ Narratives are cut at 6,000 characters for every system. Model: `qwen3.8:27b`, t
 ## Reading the disagreements
 
 <!-- BEGIN error_groups -->
-All 101 DEV disagreements of judge v1 (of 200 complaints), each sorted by a single reader, with no second annotator:
+All 101 DEV disagreements of judge v1 (of 200 complaints). The categories and this three-way reading were drafted by an AI coding assistant that read each disagreement during the analysis (an assistant, not the judged model). The author has not yet confirmed them; he does that for the individually sorted cases after his blind labelling, and the counts will be added here.
 
 | Reading | Cases | ... assigned by reading the case (the rest follow from their category) | Example |
 |---|---|---|---|
@@ -108,13 +108,17 @@ Split-half check (not a held-out result): TF-IDF + logistic regression (trained 
 ## A person's blind labels
 
 <!-- BEGIN human -->
-_Not labelled yet._ A fixed sample of 100 DEV complaints (`data/label_sample.json`) is waiting for blind labels (`make label`, rubric in `docs/labelling_rubric.md`).
+Sample: 100 TRAIN complaints drawn by a hash of the ID (`data/label_sample.json`), which no model had answered and nobody had read one by one; labelled blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any label existed (`docs/analysis_plan_human_labels.md`, 2026-11-10 01:16 UTC, amended 2026-11-10 02:31 UTC). The annotator reads a Russian machine translation beside the English original: a reading aid made by a separate model, not the judged one, never part of a judged input (0 of 100 translations fail a completeness check, 0 are missing). The classic baselines are refitted without the sampled complaints.
+
+_No locked set of labels yet._ Nothing is reported from a partial set. Model answers for the sampled complaints so far: 0 (the judge runs on them only after the labels are locked).
 <!-- END human -->
+
+The Russian rubric (`docs/labelling_rubric_ru.md`), the Russian button labels and the translations exist only because the annotator reads English at an intermediate level; the English original is always shown and is what counts.
 
 ## Held-out TEST
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `aaf9328241d00633...`): prompts, parser, defence, baselines, the DEV operating points and the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`). Acceptance rule: v2 replaces v1 only if the 95% paired-bootstrap interval of the held-out kappa difference (v2 minus v1) lies entirely above zero; otherwise the report says that no improvement was demonstrated. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
+_Not yet run._ Held-out complaints sent to the model so far: 0. The method is not frozen yet. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
 <!-- END test_results -->
 
 The realistic estimate is the held-out result at the frozen thresholds; the ceiling discussion (label noise among near-identical complaints, the judge's agreement with itself) is in the full report.
@@ -125,7 +129,7 @@ The realistic estimate is the held-out result at the frozen thresholds; the ceil
 make reproduce   # tests, then every table from data/ and results/cache/, no model needed
 ```
 
-`make run` repeats missing model calls (Ollama with the model in the settings table), `make label` starts the blind labelling tool, `make heldout` performs the single held-out run. Full tables: `results/report.md`. Raw numbers: `results/metrics.json`.
+`make run` repeats missing model calls (Ollama with the model in the settings table), `make label` opens the blind labelling page (local only), `make heldout` performs the single held-out run. Full tables: `results/report.md`. Raw numbers: `results/metrics.json`.
 
 ## Deviations and additions after the plan
 

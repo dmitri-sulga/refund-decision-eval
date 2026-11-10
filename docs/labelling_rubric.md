@@ -1,13 +1,18 @@
 # Labelling rubric for the blind human labels
 
 One person labels a fixed sample of complaints without seeing what the company
-did or what any model answered. Start with `make label`; stop with `q` at any
-time and run the same command to continue.
+did or what any model answered. Start with `make label` (a page opens in the
+browser; `make label-terminal` does the same in the terminal); stop at any time
+and run the same command to continue. A Russian version of this page is in
+`docs/labelling_rubric_ru.md`; where the two differ, this one counts.
 
 ## What you see, and what you do not
 
 You see what the models see: the product and issue the consumer selected, and
 the complaint text (long texts are cut at the same point as for the models).
+Beside the English original the tool shows a Russian machine translation. It is
+a reading aid only, it can be wrong, and no judged system reads it; where the
+two differ, the English original counts.
 You do not see the company's answer, any model output, the complaint ID, the
 date, or the company field (the consumer may name the company in the text).
 Do not look a complaint up anywhere.
@@ -48,9 +53,10 @@ text tells you about the charge.
 
 - Decide each case on its own; do not try to hit a target share of refunds.
 - One or two minutes per case is enough. If you change your mind about the
-  case you just answered, press `u` on the next screen.
+  case you just answered, undo it on the next screen.
 - The note is optional. If you write one, name the fact that decided it.
-- Do not open the results, the cache or the error analysis before you finish.
+- Answering the last case locks all answers; they cannot be changed afterwards.
+  Do not open the results, the cache or the error analysis before that.
 
 ## How the labels are used
 
@@ -58,4 +64,13 @@ The report compares your labels with the recorded company decisions (how far a
 careful reader of the text alone is from what companies did) and with each
 system's decisions on the same cases. "Cannot tell" is counted and reported,
 and left out of the agreement figures. One person is one annotator: there is
-no second reader, and the report says so.
+no second reader, and the report says so. The analysis was written down before
+any label existed: `docs/analysis_plan_human_labels.md`.
+
+## After the blind pass
+
+Once all answers are locked, the page offers a second screen with the 24
+disagreements between judge v1 and the recorded decision that were sorted one
+by one. There the recorded decision, the judge's answer and the drafted reading
+are visible; you confirm the reading or change it. Those answers are stored
+separately.

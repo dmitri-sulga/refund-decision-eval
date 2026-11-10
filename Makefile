@@ -2,7 +2,7 @@ PY := .venv/bin/python
 export PYTHONPATH := src
 MIRROR := https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints/resolve/main/complaints.csv.zip
 
-.PHONY: venv test report check reproduce run replay freeze heldout label data
+.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data
 
 $(PY):
 	python3 -m venv .venv
@@ -43,8 +43,17 @@ heldout: venv
 	$(PY) -m judge.run --final
 	$(PY) -m judge.report
 
+# blind labelling page in the browser (local only); resumable
 label: venv
 	$(PY) -m judge.label --annotator owner
+
+label-terminal: venv
+	$(PY) -m judge.label --annotator owner --terminal
+
+# judge v1 and v2 on the labelled sample; refuses until the blind labels are locked
+judge-labelled: venv
+	$(PY) -m judge.run --version v1 --labelled
+	$(PY) -m judge.run --version v2 --labelled
 
 data: venv
 	mkdir -p .download && curl -L -o .download/complaints.csv.zip $(MIRROR)

@@ -73,14 +73,15 @@ def base_rates(records, splits) -> dict:
 class Systems:
     """Predictions (and probabilities of relief) of every system on a split."""
 
-    def __init__(self, records, splits, cache, baseline=None):
+    def __init__(self, records, splits, cache, baseline=None, lr_params=None):
         self.records, self.splits, self.cache = records, splits, cache
         self._baseline = baseline
+        self.lr_params = lr_params        # given: no hyperparameter search (frozen values are reused)
 
     def baseline(self) -> dict:
         """Classic baselines, fit on TRAIN only (once)."""
         if self._baseline is None:
-            lr, params, cv = fit_lr(self.splits["train"], self.records)
+            lr, params, cv = fit_lr(self.splits["train"], self.records, self.lr_params)
             rule, _ = company_rule(self.splits["train"], self.records)
             keyword, chosen, candidates = keyword_rule(self.splits["train"], self.records)
             self._baseline = {"lr": lr, "params": params, "cv": cv, "rule": rule, "keyword": keyword,
@@ -726,35 +727,89 @@ def estimates(auto_dev: dict, held: dict | None) -> dict | None:
 
 
 # ------------------------------------------------------------------ human labels
-def human_labels(S: Systems) -> dict:
-    """Blind labels by a person (label.py) against recorded outcomes and against
-    each system. 'Cannot tell' is reported and left out of the agreement figures."""
-    from .label import LABELS_DIR, load_labels, load_sample
+def _human_figures(SL: Systems, ids: list, labels: dict) -> dict:
+    """Agreements registered in docs/analysis_plan_human_labels.md for one set of
+    labelled cases. SL scores the 'label' split with baselines that never saw it."""
+    pos = {i: k for k, i in enumerate(SL.splits["label"])}
+    idx = np.array([pos[i] for i in ids])
+    y = SL.labels("label")[idx]
+    lab = np.array([labels[i]["label"] for i in ids])
+    decided, unsure = lab != "cannot_tell", lab == "cannot_tell"
+    h = (lab == "relief").astype(int)             # 'cannot tell' counts as no relief only in the sensitivity line
+    preds = {}
+    for n in SYSTEMS:
+        pr = SL.predict(n, "label")
+        if pr is not None:                         # the judges answer only after the labels are locked
+            preds[n] = pr["pred"][idx]
+    out = {"n": len(ids), "decided": int(decided.sum()), "cannot_tell": int(unsure.sum()),
+           "recorded_relief_share": float(y.mean()),
+           "person_relief_share": float(h[decided].mean()) if decided.any() else math.nan,
+           "cannot_tell_recorded_relief": float(y[unsure].mean()) if unsure.any() else math.nan,
+           "cannot_tell_system_relief": {n: float(p[unsure].mean()) if unsure.any() else math.nan
+                                         for n, p in preds.items()}}
+    if decided.sum() >= 10:
+        out["person_vs_recorded"] = M.bootstrap(y[decided], h[decided])
+        out["systems_vs_person"] = {n: M.bootstrap(h[decided], p[decided]) for n, p in preds.items()}
+        out["systems_vs_recorded_same_cases"] = {n: M.bootstrap(y[decided], p[decided]) for n, p in preds.items()}
+        out["paired_vs_person"] = {f"{b}_minus_{a}": M.paired_difference(h[decided], preds[a][decided], preds[b][decided])
+                                   for a, b in (("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("v1", "v2"))
+                                   if a in preds and b in preds}
+        out["sensitivity"] = {"person_vs_recorded": M.bootstrap(y, h),
+                              "systems_vs_person": {n: M.bootstrap(h, p) for n, p in preds.items()}}
+    return out
 
-    sample = load_sample()
-    out = {"sample_n": len(sample["ids"]), "split": sample["split"], "annotators": {}}
-    pos = {i: k for k, i in enumerate(S.splits[sample["split"]])}
-    y_all = S.labels(sample["split"])
-    for path in sorted(LABELS_DIR.glob("*.jsonl")):
-        labels = {i: r for i, r in load_labels(path).items() if i in pos}
-        if not labels:
+
+def human_labels(S: Systems) -> dict:
+    """Blind labels by a person (label.py). Nothing is reported from a set that is
+    not complete and locked, that predates the registered plan, or whose cases
+    had a model answer before the lock."""
+    from . import label as L
+    from .human import AMENDMENT_1_AT, PLAN_REGISTERED_AT, halves
+    from .review import load_reviews, review_path, review_rows
+    from .translate import Translations, problems
+
+    sample = L.load_sample()
+    ids = sample["ids"]
+    tr = Translations()
+    got = [(visible_narrative(S.records[i]["narrative"]), i) for i in ids]
+    got = [(text, tr.get(text, i)) for text, i in got]
+    answers = [r for r in S.cache.records.values() if r["item_id"].split("~")[0] in set(ids)]
+    out = {"sample_n": len(ids), "split": sample["split"], "plan_registered_at": PLAN_REGISTERED_AT,
+           "amended_at": AMENDMENT_1_AT, "annotators": {}, "model_answers_for_sample": len(answers),
+           "translations": {"missing": sum(r is None for _, r in got),
+                            "flagged": sum(bool(problems(t, r)) for t, r in got if r is not None)}}
+    locks = sorted(L.LABELS_DIR.glob("*.lock.json"))
+    if answers and not locks:
+        raise RuntimeError("the judge answered labelled-sample complaints before any labels were locked")
+    if not locks:
+        return out
+    rest = [i for i in S.splits["train"] if i not in set(ids)]
+    SL = Systems(S.records, {"train": rest, "dev": S.splits["dev"], "label": ids}, S.cache,
+                 lr_params=S.baseline()["params"])        # baselines refitted without the labelled cases
+    for lock in locks:
+        who = lock.name[: -len(".lock.json")]
+        if not L.is_locked(who):
             continue
-        decided = [i for i in sample["ids"] if i in labels and labels[i]["label"] in ("relief", "no_relief")]
-        row = {"labelled": len(labels), "cannot_tell": sum(r["label"] == "cannot_tell" for r in labels.values()),
-               "decided": len(decided), "seconds_per_case": float(np.median([r["seconds"] for r in labels.values()]))}
-        if len(decided) >= 10:
-            idx = np.array([pos[i] for i in decided])
-            h = np.array([int(labels[i]["label"] == "relief") for i in decided])
-            row["relief_share"] = float(h.mean())
-            row["vs_recorded"] = M.bootstrap(y_all[idx], h)
-            row["systems_vs_person"] = {}
-            row["systems_vs_recorded_same_cases"] = {}
-            for name in SYSTEMS:
-                pr = S.predict(name, sample["split"])
-                if pr is not None:
-                    row["systems_vs_person"][name] = M.bootstrap(h, pr["pred"][idx])
-                    row["systems_vs_recorded_same_cases"][name] = M.bootstrap(y_all[idx], pr["pred"][idx])
-        out["annotators"][path.stem] = row
+        locked_at = json.loads(lock.read_text())["locked_at"]
+        labels = L.load_labels(L.labels_path(who))
+        if set(labels) != set(ids) or min(r["labelled_at"] for r in labels.values()) < AMENDMENT_1_AT:
+            raise RuntimeError(f"labels of {who} do not match the registered sample and plan")
+        if answers and min(r["requested_at"] for r in answers) < locked_at:
+            raise RuntimeError("a model answer for a labelled complaint predates the lock")
+        secs = [labels[i]["seconds"] for i in ids]
+        row = {"locked_at": locked_at, "median_seconds": float(np.median(secs)),
+               "total_minutes": float(np.sum(secs) / 60),
+               "with_note": sum(bool(labels[i]["note"]) for i in ids),
+               "translation_flagged_when_shown": sum(bool(labels[i].get("translation_problems")) for i in ids),
+               "all": _human_figures(SL, ids, labels),
+               "halves": {k: _human_figures(SL, v, labels) for k, v in halves(ids).items()}}
+        reviews = load_reviews(review_path(who))
+        row["error_review"] = {"total": len(review_rows()), "reviewed": len(reviews),
+                               "confirmed": sum(r["confirmed"] for r in reviews.values()),
+                               "changed": [{"complaint_id": r["complaint_id"], "from": r["drafted_group"],
+                                            "to": r["group"], "note": r["note"]}
+                                           for r in reviews.values() if not r["confirmed"]]}
+        out["annotators"][who] = row
     return out
 
 

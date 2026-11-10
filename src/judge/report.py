@@ -219,12 +219,13 @@ def b_summary(m):
                     f"({pct(at['majority_agreement_on_auto'])} for always-no-relief on the same cases)")
         held = ci(t["results"][name]["kappa"]) if t and name in t["results"] else "not run"
         rows.append((LABELS[name], ci(r["kappa"]), pct(r["accuracy"]["value"]), auto, held, time_per_1000(m, name)))
-    for who, h in m["human"]["annotators"].items():
-        if "vs_recorded" in h:
-            rows.append((f"Person, blind ({who}, {h['decided']} DEV cases)", ci(h["vs_recorded"]["kappa"]),
-                         pct(h["vs_recorded"]["accuracy"]["value"]), "n/a", "n/a",
-                         f"{h['seconds_per_case'] * 1000 / 3600:.1f} h (median labelling time)"))
-    if not any("vs_recorded" in h for h in m["human"]["annotators"].values()):
+    people = [(who, r) for who, r in m["human"]["annotators"].items() if "person_vs_recorded" in r["all"]]
+    for who, r in people:
+        f = r["all"]
+        rows.append((f"Person, blind (one annotator, {f['decided']} decided DEV cases)",
+                     ci(f["person_vs_recorded"]["kappa"]), pct(f["person_vs_recorded"]["accuracy"]["value"]),
+                     "n/a", "n/a", f"{r['median_seconds'] * 1000 / 3600:.1f} h (median labelling time)"))
+    if not people:
         rows.append(("Person, blind (one annotator)", "not labelled yet", "", "n/a", "n/a", ""))
     return head + "\n" + table(("System", "DEV kappa [95% CI]", "DEV accuracy",
                                 "Automation at the DEV operating point (target in settings)",
@@ -250,8 +251,15 @@ def b_error_groups(m):
         rows.append((g["label"], g["n"], g["read_individually"],
                      (f"\"{ex['quote']}\" ({ex['complaint_id']}" + (f": {ex['note']})" if ex["note"] else ")"))
                      if ex else ""))
-    return (f"All {e['n_disagreements']} DEV disagreements of judge v1 (of {e['n_dev']} complaints), "
-            "each sorted by a single reader, with no second annotator:\n\n" +
+    rev = [r["error_review"] for r in m["human"]["annotators"].values() if r["error_review"]["reviewed"]]
+    who = ("The categories and this three-way reading were drafted by an AI coding assistant that read each "
+           "disagreement during the analysis (an assistant, not the judged model). " +
+           (f"The author has since reviewed {rev[0]['reviewed']} of the {rev[0]['total']} individually sorted "
+            f"cases himself and confirmed {rev[0]['confirmed']} of the drafted readings (changes are listed in the "
+            "full report)." if rev else
+            "The author has not yet confirmed them; he does that for the individually sorted cases after his "
+            "blind labelling, and the counts will be added here."))
+    return (f"All {e['n_disagreements']} DEV disagreements of judge v1 (of {e['n_dev']} complaints). {who}\n\n" +
             table(("Reading", "Cases", "... assigned by reading the case (the rest follow from their category)",
                    "Example"), rows))
 
@@ -464,28 +472,79 @@ def b_automation_summary(m):
     return text
 
 
+def _human_table(f: dict) -> str:
+    rows = [("Person against the recorded company decision", ci(f["person_vs_recorded"]["kappa"]),
+             ci(f["person_vs_recorded"]["accuracy"], pct), ci(f["sensitivity"]["person_vs_recorded"]["kappa"]))]
+    note = {"v1": " (same question as the rubric)", "v2": " (a different question: v2 predicts the record)"}
+    for n, x in f["systems_vs_person"].items():
+        rows.append((f"{LABELS[n]} against the person{note.get(n, '')}", ci(x["kappa"]), ci(x["accuracy"], pct),
+                     ci(f["sensitivity"]["systems_vs_person"][n]["kappa"])))
+    return table(("Agreement", "Kappa [95% CI], decided cases", "Accuracy [95% CI], decided cases",
+                  "Kappa with 'cannot tell' counted as no money back"), rows)
+
+
+def _human_head(h: dict) -> str:
+    t = h["translations"]
+    return (f"Sample: {h['sample_n']} {h['split'].upper()} complaints drawn by a hash of the ID "
+            "(`data/label_sample.json`), which no model had answered and nobody had read one by one; labelled "
+            "blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any "
+            f"label existed (`docs/analysis_plan_human_labels.md`, {h['plan_registered_at'][:16].replace('T', ' ')} "
+            f"UTC, amended {h['amended_at'][:16].replace('T', ' ')} UTC). The annotator reads a Russian machine "
+            "translation beside the English original: a reading aid made by a separate model, not the judged "
+            f"one, never part of a judged input ({t['flagged']} of {h['sample_n']} translations fail a "
+            f"completeness check, {t['missing']} are missing). The classic baselines are refitted without the "
+            "sampled complaints.")
+
+
 def b_human(m):
     h = m["human"]
+    out = [_human_head(h)]
     if not h["annotators"]:
-        return (f"_Not labelled yet._ A fixed sample of {h['sample_n']} {h['split'].upper()} complaints "
-                "(`data/label_sample.json`) is waiting for blind labels (`make label`, rubric in "
-                "`docs/labelling_rubric.md`).")
-    out = []
+        out.append(f"\n_No locked set of labels yet._ Nothing is reported from a partial set. Model answers "
+                   f"for the sampled complaints so far: {h['model_answers_for_sample']} (the judge runs on them "
+                   "only after the labels are locked).")
+        return "\n".join(out)
     for who, r in h["annotators"].items():
-        out.append(f"Annotator `{who}`: {r['labelled']} of {h['sample_n']} sampled {h['split'].upper()} complaints "
-                   f"labelled blind, {r['cannot_tell']} 'cannot tell', {r['decided']} decided; median "
-                   f"{r['seconds_per_case']:.0f} s per case. One annotator, no second reader.")
-        if "vs_recorded" not in r:
+        f = r["all"]
+        out.append(f"\nAnnotator `{who}` (one person, not a lawyer, no second reader), locked {r['locked_at'][:16].replace('T', ' ')} "
+                   f"UTC: {f['decided']} decided ({pct(f['person_relief_share'])} of them money back; the companies "
+                   f"gave relief in {pct(f['recorded_relief_share'])} of the sample), {f['cannot_tell']} cannot tell; "
+                   f"median {r['median_seconds']:.0f} s per case, {r['total_minutes']:.0f} minutes in all.")
+        if "person_vs_recorded" not in f:
             out.append("\nToo few decided cases for agreement figures.")
             continue
-        v = r["vs_recorded"]
-        out.append(f"\nPerson against the recorded company decision: kappa {ci(v['kappa'])}, accuracy "
-                   f"{ci(v['accuracy'], pct)}; the person chose relief in {pct(r['relief_share'])} of decided cases.\n")
-        out.append(table(("System", "Kappa against the person [95% CI]", "Accuracy against the person",
-                          "Kappa against the record on the same cases"),
-                         [(LABELS[n], ci(x["kappa"]), pct(x["accuracy"]["value"]),
-                           ci(r["systems_vs_recorded_same_cases"][n]["kappa"]))
-                          for n, x in r["systems_vs_person"].items()]))
+        if not any(v in f["systems_vs_person"] for v in ("v1", "v2")):
+            out.append("\nThe judge has not answered these complaints yet (`make judge-labelled`).")
+        out.append("\n" + _human_table(f))
+        p = f["paired_vs_person"]
+        if p:
+            out.append("\nPaired differences in kappa against the person: " + "; ".join(
+                f"{LABELS[k.split('_minus_')[0]]} minus {LABELS[k.split('_minus_')[1]]} "
+                f"{ci(x['kappa'], lambda v: f'{v:+.3f}')}" for k, x in p.items()) + ".")
+    return "\n".join(out)
+
+
+def b_human_detail(m):
+    h = m["human"]
+    if not h["annotators"]:
+        return "_No locked set of labels yet._"
+    out = []
+    for who, r in h["annotators"].items():
+        f = r["all"]
+        out.append(f"Annotator `{who}`. Cases answered 'cannot tell': {f['cannot_tell']}; recorded relief rate among "
+                   f"them {pct(f['cannot_tell_recorded_relief'])}; relief rate of each system on them: " +
+                   ", ".join(f"{LABELS[n]} {pct(v)}" for n, v in f["cannot_tell_system_relief"].items()) +
+                   f". Notes written: {r['with_note']}. Cases shown with a flagged translation: "
+                   f"{r['translation_flagged_when_shown']}.")
+        for half, g in r["halves"].items():
+            out.append(f"\n{half.capitalize()} half ({g['n']} cases, {g['decided']} decided, {g['cannot_tell']} cannot tell):\n")
+            out.append(_human_table(g) if "person_vs_recorded" in g else "Too few decided cases.")
+        e = r["error_review"]
+        out.append(f"\nSecond screen (after the lock): {e['reviewed']} of {e['total']} individually sorted disagreements "
+                   f"reviewed, {e['confirmed']} drafted readings confirmed, {len(e['changed'])} changed" +
+                   ("." if not e["changed"] else ": " + "; ".join(
+                       f"{c['complaint_id']} from {c['from'].replace('_', ' ')} to {c['to'].replace('_', ' ')}"
+                       for c in e["changed"]) + "."))
     return "\n".join(out)
 
 
@@ -796,6 +855,7 @@ BLOCKS = {            # every block, in the order of results/report.md
     "automation": b_automation,
     "rehearsal": b_rehearsal,
     "human": b_human,
+    "human_detail": b_human_detail,
     "frozen": b_frozen,
     "test_results": b_test_results,
     "estimates": b_estimates,

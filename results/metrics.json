@@ -6857,10 +6857,7 @@
   ]
  },
  "figure": "results/automation_curve.png",
- "frozen": {
-  "problems": [],
-  "sha256": "aaf9328241d00633acb371e9708f0c7d721887a37ff093c653d3ed5a1082e22b"
- },
+ "frozen": null,
  "gaming": {
   "attacks": [
    "promise",
@@ -7355,9 +7352,16 @@
   }
  },
  "human": {
+  "amended_at": "2026-11-10T02:31:23+00:00",
   "annotators": {},
+  "model_answers_for_sample": 0,
+  "plan_registered_at": "2026-11-10T01:16:09+00:00",
   "sample_n": 100,
-  "split": "dev"
+  "split": "train",
+  "translations": {
+   "flagged": 0,
+   "missing": 0
+  }
  },
  "keyword_rule": {
   "candidates": [

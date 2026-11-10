@@ -4,6 +4,9 @@ from judge.label import load_sample
 
 def test_calibration_and_evaluation_halves_follow_the_registered_rule():
     ids = load_sample()["ids"]
+    from judge.data import load_splits
+    from judge.human import sample_from
+    assert ids == sample_from(load_splits()["train"])
     h = halves(ids)
     assert len(h["calibration"]) == len(h["evaluation"]) == 50
     assert set(h["calibration"]) | set(h["evaluation"]) == set(ids)

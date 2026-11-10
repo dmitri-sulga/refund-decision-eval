@@ -4,8 +4,12 @@ MIRROR := https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints/
 
 .PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data
 
+PYTHON ?= python3
+
+# the pinned numpy and scipy need Python 3.12 or later: stop with a clear message before pip does
 $(PY):
-	python3 -m venv .venv
+	@$(PYTHON) -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else "needs Python 3.12 or later; $(PYTHON) is " + sys.version.split()[0] + ". Run: make PYTHON=python3.12 reproduce")'
+	$(PYTHON) -m venv .venv
 	$(PY) -m pip install -q -r requirements.txt
 
 venv: $(PY)

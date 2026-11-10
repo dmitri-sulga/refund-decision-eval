@@ -92,7 +92,13 @@ def test_human_section_has_the_required_parts(locked):
     assert "person would pay, system would not" in text and "not in the registered plan" in text
     assert "rules the judge v1 prompt was given" in text and "not ground truth" in text
     assert "median" in text and "quartiles" in text and "No v3 prompt exists" in text
-    assert "Paired differences in kappa against the person (registered)" in text
+    assert "minus TF-IDF + logistic regression (registered)" in text
+    assert "minus LLM judge v1 (plain rubric) (not in the registered plan" in text
+    assert "Registered check of the two readings" in text and "Accuracy [95% CI], decided cases" in text
+    assert "Person against the recorded company decision (registered)" in detail
+    assert "'cannot tell' as no money back" in text and "Time per label (not in the registered plan" in text
+    for t in (Rp.b_headline(m), Rp.b_summary(m)):
+        assert "Issuer relief rate (added later) (not in the registered plan" in t
     review = _table_rows(detail, "Author's reading")
     assert len(review) == 1 and "synthetic" in review[0]
     assert "Calibration half" in detail and "Evaluation half" in detail

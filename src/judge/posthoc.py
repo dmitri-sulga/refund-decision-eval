@@ -21,17 +21,20 @@ from .baselines import _case_header, lr_predict
 from .data import load_records, load_splits
 from .defence import sanitize
 from .gaming import ATTACKS, CONTROLS, attacked_item_id, gaming_ids
-from .judgments import parse
+from .judgments import load, parse
 from .llm import Cache
 from .prompts import visible_narrative
 
 AUC_B = inspect.signature(M.bootstrap_stat).parameters["B"].default   # resamples behind every AUC interval
 
 # The external record of the freeze: a secret (unlisted) GitHub gist created by the author's account.
-# Revision times are GitHub's server-side commit times as its API reported them on 2026-11-10
-# (`gh api gists/<id>`); they are copied here, not fetched, so the check runs offline.
+# Revision times are the git commit dates of the gist's revisions as GitHub's API reported them on
+# 2026-11-10 (`gh api gists/<id>`); a gist is a git repository, so these dates are not by themselves
+# server-stamped. `created_at` and `updated_at` are fields GitHub's server maintains for the gist,
+# read from the same API on 2026-11-10. All are copied here, not fetched, so the check runs offline.
 GIST = {
     "url": "https://gist.github.com/dmitri-sulga/dc5fd5e1dd67532a64698ce11b0d3ea5",
+    "created_at": "2026-11-10T04:13:35Z", "updated_at": "2026-11-10T08:16:37Z",
     "revisions": [
         {"committed_at": "2026-11-10T04:13:35Z", "commit": "97dd167d94cd01ade04cc53e79025d1a2703ab81",
          "frozen_sha256": "2ddde4cd2f6131165c4defba0a018f2e6c92c1dc447c743acf5110b979d257ef"},
@@ -247,13 +250,44 @@ def holm(m) -> dict:
     return {"tests": k, "survive": survive, "smallest": [{"system": v, "rewrite": a, "p": p} for p, v, a in tests[:3]]}
 
 
+def _paired_sensitivity(m, labels_by_who: dict) -> dict:
+    """The registered sensitivity line for the paired differences against the person: 'cannot tell'
+    counted as 'no money back', over every labelled case, for all cases and for each half. Same systems,
+    same refitted baselines and same resamples as the frozen figures (analysis._human_figures)."""
+    from . import label as L
+    from .human import halves
+
+    if not labels_by_who:
+        return {}
+    ids = L.load_sample()["ids"]
+    S = Systems(load_records(), load_splits(), Cache(), lr_params=m["tfidf_lr"]["chosen"])
+    rest = [i for i in S.splits["train"] if i not in set(ids)]
+    SL = Systems(S.records, {"train": rest, "dev": S.splits["dev"], "label": ids}, S.cache,
+                 lr_params=m["tfidf_lr"]["chosen"])
+    pos = {i: k for k, i in enumerate(ids)}
+    preds = {n: pr["pred"] for n in ("tfidf_lr", "v1", "v2") if (pr := SL.predict(n, "label")) is not None}
+    out = {}
+    for who, labels in labels_by_who.items():
+        scopes = {"all": ids, **halves(ids)}
+        out[who] = {}
+        for scope, sub in scopes.items():
+            idx = np.array([pos[i] for i in sub])
+            h = np.array([labels[i]["label"] == "relief" for i in sub]).astype(int)
+            out[who][scope] = {f"{b}_minus_{a}": M.paired_difference(h, preds[a][idx], preds[b][idx])
+                               for a, b in (("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("v1", "v2"))
+                               if a in preds and b in preds}
+    return out
+
+
 def human_extras(m) -> dict:
-    """Per locked annotator: the distribution of time per label and the second screen case by case.
-    Nothing here was in the registered plan for the labels; it is descriptive."""
+    """Per locked annotator: the distribution of time per label and the second screen case by case
+    (not in the registered plan; descriptive), and the registered sensitivity line of the paired
+    differences, which the frozen computation did not produce."""
     from . import label as L
     from .review import load_reviews, review_path, review_rows
 
     out = {}
+    sens = _paired_sensitivity(m, {who: L.load_labels(L.labels_path(who)) for who in m["human"]["annotators"]})
     for who in m["human"]["annotators"]:
         labels = L.load_labels(L.labels_path(who))
         secs = np.array([r["seconds"] for r in labels.values()], float)
@@ -265,7 +299,8 @@ def human_extras(m) -> dict:
                     "translation_shown": sum(bool(r.get("translation_shown")) for r in labels.values()),
                     "review": [{"complaint_id": i, "drafted": rows[i]["group"], "author": r["group"],
                                 "confirmed": bool(r["confirmed"]), "note": r["note"]}
-                               for i, r in sorted(rev.items(), key=lambda kv: int(kv[0])) if i in rows]}
+                               for i, r in sorted(rev.items(), key=lambda kv: int(kv[0])) if i in rows],
+                    "paired_sensitivity": sens.get(who, {})}
     return out
 
 
@@ -292,6 +327,146 @@ def sub_issues(S) -> dict:
             for k, v in by.most_common()}
 
 
+# ------------------------------------------------------------------ third post-run change (re-reviews)
+def accuracy_vs_always_no_exact(S, m) -> dict:
+    """Each system's held-out agreement against always answering no relief, read three more ways:
+    the discordant complaints (where exactly one of the two matches the record), the exact two-sided
+    McNemar test on them, and the paired interval at the Bonferroni level for the eight systems
+    compared (the same resamples as accuracy_minus_always_no)."""
+    from scipy.stats import binomtest
+
+    y = S.labels("test")
+    names = ("keyword_rule", "company_rule", "issuer_rate", "tfidf_masked", "tfidf_lr", "v1", "v2", "guarded")
+    base = S.predict("majority", "test")["pred"]
+    level = 1 - 0.05 / len(names)
+    out = {"level": level, "systems": {}}
+    for n in names:
+        p = S.predict(n, "test")["pred"]
+        a, b = (p == y) & (base != y), (p != y) & (base == y)
+        x = paired(y, base, p, level=level, metric="accuracy")
+        out["systems"][n] = {"system_only_right": int(a.sum()), "always_no_only_right": int(b.sum()),
+                             "p_exact_two_sided": float(binomtest(int(a.sum()), int(a.sum() + b.sum()), 0.5).pvalue)
+                             if a.sum() + b.sum() else 1.0,
+                             "lo": x["lo"], "hi": x["hi"]}
+    return out
+
+
+def _scores(S, n, split):
+    pr = S.predict(n, split)
+    sc = np.array(pr.get("p_raw", pr["p"]), dtype=float)        # the score the frozen ranking uses
+    return np.where(np.isnan(sc), 0.5, sc)
+
+
+def within_issuer_by_issuer(S, m, B=C.BOOTSTRAP_B, seed=C.BOOTSTRAP_SEED) -> dict:
+    """Held-out within-issuer AUC with the issuers resampled instead of the complaints: the issuers
+    that carry at least one pair of a relief and a no-relief complaint are drawn with replacement,
+    and the pooled AUC is recomputed over the pairs of the issuers drawn."""
+    y = S.labels("test").astype(bool)
+    co = np.array([S.records[i]["company"] for i in S.splits["test"]])
+    groups = [g for g in np.unique(co) if (y[co == g]).any() and (~y[co == g]).any()]
+    out = {"B": B, "issuers_with_pairs": len(groups), "systems": {}}
+    pairs = None
+    for n in ("tfidf_lr", "tfidf_masked", "v1", "v2", "guarded"):
+        sc = _scores(S, n, "test")
+        w, pp = [], []
+        for g in groups:
+            k = co == g
+            d = sc[k & y][:, None] - sc[k & ~y][None, :]
+            w.append((d > 0).sum() + 0.5 * (d == 0).sum())
+            pp.append(d.size)
+        w, pp = np.array(w, float), np.array(pp, float)
+        value = float(w.sum() / pp.sum())
+        if abs(value - m["test"]["ranking"]["systems"][n]["within_issuer_auc"]["value"]) > 1e-6:   # metrics.json rounds
+            raise RuntimeError(f"within-issuer AUC of {n} differs from the frozen computation")
+        rng = np.random.default_rng(seed)
+        pick = rng.integers(0, len(groups), (B, len(groups)))
+        reps = w[pick].sum(1) / pp[pick].sum(1)
+        out["systems"][n] = {"value": value, "lo": float(np.percentile(reps, 2.5)),
+                             "hi": float(np.percentile(reps, 97.5)),
+                             "share_at_or_below_half": float(np.mean(reps <= 0.5))}
+        pairs = int(pp.sum())
+    out["pairs"] = pairs
+    return out
+
+
+def tfidf_slice_correct(S, m) -> dict:
+    """On the complaints TF-IDF automated at the frozen threshold: how many each of TF-IDF and the
+    issuer lookup gets right against the record."""
+    y = S.labels("test")
+    t = m["frozen"]["content"]["operating_points"]["tfidf_lr"]["threshold"]
+    pt = S.predict("tfidf_lr", "test")
+    auto = M.confidence(pt["pred"], pt["p"]) >= t - M.THRESHOLD_TOLERANCE
+    issuer = S.predict("issuer_rate", "test")["pred"]
+    return {"n_auto": int(auto.sum()), "tfidf_correct": int((pt["pred"][auto] == y[auto]).sum()),
+            "issuer_lookup_correct": int((issuer[auto] == y[auto]).sum())}
+
+
+def issuer_smoothed_at_half(S) -> dict:
+    """The smoothed issuer rates of the issuer lookup with the planned threshold of one half instead of
+    the TRAIN base rate (the planned company rule uses raw rates, and the overall rate for issuers with
+    fewer than twenty TRAIN complaints)."""
+    b = S.baseline()
+    y = S.labels("test")
+    p = np.array([b["issuer_rate"](S.records[i]) for i in S.splits["test"]])
+    return {"kappa": M.cohen_kappa(y, (p > 0.5).astype(int))}
+
+
+def filter_on_real_narratives(S) -> dict:
+    """The input filter on every real narrative of TRAIN, DEV and held-out, unmodified."""
+    ids = [i for s in ("train", "dev", "test") for i in S.splits[s]]
+    return {"n": len(ids), "flagged": int(sum(sanitize(visible_narrative(S.records[i]["narrative"]))[1]
+                                             for i in ids))}
+
+
+def holm_one_sided(S, m) -> dict:
+    """The ten rewrite-against-control tests of the two judges, counting only refusals turned into
+    refunds (the direction an attacker wants), exact one-sided McNemar, then Holm."""
+    from scipy.stats import binomtest
+
+    ids = gaming_ids(S.splits["dev"], {i: S.records[i]["label"] for i in S.splits["dev"]})
+    tests = []
+    for v in ("v1", "v2"):
+        base = load(v, ids, S.cache)
+        moved = {a: np.array([base[i]["pred"] == 0 and parse(S.cache.records[Cache.key(
+            v, attacked_item_id(i, a))])["pred"] == 1 for i in ids]) for a in list(m["gaming"]["attacks"]) + ["neutral"]}
+        for a in m["gaming"]["attacks"]:
+            k = int((moved[a] & ~moved["neutral"]).sum())
+            c = int((~moved[a] & moved["neutral"]).sum())
+            p = float(binomtest(k, k + c, 0.5, alternative="greater").pvalue) if k + c else 1.0
+            tests.append((p, v, a, k, c))
+    tests.sort()
+    survive, n = [], len(tests)
+    for j, (p, v, a, _, _) in enumerate(tests):
+        if p > 0.05 / (n - j):
+            break
+        survive.append(f"{v} {a}")
+    return {"tests": n, "survive": survive,
+            "rows": [{"system": v, "rewrite": a, "only_rewrite": k, "only_control": c, "p_one_sided": p}
+                     for p, v, a, k, c in tests]}
+
+
+def journal_first_at() -> str:
+    """When the first request of the held-out run was recorded in the request journal."""
+    import json
+
+    with (C.ROOT / "results/cache/sent.jsonl").open() as f:
+        return json.loads(f.readline())["at"]
+
+
+def data_window(S) -> dict:
+    """The date filter, the dates actually in the records, and what the repository redistributes."""
+    from . import label as L
+    from .review import review_rows
+    from .translate import Translations
+
+    dates = sorted(S.records[i]["date_received"] for s in ("train", "dev", "test") for i in S.splits[s])
+    tr = set(Translations().records)
+    return {"filter_from": C.DATE_MIN, "filter_before": C.DATE_MAX, "first": dates[0], "last": dates[-1],
+            "records": len(S.records), "splits": {k: len(v) for k, v in S.splits.items()},
+            "translations": {"n": len(tr), "labelling_sample": len(tr & set(L.load_sample()["ids"])),
+                             "second_screen": len(tr & {r["complaint_id"] for r in review_rows()})}}
+
+
 def compute(m: dict) -> dict:
     """Every exploratory figure, from the same data and caches as the frozen computation."""
     if not m.get("test"):
@@ -301,4 +476,9 @@ def compute(m: dict) -> dict:
     return {"auc_bootstrap_b": AUC_B, "record_fields": fields,
             "dev_vs_heldout": dev_vs_heldout(S), "heldout": heldout_extras(S, m),
             "tfidf_gaming": tfidf_gaming(S), "filter": filter_reach(S), "guarded_mechanism": guarded_mechanism(S, m),
-            "holm": holm(m), "sub_issues": sub_issues(S), "human": human_extras(m), "integrity": integrity(m)}
+            "holm": holm(m), "sub_issues": sub_issues(S), "human": human_extras(m), "integrity": integrity(m),
+            # added in the third post-run change, after two re-reviews
+            "accuracy_vs_always_no_exact": accuracy_vs_always_no_exact(S, m),
+            "within_issuer_by_issuer": within_issuer_by_issuer(S, m), "tfidf_slice_correct": tfidf_slice_correct(S, m),
+            "issuer_smoothed_at_half": issuer_smoothed_at_half(S), "filter_on_real_narratives": filter_on_real_narratives(S),
+            "holm_one_sided": holm_one_sided(S, m), "data_window": data_window(S), "journal_first_at": journal_first_at()}

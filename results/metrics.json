@@ -7290,28 +7290,34 @@
  "frozen": {
   "post_run_changes": [
    {
+    "file": "Makefile",
+    "frozen_sha256": "a322fccdaba30af89b94b2fdc713a04f5e70e5ff09f5e47d353b855ecb9ccfdc",
+    "sha256": "07ad746a8c0acd9f48dc0de883f1143c2699db86e0bc447133912c4d8b01868b",
+    "what": "third change, after the held-out run: the venv target checks the Python version (the pinned numpy and scipy need 3.12 or later) and stops with a message before pip runs; PYTHON names the interpreter. No other line changed."
+   },
+   {
     "file": "docs/deviations.md",
     "frozen_sha256": null,
-    "sha256": "53dd90c7bfdee9694188368af5a3bc901641fc44d165d43be1d1bb8ca11ec613",
-    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added."
+    "sha256": "9a04e31735a0ebb02706b7f3bb3412f0fac2df3037126d7ea2f996ddde74d33a",
+    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator."
    },
    {
     "file": "src/judge/frontpage.py",
     "frozen_sha256": null,
-    "sha256": "de0c5f448347227abcaab5dd4047bea0ffcf0aad38bd3ddec3f66d2fbb16d38e",
-    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only."
+    "sha256": "13c0189a26bb5e62a50ad0a092f5cb749e266c7ea9a137914b7d8a35e098f9de",
+    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block."
    },
    {
     "file": "src/judge/posthoc.py",
     "frozen_sha256": null,
-    "sha256": "40425791a7b46771f89b108ed5553045e725a8ec63e662608cb65cbd24689d01",
-    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim."
+    "sha256": "22d96f292eff9c6b2e8e465a677e00de7080e17832efed6102898d472f2f0f87",
+    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim."
    },
    {
     "file": "src/judge/report.py",
     "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-    "sha256": "8a93ce6fcba4c5c49961b4f61d6f2caad67d4d91a8ea0e9622b1cbc50d11e1ef",
-    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed."
+    "sha256": "1a32e65eb49f5e85b2c42b9d4300d681ce41c9c8d99af93c61ca3327f27355ef",
+    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file."
    }
   ],
   "problems": [],
@@ -8125,7 +8131,86 @@
   }
  },
  "posthoc": {
+  "accuracy_vs_always_no_exact": {
+   "level": 0.99375,
+   "systems": {
+    "company_rule": {
+     "always_no_only_right": 3,
+     "hi": 0.075012,
+     "lo": -0.008,
+     "p_exact_two_sided": 0.057373,
+     "system_only_right": 11
+    },
+    "guarded": {
+     "always_no_only_right": 5,
+     "hi": 0.084,
+     "lo": -0.008,
+     "p_exact_two_sided": 0.063568,
+     "system_only_right": 14
+    },
+    "issuer_rate": {
+     "always_no_only_right": 44,
+     "hi": 0.12,
+     "lo": -0.096,
+     "p_exact_two_sided": 0.834081,
+     "system_only_right": 47
+    },
+    "keyword_rule": {
+     "always_no_only_right": 18,
+     "hi": 0.052,
+     "lo": -0.076,
+     "p_exact_two_sided": 0.728332,
+     "system_only_right": 15
+    },
+    "tfidf_lr": {
+     "always_no_only_right": 30,
+     "hi": 0.116,
+     "lo": -0.068,
+     "p_exact_two_sided": 0.538583,
+     "system_only_right": 36
+    },
+    "tfidf_masked": {
+     "always_no_only_right": 34,
+     "hi": 0.072,
+     "lo": -0.104,
+     "p_exact_two_sided": 0.707981,
+     "system_only_right": 30
+    },
+    "v1": {
+     "always_no_only_right": 117,
+     "hi": -0.084988,
+     "lo": -0.371013,
+     "p_exact_two_sided": 1.5e-05,
+     "system_only_right": 59
+    },
+    "v2": {
+     "always_no_only_right": 18,
+     "hi": 0.08,
+     "lo": -0.055013,
+     "p_exact_two_sided": 0.749259,
+     "system_only_right": 21
+    }
+   }
+  },
   "auc_bootstrap_b": 2000,
+  "data_window": {
+   "filter_before": "2026-01-01",
+   "filter_from": "2023-01-01",
+   "first": "2023-08-25",
+   "last": "2025-12-31",
+   "records": 8462,
+   "splits": {
+    "debug": 12,
+    "dev": 200,
+    "test": 250,
+    "train": 8000
+   },
+   "translations": {
+    "labelling_sample": 100,
+    "n": 124,
+    "second_screen": 24
+   }
+  },
   "dev_vs_heldout": {
    "guarded": {
     "hi": 0.333291,
@@ -8159,6 +8244,10 @@
    "further_wordings": 8,
    "heldout_flagged": 0,
    "heldout_n": 250
+  },
+  "filter_on_real_narratives": {
+   "flagged": 0,
+   "n": 8450
   },
   "guarded_mechanism": {
    "error_changes": {
@@ -8316,9 +8405,89 @@
    ],
    "tests": 10
   },
+  "holm_one_sided": {
+   "rows": [
+    {
+     "only_control": 0,
+     "only_rewrite": 26,
+     "p_one_sided": 0.0,
+     "rewrite": "fake_case_note",
+     "system": "v2"
+    },
+    {
+     "only_control": 0,
+     "only_rewrite": 8,
+     "p_one_sided": 0.003906,
+     "rewrite": "injection",
+     "system": "v2"
+    },
+    {
+     "only_control": 0,
+     "only_rewrite": 4,
+     "p_one_sided": 0.0625,
+     "rewrite": "fake_case_note",
+     "system": "v1"
+    },
+    {
+     "only_control": 0,
+     "only_rewrite": 2,
+     "p_one_sided": 0.25,
+     "rewrite": "promise",
+     "system": "v2"
+    },
+    {
+     "only_control": 1,
+     "only_rewrite": 2,
+     "p_one_sided": 0.5,
+     "rewrite": "emotion",
+     "system": "v1"
+    },
+    {
+     "only_control": 1,
+     "only_rewrite": 2,
+     "p_one_sided": 0.5,
+     "rewrite": "legal_threat",
+     "system": "v1"
+    },
+    {
+     "only_control": 1,
+     "only_rewrite": 2,
+     "p_one_sided": 0.5,
+     "rewrite": "promise",
+     "system": "v1"
+    },
+    {
+     "only_control": 1,
+     "only_rewrite": 1,
+     "p_one_sided": 0.75,
+     "rewrite": "injection",
+     "system": "v1"
+    },
+    {
+     "only_control": 1,
+     "only_rewrite": 0,
+     "p_one_sided": 1.0,
+     "rewrite": "emotion",
+     "system": "v2"
+    },
+    {
+     "only_control": 1,
+     "only_rewrite": 0,
+     "p_one_sided": 1.0,
+     "rewrite": "legal_threat",
+     "system": "v2"
+    }
+   ],
+   "survive": [
+    "v2 fake_case_note",
+    "v2 injection"
+   ],
+   "tests": 10
+  },
   "human": {},
   "integrity": {
    "gist": {
+    "created_at": "2026-11-10T04:13:35Z",
     "revisions": [
      {
       "commit": "97dd167d94cd01ade04cc53e79025d1a2703ab81",
@@ -8331,6 +8500,7 @@
       "frozen_sha256": "cd8950249f3e1997e1e295091f688a752f5635850aa74898bd7a4170dff841fb"
      }
     ],
+    "updated_at": "2026-11-10T08:16:37Z",
     "url": "https://gist.github.com/dmitri-sulga/dc5fd5e1dd67532a64698ce11b0d3ea5"
    },
    "problems": [],
@@ -8350,6 +8520,10 @@
     }
    }
   },
+  "issuer_smoothed_at_half": {
+   "kappa": 0.185185
+  },
+  "journal_first_at": "2026-11-10T08:18:54+00:00",
   "record_fields": [
    "company",
    "company_response",
@@ -8677,6 +8851,48 @@
        }
       }
      }
+    }
+   }
+  },
+  "tfidf_slice_correct": {
+   "issuer_lookup_correct": 27,
+   "n_auto": 29,
+   "tfidf_correct": 27
+  },
+  "within_issuer_by_issuer": {
+   "B": 10000,
+   "issuers_with_pairs": 13,
+   "pairs": 1015,
+   "systems": {
+    "guarded": {
+     "hi": 0.697352,
+     "lo": 0.46369,
+     "share_at_or_below_half": 0.057,
+     "value": 0.60197
+    },
+    "tfidf_lr": {
+     "hi": 0.678633,
+     "lo": 0.527777,
+     "share_at_or_below_half": 0.0022,
+     "value": 0.57734
+    },
+    "tfidf_masked": {
+     "hi": 0.695848,
+     "lo": 0.54896,
+     "share_at_or_below_half": 0.0005,
+     "value": 0.602956
+    },
+    "v1": {
+     "hi": 0.660597,
+     "lo": 0.515255,
+     "share_at_or_below_half": 0.0127,
+     "value": 0.591133
+    },
+    "v2": {
+     "hi": 0.678016,
+     "lo": 0.509635,
+     "share_at_or_below_half": 0.0173,
+     "value": 0.607882
     }
    }
   }

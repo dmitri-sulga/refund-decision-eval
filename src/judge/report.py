@@ -967,8 +967,9 @@ def b_test_results(m):
                              f"{pct(r['same_decision_ci'][1])}], kappa between the two passes "
                              f"{num(r['kappa_between_runs'], 2)}, largest shift in P(relief) {num(r['shift']['max'], 2)}, "
                              f"byte-identical answers {r['byte_identical']}/{r['n']}"
-                             for v, r in t["noise"].items()) + ". The DEV retest above ran while the laptop was short "
-                   "of memory; the held-out noise pass did not, so it measures a quieter machine.")
+                             for v, r in t["noise"].items()) + ". The DEV retest above and this noise pass differ in how "
+                   "often the answers were byte-identical; memory was not recorded during either, so the cause is not "
+                   "known.")
     else:
         out.append("\nThe noise pass has not finished yet.")
     return "\n".join(out)
@@ -1063,8 +1064,9 @@ def b_cost(m):
                        r["first_call"][:16].replace("T", " "), r["last_call"][:16].replace("T", " "))
                       for r in c["by_run"]]))
     if c["run_speed"]:
-        out.append("\nSpeed logged after the first calls of each run (the laptop was short of memory for "
-                   "parts of the session, which is why the same kind of call took between five and fifteen seconds):\n")
+        out.append("\nSpeed logged after the first calls of each run (the same kind of call took between five and "
+                   "fifteen seconds; swap in use was recorded only during the concurrency check below, so the cause of "
+                   "the spread is not known):\n")
         out.append(table(("Logged (UTC)", "Run", "Seconds per call", "Generation tokens/s", "Prompt tokens/s"),
                          [(e["at"][:16].replace("T", " "), f"{e['label']} {e['version']}", f"{e['s_per_call']:.1f}",
                            e["generation_tokens_per_s"], e["prompt_tokens_per_s"]) for e in c["run_speed"]]))
@@ -1096,9 +1098,11 @@ b_headline, b_practice = F.b_headline, F.b_practice
 
 # ------------------------------------------- changes after the held-out run (presentation only)
 POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
-# the only files a post-run change may touch: the presentation code, the exploratory module and the
-# deviations note (the last two did not exist at the freeze: their frozen hash is recorded as null)
-PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md")
+# the only files a post-run change may touch: the presentation code, the exploratory module, the
+# deviations note (the last two did not exist at the freeze: their frozen hash is recorded as null), and the
+# Makefile, whose venv target only gained a check of the Python version (third change)
+PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md",
+                      "Makefile")
 
 
 def accept_post_run_changes(m: dict) -> dict:
@@ -1157,9 +1161,10 @@ BLOCKS = {            # every block, in the order of results/report.md
     "estimates": b_estimates,
     "cost": b_cost,
     "deviation_facts": b_deviation_facts,
+    "data_licence": F.b_data_licence,
 }
 README_BLOCKS = ("first_screen", "headline", "practice", "inputs", "human", "freeze_record",
-                 "deviation_facts")   # the README must contain at least these
+                 "deviation_facts", "data_licence")   # the README must contain at least these
 
 
 def render(text: str, m: dict) -> str:

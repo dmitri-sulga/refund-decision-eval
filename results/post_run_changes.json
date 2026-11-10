@@ -2,25 +2,31 @@
  {
   "file": "src/judge/report.py",
   "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-  "sha256": "8a93ce6fcba4c5c49961b4f61d6f2caad67d4d91a8ea0e9622b1cbc50d11e1ef",
-  "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed."
+  "sha256": "1a32e65eb49f5e85b2c42b9d4300d681ce41c9c8d99af93c61ca3327f27355ef",
+  "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file."
  },
  {
   "file": "src/judge/frontpage.py",
   "frozen_sha256": null,
-  "sha256": "de0c5f448347227abcaab5dd4047bea0ffcf0aad38bd3ddec3f66d2fbb16d38e",
-  "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only."
+  "sha256": "13c0189a26bb5e62a50ad0a092f5cb749e266c7ea9a137914b7d8a35e098f9de",
+  "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block."
  },
  {
   "file": "src/judge/posthoc.py",
   "frozen_sha256": null,
-  "sha256": "40425791a7b46771f89b108ed5553045e725a8ec63e662608cb65cbd24689d01",
-  "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim."
+  "sha256": "22d96f292eff9c6b2e8e465a677e00de7080e17832efed6102898d472f2f0f87",
+  "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim."
  },
  {
   "file": "docs/deviations.md",
   "frozen_sha256": null,
-  "sha256": "53dd90c7bfdee9694188368af5a3bc901641fc44d165d43be1d1bb8ca11ec613",
-  "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added."
+  "sha256": "9a04e31735a0ebb02706b7f3bb3412f0fac2df3037126d7ea2f996ddde74d33a",
+  "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator."
+ },
+ {
+  "file": "Makefile",
+  "frozen_sha256": "a322fccdaba30af89b94b2fdc713a04f5e70e5ff09f5e47d353b855ecb9ccfdc",
+  "sha256": "07ad746a8c0acd9f48dc0de883f1143c2699db86e0bc447133912c4d8b01868b",
+  "what": "third change, after the held-out run: the venv target checks the Python version (the pinned numpy and scipy need 3.12 or later) and stops with a message before pip runs; PYTHON names the interpreter. No other line changed."
  }
 ]

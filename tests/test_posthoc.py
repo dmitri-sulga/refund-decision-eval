@@ -80,10 +80,32 @@ def test_a_file_added_after_the_freeze_is_accepted_only_when_recorded(tmp_path, 
     assert Rp.accept_post_run_changes(world([rec, cues]))["frozen"]["problems"] == problems[1:]   # not presentation
 
 
-def test_first_screen_fits_in_the_first_ten_lines_of_the_readme():
+def test_first_screen_fits_in_the_first_twelve_lines_of_the_readme():
     lines = (C.ROOT / "README.md").read_text().splitlines()
-    assert lines[2] == "<!-- BEGIN first_screen -->" and "<!-- END first_screen -->" in lines[:10]
-    head = "\n".join(lines[:10])
-    for phrase in ("Always answering", "would pay", "follows which issuer answered", "goodwill", "regulator"):
+    assert lines[2] == "<!-- BEGIN first_screen -->" and "<!-- END first_screen -->" in lines[:12]
+    head = "\n".join(lines[:12])
+    for phrase in ("Always answering", "would pay", "follows which issuer answered", "goodwill", "regulator",
+                   "not a model that grades other models"):
         assert phrase in head, phrase
-    assert len(lines) <= 150
+    for phrase in ("the best system", "+3.6", "quiet", "coin toss."):    # post-hoc pick and unmeasured causes
+        assert phrase not in head, phrase
+    assert len(lines) <= 170
+
+
+def test_the_registered_check_of_the_two_readings_flags_a_sign_change_or_a_crossing_of_zero():
+    from judge import frontpage as F
+
+    same = {"value": 0.2, "lo": 0.05, "hi": 0.35}
+    assert "agree in sign" in F._sign_check([("a", same, {"value": 0.15, "lo": 0.01, "hi": 0.3})])
+    out = F._sign_check([("a", same, {"value": 0.1, "lo": -0.02, "hi": 0.25}),
+                         ("b", {"value": 0.007, "lo": -0.1, "hi": 0.1}, {"value": -0.034, "lo": -0.15, "hi": 0.08})])
+    assert "disagree" in out and "a; b" in out and "No conclusion is drawn" in out
+
+
+def test_within_issuer_by_issuer_resamples_issuers_and_matches_the_frozen_point():
+    ph = json.loads((C.RESULTS / "metrics.json").read_text())["posthoc"]
+    wb = ph["within_issuer_by_issuer"]
+    sy = json.loads((C.RESULTS / "metrics.json").read_text())["test"]["ranking"]["systems"]
+    assert wb["issuers_with_pairs"] < 20 and wb["B"] == C.BOOTSTRAP_B
+    for k, x in wb["systems"].items():
+        assert abs(x["value"] - sy[k]["within_issuer_auc"]["value"]) < 1e-6 and x["lo"] <= x["value"] <= x["hi"]

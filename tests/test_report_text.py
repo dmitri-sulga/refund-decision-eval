@@ -59,8 +59,9 @@ def test_headline_states_each_frozen_claim_as_its_rule_decides():
     m = copy.deepcopy(METRICS)
     head = Rp.b_headline(m)
     assert head.startswith("**Held-out run**") and "Result so far" not in head
-    assert "*v2 replaces v1*" in head and "**not met**" in head
-    assert "**undetermined**, not shown to meet the target" in head
+    assert "*v2 replaces v1*" in head and "**no improvement of v2 over v1 was demonstrated**" in head
+    assert "**the frozen TF-IDF operating point: not shown to meet the target**" in head
+    assert "outcome words were chosen after the run" not in head
     assert "Blind human labels are being collected" in head  # placeholder until the blind labels are locked
     assert "Person" not in head
     for c in m["test"]["claims"]:
@@ -69,8 +70,9 @@ def test_headline_states_each_frozen_claim_as_its_rule_decides():
         if c["id"] == "tfidf_operating_point":
             c["verdict"] = "the frozen TF-IDF operating point: misses the target"
     head = Rp.b_headline(m)
-    assert "*v2 replaces v1* (only if the paired kappa difference lies entirely above zero): **met**" in head
-    assert "**not met**, misses the target" in head
+    assert "*v2 replaces v1* (only if the paired kappa difference, v2 minus v1, lies entirely above zero): " \
+           "**v2 replaces v1**" in head
+    assert "**the frozen TF-IDF operating point: misses the target**" in head
     m["test"] = None
     assert Rp.b_headline(m) == Rp.b_lead(m)
 
@@ -83,6 +85,7 @@ def test_practice_says_what_is_not_measured_while_labels_are_pending():
     assert text.startswith("Only the claims above were frozen before the run. Everything in this section is exploratory")
     assert "Only the prompt that asks the model to predict the record is moved" not in text
     assert "at least as well" not in text and "0 of 10 other wordings" in text
+    assert "quiet" not in text and "issuer habit shows in the wording" not in text and "the same rates" not in text
     m["test"] = None
     assert Rp.b_practice(m) == Rp.PENDING
 

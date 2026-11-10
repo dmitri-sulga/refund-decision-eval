@@ -35,3 +35,7 @@
 {"at": "2026-11-10T10:22:17+00:00", "event": "run_speed", "version": "v2", "label": "test noise pass", "workers": 1, "calls": 5, "s_per_call": 12.03, "generation_tokens_per_s": 12.1, "prompt_tokens_per_s": 138.5}
 {"at": "2026-11-10T10:59:07+00:00", "event": "replay", "version": "v2", "label": "test noise pass", "n_items": 250, "new_calls": 250, "workers": 1, "s_per_call": 9.08, "generation_tokens_per_s": 11.8, "prompt_tokens_per_s": 111.2}
 {"at": "2026-11-10T10:59:07+00:00", "event": "test_noise_pass_finished", "versions": ["v1", "v2"]}
+{"at": "2026-11-10T20:30:42+00:00", "event": "run_speed", "version": "v1", "label": "labelled", "workers": 1, "calls": 5, "s_per_call": 7.95, "generation_tokens_per_s": 16.1, "prompt_tokens_per_s": 133.0}
+{"at": "2026-11-10T20:49:02+00:00", "event": "run", "cache_tag": "", "version": "v1", "label": "labelled", "n_items": 100, "new_calls": 100, "workers": 1, "new_calls_wall_s": 1138.4, "elapsed_s": 1139.2, "s_per_call": 11.38, "generation_tokens_per_s": 8.4, "prompt_tokens_per_s": 68.6}
+{"at": "2026-11-10T20:49:48+00:00", "event": "run_speed", "version": "v2", "label": "labelled", "workers": 1, "calls": 5, "s_per_call": 8.89, "generation_tokens_per_s": 14.6, "prompt_tokens_per_s": 152.7}
+{"at": "2026-11-10T21:10:45+00:00", "event": "run", "cache_tag": "", "version": "v2", "label": "labelled", "n_items": 100, "new_calls": 100, "workers": 1, "new_calls_wall_s": 1300.3, "elapsed_s": 1301.0, "s_per_call": 13.0, "generation_tokens_per_s": 9.1, "prompt_tokens_per_s": 74.4}

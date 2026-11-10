@@ -2,7 +2,25 @@
  {
   "file": "src/judge/report.py",
   "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-  "sha256": "27e4f06ac104c985593f94a9107b547ceb6bea1995d44e5cede9592cb7f59f90",
-  "what": "presentation only, after the held-out run: blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. No computation was changed; results/metrics.json was compared before and after the change."
+  "sha256": "8a93ce6fcba4c5c49961b4f61d6f2caad67d4d91a8ea0e9622b1cbc50d11e1ef",
+  "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed."
+ },
+ {
+  "file": "src/judge/frontpage.py",
+  "frozen_sha256": null,
+  "sha256": "de0c5f448347227abcaab5dd4047bea0ffcf0aad38bd3ddec3f66d2fbb16d38e",
+  "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only."
+ },
+ {
+  "file": "src/judge/posthoc.py",
+  "frozen_sha256": null,
+  "sha256": "40425791a7b46771f89b108ed5553045e725a8ec63e662608cb65cbd24689d01",
+  "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim."
+ },
+ {
+  "file": "docs/deviations.md",
+  "frozen_sha256": null,
+  "sha256": "53dd90c7bfdee9694188368af5a3bc901641fc44d165d43be1d1bb8ca11ec613",
+  "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added."
  }
 ]

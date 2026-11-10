@@ -16,3 +16,6 @@
 {"at": "2026-11-09T23:46:46+00:00", "event": "replay", "version": "v1", "n_items": 100, "new_calls": 76, "workers": 1, "s_per_call": 10.27, "generation_tokens_per_s": 8.9, "prompt_tokens_per_s": 71.1}
 {"at": "2026-11-10T00:49:36+00:00", "event": "method_frozen", "frozen_sha256": "aaf9328241d00633acb371e9708f0c7d721887a37ff093c653d3ed5a1082e22b"}
 {"at": "2026-11-10T01:16:11+00:00", "event": "human_label_plan_registered", "registered_at": "2026-11-10T01:16:09+00:00", "labels_exist": false}
+{"at": "2026-11-10T02:10:37+00:00", "event": "translation", "version": "ru1", "n_items": 107, "new_calls": 107, "with_problems": 0, "elapsed_s": 4045.3}
+{"at": "2026-11-10T02:20:54+00:00", "event": "translation", "version": "ru1", "n_items": 120, "new_calls": 13, "with_problems": 0, "elapsed_s": 241.2}
+{"at": "2026-11-10T02:31:23+00:00", "event": "human_label_plan_amended", "amendment": 1, "labels_exist": false, "new_sample_drawn": false}

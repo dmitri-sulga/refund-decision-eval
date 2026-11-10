@@ -3,7 +3,7 @@
 A local LLM reads a credit card purchase-dispute complaint and answers: monetary relief or not. Its first prompt decides what should happen; its revised prompt predicts what the company recorded. Both are scored against the response the company recorded in the US CFPB Consumer Complaint Database. **Every metric here is agreement with recorded company decisions, not correctness.**
 
 <!-- BEGIN lead -->
-**Result so far (DEV, 200 complaints; the held-out split has not been run).** The judge agrees with recorded company decisions little better than chance: kappa 0.12 for the first prompt and 0.07 for the revised one. The revision did not help (-0.05 [-0.20, +0.10]). Both versions are below a TF-IDF baseline (kappa 0.38). The issuer's relief rate alone, without reading the complaint, orders complaints about as well (AUC 0.73 against 0.74), so part of that lead may be knowing how each issuer usually answers; but with issuer names masked, TF-IDF is still above both judges (kappa difference +0.18 [+0.02, +0.32] and +0.23 [+0.04, +0.40]). No judge configuration qualifies for automation at the planned target. What a careful person would decide from the same text is not known yet; blind human labels are being collected.
+**Result so far (DEV, 200 complaints; the held-out results are below).** The judge agrees with recorded company decisions little better than chance: kappa 0.12 for the first prompt and 0.07 for the revised one. The revision did not help (-0.05 [-0.20, +0.10]). Both versions are below a TF-IDF baseline (kappa 0.38). The issuer's relief rate alone, without reading the complaint, orders complaints about as well (AUC 0.73 against 0.74), so part of that lead may be knowing how each issuer usually answers; but with issuer names masked, TF-IDF is still above both judges (kappa difference +0.18 [+0.02, +0.32] and +0.23 [+0.04, +0.40]). No judge configuration qualifies for automation at the planned target. What a careful person would decide from the same text is not known yet; blind human labels are being collected.
 <!-- END lead -->
 
 Built in November 2026 as a work sample for an applied-AI job application. It runs on one laptop with a local model; every model answer is cached, and `make reproduce` recomputes every number below without a model and fails if one differs.
@@ -11,19 +11,19 @@ Built in November 2026 as a work sample for an applied-AI job application. It ru
 ## Results so far (DEV only; the held-out split has not been run)
 
 <!-- BEGIN summary -->
-DEV: 200 complaints, 30.0% closed with monetary relief. Held-out TEST: 250 complaints, 30.0%, not yet run. TRAIN (classic baselines only): 8,000, 30.1%. Kappa is Cohen's kappa against the recorded company decision, with a 95% bootstrap interval; AUC is the chance that a relief case is scored above a no-relief case, over all pairs and over pairs answered by the same issuer.
+DEV: 200 complaints, 30.0% closed with monetary relief. Held-out TEST: 250 complaints, 30.0%. TRAIN (classic baselines only): 8,000, 30.1%. Kappa is Cohen's kappa against the recorded company decision, with a 95% bootstrap interval; AUC is the chance that a relief case is scored above a no-relief case, over all pairs and over pairs answered by the same issuer.
 
 | System | Reads | DEV kappa [95% CI] | DEV AUC: all pairs / same issuer | Automated on DEV at the planned target | Held-out kappa [95% CI] | Time per 1,000 decisions |
 |---|---|---|---|---|---|---|
-| Majority class (always no relief) | nothing | 0.000 (constant answer) | n/a | not assessed | not run | a table lookup |
-| Keyword rule (cues from the DEV reading, choice on TRAIN) | narrative | 0.076 [-0.053, 0.213] | n/a | not assessed | not run | 0.1 s (CPU) |
-| Company rule (planned: issuer's TRAIN relief rate above one half) | company field only | 0.157 [0.033, 0.279] | n/a | not assessed | not run | a table lookup |
-| Issuer relief rate (added later: above the TRAIN base rate) | company field only | 0.318 [0.190, 0.442] | 0.73 / 0.50 | not assessed | not run | a table lookup |
-| TF-IDF + logistic regression, issuer names masked (added later) | header + narrative, issuer names masked | 0.295 [0.153, 0.433] | 0.67 / 0.66 | not assessed | not run | 1.4 s (CPU) |
-| TF-IDF + logistic regression (trained on TRAIN) | header + narrative | 0.383 [0.245, 0.513] | 0.74 / 0.69 | 20/200 at 90.0% agreement (Wilson [69.9%, 97.2%]); chosen and scored on the same cases, does not survive a split | not run | 1.4 s (CPU) |
-| LLM judge v1 (plain rubric) | header + narrative | 0.120 [0.024, 0.221] | 0.62 / 0.61 | none: no threshold reaches the target | not run | about 3 h (one laptop GPU) |
-| LLM judge v2 (predicts the record, facts first) | header + narrative | 0.070 [-0.051, 0.197] | 0.59 / 0.60 | none: no threshold reaches the target | not run | about 4 h (one laptop GPU) |
-| Guarded pipeline (v2 facts -> fact model; filter routes to human) | header + narrative | 0.009 [-0.070, 0.103] | 0.58 / 0.58 | none: no threshold reaches the target | not run | about 4 h (one laptop GPU) |
+| Majority class (always no relief) | nothing | 0.000 (constant answer) | n/a | not assessed | 0.000 (constant answer) | a table lookup |
+| Keyword rule (cues from the DEV reading, choice on TRAIN) | narrative | 0.076 [-0.053, 0.213] | n/a | not assessed | 0.116 [-0.002, 0.238] | 0.1 s (CPU) |
+| Company rule (planned: issuer's TRAIN relief rate above one half) | company field only | 0.157 [0.033, 0.279] | n/a | not assessed | 0.169 [0.069, 0.278] | a table lookup |
+| Issuer relief rate (added later: above the TRAIN base rate) | company field only | 0.318 [0.190, 0.442] | 0.73 / 0.50 | not assessed | 0.354 [0.230, 0.473] | a table lookup |
+| TF-IDF + logistic regression, issuer names masked (added later) | header + narrative, issuer names masked | 0.295 [0.153, 0.433] | 0.67 / 0.66 | not assessed | 0.215 [0.085, 0.344] | 1.4 s (CPU) |
+| TF-IDF + logistic regression (trained on TRAIN) | header + narrative | 0.383 [0.245, 0.513] | 0.74 / 0.69 | 20/200 at 90.0% agreement (Wilson [69.9%, 97.2%]); chosen and scored on the same cases, does not survive a split | 0.320 [0.192, 0.445] | 1.4 s (CPU) |
+| LLM judge v1 (plain rubric) | header + narrative | 0.120 [0.024, 0.221] | 0.62 / 0.61 | none: no threshold reaches the target | 0.085 [0.000, 0.172] | about 3 h (one laptop GPU) |
+| LLM judge v2 (predicts the record, facts first) | header + narrative | 0.070 [-0.051, 0.197] | 0.59 / 0.60 | none: no threshold reaches the target | 0.205 [0.077, 0.332] | about 4 h (one laptop GPU) |
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | header + narrative | 0.009 [-0.070, 0.103] | 0.58 / 0.58 | none: no threshold reaches the target | 0.201 [0.092, 0.316] | about 4 h (one laptop GPU) |
 | Person, blind (one annotator) | header + narrative | not labelled yet |  | n/a | n/a |  |
 <!-- END summary -->
 
@@ -139,7 +139,65 @@ The Russian rubric (`docs/labelling_rubric_ru.md`), the Russian button labels an
 ## Held-out TEST
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `cd8950249f3e1997...`): every source file, the data, the plans, the DEV operating points, the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`) and 6 claims with their decision rules (listed in the full report). The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
+Run once from commit `822811d125e8`: started 2026-11-10T08:18:54+00:00, finished 2026-11-10T09:51:09+00:00 (UTC), versions v1, v2. Requests recorded before sending (`results/cache/sent.jsonl`): 500 in the scored pass and 500, each under its own label, in the noise pass; none was sent twice.
+
+| System | n | Accuracy [95% CI] | Kappa [95% CI] | Precision relief | Recall relief | Precision no-relief | Recall no-relief | Invalid |
+|---|---|---|---|---|---|---|---|---|
+| Majority class (always no relief) | 250 | 0.700 [0.644, 0.756] | 0.000 (constant answer) | n/a | 0.000 | 0.700 | 1.000 | 0 |
+| Keyword rule (cues from the DEV reading, choice on TRAIN) | 250 | 0.688 [0.632, 0.744] | 0.116 [-0.002, 0.238] | 0.455 | 0.200 | 0.724 | 0.897 | 0 |
+| Company rule (planned: issuer's TRAIN relief rate above one half) | 250 | 0.732 [0.676, 0.788] | 0.169 [0.069, 0.278] | 0.786 | 0.147 | 0.729 | 0.983 | 0 |
+| Issuer relief rate (added later: above the TRAIN base rate) | 250 | 0.712 [0.652, 0.768] | 0.354 [0.230, 0.473] | 0.516 | 0.627 | 0.824 | 0.749 | 0 |
+| TF-IDF + logistic regression, issuer names masked (added later) | 250 | 0.684 [0.624, 0.740] | 0.215 [0.085, 0.344] | 0.469 | 0.400 | 0.758 | 0.806 | 0 |
+| TF-IDF + logistic regression (trained on TRAIN) | 250 | 0.724 [0.668, 0.780] | 0.320 [0.192, 0.445] | 0.545 | 0.480 | 0.788 | 0.829 | 0 |
+| LLM judge v1 (plain rubric) | 250 | 0.468 [0.408, 0.532] | 0.085 [0.000, 0.172] | 0.335 | 0.787 | 0.784 | 0.331 | 0 |
+| LLM judge v2 (predicts the record, facts first) | 250 | 0.712 [0.656, 0.768] | 0.205 [0.077, 0.332] | 0.538 | 0.280 | 0.744 | 0.897 | 0 |
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | 250 | 0.736 [0.680, 0.792] | 0.201 [0.092, 0.316] | 0.737 | 0.187 | 0.736 | 0.971 | 0 |
+
+The frozen claims, each decided by its rule:
+
+- no improvement of v2 over v1 was demonstrated (+0.120 [-0.013, +0.249])
+- judge v1 is below the TF-IDF model (-0.234 [-0.370, -0.096])
+- judge v2 is not distinguishable from the TF-IDF model (-0.114 [-0.277, +0.048])
+- judge v1 is below the issuer relief rate (-0.268 [-0.407, -0.124])
+- judge v2 is not distinguishable from the issuer relief rate (-0.148 [-0.328, +0.039])
+- judge v1 is not distinguishable from the company rule (-0.083 [-0.221, +0.049])
+- judge v2 is not distinguishable from the company rule (+0.037 [-0.141, +0.211])
+- the lead of TF-IDF over judge v1 is not demonstrated once the issuer is held fixed (-0.014 [-0.144, +0.107])
+- the lead of TF-IDF over judge v2 is not demonstrated once the issuer is held fixed (-0.031 [-0.135, +0.085])
+- the frozen TF-IDF operating point: not shown to meet the target
+- the LLM judge automates nothing (no DEV threshold reached the target for: guarded, v1, v2)
+
+Ordering of held-out complaints:
+
+| System | AUC, all pairs [95% CI] | AUC, pairs with the same issuer [95% CI] |
+|---|---|---|
+| Issuer relief rate (added later: above the TRAIN base rate) | 0.724 [0.651, 0.793] | 0.500 (constant within an issuer) |
+| TF-IDF + logistic regression, issuer names masked (added later) | 0.657 [0.578, 0.732] | 0.603 [0.496, 0.707] |
+| TF-IDF + logistic regression (trained on TRAIN) | 0.707 [0.632, 0.772] | 0.577 [0.464, 0.685] |
+| LLM judge v1 (plain rubric) | 0.605 [0.529, 0.682] | 0.591 [0.481, 0.699] |
+| LLM judge v2 (predicts the record, facts first) | 0.597 [0.516, 0.683] | 0.608 [0.500, 0.709] |
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | 0.625 [0.546, 0.704] | 0.602 [0.493, 0.710] |
+
+LLM judge v2 (predicts the record, facts first) minus LLM judge v1 (plain rubric) on the same held-out complaints (paired bootstrap): kappa +0.120 [-0.013, +0.249], accuracy +0.244 [+0.156, +0.332]. The first-named system agrees with the record on 99 complaints where the other does not (99 closed without relief, 0 with), and disagrees on 38 where the other agrees (38 closed with relief, 0 without).
+
+LLM judge v1 (plain rubric) minus TF-IDF + logistic regression (trained on TRAIN) on the same held-out complaints (paired bootstrap): kappa -0.234 [-0.370, -0.096], accuracy -0.256 [-0.336, -0.176]. The first-named system agrees with the record on 30 complaints where the other does not (3 closed without relief, 27 with), and disagrees on 94 where the other agrees (4 closed with relief, 90 without).
+
+LLM judge v2 (predicts the record, facts first) minus TF-IDF + logistic regression (trained on TRAIN) on the same held-out complaints (paired bootstrap): kappa -0.114 [-0.277, +0.048], accuracy -0.012 [-0.076, +0.052]. The first-named system agrees with the record on 31 complaints where the other does not (24 closed without relief, 7 with), and disagrees on 34 where the other agrees (22 closed with relief, 12 without).
+
+LLM judge v1 (plain rubric) minus Issuer relief rate (added later: above the TRAIN base rate) on the same held-out complaints (paired bootstrap): kappa -0.268 [-0.407, -0.124], accuracy -0.244 [-0.328, -0.160]. The first-named system agrees with the record on 34 complaints where the other does not (13 closed without relief, 21 with), and disagrees on 95 where the other agrees (9 closed with relief, 86 without).
+
+LLM judge v2 (predicts the record, facts first) minus Issuer relief rate (added later: above the TRAIN base rate) on the same held-out complaints (paired bootstrap): kappa -0.148 [-0.328, +0.039], accuracy +0.000 [-0.080, +0.080]. The first-named system agrees with the record on 50 complaints where the other does not (41 closed without relief, 9 with), and disagrees on 50 where the other agrees (35 closed with relief, 15 without).
+
+Operating points frozen on DEV applied unchanged to TEST:
+
+| System | Confidence | Threshold fixed beforehand | Automated [95% CI] | Agreement on automated [95% Wilson CI] | Agreement of 'always no relief' on the same cases |
+|---|---|---|---|---|---|
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | token | none | nothing automated | n/a | n/a |
+| TF-IDF + logistic regression (trained on TRAIN) | token | 0.7317 | 29/250 = 11.6% [7.6%, 16.0%] | 93.1% [78.0%, 98.1%] | 75.9% |
+| LLM judge v1 (plain rubric) | token | none | nothing automated | n/a | n/a |
+| LLM judge v2 (predicts the record, facts first) | token | none | nothing automated | n/a | n/a |
+
+Noise pass (every held-out request sent a second time; never scored against the record): LLM judge v1 (plain rubric) repeated its decision in 248/250 = 99.2% [97.1%, 99.8%], kappa between the two passes 0.98, largest shift in P(relief) 0.08; LLM judge v2 (predicts the record, facts first) repeated its decision in 250/250 = 100.0% [98.5%, 100.0%], kappa between the two passes 1.00, largest shift in P(relief) 0.00.
 <!-- END test_results -->
 
 The realistic estimate is the held-out result at the frozen thresholds; the ceiling discussion (label noise among near-identical complaints, the judge's agreement with itself) is in the full report.

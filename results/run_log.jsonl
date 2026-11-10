@@ -24,3 +24,14 @@
 {"at": "2026-11-10T03:57:50+00:00", "event": "method_frozen"}
 {"at": "2026-11-10T04:07:07+00:00", "event": "method_frozen"}
 {"at": "2026-11-10T08:09:05+00:00", "event": "method_frozen"}
+{"at": "2026-11-10T08:18:54+00:00", "event": "test_run_started", "versions": ["v1", "v2"], "workers": 1, "frozen_sha256": "cd8950249f3e1997e1e295091f688a752f5635850aa74898bd7a4170dff841fb", "commit": "822811d125e83bfe0ca801b397f383fac3ef3db8"}
+{"at": "2026-11-10T08:19:33+00:00", "event": "run_speed", "version": "v1", "label": "test", "workers": 1, "calls": 5, "s_per_call": 7.77, "generation_tokens_per_s": 19.3, "prompt_tokens_per_s": 187.9}
+{"at": "2026-11-10T08:54:16+00:00", "event": "run", "cache_tag": "", "version": "v1", "label": "test", "n_items": 250, "new_calls": 250, "workers": 1, "new_calls_wall_s": 2120.4, "elapsed_s": 2121.3, "s_per_call": 8.48, "generation_tokens_per_s": 10.2, "prompt_tokens_per_s": 92.8}
+{"at": "2026-11-10T08:55:38+00:00", "event": "run_speed", "version": "v2", "label": "test", "workers": 1, "calls": 5, "s_per_call": 16.34, "generation_tokens_per_s": 9.3, "prompt_tokens_per_s": 97.9}
+{"at": "2026-11-10T09:51:09+00:00", "event": "run", "cache_tag": "", "version": "v2", "label": "test", "n_items": 250, "new_calls": 250, "workers": 1, "new_calls_wall_s": 3412.6, "elapsed_s": 3413.2, "s_per_call": 13.65, "generation_tokens_per_s": 7.8, "prompt_tokens_per_s": 74.6}
+{"at": "2026-11-10T09:51:09+00:00", "event": "test_run_finished", "versions": ["v1", "v2"]}
+{"at": "2026-11-10T09:52:21+00:00", "event": "run_speed", "version": "v1", "label": "test noise pass", "workers": 1, "calls": 5, "s_per_call": 14.19, "generation_tokens_per_s": 8.2, "prompt_tokens_per_s": 91.5}
+{"at": "2026-11-10T10:21:16+00:00", "event": "replay", "version": "v1", "label": "test noise pass", "n_items": 250, "new_calls": 250, "workers": 1, "s_per_call": 7.22, "generation_tokens_per_s": 11.8, "prompt_tokens_per_s": 110.6}
+{"at": "2026-11-10T10:22:17+00:00", "event": "run_speed", "version": "v2", "label": "test noise pass", "workers": 1, "calls": 5, "s_per_call": 12.03, "generation_tokens_per_s": 12.1, "prompt_tokens_per_s": 138.5}
+{"at": "2026-11-10T10:59:07+00:00", "event": "replay", "version": "v2", "label": "test noise pass", "n_items": 250, "new_calls": 250, "workers": 1, "s_per_call": 9.08, "generation_tokens_per_s": 11.8, "prompt_tokens_per_s": 111.2}
+{"at": "2026-11-10T10:59:07+00:00", "event": "test_noise_pass_finished", "versions": ["v1", "v2"]}

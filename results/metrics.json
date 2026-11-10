@@ -5492,9 +5492,9 @@
  },
  "cost": {
   "all_calls": {
-   "calls": 1067,
-   "held_out_calls": 0,
-   "hours": 3.264659,
+   "calls": 2067,
+   "held_out_calls": 1000,
+   "hours": 5.933844,
    "truncated": 0
   },
   "by_run": [
@@ -5569,6 +5569,42 @@
     "median_s": 9.407,
     "set": "dev (replay file)",
     "version": "v1@replay"
+   },
+   {
+    "calls": 250,
+    "first_call": "2026-11-10T08:19:06+00:00",
+    "hours": 0.589014,
+    "last_call": "2026-11-10T08:54:16+00:00",
+    "median_s": 7.6555,
+    "set": "test",
+    "version": "v1"
+   },
+   {
+    "calls": 250,
+    "first_call": "2026-11-10T08:54:30+00:00",
+    "hours": 0.94795,
+    "last_call": "2026-11-10T09:51:09+00:00",
+    "median_s": 12.653,
+    "set": "test",
+    "version": "v2"
+   },
+   {
+    "calls": 250,
+    "first_call": "2026-11-10T09:51:21+00:00",
+    "hours": 0.501623,
+    "last_call": "2026-11-10T10:21:16+00:00",
+    "median_s": 6.629,
+    "set": "test noise pass (replay file)",
+    "version": "v1@replay"
+   },
+   {
+    "calls": 250,
+    "first_call": "2026-11-10T10:21:27+00:00",
+    "hours": 0.630599,
+    "last_call": "2026-11-10T10:59:07+00:00",
+    "median_s": 8.6,
+    "set": "test noise pass (replay file)",
+    "version": "v2@replay"
    }
   ],
   "concurrency": [
@@ -5669,7 +5705,7 @@
    "reason": "After memory was freed, 12 cached requests took the same time at 1, 2 and 4 concurrent calls (the server handles one request at a time), so every run stays sequential.",
    "workers": 1
   },
-  "recent_s_per_call": 9.02,
+  "recent_s_per_call": 13.09,
   "run_speed": [
    {
     "at": "2026-11-09T21:35:57+00:00",
@@ -5725,6 +5761,50 @@
     "s_per_call": 8.1,
     "version": "v1",
     "workers": 1
+   },
+   {
+    "at": "2026-11-10T08:19:33+00:00",
+    "calls": 5,
+    "event": "run_speed",
+    "generation_tokens_per_s": 19.3,
+    "label": "test",
+    "prompt_tokens_per_s": 187.9,
+    "s_per_call": 7.77,
+    "version": "v1",
+    "workers": 1
+   },
+   {
+    "at": "2026-11-10T08:55:38+00:00",
+    "calls": 5,
+    "event": "run_speed",
+    "generation_tokens_per_s": 9.3,
+    "label": "test",
+    "prompt_tokens_per_s": 97.9,
+    "s_per_call": 16.34,
+    "version": "v2",
+    "workers": 1
+   },
+   {
+    "at": "2026-11-10T09:52:21+00:00",
+    "calls": 5,
+    "event": "run_speed",
+    "generation_tokens_per_s": 8.2,
+    "label": "test noise pass",
+    "prompt_tokens_per_s": 91.5,
+    "s_per_call": 14.19,
+    "version": "v1",
+    "workers": 1
+   },
+   {
+    "at": "2026-11-10T10:22:17+00:00",
+    "calls": 5,
+    "event": "run_speed",
+    "generation_tokens_per_s": 12.1,
+    "label": "test noise pass",
+    "prompt_tokens_per_s": 138.5,
+    "s_per_call": 12.03,
+    "version": "v2",
+    "workers": 1
    }
   ],
   "tfidf_lr": {
@@ -5749,14 +5829,14 @@
    "mean_prompt_tokens": 727.045,
    "mean_s": 11.02871,
    "median_s": 9.6705,
-   "min_s_all_calls": 4.698,
+   "min_s_all_calls": 3.439,
    "p90_s": 16.7528
   },
   "v2": {
    "calls": 200,
    "hours_per_1000": 3.653299,
    "max_output_tokens": 71,
-   "max_s_all_calls": 30.517,
+   "max_s_all_calls": 36.41,
    "mean_output_tokens": 68.6,
    "mean_prompt_tokens": 937.045,
    "mean_s": 13.151875,
@@ -7094,7 +7174,64 @@
   ],
   "words_in_disagreements": 29193
  },
- "estimates": null,
+ "estimates": {
+  "rows": [
+   {
+    "best_on_scored_split": {
+     "agreement": {
+      "hi": 1.0,
+      "lo": 0.810811,
+      "value": 0.914286
+     },
+     "coverage": 0.14,
+     "majority": 0.771429,
+     "n": 250,
+     "n_auto": 35
+    },
+    "optimistic": {
+     "agreement": {
+      "hi": 1.0,
+      "lo": 0.75,
+      "value": 0.9
+     },
+     "coverage": 0.1,
+     "majority": 0.7,
+     "n": 200,
+     "n_auto": 20
+    },
+    "realistic": {
+     "agreement": {
+      "hi": 1.0,
+      "lo": 0.82606,
+      "value": 0.931034
+     },
+     "coverage": 0.116,
+     "majority": 0.758621,
+     "n": 250,
+     "n_auto": 29
+    },
+    "system": "tfidf_lr"
+   },
+   {
+    "best_on_scored_split": null,
+    "optimistic": null,
+    "realistic": null,
+    "system": "v1"
+   },
+   {
+    "best_on_scored_split": null,
+    "optimistic": null,
+    "realistic": null,
+    "system": "v2"
+   },
+   {
+    "best_on_scored_split": null,
+    "optimistic": null,
+    "realistic": null,
+    "system": "guarded"
+   }
+  ]
+ },
  "fact_model": {
   "C": 1.0,
   "coef": [
@@ -11772,7 +11909,6763 @@
    "threshold_found": 31
   }
  },
- "test": null,
+ "test": {
+  "automation": {
+   "guarded": {
+    "at_dev_threshold": null,
+    "curve": [
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 0.0,
+      "coverage": 0.004,
+      "n_auto": 1,
+      "threshold": 0.958023
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.0,
+      "coverage": 0.008,
+      "n_auto": 2,
+      "threshold": 0.937389
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.012,
+      "n_auto": 3,
+      "threshold": 0.937207
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.0,
+      "coverage": 0.016,
+      "n_auto": 4,
+      "threshold": 0.931075
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.0,
+      "coverage": 0.024,
+      "n_auto": 6,
+      "threshold": 0.882086
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.0,
+      "coverage": 0.032,
+      "n_auto": 8,
+      "threshold": 0.867548
+     },
+     {
+      "agreement": 0.8,
+      "auto_relief_share": 0.0,
+      "coverage": 0.04,
+      "n_auto": 10,
+      "threshold": 0.863114
+     },
+     {
+      "agreement": 0.818182,
+      "auto_relief_share": 0.0,
+      "coverage": 0.044,
+      "n_auto": 11,
+      "threshold": 0.857634
+     },
+     {
+      "agreement": 0.823529,
+      "auto_relief_share": 0.0,
+      "coverage": 0.068,
+      "n_auto": 17,
+      "threshold": 0.854685
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.0,
+      "coverage": 0.072,
+      "n_auto": 18,
+      "threshold": 0.851653
+     },
+     {
+      "agreement": 0.789474,
+      "auto_relief_share": 0.0,
+      "coverage": 0.076,
+      "n_auto": 19,
+      "threshold": 0.846781
+     },
+     {
+      "agreement": 0.829268,
+      "auto_relief_share": 0.0,
+      "coverage": 0.164,
+      "n_auto": 41,
+      "threshold": 0.846643
+     },
+     {
+      "agreement": 0.840909,
+      "auto_relief_share": 0.0,
+      "coverage": 0.176,
+      "n_auto": 44,
+      "threshold": 0.843746
+     },
+     {
+      "agreement": 0.844444,
+      "auto_relief_share": 0.0,
+      "coverage": 0.18,
+      "n_auto": 45,
+      "threshold": 0.838742
+     },
+     {
+      "agreement": 0.847826,
+      "auto_relief_share": 0.0,
+      "coverage": 0.184,
+      "n_auto": 46,
+      "threshold": 0.83025
+     },
+     {
+      "agreement": 0.851064,
+      "auto_relief_share": 0.0,
+      "coverage": 0.188,
+      "n_auto": 47,
+      "threshold": 0.829028
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.0,
+      "coverage": 0.192,
+      "n_auto": 48,
+      "threshold": 0.827107
+     },
+     {
+      "agreement": 0.803571,
+      "auto_relief_share": 0.0,
+      "coverage": 0.224,
+      "n_auto": 56,
+      "threshold": 0.826588
+     },
+     {
+      "agreement": 0.807018,
+      "auto_relief_share": 0.0,
+      "coverage": 0.228,
+      "n_auto": 57,
+      "threshold": 0.823392
+     },
+     {
+      "agreement": 0.793103,
+      "auto_relief_share": 0.0,
+      "coverage": 0.232,
+      "n_auto": 58,
+      "threshold": 0.81813
+     },
+     {
+      "agreement": 0.8,
+      "auto_relief_share": 0.0,
+      "coverage": 0.24,
+      "n_auto": 60,
+      "threshold": 0.815004
+     },
+     {
+      "agreement": 0.786885,
+      "auto_relief_share": 0.0,
+      "coverage": 0.244,
+      "n_auto": 61,
+      "threshold": 0.810893
+     },
+     {
+      "agreement": 0.774194,
+      "auto_relief_share": 0.0,
+      "coverage": 0.248,
+      "n_auto": 62,
+      "threshold": 0.806873
+     },
+     {
+      "agreement": 0.782609,
+      "auto_relief_share": 0.0,
+      "coverage": 0.276,
+      "n_auto": 69,
+      "threshold": 0.804784
+     },
+     {
+      "agreement": 0.790123,
+      "auto_relief_share": 0.0,
+      "coverage": 0.324,
+      "n_auto": 81,
+      "threshold": 0.800704
+     },
+     {
+      "agreement": 0.790698,
+      "auto_relief_share": 0.0,
+      "coverage": 0.344,
+      "n_auto": 86,
+      "threshold": 0.797147
+     },
+     {
+      "agreement": 0.793103,
+      "auto_relief_share": 0.0,
+      "coverage": 0.348,
+      "n_auto": 87,
+      "threshold": 0.793498
+     },
+     {
+      "agreement": 0.786517,
+      "auto_relief_share": 0.0,
+      "coverage": 0.356,
+      "n_auto": 89,
+      "threshold": 0.786186
+     },
+     {
+      "agreement": 0.777778,
+      "auto_relief_share": 0.0,
+      "coverage": 0.36,
+      "n_auto": 90,
+      "threshold": 0.783805
+     },
+     {
+      "agreement": 0.769231,
+      "auto_relief_share": 0.0,
+      "coverage": 0.364,
+      "n_auto": 91,
+      "threshold": 0.781227
+     },
+     {
+      "agreement": 0.771739,
+      "auto_relief_share": 0.0,
+      "coverage": 0.368,
+      "n_auto": 92,
+      "threshold": 0.778833
+     },
+     {
+      "agreement": 0.763441,
+      "auto_relief_share": 0.0,
+      "coverage": 0.372,
+      "n_auto": 93,
+      "threshold": 0.762249
+     },
+     {
+      "agreement": 0.755319,
+      "auto_relief_share": 0.0,
+      "coverage": 0.376,
+      "n_auto": 94,
+      "threshold": 0.761289
+     },
+     {
+      "agreement": 0.757895,
+      "auto_relief_share": 0.0,
+      "coverage": 0.38,
+      "n_auto": 95,
+      "threshold": 0.760462
+     },
+     {
+      "agreement": 0.760417,
+      "auto_relief_share": 0.0,
+      "coverage": 0.384,
+      "n_auto": 96,
+      "threshold": 0.757883
+     },
+     {
+      "agreement": 0.762887,
+      "auto_relief_share": 0.0,
+      "coverage": 0.388,
+      "n_auto": 97,
+      "threshold": 0.755426
+     },
+     {
+      "agreement": 0.765306,
+      "auto_relief_share": 0.0,
+      "coverage": 0.392,
+      "n_auto": 98,
+      "threshold": 0.745752
+     },
+     {
+      "agreement": 0.77,
+      "auto_relief_share": 0.0,
+      "coverage": 0.4,
+      "n_auto": 100,
+      "threshold": 0.74489
+     },
+     {
+      "agreement": 0.772277,
+      "auto_relief_share": 0.0,
+      "coverage": 0.404,
+      "n_auto": 101,
+      "threshold": 0.739638
+     },
+     {
+      "agreement": 0.77451,
+      "auto_relief_share": 0.0,
+      "coverage": 0.408,
+      "n_auto": 102,
+      "threshold": 0.733028
+     },
+     {
+      "agreement": 0.780952,
+      "auto_relief_share": 0.0,
+      "coverage": 0.42,
+      "n_auto": 105,
+      "threshold": 0.728855
+     },
+     {
+      "agreement": 0.769841,
+      "auto_relief_share": 0.0,
+      "coverage": 0.504,
+      "n_auto": 126,
+      "threshold": 0.727956
+     },
+     {
+      "agreement": 0.774436,
+      "auto_relief_share": 0.0,
+      "coverage": 0.532,
+      "n_auto": 133,
+      "threshold": 0.725153
+     },
+     {
+      "agreement": 0.772059,
+      "auto_relief_share": 0.0,
+      "coverage": 0.544,
+      "n_auto": 136,
+      "threshold": 0.723549
+     },
+     {
+      "agreement": 0.76,
+      "auto_relief_share": 0.0,
+      "coverage": 0.6,
+      "n_auto": 150,
+      "threshold": 0.722486
+     },
+     {
+      "agreement": 0.761589,
+      "auto_relief_share": 0.0,
+      "coverage": 0.604,
+      "n_auto": 151,
+      "threshold": 0.720719
+     },
+     {
+      "agreement": 0.756579,
+      "auto_relief_share": 0.0,
+      "coverage": 0.608,
+      "n_auto": 152,
+      "threshold": 0.681055
+     },
+     {
+      "agreement": 0.75817,
+      "auto_relief_share": 0.0,
+      "coverage": 0.612,
+      "n_auto": 153,
+      "threshold": 0.661427
+     },
+     {
+      "agreement": 0.753247,
+      "auto_relief_share": 0.0,
+      "coverage": 0.616,
+      "n_auto": 154,
+      "threshold": 0.637319
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.0,
+      "coverage": 0.624,
+      "n_auto": 156,
+      "threshold": 0.634229
+     },
+     {
+      "agreement": 0.736527,
+      "auto_relief_share": 0.0,
+      "coverage": 0.668,
+      "n_auto": 167,
+      "threshold": 0.62822
+     },
+     {
+      "agreement": 0.728814,
+      "auto_relief_share": 0.0,
+      "coverage": 0.708,
+      "n_auto": 177,
+      "threshold": 0.607622
+     },
+     {
+      "agreement": 0.730337,
+      "auto_relief_share": 0.005618,
+      "coverage": 0.712,
+      "n_auto": 178,
+      "threshold": 0.590416
+     },
+     {
+      "agreement": 0.751244,
+      "auto_relief_share": 0.004975,
+      "coverage": 0.804,
+      "n_auto": 201,
+      "threshold": 0.587503
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.004902,
+      "coverage": 0.816,
+      "n_auto": 204,
+      "threshold": 0.582127
+     },
+     {
+      "agreement": 0.752427,
+      "auto_relief_share": 0.014563,
+      "coverage": 0.824,
+      "n_auto": 206,
+      "threshold": 0.569159
+     },
+     {
+      "agreement": 0.738197,
+      "auto_relief_share": 0.012876,
+      "coverage": 0.932,
+      "n_auto": 233,
+      "threshold": 0.566206
+     },
+     {
+      "agreement": 0.740741,
+      "auto_relief_share": 0.053498,
+      "coverage": 0.972,
+      "n_auto": 243,
+      "threshold": 0.534951
+     },
+     {
+      "agreement": 0.741803,
+      "auto_relief_share": 0.053279,
+      "coverage": 0.976,
+      "n_auto": 244,
+      "threshold": 0.529507
+     },
+     {
+      "agreement": 0.736,
+      "auto_relief_share": 0.076,
+      "coverage": 1.0,
+      "n_auto": 250,
+      "threshold": 0.51319
+     }
+    ],
+    "fixed_coverage": [
+     {
+      "agreement": 0.829268,
+      "auto_relief_share": 0.0,
+      "coverage": 0.164,
+      "level": 0.1,
+      "n_auto": 41,
+      "threshold": 0.846643
+     },
+     {
+      "agreement": 0.782609,
+      "auto_relief_share": 0.0,
+      "coverage": 0.276,
+      "level": 0.25,
+      "n_auto": 69,
+      "threshold": 0.804784
+     },
+     {
+      "agreement": 0.769841,
+      "auto_relief_share": 0.0,
+      "coverage": 0.504,
+      "level": 0.5,
+      "n_auto": 126,
+      "threshold": 0.727956
+     },
+     {
+      "agreement": 0.751244,
+      "auto_relief_share": 0.004975,
+      "coverage": 0.804,
+      "level": 0.75,
+      "n_auto": 201,
+      "threshold": 0.587503
+     },
+     {
+      "agreement": 0.736,
+      "auto_relief_share": 0.076,
+      "coverage": 1.0,
+      "level": 1.0,
+      "n_auto": 250,
+      "threshold": 0.51319
+     }
+    ],
+    "signal": "token",
+    "threshold": null
+   },
+   "tfidf_lr": {
+    "at_dev_threshold": {
+     "agreement": {
+      "hi": 1.0,
+      "lo": 0.82606,
+      "value": 0.931034
+     },
+     "agreement_wilson": [
+      0.780354,
+      0.980879
+     ],
+     "auto_no_relief": 24,
+     "auto_relief": 5,
+     "coverage": {
+      "hi": 0.16,
+      "lo": 0.076,
+      "value": 0.116
+     },
+     "majority_agreement_on_auto": 0.758621,
+     "n": 250,
+     "n_auto": 29,
+     "threshold": 0.73168,
+     "wrong_no_relief": 2,
+     "wrong_relief": 0
+    },
+    "curve": [
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 1.0,
+      "coverage": 0.004,
+      "n_auto": 1,
+      "threshold": 0.904718
+     },
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 0.5,
+      "coverage": 0.008,
+      "n_auto": 2,
+      "threshold": 0.840825
+     },
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 0.333333,
+      "coverage": 0.012,
+      "n_auto": 3,
+      "threshold": 0.80426
+     },
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 0.5,
+      "coverage": 0.016,
+      "n_auto": 4,
+      "threshold": 0.801509
+     },
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 0.4,
+      "coverage": 0.02,
+      "n_auto": 5,
+      "threshold": 0.798382
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.333333,
+      "coverage": 0.024,
+      "n_auto": 6,
+      "threshold": 0.792581
+     },
+     {
+      "agreement": 0.857143,
+      "auto_relief_share": 0.285714,
+      "coverage": 0.028,
+      "n_auto": 7,
+      "threshold": 0.790669
+     },
+     {
+      "agreement": 0.875,
+      "auto_relief_share": 0.25,
+      "coverage": 0.032,
+      "n_auto": 8,
+      "threshold": 0.786122
+     },
+     {
+      "agreement": 0.888889,
+      "auto_relief_share": 0.222222,
+      "coverage": 0.036,
+      "n_auto": 9,
+      "threshold": 0.785865
+     },
+     {
+      "agreement": 0.8,
+      "auto_relief_share": 0.2,
+      "coverage": 0.04,
+      "n_auto": 10,
+      "threshold": 0.78337
+     },
+     {
+      "agreement": 0.818182,
+      "auto_relief_share": 0.181818,
+      "coverage": 0.044,
+      "n_auto": 11,
+      "threshold": 0.782584
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.048,
+      "n_auto": 12,
+      "threshold": 0.782375
+     },
+     {
+      "agreement": 0.846154,
+      "auto_relief_share": 0.230769,
+      "coverage": 0.052,
+      "n_auto": 13,
+      "threshold": 0.782227
+     },
+     {
+      "agreement": 0.857143,
+      "auto_relief_share": 0.285714,
+      "coverage": 0.056,
+      "n_auto": 14,
+      "threshold": 0.77849
+     },
+     {
+      "agreement": 0.866667,
+      "auto_relief_share": 0.266667,
+      "coverage": 0.06,
+      "n_auto": 15,
+      "threshold": 0.769837
+     },
+     {
+      "agreement": 0.875,
+      "auto_relief_share": 0.25,
+      "coverage": 0.064,
+      "n_auto": 16,
+      "threshold": 0.766538
+     },
+     {
+      "agreement": 0.882353,
+      "auto_relief_share": 0.235294,
+      "coverage": 0.068,
+      "n_auto": 17,
+      "threshold": 0.761021
+     },
+     {
+      "agreement": 0.888889,
+      "auto_relief_share": 0.222222,
+      "coverage": 0.072,
+      "n_auto": 18,
+      "threshold": 0.759122
+     },
+     {
+      "agreement": 0.894737,
+      "auto_relief_share": 0.210526,
+      "coverage": 0.076,
+      "n_auto": 19,
+      "threshold": 0.757441
+     },
+     {
+      "agreement": 0.9,
+      "auto_relief_share": 0.2,
+      "coverage": 0.08,
+      "n_auto": 20,
+      "threshold": 0.751637
+     },
+     {
+      "agreement": 0.904762,
+      "auto_relief_share": 0.190476,
+      "coverage": 0.084,
+      "n_auto": 21,
+      "threshold": 0.7515
+     },
+     {
+      "agreement": 0.909091,
+      "auto_relief_share": 0.181818,
+      "coverage": 0.088,
+      "n_auto": 22,
+      "threshold": 0.745673
+     },
+     {
+      "agreement": 0.913043,
+      "auto_relief_share": 0.173913,
+      "coverage": 0.092,
+      "n_auto": 23,
+      "threshold": 0.745572
+     },
+     {
+      "agreement": 0.916667,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.096,
+      "n_auto": 24,
+      "threshold": 0.745207
+     },
+     {
+      "agreement": 0.92,
+      "auto_relief_share": 0.2,
+      "coverage": 0.1,
+      "n_auto": 25,
+      "threshold": 0.742194
+     },
+     {
+      "agreement": 0.923077,
+      "auto_relief_share": 0.192308,
+      "coverage": 0.104,
+      "n_auto": 26,
+      "threshold": 0.739892
+     },
+     {
+      "agreement": 0.925926,
+      "auto_relief_share": 0.185185,
+      "coverage": 0.108,
+      "n_auto": 27,
+      "threshold": 0.739514
+     },
+     {
+      "agreement": 0.928571,
+      "auto_relief_share": 0.178571,
+      "coverage": 0.112,
+      "n_auto": 28,
+      "threshold": 0.732593
+     },
+     {
+      "agreement": 0.931034,
+      "auto_relief_share": 0.172414,
+      "coverage": 0.116,
+      "n_auto": 29,
+      "threshold": 0.732589
+     },
+     {
+      "agreement": 0.9,
+      "auto_relief_share": 0.2,
+      "coverage": 0.12,
+      "n_auto": 30,
+      "threshold": 0.724095
+     },
+     {
+      "agreement": 0.903226,
+      "auto_relief_share": 0.193548,
+      "coverage": 0.124,
+      "n_auto": 31,
+      "threshold": 0.723586
+     },
+     {
+      "agreement": 0.90625,
+      "auto_relief_share": 0.1875,
+      "coverage": 0.128,
+      "n_auto": 32,
+      "threshold": 0.721706
+     },
+     {
+      "agreement": 0.909091,
+      "auto_relief_share": 0.212121,
+      "coverage": 0.132,
+      "n_auto": 33,
+      "threshold": 0.719674
+     },
+     {
+      "agreement": 0.911765,
+      "auto_relief_share": 0.205882,
+      "coverage": 0.136,
+      "n_auto": 34,
+      "threshold": 0.718635
+     },
+     {
+      "agreement": 0.914286,
+      "auto_relief_share": 0.2,
+      "coverage": 0.14,
+      "n_auto": 35,
+      "threshold": 0.717827
+     },
+     {
+      "agreement": 0.888889,
+      "auto_relief_share": 0.194444,
+      "coverage": 0.144,
+      "n_auto": 36,
+      "threshold": 0.715966
+     },
+     {
+      "agreement": 0.891892,
+      "auto_relief_share": 0.216216,
+      "coverage": 0.148,
+      "n_auto": 37,
+      "threshold": 0.713317
+     },
+     {
+      "agreement": 0.894737,
+      "auto_relief_share": 0.210526,
+      "coverage": 0.152,
+      "n_auto": 38,
+      "threshold": 0.712691
+     },
+     {
+      "agreement": 0.871795,
+      "auto_relief_share": 0.230769,
+      "coverage": 0.156,
+      "n_auto": 39,
+      "threshold": 0.711608
+     },
+     {
+      "agreement": 0.875,
+      "auto_relief_share": 0.225,
+      "coverage": 0.16,
+      "n_auto": 40,
+      "threshold": 0.711074
+     },
+     {
+      "agreement": 0.878049,
+      "auto_relief_share": 0.219512,
+      "coverage": 0.164,
+      "n_auto": 41,
+      "threshold": 0.710592
+     },
+     {
+      "agreement": 0.880952,
+      "auto_relief_share": 0.214286,
+      "coverage": 0.168,
+      "n_auto": 42,
+      "threshold": 0.710065
+     },
+     {
+      "agreement": 0.883721,
+      "auto_relief_share": 0.209302,
+      "coverage": 0.172,
+      "n_auto": 43,
+      "threshold": 0.709961
+     },
+     {
+      "agreement": 0.863636,
+      "auto_relief_share": 0.204545,
+      "coverage": 0.176,
+      "n_auto": 44,
+      "threshold": 0.709
+     },
+     {
+      "agreement": 0.844444,
+      "auto_relief_share": 0.2,
+      "coverage": 0.18,
+      "n_auto": 45,
+      "threshold": 0.707219
+     },
+     {
+      "agreement": 0.847826,
+      "auto_relief_share": 0.195652,
+      "coverage": 0.184,
+      "n_auto": 46,
+      "threshold": 0.706797
+     },
+     {
+      "agreement": 0.829787,
+      "auto_relief_share": 0.191489,
+      "coverage": 0.188,
+      "n_auto": 47,
+      "threshold": 0.703915
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.1875,
+      "coverage": 0.192,
+      "n_auto": 48,
+      "threshold": 0.703867
+     },
+     {
+      "agreement": 0.816327,
+      "auto_relief_share": 0.204082,
+      "coverage": 0.196,
+      "n_auto": 49,
+      "threshold": 0.701974
+     },
+     {
+      "agreement": 0.82,
+      "auto_relief_share": 0.2,
+      "coverage": 0.2,
+      "n_auto": 50,
+      "threshold": 0.700685
+     },
+     {
+      "agreement": 0.823529,
+      "auto_relief_share": 0.196078,
+      "coverage": 0.204,
+      "n_auto": 51,
+      "threshold": 0.700487
+     },
+     {
+      "agreement": 0.826923,
+      "auto_relief_share": 0.192308,
+      "coverage": 0.208,
+      "n_auto": 52,
+      "threshold": 0.699851
+     },
+     {
+      "agreement": 0.830189,
+      "auto_relief_share": 0.188679,
+      "coverage": 0.212,
+      "n_auto": 53,
+      "threshold": 0.698503
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.185185,
+      "coverage": 0.216,
+      "n_auto": 54,
+      "threshold": 0.698388
+     },
+     {
+      "agreement": 0.836364,
+      "auto_relief_share": 0.181818,
+      "coverage": 0.22,
+      "n_auto": 55,
+      "threshold": 0.697829
+     },
+     {
+      "agreement": 0.839286,
+      "auto_relief_share": 0.178571,
+      "coverage": 0.224,
+      "n_auto": 56,
+      "threshold": 0.696997
+     },
+     {
+      "agreement": 0.824561,
+      "auto_relief_share": 0.175439,
+      "coverage": 0.228,
+      "n_auto": 57,
+      "threshold": 0.694694
+     },
+     {
+      "agreement": 0.827586,
+      "auto_relief_share": 0.172414,
+      "coverage": 0.232,
+      "n_auto": 58,
+      "threshold": 0.693124
+     },
+     {
+      "agreement": 0.830508,
+      "auto_relief_share": 0.169492,
+      "coverage": 0.236,
+      "n_auto": 59,
+      "threshold": 0.692619
+     },
+     {
+      "agreement": 0.816667,
+      "auto_relief_share": 0.183333,
+      "coverage": 0.24,
+      "n_auto": 60,
+      "threshold": 0.691728
+     },
+     {
+      "agreement": 0.819672,
+      "auto_relief_share": 0.180328,
+      "coverage": 0.244,
+      "n_auto": 61,
+      "threshold": 0.69067
+     },
+     {
+      "agreement": 0.822581,
+      "auto_relief_share": 0.177419,
+      "coverage": 0.248,
+      "n_auto": 62,
+      "threshold": 0.689078
+     },
+     {
+      "agreement": 0.825397,
+      "auto_relief_share": 0.174603,
+      "coverage": 0.252,
+      "n_auto": 63,
+      "threshold": 0.68768
+     },
+     {
+      "agreement": 0.828125,
+      "auto_relief_share": 0.171875,
+      "coverage": 0.256,
+      "n_auto": 64,
+      "threshold": 0.68729
+     },
+     {
+      "agreement": 0.830769,
+      "auto_relief_share": 0.169231,
+      "coverage": 0.26,
+      "n_auto": 65,
+      "threshold": 0.68612
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.264,
+      "n_auto": 66,
+      "threshold": 0.686005
+     },
+     {
+      "agreement": 0.820896,
+      "auto_relief_share": 0.164179,
+      "coverage": 0.268,
+      "n_auto": 67,
+      "threshold": 0.682579
+     },
+     {
+      "agreement": 0.823529,
+      "auto_relief_share": 0.161765,
+      "coverage": 0.272,
+      "n_auto": 68,
+      "threshold": 0.681588
+     },
+     {
+      "agreement": 0.826087,
+      "auto_relief_share": 0.15942,
+      "coverage": 0.276,
+      "n_auto": 69,
+      "threshold": 0.680617
+     },
+     {
+      "agreement": 0.828571,
+      "auto_relief_share": 0.157143,
+      "coverage": 0.28,
+      "n_auto": 70,
+      "threshold": 0.679849
+     },
+     {
+      "agreement": 0.830986,
+      "auto_relief_share": 0.15493,
+      "coverage": 0.284,
+      "n_auto": 71,
+      "threshold": 0.679141
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.288,
+      "n_auto": 72,
+      "threshold": 0.677215
+     },
+     {
+      "agreement": 0.835616,
+      "auto_relief_share": 0.178082,
+      "coverage": 0.292,
+      "n_auto": 73,
+      "threshold": 0.676764
+     },
+     {
+      "agreement": 0.824324,
+      "auto_relief_share": 0.175676,
+      "coverage": 0.296,
+      "n_auto": 74,
+      "threshold": 0.675791
+     },
+     {
+      "agreement": 0.826667,
+      "auto_relief_share": 0.186667,
+      "coverage": 0.3,
+      "n_auto": 75,
+      "threshold": 0.673577
+     },
+     {
+      "agreement": 0.828947,
+      "auto_relief_share": 0.184211,
+      "coverage": 0.304,
+      "n_auto": 76,
+      "threshold": 0.673246
+     },
+     {
+      "agreement": 0.831169,
+      "auto_relief_share": 0.181818,
+      "coverage": 0.308,
+      "n_auto": 77,
+      "threshold": 0.672213
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.179487,
+      "coverage": 0.312,
+      "n_auto": 78,
+      "threshold": 0.671672
+     },
+     {
+      "agreement": 0.835443,
+      "auto_relief_share": 0.177215,
+      "coverage": 0.316,
+      "n_auto": 79,
+      "threshold": 0.670035
+     },
+     {
+      "agreement": 0.8375,
+      "auto_relief_share": 0.175,
+      "coverage": 0.32,
+      "n_auto": 80,
+      "threshold": 0.669526
+     },
+     {
+      "agreement": 0.839506,
+      "auto_relief_share": 0.17284,
+      "coverage": 0.324,
+      "n_auto": 81,
+      "threshold": 0.667515
+     },
+     {
+      "agreement": 0.841463,
+      "auto_relief_share": 0.170732,
+      "coverage": 0.328,
+      "n_auto": 82,
+      "threshold": 0.666655
+     },
+     {
+      "agreement": 0.843373,
+      "auto_relief_share": 0.168675,
+      "coverage": 0.332,
+      "n_auto": 83,
+      "threshold": 0.666569
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.336,
+      "n_auto": 84,
+      "threshold": 0.666465
+     },
+     {
+      "agreement": 0.823529,
+      "auto_relief_share": 0.164706,
+      "coverage": 0.34,
+      "n_auto": 85,
+      "threshold": 0.666462
+     },
+     {
+      "agreement": 0.825581,
+      "auto_relief_share": 0.174419,
+      "coverage": 0.344,
+      "n_auto": 86,
+      "threshold": 0.666357
+     },
+     {
+      "agreement": 0.827586,
+      "auto_relief_share": 0.172414,
+      "coverage": 0.348,
+      "n_auto": 87,
+      "threshold": 0.666322
+     },
+     {
+      "agreement": 0.829545,
+      "auto_relief_share": 0.170455,
+      "coverage": 0.352,
+      "n_auto": 88,
+      "threshold": 0.665968
+     },
+     {
+      "agreement": 0.831461,
+      "auto_relief_share": 0.168539,
+      "coverage": 0.356,
+      "n_auto": 89,
+      "threshold": 0.665663
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.36,
+      "n_auto": 90,
+      "threshold": 0.66556
+     },
+     {
+      "agreement": 0.835165,
+      "auto_relief_share": 0.164835,
+      "coverage": 0.364,
+      "n_auto": 91,
+      "threshold": 0.663928
+     },
+     {
+      "agreement": 0.836957,
+      "auto_relief_share": 0.173913,
+      "coverage": 0.368,
+      "n_auto": 92,
+      "threshold": 0.663889
+     },
+     {
+      "agreement": 0.83871,
+      "auto_relief_share": 0.172043,
+      "coverage": 0.372,
+      "n_auto": 93,
+      "threshold": 0.663273
+     },
+     {
+      "agreement": 0.840426,
+      "auto_relief_share": 0.170213,
+      "coverage": 0.376,
+      "n_auto": 94,
+      "threshold": 0.662799
+     },
+     {
+      "agreement": 0.842105,
+      "auto_relief_share": 0.168421,
+      "coverage": 0.38,
+      "n_auto": 95,
+      "threshold": 0.661437
+     },
+     {
+      "agreement": 0.833333,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.384,
+      "n_auto": 96,
+      "threshold": 0.661425
+     },
+     {
+      "agreement": 0.835052,
+      "auto_relief_share": 0.164948,
+      "coverage": 0.388,
+      "n_auto": 97,
+      "threshold": 0.658645
+     },
+     {
+      "agreement": 0.826531,
+      "auto_relief_share": 0.173469,
+      "coverage": 0.392,
+      "n_auto": 98,
+      "threshold": 0.658354
+     },
+     {
+      "agreement": 0.828283,
+      "auto_relief_share": 0.171717,
+      "coverage": 0.396,
+      "n_auto": 99,
+      "threshold": 0.658338
+     },
+     {
+      "agreement": 0.83,
+      "auto_relief_share": 0.17,
+      "coverage": 0.4,
+      "n_auto": 100,
+      "threshold": 0.657888
+     },
+     {
+      "agreement": 0.831683,
+      "auto_relief_share": 0.168317,
+      "coverage": 0.404,
+      "n_auto": 101,
+      "threshold": 0.657678
+     },
+     {
+      "agreement": 0.823529,
+      "auto_relief_share": 0.166667,
+      "coverage": 0.408,
+      "n_auto": 102,
+      "threshold": 0.657362
+     },
+     {
+      "agreement": 0.825243,
+      "auto_relief_share": 0.165049,
+      "coverage": 0.412,
+      "n_auto": 103,
+      "threshold": 0.6526
+     },
+     {
+      "agreement": 0.817308,
+      "auto_relief_share": 0.173077,
+      "coverage": 0.416,
+      "n_auto": 104,
+      "threshold": 0.652361
+     },
+     {
+      "agreement": 0.819048,
+      "auto_relief_share": 0.180952,
+      "coverage": 0.42,
+      "n_auto": 105,
+      "threshold": 0.652259
+     },
+     {
+      "agreement": 0.820755,
+      "auto_relief_share": 0.179245,
+      "coverage": 0.424,
+      "n_auto": 106,
+      "threshold": 0.651265
+     },
+     {
+      "agreement": 0.82243,
+      "auto_relief_share": 0.17757,
+      "coverage": 0.428,
+      "n_auto": 107,
+      "threshold": 0.650475
+     },
+     {
+      "agreement": 0.824074,
+      "auto_relief_share": 0.175926,
+      "coverage": 0.432,
+      "n_auto": 108,
+      "threshold": 0.648546
+     },
+     {
+      "agreement": 0.825688,
+      "auto_relief_share": 0.174312,
+      "coverage": 0.436,
+      "n_auto": 109,
+      "threshold": 0.647472
+     },
+     {
+      "agreement": 0.827273,
+      "auto_relief_share": 0.172727,
+      "coverage": 0.44,
+      "n_auto": 110,
+      "threshold": 0.646721
+     },
+     {
+      "agreement": 0.81982,
+      "auto_relief_share": 0.171171,
+      "coverage": 0.444,
+      "n_auto": 111,
+      "threshold": 0.645453
+     },
+     {
+      "agreement": 0.8125,
+      "auto_relief_share": 0.178571,
+      "coverage": 0.448,
+      "n_auto": 112,
+      "threshold": 0.643669
+     },
+     {
+      "agreement": 0.80531,
+      "auto_relief_share": 0.176991,
+      "coverage": 0.452,
+      "n_auto": 113,
+      "threshold": 0.638816
+     },
+     {
+      "agreement": 0.798246,
+      "auto_relief_share": 0.175439,
+      "coverage": 0.456,
+      "n_auto": 114,
+      "threshold": 0.638494
+     },
+     {
+      "agreement": 0.791304,
+      "auto_relief_share": 0.173913,
+      "coverage": 0.46,
+      "n_auto": 115,
+      "threshold": 0.638271
+     },
+     {
+      "agreement": 0.784483,
+      "auto_relief_share": 0.172414,
+      "coverage": 0.464,
+      "n_auto": 116,
+      "threshold": 0.638209
+     },
+     {
+      "agreement": 0.786325,
+      "auto_relief_share": 0.17094,
+      "coverage": 0.468,
+      "n_auto": 117,
+      "threshold": 0.637167
+     },
+     {
+      "agreement": 0.788136,
+      "auto_relief_share": 0.169492,
+      "coverage": 0.472,
+      "n_auto": 118,
+      "threshold": 0.637096
+     },
+     {
+      "agreement": 0.789916,
+      "auto_relief_share": 0.168067,
+      "coverage": 0.476,
+      "n_auto": 119,
+      "threshold": 0.63613
+     },
+     {
+      "agreement": 0.791667,
+      "auto_relief_share": 0.175,
+      "coverage": 0.48,
+      "n_auto": 120,
+      "threshold": 0.632921
+     },
+     {
+      "agreement": 0.785124,
+      "auto_relief_share": 0.181818,
+      "coverage": 0.484,
+      "n_auto": 121,
+      "threshold": 0.630939
+     },
+     {
+      "agreement": 0.778689,
+      "auto_relief_share": 0.188525,
+      "coverage": 0.488,
+      "n_auto": 122,
+      "threshold": 0.630465
+     },
+     {
+      "agreement": 0.780488,
+      "auto_relief_share": 0.195122,
+      "coverage": 0.492,
+      "n_auto": 123,
+      "threshold": 0.629815
+     },
+     {
+      "agreement": 0.782258,
+      "auto_relief_share": 0.201613,
+      "coverage": 0.496,
+      "n_auto": 124,
+      "threshold": 0.629011
+     },
+     {
+      "agreement": 0.784,
+      "auto_relief_share": 0.208,
+      "coverage": 0.5,
+      "n_auto": 125,
+      "threshold": 0.628814
+     },
+     {
+      "agreement": 0.785714,
+      "auto_relief_share": 0.206349,
+      "coverage": 0.504,
+      "n_auto": 126,
+      "threshold": 0.62805
+     },
+     {
+      "agreement": 0.787402,
+      "auto_relief_share": 0.204724,
+      "coverage": 0.508,
+      "n_auto": 127,
+      "threshold": 0.627381
+     },
+     {
+      "agreement": 0.78125,
+      "auto_relief_share": 0.210938,
+      "coverage": 0.512,
+      "n_auto": 128,
+      "threshold": 0.626502
+     },
+     {
+      "agreement": 0.782946,
+      "auto_relief_share": 0.209302,
+      "coverage": 0.516,
+      "n_auto": 129,
+      "threshold": 0.626042
+     },
+     {
+      "agreement": 0.784615,
+      "auto_relief_share": 0.215385,
+      "coverage": 0.52,
+      "n_auto": 130,
+      "threshold": 0.625959
+     },
+     {
+      "agreement": 0.78626,
+      "auto_relief_share": 0.21374,
+      "coverage": 0.524,
+      "n_auto": 131,
+      "threshold": 0.623968
+     },
+     {
+      "agreement": 0.787879,
+      "auto_relief_share": 0.219697,
+      "coverage": 0.528,
+      "n_auto": 132,
+      "threshold": 0.623802
+     },
+     {
+      "agreement": 0.789474,
+      "auto_relief_share": 0.218045,
+      "coverage": 0.532,
+      "n_auto": 133,
+      "threshold": 0.622941
+     },
+     {
+      "agreement": 0.791045,
+      "auto_relief_share": 0.216418,
+      "coverage": 0.536,
+      "n_auto": 134,
+      "threshold": 0.622344
+     },
+     {
+      "agreement": 0.785185,
+      "auto_relief_share": 0.222222,
+      "coverage": 0.54,
+      "n_auto": 135,
+      "threshold": 0.619831
+     },
+     {
+      "agreement": 0.786765,
+      "auto_relief_share": 0.220588,
+      "coverage": 0.544,
+      "n_auto": 136,
+      "threshold": 0.619374
+     },
+     {
+      "agreement": 0.781022,
+      "auto_relief_share": 0.218978,
+      "coverage": 0.548,
+      "n_auto": 137,
+      "threshold": 0.617998
+     },
+     {
+      "agreement": 0.775362,
+      "auto_relief_share": 0.217391,
+      "coverage": 0.552,
+      "n_auto": 138,
+      "threshold": 0.617402
+     },
+     {
+      "agreement": 0.776978,
+      "auto_relief_share": 0.215827,
+      "coverage": 0.556,
+      "n_auto": 139,
+      "threshold": 0.61614
+     },
+     {
+      "agreement": 0.778571,
+      "auto_relief_share": 0.214286,
+      "coverage": 0.56,
+      "n_auto": 140,
+      "threshold": 0.614655
+     },
+     {
+      "agreement": 0.780142,
+      "auto_relief_share": 0.212766,
+      "coverage": 0.564,
+      "n_auto": 141,
+      "threshold": 0.614588
+     },
+     {
+      "agreement": 0.78169,
+      "auto_relief_share": 0.211268,
+      "coverage": 0.568,
+      "n_auto": 142,
+      "threshold": 0.612802
+     },
+     {
+      "agreement": 0.783217,
+      "auto_relief_share": 0.20979,
+      "coverage": 0.572,
+      "n_auto": 143,
+      "threshold": 0.612
+     },
+     {
+      "agreement": 0.784722,
+      "auto_relief_share": 0.208333,
+      "coverage": 0.576,
+      "n_auto": 144,
+      "threshold": 0.611833
+     },
+     {
+      "agreement": 0.786207,
+      "auto_relief_share": 0.213793,
+      "coverage": 0.58,
+      "n_auto": 145,
+      "threshold": 0.611645
+     },
+     {
+      "agreement": 0.787671,
+      "auto_relief_share": 0.212329,
+      "coverage": 0.584,
+      "n_auto": 146,
+      "threshold": 0.610206
+     },
+     {
+      "agreement": 0.789116,
+      "auto_relief_share": 0.210884,
+      "coverage": 0.588,
+      "n_auto": 147,
+      "threshold": 0.610056
+     },
+     {
+      "agreement": 0.783784,
+      "auto_relief_share": 0.209459,
+      "coverage": 0.592,
+      "n_auto": 148,
+      "threshold": 0.608914
+     },
+     {
+      "agreement": 0.778523,
+      "auto_relief_share": 0.214765,
+      "coverage": 0.596,
+      "n_auto": 149,
+      "threshold": 0.608437
+     },
+     {
+      "agreement": 0.78,
+      "auto_relief_share": 0.213333,
+      "coverage": 0.6,
+      "n_auto": 150,
+      "threshold": 0.608011
+     },
+     {
+      "agreement": 0.781457,
+      "auto_relief_share": 0.211921,
+      "coverage": 0.604,
+      "n_auto": 151,
+      "threshold": 0.607475
+     },
+     {
+      "agreement": 0.782895,
+      "auto_relief_share": 0.210526,
+      "coverage": 0.608,
+      "n_auto": 152,
+      "threshold": 0.605287
+     },
+     {
+      "agreement": 0.784314,
+      "auto_relief_share": 0.20915,
+      "coverage": 0.612,
+      "n_auto": 153,
+      "threshold": 0.605204
+     },
+     {
+      "agreement": 0.785714,
+      "auto_relief_share": 0.207792,
+      "coverage": 0.616,
+      "n_auto": 154,
+      "threshold": 0.604842
+     },
+     {
+      "agreement": 0.787097,
+      "auto_relief_share": 0.212903,
+      "coverage": 0.62,
+      "n_auto": 155,
+      "threshold": 0.60143
+     },
+     {
+      "agreement": 0.788462,
+      "auto_relief_share": 0.211538,
+      "coverage": 0.624,
+      "n_auto": 156,
+      "threshold": 0.596162
+     },
+     {
+      "agreement": 0.783439,
+      "auto_relief_share": 0.210191,
+      "coverage": 0.628,
+      "n_auto": 157,
+      "threshold": 0.595176
+     },
+     {
+      "agreement": 0.78481,
+      "auto_relief_share": 0.208861,
+      "coverage": 0.632,
+      "n_auto": 158,
+      "threshold": 0.59482
+     },
+     {
+      "agreement": 0.786164,
+      "auto_relief_share": 0.207547,
+      "coverage": 0.636,
+      "n_auto": 159,
+      "threshold": 0.594549
+     },
+     {
+      "agreement": 0.78125,
+      "auto_relief_share": 0.20625,
+      "coverage": 0.64,
+      "n_auto": 160,
+      "threshold": 0.593446
+     },
+     {
+      "agreement": 0.782609,
+      "auto_relief_share": 0.204969,
+      "coverage": 0.644,
+      "n_auto": 161,
+      "threshold": 0.592558
+     },
+     {
+      "agreement": 0.783951,
+      "auto_relief_share": 0.203704,
+      "coverage": 0.648,
+      "n_auto": 162,
+      "threshold": 0.592281
+     },
+     {
+      "agreement": 0.779141,
+      "auto_relief_share": 0.202454,
+      "coverage": 0.652,
+      "n_auto": 163,
+      "threshold": 0.59218
+     },
+     {
+      "agreement": 0.77439,
+      "auto_relief_share": 0.20122,
+      "coverage": 0.656,
+      "n_auto": 164,
+      "threshold": 0.591936
+     },
+     {
+      "agreement": 0.775758,
+      "auto_relief_share": 0.2,
+      "coverage": 0.66,
+      "n_auto": 165,
+      "threshold": 0.591138
+     },
+     {
+      "agreement": 0.777108,
+      "auto_relief_share": 0.198795,
+      "coverage": 0.664,
+      "n_auto": 166,
+      "threshold": 0.59079
+     },
+     {
+      "agreement": 0.772455,
+      "auto_relief_share": 0.197605,
+      "coverage": 0.668,
+      "n_auto": 167,
+      "threshold": 0.59064
+     },
+     {
+      "agreement": 0.77381,
+      "auto_relief_share": 0.202381,
+      "coverage": 0.672,
+      "n_auto": 168,
+      "threshold": 0.589492
+     },
+     {
+      "agreement": 0.769231,
+      "auto_relief_share": 0.207101,
+      "coverage": 0.676,
+      "n_auto": 169,
+      "threshold": 0.589483
+     },
+     {
+      "agreement": 0.764706,
+      "auto_relief_share": 0.205882,
+      "coverage": 0.68,
+      "n_auto": 170,
+      "threshold": 0.589366
+     },
+     {
+      "agreement": 0.766082,
+      "auto_relief_share": 0.204678,
+      "coverage": 0.684,
+      "n_auto": 171,
+      "threshold": 0.589072
+     },
+     {
+      "agreement": 0.767442,
+      "auto_relief_share": 0.203488,
+      "coverage": 0.688,
+      "n_auto": 172,
+      "threshold": 0.589009
+     },
+     {
+      "agreement": 0.768786,
+      "auto_relief_share": 0.202312,
+      "coverage": 0.692,
+      "n_auto": 173,
+      "threshold": 0.586732
+     },
+     {
+      "agreement": 0.770115,
+      "auto_relief_share": 0.201149,
+      "coverage": 0.696,
+      "n_auto": 174,
+      "threshold": 0.58491
+     },
+     {
+      "agreement": 0.771429,
+      "auto_relief_share": 0.2,
+      "coverage": 0.7,
+      "n_auto": 175,
+      "threshold": 0.5831
+     },
+     {
+      "agreement": 0.772727,
+      "auto_relief_share": 0.204545,
+      "coverage": 0.704,
+      "n_auto": 176,
+      "threshold": 0.581576
+     },
+     {
+      "agreement": 0.768362,
+      "auto_relief_share": 0.20904,
+      "coverage": 0.708,
+      "n_auto": 177,
+      "threshold": 0.581225
+     },
+     {
+      "agreement": 0.769663,
+      "auto_relief_share": 0.213483,
+      "coverage": 0.712,
+      "n_auto": 178,
+      "threshold": 0.579407
+     },
+     {
+      "agreement": 0.77095,
+      "auto_relief_share": 0.212291,
+      "coverage": 0.716,
+      "n_auto": 179,
+      "threshold": 0.579395
+     },
+     {
+      "agreement": 0.772222,
+      "auto_relief_share": 0.211111,
+      "coverage": 0.72,
+      "n_auto": 180,
+      "threshold": 0.57841
+     },
+     {
+      "agreement": 0.767956,
+      "auto_relief_share": 0.21547,
+      "coverage": 0.724,
+      "n_auto": 181,
+      "threshold": 0.577014
+     },
+     {
+      "agreement": 0.763736,
+      "auto_relief_share": 0.214286,
+      "coverage": 0.728,
+      "n_auto": 182,
+      "threshold": 0.575805
+     },
+     {
+      "agreement": 0.765027,
+      "auto_relief_share": 0.213115,
+      "coverage": 0.732,
+      "n_auto": 183,
+      "threshold": 0.574142
+     },
+     {
+      "agreement": 0.76087,
+      "auto_relief_share": 0.211957,
+      "coverage": 0.736,
+      "n_auto": 184,
+      "threshold": 0.573619
+     },
+     {
+      "agreement": 0.756757,
+      "auto_relief_share": 0.210811,
+      "coverage": 0.74,
+      "n_auto": 185,
+      "threshold": 0.573552
+     },
+     {
+      "agreement": 0.758065,
+      "auto_relief_share": 0.209677,
+      "coverage": 0.744,
+      "n_auto": 186,
+      "threshold": 0.56947
+     },
+     {
+      "agreement": 0.759358,
+      "auto_relief_share": 0.213904,
+      "coverage": 0.748,
+      "n_auto": 187,
+      "threshold": 0.567816
+     },
+     {
+      "agreement": 0.760638,
+      "auto_relief_share": 0.212766,
+      "coverage": 0.752,
+      "n_auto": 188,
+      "threshold": 0.56595
+     },
+     {
+      "agreement": 0.761905,
+      "auto_relief_share": 0.21164,
+      "coverage": 0.756,
+      "n_auto": 189,
+      "threshold": 0.565643
+     },
+     {
+      "agreement": 0.763158,
+      "auto_relief_share": 0.215789,
+      "coverage": 0.76,
+      "n_auto": 190,
+      "threshold": 0.564316
+     },
+     {
+      "agreement": 0.764398,
+      "auto_relief_share": 0.219895,
+      "coverage": 0.764,
+      "n_auto": 191,
+      "threshold": 0.562131
+     },
+     {
+      "agreement": 0.765625,
+      "auto_relief_share": 0.21875,
+      "coverage": 0.768,
+      "n_auto": 192,
+      "threshold": 0.561864
+     },
+     {
+      "agreement": 0.766839,
+      "auto_relief_share": 0.217617,
+      "coverage": 0.772,
+      "n_auto": 193,
+      "threshold": 0.559448
+     },
+     {
+      "agreement": 0.768041,
+      "auto_relief_share": 0.216495,
+      "coverage": 0.776,
+      "n_auto": 194,
+      "threshold": 0.559033
+     },
+     {
+      "agreement": 0.764103,
+      "auto_relief_share": 0.220513,
+      "coverage": 0.78,
+      "n_auto": 195,
+      "threshold": 0.558507
+     },
+     {
+      "agreement": 0.765306,
+      "auto_relief_share": 0.219388,
+      "coverage": 0.784,
+      "n_auto": 196,
+      "threshold": 0.558168
+     },
+     {
+      "agreement": 0.766497,
+      "auto_relief_share": 0.22335,
+      "coverage": 0.788,
+      "n_auto": 197,
+      "threshold": 0.557096
+     },
+     {
+      "agreement": 0.767677,
+      "auto_relief_share": 0.222222,
+      "coverage": 0.792,
+      "n_auto": 198,
+      "threshold": 0.556805
+     },
+     {
+      "agreement": 0.768844,
+      "auto_relief_share": 0.221106,
+      "coverage": 0.796,
+      "n_auto": 199,
+      "threshold": 0.553767
+     },
+     {
+      "agreement": 0.765,
+      "auto_relief_share": 0.225,
+      "coverage": 0.8,
+      "n_auto": 200,
+      "threshold": 0.553493
+     },
+     {
+      "agreement": 0.766169,
+      "auto_relief_share": 0.223881,
+      "coverage": 0.804,
+      "n_auto": 201,
+      "threshold": 0.553011
+     },
+     {
+      "agreement": 0.767327,
+      "auto_relief_share": 0.222772,
+      "coverage": 0.808,
+      "n_auto": 202,
+      "threshold": 0.551877
+     },
+     {
+      "agreement": 0.763547,
+      "auto_relief_share": 0.226601,
+      "coverage": 0.812,
+      "n_auto": 203,
+      "threshold": 0.549894
+     },
+     {
+      "agreement": 0.764706,
+      "auto_relief_share": 0.22549,
+      "coverage": 0.816,
+      "n_auto": 204,
+      "threshold": 0.54831
+     },
+     {
+      "agreement": 0.765854,
+      "auto_relief_share": 0.22439,
+      "coverage": 0.82,
+      "n_auto": 205,
+      "threshold": 0.54826
+     },
+     {
+      "agreement": 0.762136,
+      "auto_relief_share": 0.223301,
+      "coverage": 0.824,
+      "n_auto": 206,
+      "threshold": 0.54788
+     },
+     {
+      "agreement": 0.758454,
+      "auto_relief_share": 0.222222,
+      "coverage": 0.828,
+      "n_auto": 207,
+      "threshold": 0.545445
+     },
+     {
+      "agreement": 0.759615,
+      "auto_relief_share": 0.225962,
+      "coverage": 0.832,
+      "n_auto": 208,
+      "threshold": 0.545309
+     },
+     {
+      "agreement": 0.755981,
+      "auto_relief_share": 0.22488,
+      "coverage": 0.836,
+      "n_auto": 209,
+      "threshold": 0.544393
+     },
+     {
+      "agreement": 0.757143,
+      "auto_relief_share": 0.22381,
+      "coverage": 0.84,
+      "n_auto": 210,
+      "threshold": 0.543691
+     },
+     {
+      "agreement": 0.753555,
+      "auto_relief_share": 0.227488,
+      "coverage": 0.844,
+      "n_auto": 211,
+      "threshold": 0.541781
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.226415,
+      "coverage": 0.848,
+      "n_auto": 212,
+      "threshold": 0.540339
+     },
+     {
+      "agreement": 0.751174,
+      "auto_relief_share": 0.225352,
+      "coverage": 0.852,
+      "n_auto": 213,
+      "threshold": 0.538532
+     },
+     {
+      "agreement": 0.747664,
+      "auto_relief_share": 0.228972,
+      "coverage": 0.856,
+      "n_auto": 214,
+      "threshold": 0.537891
+     },
+     {
+      "agreement": 0.748837,
+      "auto_relief_share": 0.227907,
+      "coverage": 0.86,
+      "n_auto": 215,
+      "threshold": 0.537603
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.226852,
+      "coverage": 0.864,
+      "n_auto": 216,
+      "threshold": 0.537579
+     },
+     {
+      "agreement": 0.751152,
+      "auto_relief_share": 0.225806,
+      "coverage": 0.868,
+      "n_auto": 217,
+      "threshold": 0.537299
+     },
+     {
+      "agreement": 0.747706,
+      "auto_relief_share": 0.224771,
+      "coverage": 0.872,
+      "n_auto": 218,
+      "threshold": 0.537146
+     },
+     {
+      "agreement": 0.748858,
+      "auto_relief_share": 0.223744,
+      "coverage": 0.876,
+      "n_auto": 219,
+      "threshold": 0.536946
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.222727,
+      "coverage": 0.88,
+      "n_auto": 220,
+      "threshold": 0.531613
+     },
+     {
+      "agreement": 0.751131,
+      "auto_relief_share": 0.221719,
+      "coverage": 0.884,
+      "n_auto": 221,
+      "threshold": 0.530646
+     },
+     {
+      "agreement": 0.752252,
+      "auto_relief_share": 0.220721,
+      "coverage": 0.888,
+      "n_auto": 222,
+      "threshold": 0.530585
+     },
+     {
+      "agreement": 0.753363,
+      "auto_relief_share": 0.224215,
+      "coverage": 0.892,
+      "n_auto": 223,
+      "threshold": 0.528881
+     },
+     {
+      "agreement": 0.754464,
+      "auto_relief_share": 0.223214,
+      "coverage": 0.896,
+      "n_auto": 224,
+      "threshold": 0.52837
+     },
+     {
+      "agreement": 0.751111,
+      "auto_relief_share": 0.226667,
+      "coverage": 0.9,
+      "n_auto": 225,
+      "threshold": 0.527533
+     },
+     {
+      "agreement": 0.747788,
+      "auto_relief_share": 0.225664,
+      "coverage": 0.904,
+      "n_auto": 226,
+      "threshold": 0.527219
+     },
+     {
+      "agreement": 0.744493,
+      "auto_relief_share": 0.229075,
+      "coverage": 0.908,
+      "n_auto": 227,
+      "threshold": 0.526154
+     },
+     {
+      "agreement": 0.745614,
+      "auto_relief_share": 0.22807,
+      "coverage": 0.912,
+      "n_auto": 228,
+      "threshold": 0.525474
+     },
+     {
+      "agreement": 0.746725,
+      "auto_relief_share": 0.231441,
+      "coverage": 0.916,
+      "n_auto": 229,
+      "threshold": 0.52501
+     },
+     {
+      "agreement": 0.743478,
+      "auto_relief_share": 0.230435,
+      "coverage": 0.92,
+      "n_auto": 230,
+      "threshold": 0.52488
+     },
+     {
+      "agreement": 0.74026,
+      "auto_relief_share": 0.233766,
+      "coverage": 0.924,
+      "n_auto": 231,
+      "threshold": 0.5226
+     },
+     {
+      "agreement": 0.741379,
+      "auto_relief_share": 0.237069,
+      "coverage": 0.928,
+      "n_auto": 232,
+      "threshold": 0.522477
+     },
+     {
+      "agreement": 0.738197,
+      "auto_relief_share": 0.236052,
+      "coverage": 0.932,
+      "n_auto": 233,
+      "threshold": 0.52106
+     },
+     {
+      "agreement": 0.735043,
+      "auto_relief_share": 0.239316,
+      "coverage": 0.936,
+      "n_auto": 234,
+      "threshold": 0.518146
+     },
+     {
+      "agreement": 0.731915,
+      "auto_relief_share": 0.242553,
+      "coverage": 0.94,
+      "n_auto": 235,
+      "threshold": 0.516372
+     },
+     {
+      "agreement": 0.728814,
+      "auto_relief_share": 0.245763,
+      "coverage": 0.944,
+      "n_auto": 236,
+      "threshold": 0.516301
+     },
+     {
+      "agreement": 0.725738,
+      "auto_relief_share": 0.248945,
+      "coverage": 0.948,
+      "n_auto": 237,
+      "threshold": 0.514737
+     },
+     {
+      "agreement": 0.722689,
+      "auto_relief_share": 0.252101,
+      "coverage": 0.952,
+      "n_auto": 238,
+      "threshold": 0.513558
+     },
+     {
+      "agreement": 0.723849,
+      "auto_relief_share": 0.251046,
+      "coverage": 0.956,
+      "n_auto": 239,
+      "threshold": 0.512456
+     },
+     {
+      "agreement": 0.725,
+      "auto_relief_share": 0.254167,
+      "coverage": 0.96,
+      "n_auto": 240,
+      "threshold": 0.510968
+     },
+     {
+      "agreement": 0.721992,
+      "auto_relief_share": 0.257261,
+      "coverage": 0.964,
+      "n_auto": 241,
+      "threshold": 0.510356
+     },
+     {
+      "agreement": 0.72314,
+      "auto_relief_share": 0.256198,
+      "coverage": 0.968,
+      "n_auto": 242,
+      "threshold": 0.509784
+     },
+     {
+      "agreement": 0.72428,
+      "auto_relief_share": 0.259259,
+      "coverage": 0.972,
+      "n_auto": 243,
+      "threshold": 0.508058
+     },
+     {
+      "agreement": 0.72541,
+      "auto_relief_share": 0.262295,
+      "coverage": 0.976,
+      "n_auto": 244,
+      "threshold": 0.508055
+     },
+     {
+      "agreement": 0.726531,
+      "auto_relief_share": 0.261224,
+      "coverage": 0.98,
+      "n_auto": 245,
+      "threshold": 0.50742
+     },
+     {
+      "agreement": 0.727642,
+      "auto_relief_share": 0.264228,
+      "coverage": 0.984,
+      "n_auto": 246,
+      "threshold": 0.505892
+     },
+     {
+      "agreement": 0.728745,
+      "auto_relief_share": 0.263158,
+      "coverage": 0.988,
+      "n_auto": 247,
+      "threshold": 0.505085
+     },
+     {
+      "agreement": 0.729839,
+      "auto_relief_share": 0.262097,
+      "coverage": 0.992,
+      "n_auto": 248,
+      "threshold": 0.504597
+     },
+     {
+      "agreement": 0.726908,
+      "auto_relief_share": 0.26506,
+      "coverage": 0.996,
+      "n_auto": 249,
+      "threshold": 0.501668
+     },
+     {
+      "agreement": 0.724,
+      "auto_relief_share": 0.264,
+      "coverage": 1.0,
+      "n_auto": 250,
+      "threshold": 0.501476
+     }
+    ],
+    "fixed_coverage": [
+     {
+      "agreement": 0.92,
+      "auto_relief_share": 0.2,
+      "coverage": 0.1,
+      "level": 0.1,
+      "n_auto": 25,
+      "threshold": 0.742194
+     },
+     {
+      "agreement": 0.825397,
+      "auto_relief_share": 0.174603,
+      "coverage": 0.252,
+      "level": 0.25,
+      "n_auto": 63,
+      "threshold": 0.68768
+     },
+     {
+      "agreement": 0.784,
+      "auto_relief_share": 0.208,
+      "coverage": 0.5,
+      "level": 0.5,
+      "n_auto": 125,
+      "threshold": 0.628814
+     },
+     {
+      "agreement": 0.760638,
+      "auto_relief_share": 0.212766,
+      "coverage": 0.752,
+      "level": 0.75,
+      "n_auto": 188,
+      "threshold": 0.56595
+     },
+     {
+      "agreement": 0.724,
+      "auto_relief_share": 0.264,
+      "coverage": 1.0,
+      "level": 1.0,
+      "n_auto": 250,
+      "threshold": 0.501476
+     }
+    ],
+    "signal": "token",
+    "threshold": 0.73168
+   },
+   "v1": {
+    "at_dev_threshold": null,
+    "curve": [
+     {
+      "agreement": 0.0,
+      "auto_relief_share": 1.0,
+      "coverage": 0.004,
+      "n_auto": 1,
+      "threshold": 0.998499
+     },
+     {
+      "agreement": 0.0,
+      "auto_relief_share": 1.0,
+      "coverage": 0.008,
+      "n_auto": 2,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.333333,
+      "auto_relief_share": 1.0,
+      "coverage": 0.012,
+      "n_auto": 3,
+      "threshold": 0.997817
+     },
+     {
+      "agreement": 0.25,
+      "auto_relief_share": 0.75,
+      "coverage": 0.016,
+      "n_auto": 4,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.4,
+      "auto_relief_share": 0.6,
+      "coverage": 0.02,
+      "n_auto": 5,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.666667,
+      "coverage": 0.024,
+      "n_auto": 6,
+      "threshold": 0.996406
+     },
+     {
+      "agreement": 0.428571,
+      "auto_relief_share": 0.714286,
+      "coverage": 0.028,
+      "n_auto": 7,
+      "threshold": 0.99539
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.625,
+      "coverage": 0.032,
+      "n_auto": 8,
+      "threshold": 0.99539
+     },
+     {
+      "agreement": 0.555556,
+      "auto_relief_share": 0.666667,
+      "coverage": 0.036,
+      "n_auto": 9,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.6,
+      "auto_relief_share": 0.7,
+      "coverage": 0.04,
+      "n_auto": 10,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.636364,
+      "auto_relief_share": 0.727273,
+      "coverage": 0.044,
+      "n_auto": 11,
+      "threshold": 0.993307
+     },
+     {
+      "agreement": 0.583333,
+      "auto_relief_share": 0.75,
+      "coverage": 0.048,
+      "n_auto": 12,
+      "threshold": 0.993307
+     },
+     {
+      "agreement": 0.615385,
+      "auto_relief_share": 0.692308,
+      "coverage": 0.052,
+      "n_auto": 13,
+      "threshold": 0.992423
+     },
+     {
+      "agreement": 0.571429,
+      "auto_relief_share": 0.714286,
+      "coverage": 0.056,
+      "n_auto": 14,
+      "threshold": 0.991423
+     },
+     {
+      "agreement": 0.6,
+      "auto_relief_share": 0.666667,
+      "coverage": 0.06,
+      "n_auto": 15,
+      "threshold": 0.991423
+     },
+     {
+      "agreement": 0.625,
+      "auto_relief_share": 0.625,
+      "coverage": 0.064,
+      "n_auto": 16,
+      "threshold": 0.991423
+     },
+     {
+      "agreement": 0.647059,
+      "auto_relief_share": 0.588235,
+      "coverage": 0.068,
+      "n_auto": 17,
+      "threshold": 0.990292
+     },
+     {
+      "agreement": 0.611111,
+      "auto_relief_share": 0.611111,
+      "coverage": 0.072,
+      "n_auto": 18,
+      "threshold": 0.990292
+     },
+     {
+      "agreement": 0.631579,
+      "auto_relief_share": 0.631579,
+      "coverage": 0.076,
+      "n_auto": 19,
+      "threshold": 0.990292
+     },
+     {
+      "agreement": 0.6,
+      "auto_relief_share": 0.65,
+      "coverage": 0.08,
+      "n_auto": 20,
+      "threshold": 0.989013
+     },
+     {
+      "agreement": 0.619048,
+      "auto_relief_share": 0.666667,
+      "coverage": 0.084,
+      "n_auto": 21,
+      "threshold": 0.989013
+     },
+     {
+      "agreement": 0.636364,
+      "auto_relief_share": 0.636364,
+      "coverage": 0.088,
+      "n_auto": 22,
+      "threshold": 0.987568
+     },
+     {
+      "agreement": 0.652174,
+      "auto_relief_share": 0.608696,
+      "coverage": 0.092,
+      "n_auto": 23,
+      "threshold": 0.987568
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.625,
+      "coverage": 0.096,
+      "n_auto": 24,
+      "threshold": 0.985936
+     },
+     {
+      "agreement": 0.68,
+      "auto_relief_share": 0.64,
+      "coverage": 0.1,
+      "n_auto": 25,
+      "threshold": 0.985936
+     },
+     {
+      "agreement": 0.692308,
+      "auto_relief_share": 0.653846,
+      "coverage": 0.104,
+      "n_auto": 26,
+      "threshold": 0.985936
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.666667,
+      "coverage": 0.108,
+      "n_auto": 27,
+      "threshold": 0.984094
+     },
+     {
+      "agreement": 0.642857,
+      "auto_relief_share": 0.678571,
+      "coverage": 0.112,
+      "n_auto": 28,
+      "threshold": 0.984094
+     },
+     {
+      "agreement": 0.6,
+      "auto_relief_share": 0.7,
+      "coverage": 0.12,
+      "n_auto": 30,
+      "threshold": 0.984094
+     },
+     {
+      "agreement": 0.580645,
+      "auto_relief_share": 0.709677,
+      "coverage": 0.124,
+      "n_auto": 31,
+      "threshold": 0.982014
+     },
+     {
+      "agreement": 0.59375,
+      "auto_relief_share": 0.71875,
+      "coverage": 0.128,
+      "n_auto": 32,
+      "threshold": 0.982014
+     },
+     {
+      "agreement": 0.575758,
+      "auto_relief_share": 0.69697,
+      "coverage": 0.132,
+      "n_auto": 33,
+      "threshold": 0.979668
+     },
+     {
+      "agreement": 0.558824,
+      "auto_relief_share": 0.705882,
+      "coverage": 0.136,
+      "n_auto": 34,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.542857,
+      "auto_relief_share": 0.714286,
+      "coverage": 0.14,
+      "n_auto": 35,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.527778,
+      "auto_relief_share": 0.722222,
+      "coverage": 0.144,
+      "n_auto": 36,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.513514,
+      "auto_relief_share": 0.72973,
+      "coverage": 0.148,
+      "n_auto": 37,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.526316,
+      "auto_relief_share": 0.736842,
+      "coverage": 0.152,
+      "n_auto": 38,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.538462,
+      "auto_relief_share": 0.717949,
+      "coverage": 0.156,
+      "n_auto": 39,
+      "threshold": 0.970688
+     },
+     {
+      "agreement": 0.55,
+      "auto_relief_share": 0.725,
+      "coverage": 0.16,
+      "n_auto": 40,
+      "threshold": 0.970688
+     },
+     {
+      "agreement": 0.560976,
+      "auto_relief_share": 0.731707,
+      "coverage": 0.164,
+      "n_auto": 41,
+      "threshold": 0.970688
+     },
+     {
+      "agreement": 0.571429,
+      "auto_relief_share": 0.738095,
+      "coverage": 0.168,
+      "n_auto": 42,
+      "threshold": 0.970688
+     },
+     {
+      "agreement": 0.581395,
+      "auto_relief_share": 0.72093,
+      "coverage": 0.172,
+      "n_auto": 43,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.568182,
+      "auto_relief_share": 0.727273,
+      "coverage": 0.176,
+      "n_auto": 44,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.577778,
+      "auto_relief_share": 0.733333,
+      "coverage": 0.18,
+      "n_auto": 45,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.565217,
+      "auto_relief_share": 0.73913,
+      "coverage": 0.184,
+      "n_auto": 46,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.574468,
+      "auto_relief_share": 0.723404,
+      "coverage": 0.188,
+      "n_auto": 47,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.583333,
+      "auto_relief_share": 0.708333,
+      "coverage": 0.192,
+      "n_auto": 48,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.571429,
+      "auto_relief_share": 0.693878,
+      "coverage": 0.196,
+      "n_auto": 49,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.56,
+      "auto_relief_share": 0.7,
+      "coverage": 0.2,
+      "n_auto": 50,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.54902,
+      "auto_relief_share": 0.705882,
+      "coverage": 0.204,
+      "n_auto": 51,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.557692,
+      "auto_relief_share": 0.692308,
+      "coverage": 0.208,
+      "n_auto": 52,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.54717,
+      "auto_relief_share": 0.698113,
+      "coverage": 0.212,
+      "n_auto": 53,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.537037,
+      "auto_relief_share": 0.703704,
+      "coverage": 0.216,
+      "n_auto": 54,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.527273,
+      "auto_relief_share": 0.709091,
+      "coverage": 0.22,
+      "n_auto": 55,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.535714,
+      "auto_relief_share": 0.696429,
+      "coverage": 0.224,
+      "n_auto": 56,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.526316,
+      "auto_relief_share": 0.701754,
+      "coverage": 0.228,
+      "n_auto": 57,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.517241,
+      "auto_relief_share": 0.706897,
+      "coverage": 0.232,
+      "n_auto": 58,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.508475,
+      "auto_relief_share": 0.711864,
+      "coverage": 0.236,
+      "n_auto": 59,
+      "threshold": 0.952574
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.716667,
+      "coverage": 0.24,
+      "n_auto": 60,
+      "threshold": 0.952574
+     },
+     {
+      "agreement": 0.491803,
+      "auto_relief_share": 0.721311,
+      "coverage": 0.244,
+      "n_auto": 61,
+      "threshold": 0.952574
+     },
+     {
+      "agreement": 0.492063,
+      "auto_relief_share": 0.730159,
+      "coverage": 0.252,
+      "n_auto": 63,
+      "threshold": 0.952574
+     },
+     {
+      "agreement": 0.484375,
+      "auto_relief_share": 0.734375,
+      "coverage": 0.256,
+      "n_auto": 64,
+      "threshold": 0.952574
+     },
+     {
+      "agreement": 0.492308,
+      "auto_relief_share": 0.738462,
+      "coverage": 0.26,
+      "n_auto": 65,
+      "threshold": 0.946597
+     },
+     {
+      "agreement": 0.484848,
+      "auto_relief_share": 0.727273,
+      "coverage": 0.264,
+      "n_auto": 66,
+      "threshold": 0.946597
+     },
+     {
+      "agreement": 0.477612,
+      "auto_relief_share": 0.731343,
+      "coverage": 0.268,
+      "n_auto": 67,
+      "threshold": 0.946597
+     },
+     {
+      "agreement": 0.485294,
+      "auto_relief_share": 0.735294,
+      "coverage": 0.272,
+      "n_auto": 68,
+      "threshold": 0.946597
+     },
+     {
+      "agreement": 0.492754,
+      "auto_relief_share": 0.724638,
+      "coverage": 0.276,
+      "n_auto": 69,
+      "threshold": 0.939914
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.728571,
+      "coverage": 0.28,
+      "n_auto": 70,
+      "threshold": 0.939913
+     },
+     {
+      "agreement": 0.492958,
+      "auto_relief_share": 0.71831,
+      "coverage": 0.284,
+      "n_auto": 71,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.708333,
+      "coverage": 0.288,
+      "n_auto": 72,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.493151,
+      "auto_relief_share": 0.712329,
+      "coverage": 0.292,
+      "n_auto": 73,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.486486,
+      "auto_relief_share": 0.716216,
+      "coverage": 0.296,
+      "n_auto": 74,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.48,
+      "auto_relief_share": 0.72,
+      "coverage": 0.3,
+      "n_auto": 75,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.486842,
+      "auto_relief_share": 0.723684,
+      "coverage": 0.304,
+      "n_auto": 76,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.493506,
+      "auto_relief_share": 0.727273,
+      "coverage": 0.308,
+      "n_auto": 77,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.487179,
+      "auto_relief_share": 0.730769,
+      "coverage": 0.312,
+      "n_auto": 78,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.493671,
+      "auto_relief_share": 0.734177,
+      "coverage": 0.316,
+      "n_auto": 79,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.725,
+      "coverage": 0.32,
+      "n_auto": 80,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.506173,
+      "auto_relief_share": 0.728395,
+      "coverage": 0.324,
+      "n_auto": 81,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.512195,
+      "auto_relief_share": 0.731707,
+      "coverage": 0.328,
+      "n_auto": 82,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.518072,
+      "auto_relief_share": 0.73494,
+      "coverage": 0.332,
+      "n_auto": 83,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.511905,
+      "auto_relief_share": 0.738095,
+      "coverage": 0.336,
+      "n_auto": 84,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.505882,
+      "auto_relief_share": 0.729412,
+      "coverage": 0.34,
+      "n_auto": 85,
+      "threshold": 0.914901
+     },
+     {
+      "agreement": 0.511628,
+      "auto_relief_share": 0.732558,
+      "coverage": 0.344,
+      "n_auto": 86,
+      "threshold": 0.914901
+     },
+     {
+      "agreement": 0.517241,
+      "auto_relief_share": 0.724138,
+      "coverage": 0.348,
+      "n_auto": 87,
+      "threshold": 0.914901
+     },
+     {
+      "agreement": 0.511364,
+      "auto_relief_share": 0.727273,
+      "coverage": 0.352,
+      "n_auto": 88,
+      "threshold": 0.9149
+     },
+     {
+      "agreement": 0.505618,
+      "auto_relief_share": 0.730337,
+      "coverage": 0.356,
+      "n_auto": 89,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.733333,
+      "coverage": 0.36,
+      "n_auto": 90,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.494505,
+      "auto_relief_share": 0.736264,
+      "coverage": 0.364,
+      "n_auto": 91,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.48913,
+      "auto_relief_share": 0.73913,
+      "coverage": 0.368,
+      "n_auto": 92,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.483871,
+      "auto_relief_share": 0.741935,
+      "coverage": 0.372,
+      "n_auto": 93,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.489362,
+      "auto_relief_share": 0.744681,
+      "coverage": 0.376,
+      "n_auto": 94,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.494737,
+      "auto_relief_share": 0.747368,
+      "coverage": 0.38,
+      "n_auto": 95,
+      "threshold": 0.89331
+     },
+     {
+      "agreement": 0.489583,
+      "auto_relief_share": 0.75,
+      "coverage": 0.384,
+      "n_auto": 96,
+      "threshold": 0.89331
+     },
+     {
+      "agreement": 0.494845,
+      "auto_relief_share": 0.752577,
+      "coverage": 0.388,
+      "n_auto": 97,
+      "threshold": 0.89331
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.755102,
+      "coverage": 0.392,
+      "n_auto": 98,
+      "threshold": 0.893309
+     },
+     {
+      "agreement": 0.494949,
+      "auto_relief_share": 0.757576,
+      "coverage": 0.396,
+      "n_auto": 99,
+      "threshold": 0.893309
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.75,
+      "coverage": 0.4,
+      "n_auto": 100,
+      "threshold": 0.893309
+     },
+     {
+      "agreement": 0.50495,
+      "auto_relief_share": 0.752475,
+      "coverage": 0.404,
+      "n_auto": 101,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.754902,
+      "coverage": 0.408,
+      "n_auto": 102,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.504854,
+      "auto_relief_share": 0.757282,
+      "coverage": 0.412,
+      "n_auto": 103,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.509615,
+      "auto_relief_share": 0.759615,
+      "coverage": 0.416,
+      "n_auto": 104,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.504762,
+      "auto_relief_share": 0.761905,
+      "coverage": 0.42,
+      "n_auto": 105,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.764151,
+      "coverage": 0.424,
+      "n_auto": 106,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.495327,
+      "auto_relief_share": 0.766355,
+      "coverage": 0.428,
+      "n_auto": 107,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.486239,
+      "auto_relief_share": 0.770642,
+      "coverage": 0.436,
+      "n_auto": 109,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.481818,
+      "auto_relief_share": 0.772727,
+      "coverage": 0.44,
+      "n_auto": 110,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.477477,
+      "auto_relief_share": 0.774775,
+      "coverage": 0.444,
+      "n_auto": 111,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.482143,
+      "auto_relief_share": 0.776786,
+      "coverage": 0.448,
+      "n_auto": 112,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.486726,
+      "auto_relief_share": 0.769912,
+      "coverage": 0.452,
+      "n_auto": 113,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.491228,
+      "auto_relief_share": 0.763158,
+      "coverage": 0.456,
+      "n_auto": 114,
+      "threshold": 0.880797
+     },
+     {
+      "agreement": 0.486957,
+      "auto_relief_share": 0.765217,
+      "coverage": 0.46,
+      "n_auto": 115,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.482759,
+      "auto_relief_share": 0.767241,
+      "coverage": 0.464,
+      "n_auto": 116,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.478632,
+      "auto_relief_share": 0.769231,
+      "coverage": 0.468,
+      "n_auto": 117,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.483051,
+      "auto_relief_share": 0.771186,
+      "coverage": 0.472,
+      "n_auto": 118,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.487395,
+      "auto_relief_share": 0.773109,
+      "coverage": 0.476,
+      "n_auto": 119,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.491667,
+      "auto_relief_share": 0.775,
+      "coverage": 0.48,
+      "n_auto": 120,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.487603,
+      "auto_relief_share": 0.77686,
+      "coverage": 0.484,
+      "n_auto": 121,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.483607,
+      "auto_relief_share": 0.778689,
+      "coverage": 0.488,
+      "n_auto": 122,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.479675,
+      "auto_relief_share": 0.780488,
+      "coverage": 0.492,
+      "n_auto": 123,
+      "threshold": 0.867035
+     },
+     {
+      "agreement": 0.475806,
+      "auto_relief_share": 0.782258,
+      "coverage": 0.496,
+      "n_auto": 124,
+      "threshold": 0.851954
+     },
+     {
+      "agreement": 0.472,
+      "auto_relief_share": 0.784,
+      "coverage": 0.5,
+      "n_auto": 125,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.47619,
+      "auto_relief_share": 0.777778,
+      "coverage": 0.504,
+      "n_auto": 126,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.480315,
+      "auto_relief_share": 0.771654,
+      "coverage": 0.508,
+      "n_auto": 127,
+      "threshold": 0.851952
+     },
+     {
+      "agreement": 0.476562,
+      "auto_relief_share": 0.773438,
+      "coverage": 0.512,
+      "n_auto": 128,
+      "threshold": 0.835484
+     },
+     {
+      "agreement": 0.48062,
+      "auto_relief_share": 0.775194,
+      "coverage": 0.516,
+      "n_auto": 129,
+      "threshold": 0.835484
+     },
+     {
+      "agreement": 0.476923,
+      "auto_relief_share": 0.769231,
+      "coverage": 0.52,
+      "n_auto": 130,
+      "threshold": 0.835483
+     },
+     {
+      "agreement": 0.480916,
+      "auto_relief_share": 0.770992,
+      "coverage": 0.524,
+      "n_auto": 131,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.477273,
+      "auto_relief_share": 0.772727,
+      "coverage": 0.528,
+      "n_auto": 132,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.473684,
+      "auto_relief_share": 0.774436,
+      "coverage": 0.532,
+      "n_auto": 133,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.470149,
+      "auto_relief_share": 0.776119,
+      "coverage": 0.536,
+      "n_auto": 134,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.466667,
+      "auto_relief_share": 0.777778,
+      "coverage": 0.54,
+      "n_auto": 135,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.470588,
+      "auto_relief_share": 0.772059,
+      "coverage": 0.544,
+      "n_auto": 136,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.467153,
+      "auto_relief_share": 0.773723,
+      "coverage": 0.548,
+      "n_auto": 137,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.471014,
+      "auto_relief_share": 0.768116,
+      "coverage": 0.552,
+      "n_auto": 138,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.47482,
+      "auto_relief_share": 0.76259,
+      "coverage": 0.556,
+      "n_auto": 139,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.478571,
+      "auto_relief_share": 0.757143,
+      "coverage": 0.56,
+      "n_auto": 140,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.475177,
+      "auto_relief_share": 0.758865,
+      "coverage": 0.564,
+      "n_auto": 141,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.471831,
+      "auto_relief_share": 0.760563,
+      "coverage": 0.568,
+      "n_auto": 142,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.468531,
+      "auto_relief_share": 0.762238,
+      "coverage": 0.572,
+      "n_auto": 143,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.465278,
+      "auto_relief_share": 0.763889,
+      "coverage": 0.576,
+      "n_auto": 144,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.468966,
+      "auto_relief_share": 0.765517,
+      "coverage": 0.58,
+      "n_auto": 145,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.465753,
+      "auto_relief_share": 0.767123,
+      "coverage": 0.584,
+      "n_auto": 146,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.463087,
+      "auto_relief_share": 0.771812,
+      "coverage": 0.596,
+      "n_auto": 149,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.466667,
+      "auto_relief_share": 0.773333,
+      "coverage": 0.6,
+      "n_auto": 150,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.470199,
+      "auto_relief_share": 0.768212,
+      "coverage": 0.604,
+      "n_auto": 151,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.467105,
+      "auto_relief_share": 0.763158,
+      "coverage": 0.608,
+      "n_auto": 152,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.470588,
+      "auto_relief_share": 0.75817,
+      "coverage": 0.612,
+      "n_auto": 153,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.474026,
+      "auto_relief_share": 0.753247,
+      "coverage": 0.616,
+      "n_auto": 154,
+      "threshold": 0.798186
+     },
+     {
+      "agreement": 0.470968,
+      "auto_relief_share": 0.748387,
+      "coverage": 0.62,
+      "n_auto": 155,
+      "threshold": 0.798186
+     },
+     {
+      "agreement": 0.467949,
+      "auto_relief_share": 0.75,
+      "coverage": 0.624,
+      "n_auto": 156,
+      "threshold": 0.777301
+     },
+     {
+      "agreement": 0.464968,
+      "auto_relief_share": 0.751592,
+      "coverage": 0.628,
+      "n_auto": 157,
+      "threshold": 0.7773
+     },
+     {
+      "agreement": 0.462025,
+      "auto_relief_share": 0.753165,
+      "coverage": 0.632,
+      "n_auto": 158,
+      "threshold": 0.7773
+     },
+     {
+      "agreement": 0.465409,
+      "auto_relief_share": 0.754717,
+      "coverage": 0.636,
+      "n_auto": 159,
+      "threshold": 0.7773
+     },
+     {
+      "agreement": 0.4625,
+      "auto_relief_share": 0.75625,
+      "coverage": 0.64,
+      "n_auto": 160,
+      "threshold": 0.7773
+     },
+     {
+      "agreement": 0.465839,
+      "auto_relief_share": 0.751553,
+      "coverage": 0.644,
+      "n_auto": 161,
+      "threshold": 0.7773
+     },
+     {
+      "agreement": 0.469136,
+      "auto_relief_share": 0.746914,
+      "coverage": 0.648,
+      "n_auto": 162,
+      "threshold": 0.777299
+     },
+     {
+      "agreement": 0.466258,
+      "auto_relief_share": 0.748466,
+      "coverage": 0.652,
+      "n_auto": 163,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.469512,
+      "auto_relief_share": 0.75,
+      "coverage": 0.656,
+      "n_auto": 164,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.466667,
+      "auto_relief_share": 0.751515,
+      "coverage": 0.66,
+      "n_auto": 165,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.46988,
+      "auto_relief_share": 0.753012,
+      "coverage": 0.664,
+      "n_auto": 166,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.467066,
+      "auto_relief_share": 0.748503,
+      "coverage": 0.668,
+      "n_auto": 167,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.470238,
+      "auto_relief_share": 0.744048,
+      "coverage": 0.672,
+      "n_auto": 168,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.473373,
+      "auto_relief_share": 0.739645,
+      "coverage": 0.676,
+      "n_auto": 169,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.476471,
+      "auto_relief_share": 0.735294,
+      "coverage": 0.68,
+      "n_auto": 170,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.479532,
+      "auto_relief_share": 0.736842,
+      "coverage": 0.684,
+      "n_auto": 171,
+      "threshold": 0.731059
+     },
+     {
+      "agreement": 0.476744,
+      "auto_relief_share": 0.738372,
+      "coverage": 0.688,
+      "n_auto": 172,
+      "threshold": 0.731059
+     },
+     {
+      "agreement": 0.473988,
+      "auto_relief_share": 0.739884,
+      "coverage": 0.692,
+      "n_auto": 173,
+      "threshold": 0.731059
+     },
+     {
+      "agreement": 0.465909,
+      "auto_relief_share": 0.744318,
+      "coverage": 0.704,
+      "n_auto": 176,
+      "threshold": 0.731059
+     },
+     {
+      "agreement": 0.468927,
+      "auto_relief_share": 0.740113,
+      "coverage": 0.708,
+      "n_auto": 177,
+      "threshold": 0.731058
+     },
+     {
+      "agreement": 0.47191,
+      "auto_relief_share": 0.735955,
+      "coverage": 0.712,
+      "n_auto": 178,
+      "threshold": 0.731058
+     },
+     {
+      "agreement": 0.47486,
+      "auto_relief_share": 0.731844,
+      "coverage": 0.716,
+      "n_auto": 179,
+      "threshold": 0.731058
+     },
+     {
+      "agreement": 0.477778,
+      "auto_relief_share": 0.727778,
+      "coverage": 0.72,
+      "n_auto": 180,
+      "threshold": 0.731058
+     },
+     {
+      "agreement": 0.480663,
+      "auto_relief_share": 0.723757,
+      "coverage": 0.724,
+      "n_auto": 181,
+      "threshold": 0.731058
+     },
+     {
+      "agreement": 0.478261,
+      "auto_relief_share": 0.728261,
+      "coverage": 0.736,
+      "n_auto": 184,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.475676,
+      "auto_relief_share": 0.72973,
+      "coverage": 0.74,
+      "n_auto": 185,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.473118,
+      "auto_relief_share": 0.731183,
+      "coverage": 0.744,
+      "n_auto": 186,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.475936,
+      "auto_relief_share": 0.73262,
+      "coverage": 0.748,
+      "n_auto": 187,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.473404,
+      "auto_relief_share": 0.734043,
+      "coverage": 0.752,
+      "n_auto": 188,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.470899,
+      "auto_relief_share": 0.73545,
+      "coverage": 0.756,
+      "n_auto": 189,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.473684,
+      "auto_relief_share": 0.736842,
+      "coverage": 0.76,
+      "n_auto": 190,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.471204,
+      "auto_relief_share": 0.73822,
+      "coverage": 0.764,
+      "n_auto": 191,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.46875,
+      "auto_relief_share": 0.739583,
+      "coverage": 0.768,
+      "n_auto": 192,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.471503,
+      "auto_relief_share": 0.735751,
+      "coverage": 0.772,
+      "n_auto": 193,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.469072,
+      "auto_relief_share": 0.737113,
+      "coverage": 0.776,
+      "n_auto": 194,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.471795,
+      "auto_relief_share": 0.733333,
+      "coverage": 0.78,
+      "n_auto": 195,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.47449,
+      "auto_relief_share": 0.729592,
+      "coverage": 0.784,
+      "n_auto": 196,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.477157,
+      "auto_relief_share": 0.725888,
+      "coverage": 0.788,
+      "n_auto": 197,
+      "threshold": 0.705784
+     },
+     {
+      "agreement": 0.474747,
+      "auto_relief_share": 0.727273,
+      "coverage": 0.792,
+      "n_auto": 198,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.477387,
+      "auto_relief_share": 0.728643,
+      "coverage": 0.796,
+      "n_auto": 199,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.48,
+      "auto_relief_share": 0.73,
+      "coverage": 0.8,
+      "n_auto": 200,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.477612,
+      "auto_relief_share": 0.731343,
+      "coverage": 0.804,
+      "n_auto": 201,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.480198,
+      "auto_relief_share": 0.732673,
+      "coverage": 0.808,
+      "n_auto": 202,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.477833,
+      "auto_relief_share": 0.73399,
+      "coverage": 0.812,
+      "n_auto": 203,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.47549,
+      "auto_relief_share": 0.735294,
+      "coverage": 0.816,
+      "n_auto": 204,
+      "threshold": 0.651355
+     },
+     {
+      "agreement": 0.473171,
+      "auto_relief_share": 0.736585,
+      "coverage": 0.82,
+      "n_auto": 205,
+      "threshold": 0.651355
+     },
+     {
+      "agreement": 0.470874,
+      "auto_relief_share": 0.737864,
+      "coverage": 0.824,
+      "n_auto": 206,
+      "threshold": 0.651355
+     },
+     {
+      "agreement": 0.468599,
+      "auto_relief_share": 0.7343,
+      "coverage": 0.828,
+      "n_auto": 207,
+      "threshold": 0.651355
+     },
+     {
+      "agreement": 0.466346,
+      "auto_relief_share": 0.730769,
+      "coverage": 0.832,
+      "n_auto": 208,
+      "threshold": 0.651354
+     },
+     {
+      "agreement": 0.464115,
+      "auto_relief_share": 0.732057,
+      "coverage": 0.836,
+      "n_auto": 209,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.466667,
+      "auto_relief_share": 0.733333,
+      "coverage": 0.84,
+      "n_auto": 210,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.469194,
+      "auto_relief_share": 0.734597,
+      "coverage": 0.844,
+      "n_auto": 211,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.471698,
+      "auto_relief_share": 0.731132,
+      "coverage": 0.848,
+      "n_auto": 212,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.469484,
+      "auto_relief_share": 0.7277,
+      "coverage": 0.852,
+      "n_auto": 213,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.46729,
+      "auto_relief_share": 0.728972,
+      "coverage": 0.856,
+      "n_auto": 214,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.465116,
+      "auto_relief_share": 0.730233,
+      "coverage": 0.86,
+      "n_auto": 215,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.462963,
+      "auto_relief_share": 0.731481,
+      "coverage": 0.864,
+      "n_auto": 216,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.460829,
+      "auto_relief_share": 0.732719,
+      "coverage": 0.868,
+      "n_auto": 217,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.463303,
+      "auto_relief_share": 0.733945,
+      "coverage": 0.872,
+      "n_auto": 218,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.461187,
+      "auto_relief_share": 0.73516,
+      "coverage": 0.876,
+      "n_auto": 219,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.463636,
+      "auto_relief_share": 0.731818,
+      "coverage": 0.88,
+      "n_auto": 220,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.466063,
+      "auto_relief_share": 0.728507,
+      "coverage": 0.884,
+      "n_auto": 221,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.468468,
+      "auto_relief_share": 0.725225,
+      "coverage": 0.888,
+      "n_auto": 222,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.470852,
+      "auto_relief_share": 0.721973,
+      "coverage": 0.892,
+      "n_auto": 223,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.473214,
+      "auto_relief_share": 0.71875,
+      "coverage": 0.896,
+      "n_auto": 224,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.475556,
+      "auto_relief_share": 0.715556,
+      "coverage": 0.9,
+      "n_auto": 225,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.477876,
+      "auto_relief_share": 0.712389,
+      "coverage": 0.904,
+      "n_auto": 226,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.475771,
+      "auto_relief_share": 0.713656,
+      "coverage": 0.908,
+      "n_auto": 227,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.473684,
+      "auto_relief_share": 0.714912,
+      "coverage": 0.912,
+      "n_auto": 228,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.471616,
+      "auto_relief_share": 0.716157,
+      "coverage": 0.916,
+      "n_auto": 229,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.469565,
+      "auto_relief_share": 0.717391,
+      "coverage": 0.92,
+      "n_auto": 230,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.467532,
+      "auto_relief_share": 0.718615,
+      "coverage": 0.924,
+      "n_auto": 231,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.469828,
+      "auto_relief_share": 0.719828,
+      "coverage": 0.928,
+      "n_auto": 232,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.467811,
+      "auto_relief_share": 0.72103,
+      "coverage": 0.932,
+      "n_auto": 233,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.470085,
+      "auto_relief_share": 0.717949,
+      "coverage": 0.936,
+      "n_auto": 234,
+      "threshold": 0.562176
+     },
+     {
+      "agreement": 0.47234,
+      "auto_relief_share": 0.714894,
+      "coverage": 0.94,
+      "n_auto": 235,
+      "threshold": 0.562176
+     },
+     {
+      "agreement": 0.470339,
+      "auto_relief_share": 0.716102,
+      "coverage": 0.944,
+      "n_auto": 236,
+      "threshold": 0.53121
+     },
+     {
+      "agreement": 0.468354,
+      "auto_relief_share": 0.7173,
+      "coverage": 0.948,
+      "n_auto": 237,
+      "threshold": 0.53121
+     },
+     {
+      "agreement": 0.470588,
+      "auto_relief_share": 0.718487,
+      "coverage": 0.952,
+      "n_auto": 238,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.468619,
+      "auto_relief_share": 0.715481,
+      "coverage": 0.956,
+      "n_auto": 239,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.470833,
+      "auto_relief_share": 0.7125,
+      "coverage": 0.96,
+      "n_auto": 240,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.46888,
+      "auto_relief_share": 0.709544,
+      "coverage": 0.964,
+      "n_auto": 241,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.471074,
+      "auto_relief_share": 0.706612,
+      "coverage": 0.968,
+      "n_auto": 242,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.469136,
+      "auto_relief_share": 0.703704,
+      "coverage": 0.972,
+      "n_auto": 243,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.467213,
+      "auto_relief_share": 0.704918,
+      "coverage": 0.976,
+      "n_auto": 244,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.469388,
+      "auto_relief_share": 0.702041,
+      "coverage": 0.98,
+      "n_auto": 245,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.471545,
+      "auto_relief_share": 0.699187,
+      "coverage": 0.984,
+      "n_auto": 246,
+      "threshold": 0.531209
+     },
+     {
+      "agreement": 0.473684,
+      "auto_relief_share": 0.700405,
+      "coverage": 0.988,
+      "n_auto": 247,
+      "threshold": 0.500001
+     },
+     {
+      "agreement": 0.471774,
+      "auto_relief_share": 0.701613,
+      "coverage": 0.992,
+      "n_auto": 248,
+      "threshold": 0.5
+     },
+     {
+      "agreement": 0.46988,
+      "auto_relief_share": 0.702811,
+      "coverage": 0.996,
+      "n_auto": 249,
+      "threshold": 0.5
+     },
+     {
+      "agreement": 0.468,
+      "auto_relief_share": 0.704,
+      "coverage": 1.0,
+      "n_auto": 250,
+      "threshold": 0.5
+     }
+    ],
+    "fixed_coverage": [
+     {
+      "agreement": 0.68,
+      "auto_relief_share": 0.64,
+      "coverage": 0.1,
+      "level": 0.1,
+      "n_auto": 25,
+      "threshold": 0.985936
+     },
+     {
+      "agreement": 0.492063,
+      "auto_relief_share": 0.730159,
+      "coverage": 0.252,
+      "level": 0.25,
+      "n_auto": 63,
+      "threshold": 0.952574
+     },
+     {
+      "agreement": 0.472,
+      "auto_relief_share": 0.784,
+      "coverage": 0.5,
+      "level": 0.5,
+      "n_auto": 125,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.473404,
+      "auto_relief_share": 0.734043,
+      "coverage": 0.752,
+      "level": 0.75,
+      "n_auto": 188,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.468,
+      "auto_relief_share": 0.704,
+      "coverage": 1.0,
+      "level": 1.0,
+      "n_auto": 250,
+      "threshold": 0.5
+     }
+    ],
+    "signal": "token",
+    "threshold": null
+   },
+   "v2": {
+    "at_dev_threshold": null,
+    "curve": [
+     {
+      "agreement": 1.0,
+      "auto_relief_share": 0.0,
+      "coverage": 0.004,
+      "n_auto": 1,
+      "threshold": 0.999955
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.0,
+      "coverage": 0.008,
+      "n_auto": 2,
+      "threshold": 0.999955
+     },
+     {
+      "agreement": 0.333333,
+      "auto_relief_share": 0.0,
+      "coverage": 0.012,
+      "n_auto": 3,
+      "threshold": 0.999942
+     },
+     {
+      "agreement": 0.5,
+      "auto_relief_share": 0.0,
+      "coverage": 0.016,
+      "n_auto": 4,
+      "threshold": 0.999934
+     },
+     {
+      "agreement": 0.6,
+      "auto_relief_share": 0.0,
+      "coverage": 0.02,
+      "n_auto": 5,
+      "threshold": 0.999915
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.024,
+      "n_auto": 6,
+      "threshold": 0.999904
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.0,
+      "coverage": 0.028,
+      "n_auto": 7,
+      "threshold": 0.999891
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.0,
+      "coverage": 0.032,
+      "n_auto": 8,
+      "threshold": 0.999877
+     },
+     {
+      "agreement": 0.777778,
+      "auto_relief_share": 0.0,
+      "coverage": 0.036,
+      "n_auto": 9,
+      "threshold": 0.99986
+     },
+     {
+      "agreement": 0.7,
+      "auto_relief_share": 0.0,
+      "coverage": 0.04,
+      "n_auto": 10,
+      "threshold": 0.99986
+     },
+     {
+      "agreement": 0.727273,
+      "auto_relief_share": 0.0,
+      "coverage": 0.044,
+      "n_auto": 11,
+      "threshold": 0.99986
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.0,
+      "coverage": 0.048,
+      "n_auto": 12,
+      "threshold": 0.99986
+     },
+     {
+      "agreement": 0.769231,
+      "auto_relief_share": 0.0,
+      "coverage": 0.052,
+      "n_auto": 13,
+      "threshold": 0.999842
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.0,
+      "coverage": 0.056,
+      "n_auto": 14,
+      "threshold": 0.999842
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.06,
+      "n_auto": 15,
+      "threshold": 0.99982
+     },
+     {
+      "agreement": 0.6875,
+      "auto_relief_share": 0.0,
+      "coverage": 0.064,
+      "n_auto": 16,
+      "threshold": 0.99982
+     },
+     {
+      "agreement": 0.705882,
+      "auto_relief_share": 0.0,
+      "coverage": 0.068,
+      "n_auto": 17,
+      "threshold": 0.99982
+     },
+     {
+      "agreement": 0.722222,
+      "auto_relief_share": 0.0,
+      "coverage": 0.072,
+      "n_auto": 18,
+      "threshold": 0.999797
+     },
+     {
+      "agreement": 0.684211,
+      "auto_relief_share": 0.0,
+      "coverage": 0.076,
+      "n_auto": 19,
+      "threshold": 0.999797
+     },
+     {
+      "agreement": 0.7,
+      "auto_relief_share": 0.0,
+      "coverage": 0.08,
+      "n_auto": 20,
+      "threshold": 0.999797
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.0,
+      "coverage": 0.084,
+      "n_auto": 21,
+      "threshold": 0.999797
+     },
+     {
+      "agreement": 0.681818,
+      "auto_relief_share": 0.0,
+      "coverage": 0.088,
+      "n_auto": 22,
+      "threshold": 0.999797
+     },
+     {
+      "agreement": 0.695652,
+      "auto_relief_share": 0.0,
+      "coverage": 0.092,
+      "n_auto": 23,
+      "threshold": 0.999769
+     },
+     {
+      "agreement": 0.708333,
+      "auto_relief_share": 0.0,
+      "coverage": 0.096,
+      "n_auto": 24,
+      "threshold": 0.999769
+     },
+     {
+      "agreement": 0.72,
+      "auto_relief_share": 0.0,
+      "coverage": 0.1,
+      "n_auto": 25,
+      "threshold": 0.999739
+     },
+     {
+      "agreement": 0.692308,
+      "auto_relief_share": 0.0,
+      "coverage": 0.104,
+      "n_auto": 26,
+      "threshold": 0.999704
+     },
+     {
+      "agreement": 0.703704,
+      "auto_relief_share": 0.0,
+      "coverage": 0.108,
+      "n_auto": 27,
+      "threshold": 0.999704
+     },
+     {
+      "agreement": 0.678571,
+      "auto_relief_share": 0.0,
+      "coverage": 0.112,
+      "n_auto": 28,
+      "threshold": 0.999704
+     },
+     {
+      "agreement": 0.689655,
+      "auto_relief_share": 0.0,
+      "coverage": 0.116,
+      "n_auto": 29,
+      "threshold": 0.999704
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.12,
+      "n_auto": 30,
+      "threshold": 0.999665
+     },
+     {
+      "agreement": 0.677419,
+      "auto_relief_share": 0.0,
+      "coverage": 0.124,
+      "n_auto": 31,
+      "threshold": 0.999665
+     },
+     {
+      "agreement": 0.6875,
+      "auto_relief_share": 0.0,
+      "coverage": 0.128,
+      "n_auto": 32,
+      "threshold": 0.999665
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.132,
+      "n_auto": 33,
+      "threshold": 0.99962
+     },
+     {
+      "agreement": 0.647059,
+      "auto_relief_share": 0.0,
+      "coverage": 0.136,
+      "n_auto": 34,
+      "threshold": 0.99962
+     },
+     {
+      "agreement": 0.628571,
+      "auto_relief_share": 0.0,
+      "coverage": 0.14,
+      "n_auto": 35,
+      "threshold": 0.99962
+     },
+     {
+      "agreement": 0.638889,
+      "auto_relief_share": 0.0,
+      "coverage": 0.144,
+      "n_auto": 36,
+      "threshold": 0.99962
+     },
+     {
+      "agreement": 0.648649,
+      "auto_relief_share": 0.0,
+      "coverage": 0.148,
+      "n_auto": 37,
+      "threshold": 0.99962
+     },
+     {
+      "agreement": 0.657895,
+      "auto_relief_share": 0.0,
+      "coverage": 0.152,
+      "n_auto": 38,
+      "threshold": 0.999569
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.156,
+      "n_auto": 39,
+      "threshold": 0.999569
+     },
+     {
+      "agreement": 0.675,
+      "auto_relief_share": 0.0,
+      "coverage": 0.16,
+      "n_auto": 40,
+      "threshold": 0.999569
+     },
+     {
+      "agreement": 0.658537,
+      "auto_relief_share": 0.0,
+      "coverage": 0.164,
+      "n_auto": 41,
+      "threshold": 0.999512
+     },
+     {
+      "agreement": 0.642857,
+      "auto_relief_share": 0.0,
+      "coverage": 0.168,
+      "n_auto": 42,
+      "threshold": 0.999512
+     },
+     {
+      "agreement": 0.651163,
+      "auto_relief_share": 0.0,
+      "coverage": 0.172,
+      "n_auto": 43,
+      "threshold": 0.999512
+     },
+     {
+      "agreement": 0.659091,
+      "auto_relief_share": 0.0,
+      "coverage": 0.176,
+      "n_auto": 44,
+      "threshold": 0.999512
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.18,
+      "n_auto": 45,
+      "threshold": 0.999512
+     },
+     {
+      "agreement": 0.673913,
+      "auto_relief_share": 0.0,
+      "coverage": 0.184,
+      "n_auto": 46,
+      "threshold": 0.999447
+     },
+     {
+      "agreement": 0.659574,
+      "auto_relief_share": 0.0,
+      "coverage": 0.188,
+      "n_auto": 47,
+      "threshold": 0.999447
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.192,
+      "n_auto": 48,
+      "threshold": 0.999447
+     },
+     {
+      "agreement": 0.653061,
+      "auto_relief_share": 0.0,
+      "coverage": 0.196,
+      "n_auto": 49,
+      "threshold": 0.999374
+     },
+     {
+      "agreement": 0.66,
+      "auto_relief_share": 0.0,
+      "coverage": 0.2,
+      "n_auto": 50,
+      "threshold": 0.999374
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.204,
+      "n_auto": 51,
+      "threshold": 0.999374
+     },
+     {
+      "agreement": 0.673077,
+      "auto_relief_share": 0.0,
+      "coverage": 0.208,
+      "n_auto": 52,
+      "threshold": 0.99929
+     },
+     {
+      "agreement": 0.679245,
+      "auto_relief_share": 0.0,
+      "coverage": 0.212,
+      "n_auto": 53,
+      "threshold": 0.99929
+     },
+     {
+      "agreement": 0.666667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.216,
+      "n_auto": 54,
+      "threshold": 0.99929
+     },
+     {
+      "agreement": 0.672727,
+      "auto_relief_share": 0.0,
+      "coverage": 0.22,
+      "n_auto": 55,
+      "threshold": 0.99929
+     },
+     {
+      "agreement": 0.678571,
+      "auto_relief_share": 0.0,
+      "coverage": 0.224,
+      "n_auto": 56,
+      "threshold": 0.999196
+     },
+     {
+      "agreement": 0.684211,
+      "auto_relief_share": 0.0,
+      "coverage": 0.228,
+      "n_auto": 57,
+      "threshold": 0.999196
+     },
+     {
+      "agreement": 0.689655,
+      "auto_relief_share": 0.0,
+      "coverage": 0.232,
+      "n_auto": 58,
+      "threshold": 0.999196
+     },
+     {
+      "agreement": 0.694915,
+      "auto_relief_share": 0.0,
+      "coverage": 0.236,
+      "n_auto": 59,
+      "threshold": 0.999196
+     },
+     {
+      "agreement": 0.7,
+      "auto_relief_share": 0.0,
+      "coverage": 0.24,
+      "n_auto": 60,
+      "threshold": 0.999196
+     },
+     {
+      "agreement": 0.704918,
+      "auto_relief_share": 0.0,
+      "coverage": 0.244,
+      "n_auto": 61,
+      "threshold": 0.999196
+     },
+     {
+      "agreement": 0.709677,
+      "auto_relief_share": 0.0,
+      "coverage": 0.248,
+      "n_auto": 62,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.698413,
+      "auto_relief_share": 0.0,
+      "coverage": 0.252,
+      "n_auto": 63,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.703125,
+      "auto_relief_share": 0.0,
+      "coverage": 0.256,
+      "n_auto": 64,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.707692,
+      "auto_relief_share": 0.0,
+      "coverage": 0.26,
+      "n_auto": 65,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.712121,
+      "auto_relief_share": 0.0,
+      "coverage": 0.264,
+      "n_auto": 66,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.716418,
+      "auto_relief_share": 0.0,
+      "coverage": 0.268,
+      "n_auto": 67,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.720588,
+      "auto_relief_share": 0.0,
+      "coverage": 0.272,
+      "n_auto": 68,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.724638,
+      "auto_relief_share": 0.0,
+      "coverage": 0.276,
+      "n_auto": 69,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.728571,
+      "auto_relief_share": 0.0,
+      "coverage": 0.28,
+      "n_auto": 70,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.71831,
+      "auto_relief_share": 0.0,
+      "coverage": 0.284,
+      "n_auto": 71,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.708333,
+      "auto_relief_share": 0.0,
+      "coverage": 0.288,
+      "n_auto": 72,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.69863,
+      "auto_relief_share": 0.0,
+      "coverage": 0.292,
+      "n_auto": 73,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.702703,
+      "auto_relief_share": 0.0,
+      "coverage": 0.296,
+      "n_auto": 74,
+      "threshold": 0.998968
+     },
+     {
+      "agreement": 0.706667,
+      "auto_relief_share": 0.0,
+      "coverage": 0.3,
+      "n_auto": 75,
+      "threshold": 0.99883
+     },
+     {
+      "agreement": 0.710526,
+      "auto_relief_share": 0.0,
+      "coverage": 0.304,
+      "n_auto": 76,
+      "threshold": 0.99883
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.0,
+      "coverage": 0.308,
+      "n_auto": 77,
+      "threshold": 0.99883
+     },
+     {
+      "agreement": 0.705128,
+      "auto_relief_share": 0.0,
+      "coverage": 0.312,
+      "n_auto": 78,
+      "threshold": 0.99883
+     },
+     {
+      "agreement": 0.696203,
+      "auto_relief_share": 0.0,
+      "coverage": 0.316,
+      "n_auto": 79,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.7,
+      "auto_relief_share": 0.0,
+      "coverage": 0.32,
+      "n_auto": 80,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.703704,
+      "auto_relief_share": 0.0,
+      "coverage": 0.324,
+      "n_auto": 81,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.707317,
+      "auto_relief_share": 0.0,
+      "coverage": 0.328,
+      "n_auto": 82,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.710843,
+      "auto_relief_share": 0.0,
+      "coverage": 0.332,
+      "n_auto": 83,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.0,
+      "coverage": 0.336,
+      "n_auto": 84,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.717647,
+      "auto_relief_share": 0.0,
+      "coverage": 0.34,
+      "n_auto": 85,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.72093,
+      "auto_relief_share": 0.0,
+      "coverage": 0.344,
+      "n_auto": 86,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.712644,
+      "auto_relief_share": 0.0,
+      "coverage": 0.348,
+      "n_auto": 87,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.715909,
+      "auto_relief_share": 0.0,
+      "coverage": 0.352,
+      "n_auto": 88,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.719101,
+      "auto_relief_share": 0.0,
+      "coverage": 0.356,
+      "n_auto": 89,
+      "threshold": 0.998675
+     },
+     {
+      "agreement": 0.722222,
+      "auto_relief_share": 0.0,
+      "coverage": 0.36,
+      "n_auto": 90,
+      "threshold": 0.998499
+     },
+     {
+      "agreement": 0.725275,
+      "auto_relief_share": 0.0,
+      "coverage": 0.364,
+      "n_auto": 91,
+      "threshold": 0.998499
+     },
+     {
+      "agreement": 0.728261,
+      "auto_relief_share": 0.0,
+      "coverage": 0.368,
+      "n_auto": 92,
+      "threshold": 0.998499
+     },
+     {
+      "agreement": 0.731183,
+      "auto_relief_share": 0.0,
+      "coverage": 0.372,
+      "n_auto": 93,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.734043,
+      "auto_relief_share": 0.0,
+      "coverage": 0.376,
+      "n_auto": 94,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.736842,
+      "auto_relief_share": 0.0,
+      "coverage": 0.38,
+      "n_auto": 95,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.739583,
+      "auto_relief_share": 0.0,
+      "coverage": 0.384,
+      "n_auto": 96,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.742268,
+      "auto_relief_share": 0.0,
+      "coverage": 0.388,
+      "n_auto": 97,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.744898,
+      "auto_relief_share": 0.0,
+      "coverage": 0.392,
+      "n_auto": 98,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.747475,
+      "auto_relief_share": 0.0,
+      "coverage": 0.396,
+      "n_auto": 99,
+      "threshold": 0.998299
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.0,
+      "coverage": 0.4,
+      "n_auto": 100,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.752475,
+      "auto_relief_share": 0.0,
+      "coverage": 0.404,
+      "n_auto": 101,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.754902,
+      "auto_relief_share": 0.0,
+      "coverage": 0.408,
+      "n_auto": 102,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.757282,
+      "auto_relief_share": 0.0,
+      "coverage": 0.412,
+      "n_auto": 103,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.759615,
+      "auto_relief_share": 0.0,
+      "coverage": 0.416,
+      "n_auto": 104,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.761905,
+      "auto_relief_share": 0.0,
+      "coverage": 0.42,
+      "n_auto": 105,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.764151,
+      "auto_relief_share": 0.0,
+      "coverage": 0.424,
+      "n_auto": 106,
+      "threshold": 0.998073
+     },
+     {
+      "agreement": 0.766355,
+      "auto_relief_share": 0.0,
+      "coverage": 0.428,
+      "n_auto": 107,
+      "threshold": 0.997817
+     },
+     {
+      "agreement": 0.768519,
+      "auto_relief_share": 0.0,
+      "coverage": 0.432,
+      "n_auto": 108,
+      "threshold": 0.997817
+     },
+     {
+      "agreement": 0.770642,
+      "auto_relief_share": 0.0,
+      "coverage": 0.436,
+      "n_auto": 109,
+      "threshold": 0.997817
+     },
+     {
+      "agreement": 0.772727,
+      "auto_relief_share": 0.0,
+      "coverage": 0.44,
+      "n_auto": 110,
+      "threshold": 0.997817
+     },
+     {
+      "agreement": 0.776786,
+      "auto_relief_share": 0.0,
+      "coverage": 0.448,
+      "n_auto": 112,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.769912,
+      "auto_relief_share": 0.0,
+      "coverage": 0.452,
+      "n_auto": 113,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.77193,
+      "auto_relief_share": 0.0,
+      "coverage": 0.456,
+      "n_auto": 114,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.773913,
+      "auto_relief_share": 0.0,
+      "coverage": 0.46,
+      "n_auto": 115,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.775862,
+      "auto_relief_share": 0.0,
+      "coverage": 0.464,
+      "n_auto": 116,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.769231,
+      "auto_relief_share": 0.0,
+      "coverage": 0.468,
+      "n_auto": 117,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.771186,
+      "auto_relief_share": 0.0,
+      "coverage": 0.472,
+      "n_auto": 118,
+      "threshold": 0.997527
+     },
+     {
+      "agreement": 0.773109,
+      "auto_relief_share": 0.0,
+      "coverage": 0.476,
+      "n_auto": 119,
+      "threshold": 0.997199
+     },
+     {
+      "agreement": 0.775,
+      "auto_relief_share": 0.0,
+      "coverage": 0.48,
+      "n_auto": 120,
+      "threshold": 0.997199
+     },
+     {
+      "agreement": 0.77686,
+      "auto_relief_share": 0.0,
+      "coverage": 0.484,
+      "n_auto": 121,
+      "threshold": 0.997199
+     },
+     {
+      "agreement": 0.770492,
+      "auto_relief_share": 0.0,
+      "coverage": 0.488,
+      "n_auto": 122,
+      "threshold": 0.997199
+     },
+     {
+      "agreement": 0.764228,
+      "auto_relief_share": 0.0,
+      "coverage": 0.492,
+      "n_auto": 123,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.766129,
+      "auto_relief_share": 0.0,
+      "coverage": 0.496,
+      "n_auto": 124,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.768,
+      "auto_relief_share": 0.0,
+      "coverage": 0.5,
+      "n_auto": 125,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.761905,
+      "auto_relief_share": 0.0,
+      "coverage": 0.504,
+      "n_auto": 126,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.755906,
+      "auto_relief_share": 0.0,
+      "coverage": 0.508,
+      "n_auto": 127,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.757812,
+      "auto_relief_share": 0.0,
+      "coverage": 0.512,
+      "n_auto": 128,
+      "threshold": 0.996406
+     },
+     {
+      "agreement": 0.75969,
+      "auto_relief_share": 0.0,
+      "coverage": 0.516,
+      "n_auto": 129,
+      "threshold": 0.996406
+     },
+     {
+      "agreement": 0.753846,
+      "auto_relief_share": 0.007692,
+      "coverage": 0.52,
+      "n_auto": 130,
+      "threshold": 0.996406
+     },
+     {
+      "agreement": 0.755725,
+      "auto_relief_share": 0.007634,
+      "coverage": 0.524,
+      "n_auto": 131,
+      "threshold": 0.996406
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.007576,
+      "coverage": 0.528,
+      "n_auto": 132,
+      "threshold": 0.99593
+     },
+     {
+      "agreement": 0.75188,
+      "auto_relief_share": 0.007519,
+      "coverage": 0.532,
+      "n_auto": 133,
+      "threshold": 0.99593
+     },
+     {
+      "agreement": 0.753731,
+      "auto_relief_share": 0.007463,
+      "coverage": 0.536,
+      "n_auto": 134,
+      "threshold": 0.99593
+     },
+     {
+      "agreement": 0.755556,
+      "auto_relief_share": 0.007407,
+      "coverage": 0.54,
+      "n_auto": 135,
+      "threshold": 0.99539
+     },
+     {
+      "agreement": 0.757353,
+      "auto_relief_share": 0.007353,
+      "coverage": 0.544,
+      "n_auto": 136,
+      "threshold": 0.99539
+     },
+     {
+      "agreement": 0.759124,
+      "auto_relief_share": 0.007299,
+      "coverage": 0.548,
+      "n_auto": 137,
+      "threshold": 0.99539
+     },
+     {
+      "agreement": 0.76087,
+      "auto_relief_share": 0.007246,
+      "coverage": 0.552,
+      "n_auto": 138,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.755396,
+      "auto_relief_share": 0.007194,
+      "coverage": 0.556,
+      "n_auto": 139,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.757143,
+      "auto_relief_share": 0.007143,
+      "coverage": 0.56,
+      "n_auto": 140,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.758865,
+      "auto_relief_share": 0.007092,
+      "coverage": 0.564,
+      "n_auto": 141,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.760563,
+      "auto_relief_share": 0.007042,
+      "coverage": 0.568,
+      "n_auto": 142,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.762238,
+      "auto_relief_share": 0.006993,
+      "coverage": 0.572,
+      "n_auto": 143,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.763889,
+      "auto_relief_share": 0.006944,
+      "coverage": 0.576,
+      "n_auto": 144,
+      "threshold": 0.99478
+     },
+     {
+      "agreement": 0.765517,
+      "auto_relief_share": 0.006897,
+      "coverage": 0.58,
+      "n_auto": 145,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.760274,
+      "auto_relief_share": 0.006849,
+      "coverage": 0.584,
+      "n_auto": 146,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.761905,
+      "auto_relief_share": 0.006803,
+      "coverage": 0.588,
+      "n_auto": 147,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.763514,
+      "auto_relief_share": 0.006757,
+      "coverage": 0.592,
+      "n_auto": 148,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.765101,
+      "auto_relief_share": 0.006711,
+      "coverage": 0.596,
+      "n_auto": 149,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.766667,
+      "auto_relief_share": 0.006667,
+      "coverage": 0.6,
+      "n_auto": 150,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.768212,
+      "auto_relief_share": 0.006623,
+      "coverage": 0.604,
+      "n_auto": 151,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.769737,
+      "auto_relief_share": 0.006579,
+      "coverage": 0.608,
+      "n_auto": 152,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.771242,
+      "auto_relief_share": 0.006536,
+      "coverage": 0.612,
+      "n_auto": 153,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.766234,
+      "auto_relief_share": 0.006494,
+      "coverage": 0.616,
+      "n_auto": 154,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.76129,
+      "auto_relief_share": 0.006452,
+      "coverage": 0.62,
+      "n_auto": 155,
+      "threshold": 0.994089
+     },
+     {
+      "agreement": 0.75641,
+      "auto_relief_share": 0.00641,
+      "coverage": 0.624,
+      "n_auto": 156,
+      "threshold": 0.993307
+     },
+     {
+      "agreement": 0.757962,
+      "auto_relief_share": 0.006369,
+      "coverage": 0.628,
+      "n_auto": 157,
+      "threshold": 0.993307
+     },
+     {
+      "agreement": 0.759494,
+      "auto_relief_share": 0.006329,
+      "coverage": 0.632,
+      "n_auto": 158,
+      "threshold": 0.992423
+     },
+     {
+      "agreement": 0.761006,
+      "auto_relief_share": 0.006289,
+      "coverage": 0.636,
+      "n_auto": 159,
+      "threshold": 0.990292
+     },
+     {
+      "agreement": 0.7625,
+      "auto_relief_share": 0.00625,
+      "coverage": 0.64,
+      "n_auto": 160,
+      "threshold": 0.989013
+     },
+     {
+      "agreement": 0.763975,
+      "auto_relief_share": 0.006211,
+      "coverage": 0.644,
+      "n_auto": 161,
+      "threshold": 0.989013
+     },
+     {
+      "agreement": 0.765432,
+      "auto_relief_share": 0.006173,
+      "coverage": 0.648,
+      "n_auto": 162,
+      "threshold": 0.989013
+     },
+     {
+      "agreement": 0.760736,
+      "auto_relief_share": 0.006135,
+      "coverage": 0.652,
+      "n_auto": 163,
+      "threshold": 0.987568
+     },
+     {
+      "agreement": 0.762195,
+      "auto_relief_share": 0.006098,
+      "coverage": 0.656,
+      "n_auto": 164,
+      "threshold": 0.987568
+     },
+     {
+      "agreement": 0.763636,
+      "auto_relief_share": 0.006061,
+      "coverage": 0.66,
+      "n_auto": 165,
+      "threshold": 0.987568
+     },
+     {
+      "agreement": 0.76506,
+      "auto_relief_share": 0.006024,
+      "coverage": 0.664,
+      "n_auto": 166,
+      "threshold": 0.982014
+     },
+     {
+      "agreement": 0.760479,
+      "auto_relief_share": 0.005988,
+      "coverage": 0.668,
+      "n_auto": 167,
+      "threshold": 0.979668
+     },
+     {
+      "agreement": 0.755952,
+      "auto_relief_share": 0.005952,
+      "coverage": 0.672,
+      "n_auto": 168,
+      "threshold": 0.979668
+     },
+     {
+      "agreement": 0.757396,
+      "auto_relief_share": 0.005917,
+      "coverage": 0.676,
+      "n_auto": 169,
+      "threshold": 0.979668
+     },
+     {
+      "agreement": 0.752941,
+      "auto_relief_share": 0.005882,
+      "coverage": 0.68,
+      "n_auto": 170,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.754386,
+      "auto_relief_share": 0.005848,
+      "coverage": 0.684,
+      "n_auto": 171,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.005814,
+      "coverage": 0.688,
+      "n_auto": 172,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.751445,
+      "auto_relief_share": 0.00578,
+      "coverage": 0.692,
+      "n_auto": 173,
+      "threshold": 0.977023
+     },
+     {
+      "agreement": 0.752874,
+      "auto_relief_share": 0.005747,
+      "coverage": 0.696,
+      "n_auto": 174,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.748571,
+      "auto_relief_share": 0.005714,
+      "coverage": 0.7,
+      "n_auto": 175,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.75,
+      "auto_relief_share": 0.005682,
+      "coverage": 0.704,
+      "n_auto": 176,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.751412,
+      "auto_relief_share": 0.00565,
+      "coverage": 0.708,
+      "n_auto": 177,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.752809,
+      "auto_relief_share": 0.005618,
+      "coverage": 0.712,
+      "n_auto": 178,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.75419,
+      "auto_relief_share": 0.005587,
+      "coverage": 0.716,
+      "n_auto": 179,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.755556,
+      "auto_relief_share": 0.005556,
+      "coverage": 0.72,
+      "n_auto": 180,
+      "threshold": 0.974043
+     },
+     {
+      "agreement": 0.756906,
+      "auto_relief_share": 0.005525,
+      "coverage": 0.724,
+      "n_auto": 181,
+      "threshold": 0.970688
+     },
+     {
+      "agreement": 0.758242,
+      "auto_relief_share": 0.010989,
+      "coverage": 0.728,
+      "n_auto": 182,
+      "threshold": 0.970688
+     },
+     {
+      "agreement": 0.759563,
+      "auto_relief_share": 0.010929,
+      "coverage": 0.732,
+      "n_auto": 183,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.76087,
+      "auto_relief_share": 0.01087,
+      "coverage": 0.736,
+      "n_auto": 184,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.756757,
+      "auto_relief_share": 0.010811,
+      "coverage": 0.74,
+      "n_auto": 185,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.758065,
+      "auto_relief_share": 0.016129,
+      "coverage": 0.744,
+      "n_auto": 186,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.759358,
+      "auto_relief_share": 0.02139,
+      "coverage": 0.748,
+      "n_auto": 187,
+      "threshold": 0.966914
+     },
+     {
+      "agreement": 0.755319,
+      "auto_relief_share": 0.021277,
+      "coverage": 0.752,
+      "n_auto": 188,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.756614,
+      "auto_relief_share": 0.021164,
+      "coverage": 0.756,
+      "n_auto": 189,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.757895,
+      "auto_relief_share": 0.026316,
+      "coverage": 0.76,
+      "n_auto": 190,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.759162,
+      "auto_relief_share": 0.026178,
+      "coverage": 0.764,
+      "n_auto": 191,
+      "threshold": 0.957912
+     },
+     {
+      "agreement": 0.760417,
+      "auto_relief_share": 0.026042,
+      "coverage": 0.768,
+      "n_auto": 192,
+      "threshold": 0.939913
+     },
+     {
+      "agreement": 0.756477,
+      "auto_relief_share": 0.025907,
+      "coverage": 0.772,
+      "n_auto": 193,
+      "threshold": 0.939913
+     },
+     {
+      "agreement": 0.757732,
+      "auto_relief_share": 0.030928,
+      "coverage": 0.776,
+      "n_auto": 194,
+      "threshold": 0.939913
+     },
+     {
+      "agreement": 0.758974,
+      "auto_relief_share": 0.035897,
+      "coverage": 0.78,
+      "n_auto": 195,
+      "threshold": 0.939913
+     },
+     {
+      "agreement": 0.760204,
+      "auto_relief_share": 0.035714,
+      "coverage": 0.784,
+      "n_auto": 196,
+      "threshold": 0.932453
+     },
+     {
+      "agreement": 0.756345,
+      "auto_relief_share": 0.040609,
+      "coverage": 0.788,
+      "n_auto": 197,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.757576,
+      "auto_relief_share": 0.045455,
+      "coverage": 0.792,
+      "n_auto": 198,
+      "threshold": 0.924142
+     },
+     {
+      "agreement": 0.758794,
+      "auto_relief_share": 0.045226,
+      "coverage": 0.796,
+      "n_auto": 199,
+      "threshold": 0.914901
+     },
+     {
+      "agreement": 0.76,
+      "auto_relief_share": 0.045,
+      "coverage": 0.8,
+      "n_auto": 200,
+      "threshold": 0.904651
+     },
+     {
+      "agreement": 0.756219,
+      "auto_relief_share": 0.049751,
+      "coverage": 0.804,
+      "n_auto": 201,
+      "threshold": 0.90465
+     },
+     {
+      "agreement": 0.757426,
+      "auto_relief_share": 0.049505,
+      "coverage": 0.808,
+      "n_auto": 202,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.758621,
+      "auto_relief_share": 0.054187,
+      "coverage": 0.812,
+      "n_auto": 203,
+      "threshold": 0.867036
+     },
+     {
+      "agreement": 0.754902,
+      "auto_relief_share": 0.058824,
+      "coverage": 0.816,
+      "n_auto": 204,
+      "threshold": 0.867035
+     },
+     {
+      "agreement": 0.756098,
+      "auto_relief_share": 0.058537,
+      "coverage": 0.82,
+      "n_auto": 205,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.757282,
+      "auto_relief_share": 0.058252,
+      "coverage": 0.824,
+      "n_auto": 206,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.753623,
+      "auto_relief_share": 0.062802,
+      "coverage": 0.828,
+      "n_auto": 207,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.754808,
+      "auto_relief_share": 0.067308,
+      "coverage": 0.832,
+      "n_auto": 208,
+      "threshold": 0.851953
+     },
+     {
+      "agreement": 0.751196,
+      "auto_relief_share": 0.07177,
+      "coverage": 0.836,
+      "n_auto": 209,
+      "threshold": 0.851952
+     },
+     {
+      "agreement": 0.752381,
+      "auto_relief_share": 0.07619,
+      "coverage": 0.84,
+      "n_auto": 210,
+      "threshold": 0.851952
+     },
+     {
+      "agreement": 0.753555,
+      "auto_relief_share": 0.080569,
+      "coverage": 0.844,
+      "n_auto": 211,
+      "threshold": 0.835482
+     },
+     {
+      "agreement": 0.754717,
+      "auto_relief_share": 0.080189,
+      "coverage": 0.848,
+      "n_auto": 212,
+      "threshold": 0.817575
+     },
+     {
+      "agreement": 0.751174,
+      "auto_relief_share": 0.084507,
+      "coverage": 0.852,
+      "n_auto": 213,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.747664,
+      "auto_relief_share": 0.088785,
+      "coverage": 0.856,
+      "n_auto": 214,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.744186,
+      "auto_relief_share": 0.093023,
+      "coverage": 0.86,
+      "n_auto": 215,
+      "threshold": 0.817574
+     },
+     {
+      "agreement": 0.74537,
+      "auto_relief_share": 0.092593,
+      "coverage": 0.864,
+      "n_auto": 216,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.746544,
+      "auto_relief_share": 0.092166,
+      "coverage": 0.868,
+      "n_auto": 217,
+      "threshold": 0.798187
+     },
+     {
+      "agreement": 0.747706,
+      "auto_relief_share": 0.091743,
+      "coverage": 0.872,
+      "n_auto": 218,
+      "threshold": 0.7773
+     },
+     {
+      "agreement": 0.744292,
+      "auto_relief_share": 0.09589,
+      "coverage": 0.876,
+      "n_auto": 219,
+      "threshold": 0.777299
+     },
+     {
+      "agreement": 0.740909,
+      "auto_relief_share": 0.1,
+      "coverage": 0.88,
+      "n_auto": 220,
+      "threshold": 0.777299
+     },
+     {
+      "agreement": 0.742081,
+      "auto_relief_share": 0.104072,
+      "coverage": 0.884,
+      "n_auto": 221,
+      "threshold": 0.777299
+     },
+     {
+      "agreement": 0.743243,
+      "auto_relief_share": 0.108108,
+      "coverage": 0.888,
+      "n_auto": 222,
+      "threshold": 0.777299
+     },
+     {
+      "agreement": 0.73991,
+      "auto_relief_share": 0.112108,
+      "coverage": 0.892,
+      "n_auto": 223,
+      "threshold": 0.777299
+     },
+     {
+      "agreement": 0.736607,
+      "auto_relief_share": 0.111607,
+      "coverage": 0.896,
+      "n_auto": 224,
+      "threshold": 0.754915
+     },
+     {
+      "agreement": 0.733333,
+      "auto_relief_share": 0.115556,
+      "coverage": 0.9,
+      "n_auto": 225,
+      "threshold": 0.731058
+     },
+     {
+      "agreement": 0.730088,
+      "auto_relief_share": 0.115044,
+      "coverage": 0.904,
+      "n_auto": 226,
+      "threshold": 0.705786
+     },
+     {
+      "agreement": 0.726872,
+      "auto_relief_share": 0.114537,
+      "coverage": 0.908,
+      "n_auto": 227,
+      "threshold": 0.705785
+     },
+     {
+      "agreement": 0.72807,
+      "auto_relief_share": 0.118421,
+      "coverage": 0.912,
+      "n_auto": 228,
+      "threshold": 0.705784
+     },
+     {
+      "agreement": 0.721739,
+      "auto_relief_share": 0.117391,
+      "coverage": 0.92,
+      "n_auto": 230,
+      "threshold": 0.679179
+     },
+     {
+      "agreement": 0.722944,
+      "auto_relief_share": 0.121212,
+      "coverage": 0.924,
+      "n_auto": 231,
+      "threshold": 0.679178
+     },
+     {
+      "agreement": 0.719828,
+      "auto_relief_share": 0.125,
+      "coverage": 0.928,
+      "n_auto": 232,
+      "threshold": 0.679178
+     },
+     {
+      "agreement": 0.716738,
+      "auto_relief_share": 0.128755,
+      "coverage": 0.932,
+      "n_auto": 233,
+      "threshold": 0.679177
+     },
+     {
+      "agreement": 0.717949,
+      "auto_relief_share": 0.128205,
+      "coverage": 0.936,
+      "n_auto": 234,
+      "threshold": 0.651355
+     },
+     {
+      "agreement": 0.714894,
+      "auto_relief_share": 0.131915,
+      "coverage": 0.94,
+      "n_auto": 235,
+      "threshold": 0.651354
+     },
+     {
+      "agreement": 0.716102,
+      "auto_relief_share": 0.135593,
+      "coverage": 0.944,
+      "n_auto": 236,
+      "threshold": 0.651354
+     },
+     {
+      "agreement": 0.71308,
+      "auto_relief_share": 0.135021,
+      "coverage": 0.948,
+      "n_auto": 237,
+      "threshold": 0.62246
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.134454,
+      "coverage": 0.952,
+      "n_auto": 238,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.715481,
+      "auto_relief_share": 0.133891,
+      "coverage": 0.956,
+      "n_auto": 239,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.716667,
+      "auto_relief_share": 0.1375,
+      "coverage": 0.96,
+      "n_auto": 240,
+      "threshold": 0.622459
+     },
+     {
+      "agreement": 0.713693,
+      "auto_relief_share": 0.141079,
+      "coverage": 0.964,
+      "n_auto": 241,
+      "threshold": 0.622458
+     },
+     {
+      "agreement": 0.710744,
+      "auto_relief_share": 0.140496,
+      "coverage": 0.968,
+      "n_auto": 242,
+      "threshold": 0.592668
+     },
+     {
+      "agreement": 0.711934,
+      "auto_relief_share": 0.139918,
+      "coverage": 0.972,
+      "n_auto": 243,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.713115,
+      "auto_relief_share": 0.143443,
+      "coverage": 0.976,
+      "n_auto": 244,
+      "threshold": 0.592667
+     },
+     {
+      "agreement": 0.714286,
+      "auto_relief_share": 0.146939,
+      "coverage": 0.98,
+      "n_auto": 245,
+      "threshold": 0.592666
+     },
+     {
+      "agreement": 0.715447,
+      "auto_relief_share": 0.146341,
+      "coverage": 0.984,
+      "n_auto": 246,
+      "threshold": 0.562177
+     },
+     {
+      "agreement": 0.712551,
+      "auto_relief_share": 0.145749,
+      "coverage": 0.988,
+      "n_auto": 247,
+      "threshold": 0.53121
+     },
+     {
+      "agreement": 0.71371,
+      "auto_relief_share": 0.149194,
+      "coverage": 0.992,
+      "n_auto": 248,
+      "threshold": 0.531208
+     },
+     {
+      "agreement": 0.710843,
+      "auto_relief_share": 0.15261,
+      "coverage": 0.996,
+      "n_auto": 249,
+      "threshold": 0.5
+     },
+     {
+      "agreement": 0.712,
+      "auto_relief_share": 0.156,
+      "coverage": 1.0,
+      "n_auto": 250,
+      "threshold": 0.499999
+     }
+    ],
+    "fixed_coverage": [
+     {
+      "agreement": 0.72,
+      "auto_relief_share": 0.0,
+      "coverage": 0.1,
+      "level": 0.1,
+      "n_auto": 25,
+      "threshold": 0.999739
+     },
+     {
+      "agreement": 0.698413,
+      "auto_relief_share": 0.0,
+      "coverage": 0.252,
+      "level": 0.25,
+      "n_auto": 63,
+      "threshold": 0.999089
+     },
+     {
+      "agreement": 0.768,
+      "auto_relief_share": 0.0,
+      "coverage": 0.5,
+      "level": 0.5,
+      "n_auto": 125,
+      "threshold": 0.996827
+     },
+     {
+      "agreement": 0.755319,
+      "auto_relief_share": 0.021277,
+      "coverage": 0.752,
+      "level": 0.75,
+      "n_auto": 188,
+      "threshold": 0.962673
+     },
+     {
+      "agreement": 0.712,
+      "auto_relief_share": 0.156,
+      "coverage": 1.0,
+      "level": 1.0,
+      "n_auto": 250,
+      "threshold": 0.499999
+     }
+    ],
+    "signal": "token",
+    "threshold": null
+   }
+  },
+  "claims": [
+   {
+    "id": "v2_vs_v1",
+    "interval": {
+     "hi": 0.24861,
+     "lo": -0.012546,
+     "value": 0.120016
+    },
+    "verdict": "no improvement of v2 over v1 was demonstrated"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": -0.095839,
+     "lo": -0.369771,
+     "value": -0.234245
+    },
+    "verdict": "judge v1 is below the TF-IDF model"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.047947,
+     "lo": -0.27677,
+     "value": -0.114229
+    },
+    "verdict": "judge v2 is not distinguishable from the TF-IDF model"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": -0.123531,
+     "lo": -0.4068,
+     "value": -0.268398
+    },
+    "verdict": "judge v1 is below the issuer relief rate"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.03901,
+     "lo": -0.327738,
+     "value": -0.148382
+    },
+    "verdict": "judge v2 is not distinguishable from the issuer relief rate"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.049019,
+     "lo": -0.221297,
+     "value": -0.083453
+    },
+    "verdict": "judge v1 is not distinguishable from the company rule"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.21094,
+     "lo": -0.141337,
+     "value": 0.036564
+    },
+    "verdict": "judge v2 is not distinguishable from the company rule"
+   },
+   {
+    "id": "within_issuer",
+    "interval": {
+     "hi": 0.107251,
+     "lo": -0.143669,
+     "value": -0.013793
+    },
+    "verdict": "the lead of TF-IDF over judge v1 is not demonstrated once the issuer is held fixed"
+   },
+   {
+    "id": "within_issuer",
+    "interval": {
+     "hi": 0.084796,
+     "lo": -0.135177,
+     "value": -0.030542
+    },
+    "verdict": "the lead of TF-IDF over judge v2 is not demonstrated once the issuer is held fixed"
+   },
+   {
+    "id": "tfidf_operating_point",
+    "interval": null,
+    "verdict": "the frozen TF-IDF operating point: not shown to meet the target"
+   },
+   {
+    "id": "llm_automation",
+    "interval": null,
+    "verdict": "the LLM judge automates nothing (no DEV threshold reached the target for: guarded, v1, v2)"
+   }
+  ],
+  "commit": "822811d125e83bfe0ca801b397f383fac3ef3db8",
+  "finished_at": "2026-11-10T09:51:09+00:00",
+  "n": 250,
+  "noise": {
+   "v1": {
+    "byte_identical": 195,
+    "kappa_between_runs": 0.980805,
+    "n": 250,
+    "n_split": 250,
+    "same_decision": 248,
+    "same_decision_ci": [
+     0.971305,
+     0.997803
+    ],
+    "same_decision_rate": 0.992,
+    "same_probability": 34,
+    "shift": {
+     "max": 0.079704,
+     "median": 0.00208,
+     "over_0.01": 101,
+     "over_0.05": 8,
+     "p90": 0.03049,
+     "p95": 0.037297
+    }
+   },
+   "v2": {
+    "byte_identical": 250,
+    "kappa_between_runs": 1.0,
+    "n": 250,
+    "n_split": 250,
+    "same_decision": 250,
+    "same_decision_ci": [
+     0.984867,
+     1.0
+    ],
+    "same_decision_rate": 1.0,
+    "same_probability": 250,
+    "shift": {
+     "max": 0.0,
+     "median": 0.0,
+     "over_0.01": 0,
+     "over_0.05": 0,
+     "p90": 0.0,
+     "p95": 0.0
+    }
+   }
+  },
+  "oracle": {
+   "guarded": {
+    "at": null,
+    "threshold": null
+   },
+   "tfidf_lr": {
+    "at": {
+     "agreement": {
+      "hi": 1.0,
+      "lo": 0.810811,
+      "value": 0.914286
+     },
+     "agreement_wilson": [
+      0.776207,
+      0.970418
+     ],
+     "auto_no_relief": 28,
+     "auto_relief": 7,
+     "coverage": {
+      "hi": 0.184,
+      "lo": 0.1,
+      "value": 0.14
+     },
+     "majority_agreement_on_auto": 0.771429,
+     "n": 250,
+     "n_auto": 35,
+     "threshold": 0.717827,
+     "wrong_no_relief": 2,
+     "wrong_relief": 1
+    },
+    "threshold": 0.717827
+   },
+   "v1": {
+    "at": null,
+    "threshold": null
+   },
+   "v2": {
+    "at": null,
+    "threshold": null
+   }
+  },
+  "ranking": {
+   "differences": {
+    "issuer_rate_minus_tfidf_lr": {
+     "auc": {
+      "hi": 0.097144,
+      "lo": -0.055289,
+      "value": 0.016952
+     },
+     "within_issuer_auc": {
+      "hi": 0.035547,
+      "lo": -0.184707,
+      "value": -0.07734
+     }
+    },
+    "tfidf_lr_minus_v1": {
+     "auc": {
+      "hi": 0.187652,
+      "lo": 0.019695,
+      "value": 0.102362
+     },
+     "within_issuer_auc": {
+      "hi": 0.107251,
+      "lo": -0.143669,
+      "value": -0.013793
+     }
+    },
+    "tfidf_lr_minus_v2": {
+     "auc": {
+      "hi": 0.195369,
+      "lo": 0.02462,
+      "value": 0.110248
+     },
+     "within_issuer_auc": {
+      "hi": 0.084796,
+      "lo": -0.135177,
+      "value": -0.030542
+     }
+    },
+    "tfidf_masked_minus_tfidf_lr": {
+     "auc": {
+      "hi": -0.006535,
+      "lo": -0.096244,
+      "value": -0.050514
+     },
+     "within_issuer_auc": {
+      "hi": 0.068067,
+      "lo": -0.013646,
+      "value": 0.025616
+     }
+    }
+   },
+   "systems": {
+    "guarded": {
+     "auc": {
+      "hi": 0.70398,
+      "lo": 0.546074,
+      "value": 0.625448
+     },
+     "within_issuer_auc": {
+      "hi": 0.709712,
+      "lo": 0.493421,
+      "value": 0.60197
+     }
+    },
+    "issuer_rate": {
+     "auc": {
+      "hi": 0.793364,
+      "lo": 0.651214,
+      "value": 0.724305
+     },
+     "within_issuer_auc": {
+      "hi": 0.5,
+      "lo": 0.5,
+      "value": 0.5
+     }
+    },
+    "tfidf_lr": {
+     "auc": {
+      "hi": 0.772173,
+      "lo": 0.632005,
+      "value": 0.707352
+     },
+     "within_issuer_auc": {
+      "hi": 0.684707,
+      "lo": 0.464453,
+      "value": 0.57734
+     }
+    },
+    "tfidf_masked": {
+     "auc": {
+      "hi": 0.731813,
+      "lo": 0.577807,
+      "value": 0.656838
+     },
+     "within_issuer_auc": {
+      "hi": 0.706627,
+      "lo": 0.495746,
+      "value": 0.602956
+     }
+    },
+    "v1": {
+     "auc": {
+      "hi": 0.681931,
+      "lo": 0.52926,
+      "value": 0.60499
+     },
+     "within_issuer_auc": {
+      "hi": 0.6993,
+      "lo": 0.480587,
+      "value": 0.591133
+     }
+    },
+    "v2": {
+     "auc": {
+      "hi": 0.682933,
+      "lo": 0.516383,
+      "value": 0.597105
+     },
+     "within_issuer_auc": {
+      "hi": 0.708599,
+      "lo": 0.499984,
+      "value": 0.607882
+     }
+    }
+   },
+   "within_issuer_pairs": 1015
+  },
+  "requests": {
+   "noise": 500,
+   "scored": 500,
+   "sent_more_than_once": []
+  },
+  "results": {
+   "company_rule": {
+    "accuracy": {
+     "hi": 0.788,
+     "lo": 0.676,
+     "value": 0.732
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 172,
+     "none_relief": 3,
+     "relief_none": 64,
+     "relief_relief": 11
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.277912,
+     "lo": 0.068901,
+     "value": 0.168734
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.785408,
+     "lo": 0.670885,
+     "value": 0.728814
+    },
+    "precision_1": {
+     "hi": 1.0,
+     "lo": 0.538462,
+     "value": 0.785714
+    },
+    "predicted_positive_rate": 0.056,
+    "recall_0": {
+     "hi": 1.0,
+     "lo": 0.960674,
+     "value": 0.982857
+    },
+    "recall_1": {
+     "hi": 0.233766,
+     "lo": 0.072289,
+     "value": 0.146667
+    }
+   },
+   "guarded": {
+    "accuracy": {
+     "hi": 0.792,
+     "lo": 0.68,
+     "value": 0.736
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 170,
+     "none_relief": 5,
+     "relief_none": 61,
+     "relief_relief": 14
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.316448,
+     "lo": 0.091797,
+     "value": 0.200969
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.79204,
+     "lo": 0.678112,
+     "value": 0.735931
+    },
+    "precision_1": {
+     "hi": 0.933333,
+     "lo": 0.52381,
+     "value": 0.736842
+    },
+    "predicted_positive_rate": 0.076,
+    "recall_0": {
+     "hi": 0.99422,
+     "lo": 0.944744,
+     "value": 0.971429
+    },
+    "recall_1": {
+     "hi": 0.28,
+     "lo": 0.102564,
+     "value": 0.186667
+    }
+   },
+   "guarded_minus_v2": {
+    "accuracy": {
+     "hi": 0.064,
+     "lo": -0.016,
+     "value": 0.024
+    },
+    "kappa": {
+     "hi": 0.103605,
+     "lo": -0.112301,
+     "value": -0.004329
+    },
+    "transitions": {
+     "both_agree": 169,
+     "both_disagree": 57,
+     "gained_no_relief_cases": 13,
+     "gained_relief_cases": 2,
+     "lost_no_relief_cases": 0,
+     "lost_relief_cases": 9,
+     "only_first_agrees": 9,
+     "only_second_agrees": 15
+    }
+   },
+   "issuer_rate": {
+    "accuracy": {
+     "hi": 0.768,
+     "lo": 0.652,
+     "value": 0.712
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 131,
+     "none_relief": 44,
+     "relief_none": 28,
+     "relief_relief": 47
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.472843,
+     "lo": 0.22987,
+     "value": 0.35368
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.880795,
+     "lo": 0.762195,
+     "value": 0.823899
+    },
+    "precision_1": {
+     "hi": 0.621053,
+     "lo": 0.413451,
+     "value": 0.516484
+    },
+    "predicted_positive_rate": 0.364,
+    "recall_0": {
+     "hi": 0.810056,
+     "lo": 0.681818,
+     "value": 0.748571
+    },
+    "recall_1": {
+     "hi": 0.734949,
+     "lo": 0.518072,
+     "value": 0.626667
+    }
+   },
+   "keyword_rule": {
+    "accuracy": {
+     "hi": 0.744,
+     "lo": 0.632,
+     "value": 0.688
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 157,
+     "none_relief": 18,
+     "relief_none": 60,
+     "relief_relief": 15
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.238403,
+     "lo": -0.001733,
+     "value": 0.115646
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.781822,
+     "lo": 0.663506,
+     "value": 0.723502
+    },
+    "precision_1": {
+     "hi": 0.628571,
+     "lo": 0.281219,
+     "value": 0.454545
+    },
+    "predicted_positive_rate": 0.132,
+    "recall_0": {
+     "hi": 0.940828,
+     "lo": 0.850822,
+     "value": 0.897143
+    },
+    "recall_1": {
+     "hi": 0.295775,
+     "lo": 0.112676,
+     "value": 0.2
+    }
+   },
+   "majority": {
+    "accuracy": {
+     "hi": 0.756,
+     "lo": 0.644,
+     "value": 0.7
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 175,
+     "none_relief": 0,
+     "relief_none": 75,
+     "relief_relief": 0
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.0,
+     "lo": 0.0,
+     "value": 0.0
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.756,
+     "lo": 0.644,
+     "value": 0.7
+    },
+    "precision_1": {
+     "hi": null,
+     "lo": null,
+     "value": null
+    },
+    "predicted_positive_rate": 0.0,
+    "recall_0": {
+     "hi": 1.0,
+     "lo": 1.0,
+     "value": 1.0
+    },
+    "recall_1": {
+     "hi": 0.0,
+     "lo": 0.0,
+     "value": 0.0
+    }
+   },
+   "tfidf_lr": {
+    "accuracy": {
+     "hi": 0.78,
+     "lo": 0.668,
+     "value": 0.724
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 145,
+     "none_relief": 30,
+     "relief_none": 39,
+     "relief_relief": 36
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.445473,
+     "lo": 0.192065,
+     "value": 0.319527
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.846561,
+     "lo": 0.727273,
+     "value": 0.788043
+    },
+    "precision_1": {
+     "hi": 0.666667,
+     "lo": 0.426662,
+     "value": 0.545455
+    },
+    "predicted_positive_rate": 0.264,
+    "recall_0": {
+     "hi": 0.882682,
+     "lo": 0.771429,
+     "value": 0.828571
+    },
+    "recall_1": {
+     "hi": 0.594957,
+     "lo": 0.367066,
+     "value": 0.48
+    }
+   },
+   "tfidf_lr_minus_tfidf_masked": {
+    "accuracy": {
+     "hi": 0.084,
+     "lo": -0.004,
+     "value": 0.04
+    },
+    "kappa": {
+     "hi": 0.206093,
+     "lo": 0.003304,
+     "value": 0.104815
+    },
+    "transitions": {
+     "both_agree": 161,
+     "both_disagree": 59,
+     "gained_no_relief_cases": 11,
+     "gained_relief_cases": 9,
+     "lost_no_relief_cases": 7,
+     "lost_relief_cases": 3,
+     "only_first_agrees": 10,
+     "only_second_agrees": 20
+    }
+   },
+   "tfidf_masked": {
+    "accuracy": {
+     "hi": 0.74,
+     "lo": 0.624,
+     "value": 0.684
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 141,
+     "none_relief": 34,
+     "relief_none": 45,
+     "relief_relief": 30
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.343968,
+     "lo": 0.084698,
+     "value": 0.214712
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.818654,
+     "lo": 0.694915,
+     "value": 0.758065
+    },
+    "precision_1": {
+     "hi": 0.596162,
+     "lo": 0.345455,
+     "value": 0.46875
+    },
+    "predicted_positive_rate": 0.256,
+    "recall_0": {
+     "hi": 0.861878,
+     "lo": 0.74603,
+     "value": 0.805714
+    },
+    "recall_1": {
+     "hi": 0.513889,
+     "lo": 0.291667,
+     "value": 0.4
+    }
+   },
+   "tfidf_masked_minus_v1": {
+    "accuracy": {
+     "hi": 0.3,
+     "lo": 0.132,
+     "value": 0.216
+    },
+    "kappa": {
+     "hi": 0.263911,
+     "lo": -0.007855,
+     "value": 0.12943
+    },
+    "transitions": {
+     "both_agree": 82,
+     "both_disagree": 44,
+     "gained_no_relief_cases": 87,
+     "gained_relief_cases": 2,
+     "lost_no_relief_cases": 4,
+     "lost_relief_cases": 31,
+     "only_first_agrees": 35,
+     "only_second_agrees": 89
+    }
+   },
+   "tfidf_masked_minus_v2": {
+    "accuracy": {
+     "hi": 0.032,
+     "lo": -0.088,
+     "value": -0.028
+    },
+    "kappa": {
+     "hi": 0.156467,
+     "lo": -0.134657,
+     "value": 0.009414
+    },
+    "transitions": {
+     "both_agree": 146,
+     "both_disagree": 47,
+     "gained_no_relief_cases": 10,
+     "gained_relief_cases": 15,
+     "lost_no_relief_cases": 26,
+     "lost_relief_cases": 6,
+     "only_first_agrees": 32,
+     "only_second_agrees": 25
+    }
+   },
+   "v1": {
+    "accuracy": {
+     "hi": 0.532,
+     "lo": 0.408,
+     "value": 0.468
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 58,
+     "none_relief": 117,
+     "relief_none": 16,
+     "relief_relief": 59
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.172464,
+     "lo": 0.000269,
+     "value": 0.085282
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.875,
+     "lo": 0.684932,
+     "value": 0.783784
+    },
+    "precision_1": {
+     "hi": 0.407191,
+     "lo": 0.266304,
+     "value": 0.335227
+    },
+    "predicted_positive_rate": 0.704,
+    "recall_0": {
+     "hi": 0.402367,
+     "lo": 0.264368,
+     "value": 0.331429
+    },
+    "recall_1": {
+     "hi": 0.875,
+     "lo": 0.689189,
+     "value": 0.786667
+    }
+   },
+   "v1_minus_company_rule": {
+    "accuracy": {
+     "hi": -0.164,
+     "lo": -0.36,
+     "value": -0.264
+    },
+    "kappa": {
+     "hi": 0.049019,
+     "lo": -0.221297,
+     "value": -0.083453
+    },
+    "transitions": {
+     "both_agree": 66,
+     "both_disagree": 16,
+     "gained_no_relief_cases": 1,
+     "gained_relief_cases": 50,
+     "lost_no_relief_cases": 115,
+     "lost_relief_cases": 2,
+     "only_first_agrees": 117,
+     "only_second_agrees": 51
+    }
+   },
+   "v1_minus_issuer_rate": {
+    "accuracy": {
+     "hi": -0.16,
+     "lo": -0.328,
+     "value": -0.244
+    },
+    "kappa": {
+     "hi": -0.123531,
+     "lo": -0.4068,
+     "value": -0.268398
+    },
+    "transitions": {
+     "both_agree": 83,
+     "both_disagree": 38,
+     "gained_no_relief_cases": 13,
+     "gained_relief_cases": 21,
+     "lost_no_relief_cases": 86,
+     "lost_relief_cases": 9,
+     "only_first_agrees": 95,
+     "only_second_agrees": 34
+    }
+   },
+   "v1_minus_tfidf_lr": {
+    "accuracy": {
+     "hi": -0.176,
+     "lo": -0.336,
+     "value": -0.256
+    },
+    "kappa": {
+     "hi": -0.095839,
+     "lo": -0.369771,
+     "value": -0.234245
+    },
+    "transitions": {
+     "both_agree": 87,
+     "both_disagree": 39,
+     "gained_no_relief_cases": 3,
+     "gained_relief_cases": 27,
+     "lost_no_relief_cases": 90,
+     "lost_relief_cases": 4,
+     "only_first_agrees": 94,
+     "only_second_agrees": 30
+    }
+   },
+   "v2": {
+    "accuracy": {
+     "hi": 0.768,
+     "lo": 0.656,
+     "value": 0.712
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 157,
+     "none_relief": 18,
+     "relief_none": 54,
+     "relief_relief": 21
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.331671,
+     "lo": 0.077491,
+     "value": 0.205298
+    },
+    "n": 250,
+    "precision_0": {
+     "hi": 0.802752,
+     "lo": 0.684211,
+     "value": 0.744076
+    },
+    "precision_1": {
+     "hi": 0.69697,
+     "lo": 0.378378,
+     "value": 0.538462
+    },
+    "predicted_positive_rate": 0.156,
+    "recall_0": {
+     "hi": 0.939759,
+     "lo": 0.85119,
+     "value": 0.897143
+    },
+    "recall_1": {
+     "hi": 0.386667,
+     "lo": 0.180556,
+     "value": 0.28
+    }
+   },
+   "v2_minus_company_rule": {
+    "accuracy": {
+     "hi": 0.036,
+     "lo": -0.076,
+     "value": -0.02
+    },
+    "kappa": {
+     "hi": 0.21094,
+     "lo": -0.141337,
+     "value": 0.036564
+    },
+    "transitions": {
+     "both_agree": 155,
+     "both_disagree": 44,
+     "gained_no_relief_cases": 3,
+     "gained_relief_cases": 20,
+     "lost_no_relief_cases": 18,
+     "lost_relief_cases": 10,
+     "only_first_agrees": 28,
+     "only_second_agrees": 23
+    }
+   },
+   "v2_minus_issuer_rate": {
+    "accuracy": {
+     "hi": 0.08,
+     "lo": -0.08,
+     "value": 0.0
+    },
+    "kappa": {
+     "hi": 0.03901,
+     "lo": -0.327738,
+     "value": -0.148382
+    },
+    "transitions": {
+     "both_agree": 128,
+     "both_disagree": 22,
+     "gained_no_relief_cases": 41,
+     "gained_relief_cases": 9,
+     "lost_no_relief_cases": 15,
+     "lost_relief_cases": 35,
+     "only_first_agrees": 50,
+     "only_second_agrees": 50
+    }
+   },
+   "v2_minus_tfidf_lr": {
+    "accuracy": {
+     "hi": 0.052,
+     "lo": -0.076,
+     "value": -0.012
+    },
+    "kappa": {
+     "hi": 0.047947,
+     "lo": -0.27677,
+     "value": -0.114229
+    },
+    "transitions": {
+     "both_agree": 147,
+     "both_disagree": 38,
+     "gained_no_relief_cases": 24,
+     "gained_relief_cases": 7,
+     "lost_no_relief_cases": 12,
+     "lost_relief_cases": 22,
+     "only_first_agrees": 34,
+     "only_second_agrees": 31
+    }
+   },
+   "v2_minus_v1": {
+    "accuracy": {
+     "hi": 0.332,
+     "lo": 0.156,
+     "value": 0.244
+    },
+    "kappa": {
+     "hi": 0.24861,
+     "lo": -0.012546,
+     "value": 0.120016
+    },
+    "transitions": {
+     "both_agree": 79,
+     "both_disagree": 34,
+     "gained_no_relief_cases": 99,
+     "gained_relief_cases": 0,
+     "lost_no_relief_cases": 0,
+     "lost_relief_cases": 38,
+     "only_first_agrees": 38,
+     "only_second_agrees": 99
+    }
+   }
+  },
+  "started_at": "2026-11-10T08:18:54+00:00",
+  "versions": [
+   "v1",
+   "v2"
+  ],
+  "workers": 1
+ },
  "tfidf_lr": {
   "chosen": {
    "C": 1.0,

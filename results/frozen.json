@@ -120,7 +120,7 @@
   "src/judge/defence.py": "0af8a9d2e6453a055d23a9a8e2b82cdeeda422c8a59ee3b0108d6441301e2a99",
   "src/judge/errors.py": "72ac76a4140f5626f6732d89f890980e70458d767612968ab99cf050d4e9d09f",
   "src/judge/figures.py": "cb845dff4d05a1ba00293bde1063c3b6068f4341a5f1792d31b0ff3fa9135b22",
-  "src/judge/freeze.py": "9a618309b4eead00a84a9d2e3eeca85aee51798d4139afdedd49d5bec20b93cc",
+  "src/judge/freeze.py": "cc7b5818c1ca955df93af7102671b5f88c27fe3abcd7fb7f62ea5d7973db51d8",
   "src/judge/gaming.py": "0e02b2aff52d36f9087b75149399c10cd9f4fce775099894923a73c77d3c438b",
   "src/judge/human.py": "66c12464d3aa3ad5e93f0d12578025736d7714e3bac3bb2e466f80562be1ae7a",
   "src/judge/judgments.py": "fe0d2549f989f3876cbcd4ae605478e9fb267978f68055621f3b575d77021971",

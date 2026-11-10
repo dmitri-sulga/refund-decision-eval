@@ -518,16 +518,16 @@ _No locked set of labels yet._
 ## Frozen
 
 <!-- BEGIN frozen -->
-Frozen in `results/frozen.json` (SHA-256 `ca3db51987ec78d9c073a70ef23b93ab0a9a536de64222046892c5055cce429d`) before any held-out complaint was sent to the model. The held-out report reads its thresholds and decision rules from that file. A local file proves nothing about when it was written: the commit that contains it is to be published before the run.
+Frozen in `results/frozen.json` (SHA-256 `2ddde4cd2f6131165c4defba0a018f2e6c92c1dc447c743acf5110b979d257ef`) before any held-out complaint was sent to the model. The held-out report reads its thresholds and decision rules from that file. A local file proves nothing about when it was written: the commit that contains it is to be published before the run.
 
 | System | Confidence | Threshold for the held-out run | DEV cases automated | DEV agreement on automated |
 |---|---|---|---|---|
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | token | none (automates nothing) | 0 | n/a |
 | TF-IDF + logistic regression (trained on TRAIN) | token | 0.731680 | 20 | 90.0% |
 | LLM judge v1 (plain rubric) | token | none (automates nothing) | 0 | n/a |
 | LLM judge v2 (predicts the record, facts first) | token | none (automates nothing) | 0 | n/a |
-| Guarded pipeline (v2 facts -> fact model; filter routes to human) | token | none (automates nothing) | 0 | n/a |
 
-Judge versions to run on the held-out split: v1, v2 (500 model calls for the scored pass and 500 for the noise pass, sequential, about 150 minutes at the recent median of 9.0 s per call). Baseline hyperparameters: C = 1.0, class weighting = balanced; keyword rule: "any cue the v2 prompt calls 'more relief'". Fact model: logistic regression on 23 one-hot fact features, weights in the frozen file. Model build: Ollama 0.40.15, digest `47951e4a6661`. Held-out complaint IDs: 250, SHA-256 of the sorted IDs `25a48d7a40a3214086f0b2f49068a490cef5a0bab81ad16a47781934e7678dfc`. Answer caches at the freeze: `results/cache/responses.jsonl` 1,534,135 bytes, SHA-256 `51a76a354214799e...`; `results/cache/replays.jsonl` 618,162 bytes, SHA-256 `54c029aa0cc3c60c...` (append-only: later answers may be added, these bytes may not change).
+Judge versions to run on the held-out split: v1, v2 (500 model calls for the scored pass and 500 for the noise pass, sequential, about 150 minutes at the recent median of 9.0 s per call). Baseline hyperparameters: C = 1.0, class weighting = balanced; keyword rule: "any cue the v2 prompt calls 'more relief'". Fact model: logistic regression on 23 one-hot fact features, weights in the frozen file. Model build: Ollama 0.40.15, digest `47951e4a6661`. Held-out complaint IDs: 250, SHA-256 of the sorted IDs `25a48d7a40a3214086f0b2f49068a490cef5a0bab81ad16a47781934e7678dfc`. Answer caches at the freeze: `results/cache/replays.jsonl` 618,162 bytes, SHA-256 `54c029aa0cc3c60c...`; `results/cache/responses.jsonl` 1,534,135 bytes, SHA-256 `51a76a354214799e...` (append-only: later answers may be added, these bytes may not change).
 
 What will be said about the held-out split, and the rule that decides it:
 
@@ -544,7 +544,7 @@ Files whose SHA-256 is recorded and checked before the run (39): `Makefile`, `da
 ## Test results
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `ca3db51987ec78d9...`): every source file, the data, the plans, the DEV operating points, the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`) and 6 claims with their decision rules (listed in the full report). The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
+_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `2ddde4cd2f613116...`): every source file, the data, the plans, the DEV operating points, the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`) and 6 claims with their decision rules (listed in the full report). The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
 <!-- END test_results -->
 
 ## Estimates

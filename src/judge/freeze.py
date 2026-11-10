@@ -200,6 +200,7 @@ def main() -> None:
     log_event({"event": "method_frozen"})          # logged first: the run log is part of what the report reads
     frozen = build(m)
     FROZEN_FILE.write_text(json.dumps(frozen, indent=1, sort_keys=True) + "\n")
+    frozen = load()                               # exactly what a later report will read
     m["frozen"] = {"sha256": sha256_path(FROZEN_FILE), "content": frozen,
                    "problems": verify_method(frozen) + verify_numbers(frozen, m)}
     problems = emit(m)

@@ -61,7 +61,7 @@ Narratives are cut at 6,000 characters for every system. Model: `qwen3.8:27b`, t
 ## Reading the disagreements
 
 <!-- BEGIN error_groups -->
-All 101 DEV disagreements of judge v1 (of 200 complaints), read by one person:
+All 101 DEV disagreements of judge v1 (of 200 complaints), each sorted by a single reader, with no second annotator:
 
 | Reading | Cases | ... assigned by reading the case (the rest follow from their category) | Example |
 |---|---|---|---|

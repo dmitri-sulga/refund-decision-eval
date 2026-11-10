@@ -251,7 +251,7 @@ def b_error_groups(m):
                      (f"\"{ex['quote']}\" ({ex['complaint_id']}" + (f": {ex['note']})" if ex["note"] else ")"))
                      if ex else ""))
     return (f"All {e['n_disagreements']} DEV disagreements of judge v1 (of {e['n_dev']} complaints), "
-            "read by one person:\n\n" +
+            "each sorted by a single reader, with no second annotator:\n\n" +
             table(("Reading", "Cases", "... assigned by reading the case (the rest follow from their category)",
                    "Example"), rows))
 

@@ -140,7 +140,7 @@ The split is random within the window, not by date. Dates received: TRAIN 2023-0
 ## Error groups
 
 <!-- BEGIN error_groups -->
-All 101 DEV disagreements of judge v1 (of 200 complaints), read by one person:
+All 101 DEV disagreements of judge v1 (of 200 complaints), each sorted by a single reader, with no second annotator:
 
 | Reading | Cases | ... assigned by reading the case (the rest follow from their category) | Example |
 |---|---|---|---|

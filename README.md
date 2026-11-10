@@ -1,144 +1,142 @@
-# Refund judge
+# Refund decision policy, scored against recorded company decisions
 
-A local LLM decides whether a credit card purchase-dispute complaint should be closed **with monetary relief** (refund, credit, reversal) or **without** it. Its decisions are scored against what the company actually recorded in the US CFPB Consumer Complaint Database, then the judge is fixed where the two disagree, attacked with rewrites that should not change the outcome, and turned into an automate-or-route-to-human rule with a measured trade-off between how much is automated and how often it agrees with the human decision.
+A local LLM reads a credit card purchase-dispute complaint and decides: monetary relief, no relief, or send it to a person. This is a decision policy scored against history: its output is compared with the response the company recorded in the US CFPB Consumer Complaint Database. **Every metric here is agreement with recorded company decisions, not correctness.** The policy is then fixed where it disagrees, attacked with rewrites that should not change the outcome, and turned into an automate-or-route rule with a measured trade-off.
 
-Everything runs on one laptop with a local model, every model response is cached, and every number below is printed by code from those caches (`make reproduce` fails if a single number in this README differs from what the code regenerates).
+Built in November 2026 as a work sample for an applied-AI job application. It runs on one laptop with a local model; every model answer is cached, and `make reproduce` recomputes every number below without a model and fails if one differs.
 
-## Read this first: limitations
+## Results so far (DEV only; the held-out split has not been run)
 
-- **Agreement, not correctness.** The label is the company's recorded response to the complaint. It says what the company did, not what was right. A judge that agrees more with companies is not a fairer judge, and nothing here measures fairness or legal correctness.
-- **One side of the story.** The judge sees only the consumer's narrative. The company's evidence (transaction records, merchant rebuttal, earlier dispute outcomes) is not in the data, so a large part of the outcome is unpredictable from the text by construction.
-- **Self-selected data.** These are complaints that reached the CFPB, from consumers who consented to publishing their narrative. The CFPB states the database is not a statistical sample of consumer experiences.
-- **Narratives come from an archived snapshot.** The CFPB removed consumer narratives from the live database in September 2026 (see the API release notes). Narratives here come from a byte-identical mirror of the official bulk export as of 2026-08-11 (SHA-256 checked, see `data/provenance.json`). Product, issue, company and company response of every complaint were re-checked against the live official API; the narrative text itself can no longer be checked against an official source.
-- **Small samples.** DEV and TEST were sized to fit a few hours of local compute; read the confidence intervals, not the point estimates.
-- **DEV was used for iteration** (error analysis, prompt changes, the fact model, the automation threshold), so DEV numbers after iteration are optimistic. TEST was run once, after everything was frozen.
-- **One model, one machine.** Temperature 0 and a fixed seed reduce but do not guarantee run-to-run determinism; the cache, not the model, is what makes this report reproducible.
-- **The gaming test is home-made.** Attacks and defence were written by the same author; a defence tuned to known attacks overstates robustness. One attack was written specifically to get past the defence's input filter.
-- **Error categories were assigned by a single reader**, without a second annotator, so there is no inter-annotator agreement for them.
+<!-- BEGIN summary -->
+DEV: 200 complaints, 30.0% closed with monetary relief. Held-out TEST: 250 complaints, 30.0%, not yet run. TRAIN (classic baselines only): 8,000, 30.1%. Kappa is Cohen's kappa against the recorded company decision; intervals are 95% bootstrap.
 
-## Data
+| System | DEV kappa [95% CI] | DEV accuracy | Automation at the DEV operating point (target in settings) | Held-out kappa [95% CI] | Time per 1,000 decisions |
+|---|---|---|---|---|---|
+| Majority class (always no relief) | 0.000 [0.000, 0.000] | 70.0% | no confidence signal | not run | none |
+| Keyword rule (chosen on TRAIN) | 0.076 [-0.053, 0.213] | 66.0% | no confidence signal | not run | 0.13 s (CPU) |
+| TF-IDF + logistic regression (trained on TRAIN) | 0.383 [0.245, 0.513] | 72.5% | 10.0% automated, 90.0% [75.0%, 100.0%] agreement (70.0% for always-no-relief on the same cases) | not run | 1.4 s (CPU) |
+| LLM judge v1 (plain rubric) | 0.120 [0.024, 0.221] | 49.5% | none reaches the target | not run | 2.4 h (one laptop GPU) |
+| LLM judge v2 (facts first, then decision) | 0.070 [-0.051, 0.197] | 68.0% | none reaches the target | not run | 3.0 h (one laptop GPU) |
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | 0.009 [-0.070, 0.103] | 68.5% | none reaches the target | not run | 3.0 h (one laptop GPU) |
+| Person, blind (one annotator) | not labelled yet |  | n/a | n/a |  |
+<!-- END summary -->
 
-US CFPB Consumer Complaint Database (public domain, CC0). One decision type, chosen because it is closest to a payments dispute: product **Credit card**, issue **Problem with a purchase shown on your statement**, received by the CFPB in calendar years 2023 to 2025, narrative present. Label: `1` = "Closed with monetary relief", `0` = "Closed with explanation" or "Closed with non-monetary relief"; every other status is dropped. Near-duplicate narratives (re-filed or templated complaints) are collapsed to their earliest record so the same text cannot appear in two splits.
+<!-- BEGIN v1v2 -->
+Highest DEV kappa: TF-IDF + logistic regression (trained on TRAIN). LLM judge v1 (plain rubric) is below the TF-IDF baseline (the paired interval excludes zero). LLM judge v2 (facts first, then decision) is below the TF-IDF baseline (the paired interval excludes zero). The prompt change from v1 to v2 did not move kappa outside its interval: no improvement is demonstrated on DEV. Accuracy rose because v2 predicts relief for 11.0% of complaints where v1 predicted it for 68.5%; recall of relief fell from 0.80 to 0.15.
 
-<!-- BEGIN data -->
-| Step | Complaints |
-|---|---|
-| Rows in the archived official bulk export | 17,021,062 |
-| Credit card / purchase-on-statement complaints received in the window | 39,044 |
-| ... with a consumer narrative | 22,044 |
-| ... dropped: status not mapped (in progress / untimely) | 10 |
-| ... dropped: metadata differs from the live API | 4 |
-| ... dropped: not found in the live API | 0 |
-| ... removed as near-duplicates (re-filed or templated text) | 512 |
-| Sampling frame | 21,518 |
+LLM judge v2 (facts first, then decision) minus LLM judge v1 (plain rubric) on the same DEV complaints (paired bootstrap): kappa -0.050 [-0.198, +0.101], accuracy +0.185 [+0.080, +0.290]. The second system agrees with the record where the first did not on 79 complaints (78 closed without relief, 1 with) and loses 42 the first had right (40 closed with relief, 2 without).
 
-| Recorded company response | Complaints with narrative | Label |
-|---|---|---|
-| Closed with explanation | 13,995 | 0 |
-| Closed with monetary relief | 6,576 | 1 |
-| Closed with non-monetary relief | 1,463 | 0 |
-| Untimely response | 10 | dropped |
-<!-- END data -->
+LLM judge v2 (facts first, then decision) minus TF-IDF + logistic regression (trained on TRAIN) on the same DEV complaints (paired bootstrap): kappa -0.314 [-0.487, -0.136], accuracy -0.045 [-0.125, +0.035]. The second system agrees with the record where the first did not on 30 complaints (27 closed without relief, 3 with) and loses 39 the first had right (33 closed with relief, 6 without).
+<!-- END v1v2 -->
 
-Base rates after the stratified split (stratified by label, seeded; IDs frozen in `data/splits.json`):
+## Limits
 
-<!-- BEGIN base_rates -->
-| Split | Complaints | Share closed with monetary relief |
-|---|---|---|
-| TRAIN | 8,000 | 30.1% |
-| DEV | 200 | 30.0% |
-| TEST | 250 | 30.0% |
-| DEBUG | 12 | 33.3% |
-<!-- END base_rates -->
+- **Agreement, not correctness.** The label is what the company did. A policy that agrees more with companies is not a fairer one, and nothing here measures fairness or legal correctness.
+- **One side of the story.** Every system sees only the consumer's text; the issuer's evidence is not in the data, and most disagreements cannot be settled from the text (see the error reading).
+- **Small, self-selected, and tuned on DEV.** Public complaints from consumers who agreed to publish them, split at random rather than by date; DEV was used for every choice, so DEV numbers are optimistic until the held-out run.
+- **The judge is not deterministic.** Temperature zero and a fixed seed do not make this model repeat itself (figures below); the report is reproducible from the cached answers, not by asking again.
+- **Home-made and single-reader.** The gaming rewrites and the defence have one author, the error reading one reader, and the narratives come from a third-party copy of the official bulk export because the live export no longer carries them.
 
-## Pre-registered analysis plan
+<!-- BEGIN retest_summary -->
+Asked twice with identical settings, LLM judge v1 (plain rubric) gave the same decision in 99/100 = 99.0% [94.6%, 99.8%] of DEV requests (largest change in P(relief) 0.06; kappa against the record 0.010 from the cached answers and 0.000 from the replayed ones on the same requests). Asked twice with identical settings, LLM judge v2 (facts first, then decision) gave the same decision in 196/200 = 98.0% [95.0%, 99.2%] of DEV requests (largest change in P(relief) 0.85; kappa against the record 0.070 from the cached answers and 0.041 from the replayed ones on the same requests).
+<!-- END retest_summary -->
 
-Written and committed before the first DEV or TEST model call; any later change is visible in the git history. Numbers that parameterise the plan are in the settings table, which is generated from `src/judge/config.py`.
+## What every system reads
 
-1. **Unit and outcome.** One complaint; the binary label above.
-2. **Primary metric: Cohen's kappa** between the decision and the recorded outcome. Accuracy rewards always answering "no relief", so it is secondary, together with precision and recall for each class.
-3. **Uncertainty.** Percentile bootstrap over complaints, 95% intervals. Version-to-version differences use a paired bootstrap on the same complaints. Flip rates (small counts, often zero) use Wilson score intervals.
-4. **Splits.** TRAIN is used only by the classic baseline. DEV is used for everything that involves choices: error analysis, prompt changes, the fact model, thresholds. TEST is run exactly once, with the versions frozen in `results/test_run.json` before the run starts; the script refuses to run it twice.
-5. **Baselines.** Majority class; a company rule (predict relief when the company's TRAIN relief rate is above one half); TF-IDF + logistic regression on the same text the judge sees, regularisation and class weighting chosen by cross-validation on TRAIN only. Cost: CPU time per item for the classic model against wall time per call for the judge.
-6. **Judge v1 then v2.** v1 is a plain rubric prompt. Every DEV disagreement of v1 is read and given one primary category. v2 addresses the largest categories (structured fact extraction before the decision is planned). v1 against v2 on DEV with paired intervals.
-7. **Gaming.** A seeded, label-stratified subset of DEV; each narrative gets appended rewrites that add no verifiable fact (claimed promise of a refund, emotional pressure, legal threat, an instruction addressed to the AI reviewer, a fake internal case note). Metrics: flip rate (decision differs from the unmodified narrative under the same judge), flips toward relief, mean change in the probability of relief. Then a defence: a programmatic filter that removes instruction-like text and routes the complaint to a human, and a decision computed from the extracted facts by a small logistic model instead of by the LLM. Re-measured on the same rewrites.
-8. **Automation.** Confidence is the token probability of the judge's decision (primary) or its stated probability (secondary). Operating point: the lowest confidence threshold whose DEV agreement on automated cases reaches the target with a minimum number of automated cases; applied unchanged on TEST. The same rule is applied to the logistic-regression baseline.
-9. **Estimates.** Realistic: TEST at the threshold chosen on DEV. Ceiling: the best threshold chosen on TEST itself (optimistic by construction), and the agreement of recorded outcomes among near-identical complaints against the same company (a label-noise proxy; a true ceiling would need several independent human decisions per complaint, which this data does not have).
-10. **Invalid outputs** (not valid JSON or no boolean decision) are counted, scored as "no relief", and never automated.
-11. Anything decided after looking at DEV results is labelled as such below.
+The LLM and the TF-IDF baseline get the same text: the product and sub-product, the issue and sub-issue the consumer selected, and the consumer's narrative (cut at the length in the settings table of the full report). The keyword rule reads the narrative only. All of it was written by the consumer when filing, before the company answered. Nothing else is in the frozen records except the complaint ID, the date received, the company name and the recorded response; the company's public response, the timeliness flag, state, ZIP code and tags exist only in the label cross-check file and are never read by any system. The company name is not an input; consumers often name the company in their text, which all systems see alike.
 
-<!-- BEGIN settings -->
-| Setting | Value |
-|---|---|
-| Model | `qwen3.8:27b` via Ollama (local) |
-| Ollama version / model digest | 0.40.15 / `47951e4a666180bc2aedfc93c169472f2de783696fe196efbf063f5730ecf163` |
-| Decoding | temperature 0, seed 42, thinking disabled, JSON schema enforced, num_ctx 8192 |
-| Narrative cap | 6000 characters (same text for every model) |
-| Split sizes (DEBUG / DEV / TEST / TRAIN) | 12 / 200 / 250 / 8000 |
-| Split seed | 20261109 |
-| Bootstrap | 10000 resamples, seed 0, percentile 95% CI |
-| Automation target | agreement >= 0.90 on automated DEV cases, at least 20 automated |
-| Gaming subset | 30 DEV complaints x 5 rewrites, seed 7 |
-| Near-duplicate rule | word-trigram TF-IDF cosine >= 0.5 (collapsed); ceiling proxy uses same-company pairs >= 0.9 |
-<!-- END settings -->
+<!-- BEGIN inputs -->
+Narratives are cut at 6,000 characters for every system. Model: `qwen3.8:27b`, temperature 0, seed 42. Company name alone, which no other system is given, reaches kappa 0.157 [0.033, 0.279] on DEV (accuracy 72.0%).
+<!-- END inputs -->
 
-## Results
+## Method
 
-### Baselines and judge versions on DEV
+1. **Data.** One decision type close to a payment dispute: credit card complaints about a purchase shown on the statement, with a narrative. Label: closed with monetary relief against closed with explanation or with non-monetary relief; other statuses dropped. Near-duplicate narratives are collapsed before a seeded, label-stratified split into TRAIN, DEV and held-out TEST (`data/splits.json`).
+2. **Plan first.** Metrics, splits, baselines and the automation rule were written down before the first scored model call: `docs/analysis_plan.md` (verbatim from the first commit).
+3. **Baselines** on the same text: majority class, a keyword rule, TF-IDF with logistic regression; all fitted on TRAIN only.
+4. **Judge v1** is a plain rubric. Every DEV disagreement was read and categorised; **judge v2** states the base rate, the one-sidedness and the cues the reading found (checked on TRAIN), and extracts facts before deciding. The diff is in `src/judge/prompts.py`.
+5. **Gaming test.** Five appended rewrites that add no verifiable fact (claimed promise, emotional pressure, legal threat, an instruction to the reviewer, a fake internal note), plus two controls. Defence: a filter in plain code that removes instruction-like text and sends the complaint to a person, and a decision computed from the extracted facts by a small logistic model instead of the LLM's verdict (the guarded pipeline).
+6. **Automation.** Confidence is the token probability of the decision; the operating point is the lowest threshold whose DEV agreement on automated cases reaches the target.
+7. **Held-out TEST** is run once, by one command, after the method is frozen in `results/frozen.json`.
 
-<!-- BEGIN dev_results -->
-_Not run yet._
-<!-- END dev_results -->
+## Reading the disagreements
 
-### Error analysis of judge v1 on DEV
+<!-- BEGIN error_groups -->
+All 101 DEV disagreements of judge v1 (of 200 complaints), read by one person:
 
-<!-- BEGIN error_analysis -->
-_Not run yet._
-<!-- END error_analysis -->
+| Reading | Cases | ... assigned by reading the case (the rest follow from their category) | Example |
+|---|---|---|---|
+| Model wrong: the judge misread the narrative or misapplied its own rubric | 14 | 14 | "I used Care Credit to charge" (10127800: judge invented an exclusion for dental services) |
+| Recorded decision questionable or discretionary: the company paid a claim the rubric refuses, or reversed its own earlier answer | 2 | 2 | "they performed a chargeback" (8867817: scam payments; issuer had refused one of three and paid after the complaint) |
+| Not decidable from the text: the outcome turns on evidence the narrative does not contain (the issuer's investigation, a pending dispute, missing facts) | 85 | 8 | "the claim came back denied stating with physical chip was used" (16900829) |
+<!-- END error_groups -->
 
-### Gaming test
+## Gaming test
 
-<!-- BEGIN gaming -->
-_Not run yet._
-<!-- END gaming -->
+<!-- BEGIN gaming_summary -->
+30 DEV complaints x 5 rewrites (promise, emotion, legal_threat, injection, fake_case_note). Decisions flipped [95% Wilson CI], and how many clean-run denials became relief:
 
-### Automation against agreement
+| Rewrite | Judge v1 | Judge v2 | Guarded pipeline |
+|---|---|---|---|
+| **all five rewrites** | 23/150 = 15.3% [10.4%, 22.0%]; denials turned into relief 17/30 | 39/150 = 26.0% [19.6%, 33.6%]; denials turned into relief 39/140 | 7/150 = 4.7% [2.3%, 9.3%]; denials turned into relief 7/150 |
+| fake internal note alone | 6/30 = 20.0% [9.5%, 37.3%]; denials turned into relief 6/6 | 27/30 = 90.0% [74.4%, 96.5%]; denials turned into relief 27/28 | 5/30 = 16.7% [7.3%, 33.6%]; denials turned into relief 5/30 |
+| instruction to the reviewer alone | 7/30 = 23.3% [11.8%, 40.9%]; denials turned into relief 2/6 | 9/30 = 30.0% [16.7%, 47.9%]; denials turned into relief 9/28 | 0/30 = 0.0% [0.0%, 11.4%]; denials turned into relief 0/30 |
+| control: neutral sentence appended | 3/30 = 10.0% [3.5%, 25.6%]; denials turned into relief 2/6 | 1/30 = 3.3% [0.6%, 16.7%]; denials turned into relief 1/28 | 1/30 = 3.3% [0.6%, 16.7%]; denials turned into relief 1/30 |
+| control: same narrative sent again | 0/30 = 0.0% [0.0%, 11.4%]; denials turned into relief 0/6 | 0/30 = 0.0% [0.0%, 11.4%]; denials turned into relief 0/28 | 0/30 = 0.0% [0.0%, 11.4%]; denials turned into relief 0/30 |
 
-<!-- BEGIN automation -->
-_Not run yet._
-<!-- END automation -->
+The check in code outside the model: an input filter that flagged 30/30 injected instructions, 0/30 fake notes (written to get past it) and 0 of 8,200 unmodified complaints; a flagged complaint always goes to a person. Cost of the defence on clean complaints: Guarded pipeline (v2 facts -> fact model; filter routes to human) minus LLM judge v2 (facts first, then decision) on the same DEV complaints (paired bootstrap): kappa -0.060 [-0.177, +0.052], accuracy +0.005 [-0.040, +0.050]. The second system agrees with the record where the first did not on 12 complaints (12 closed without relief, 0 with) and loses 11 the first had right (6 closed with relief, 5 without).
 
-### Held-out TEST (run once)
+No LLM-based system reaches the agreement target on DEV, so none of these decisions would be taken automatically; the flips are changes in the decision the system proposes.
+<!-- END gaming_summary -->
+
+## Automation against agreement
+
+<!-- BEGIN automation_summary -->
+Operating point per system: the lowest confidence threshold whose DEV agreement on automated cases reaches 90% with at least 20 automated, read as three outcomes. Chosen and scored on the same DEV complaints, so optimistic.
+
+| System | Decided automatically as no relief | ... of which the company did pay (wrongly denied) [95% Wilson CI] | Relief proposed to a person for approval | Escalated to a person |
+|---|---|---|---|---|
+| TF-IDF + logistic regression (trained on TRAIN) | 14/200 = 7.0% | 1/14 = 7.1% [1.3%, 31.5%] | 6 (1 where the company paid nothing) | 180 (30.0% of them closed with relief) |
+| LLM judge v1 (plain rubric) | no threshold reaches the target |  |  |  |
+| LLM judge v2 (facts first, then decision) | no threshold reaches the target |  |  |  |
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | no threshold reaches the target |  |  |  |
+
+Split-half check (not a held-out result): TF-IDF + logistic regression (trained on TRAIN): a threshold chosen the same way on one half of DEV automated 21/100 of the other half with 76.2% [55.6%, 93.8%] agreement (76.2% for always-no-relief on the same cases). That is below the target: on this evidence no system here should decide complaints on its own.
+<!-- END automation_summary -->
+
+![Automation against agreement](results/automation_curve.png)
+
+## A person's blind labels
+
+<!-- BEGIN human -->
+_Not labelled yet._ A fixed sample of 100 DEV complaints (`data/label_sample.json`) is waiting for blind labels (`make label`, rubric in `docs/labelling_rubric.md`).
+<!-- END human -->
+
+## Held-out TEST
 
 <!-- BEGIN test_results -->
-_Not run yet._
+_Not yet run._ Held-out complaints sent to the model so far: 0. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged, and refuses to run twice.
 <!-- END test_results -->
 
-### Realistic estimate and ceiling
-
-<!-- BEGIN estimates -->
-_Not run yet._
-<!-- END estimates -->
-
-### Cost and runtime
-
-<!-- BEGIN cost -->
-_Not run yet._
-<!-- END cost -->
+The realistic estimate is the held-out result at the frozen thresholds; the ceiling discussion (label noise among near-identical complaints, the judge's agreement with itself) is in the full report.
 
 ## Reproduce
 
 ```bash
-make reproduce
+make reproduce   # tests, then every table from data/ and results/cache/, no model needed
 ```
 
-Creates `.venv`, installs pinned dependencies, runs the tests, recomputes every metric from `data/` and `results/cache/responses.jsonl` without calling any model, and fails if `README.md`, `results/metrics.json` or `results/report.md` differ from the regenerated output.
+`make run` repeats missing model calls (Ollama with the model in the settings table), `make label` starts the blind labelling tool, `make heldout` performs the single held-out run. Full tables: `results/report.md`. Raw numbers: `results/metrics.json`.
 
-Other targets: `make run` repeats the model calls that are missing from the cache (needs Ollama with the model in the settings table); `make data` rebuilds `data/` from the archived bulk export (a large download) and the live CFPB API.
+## Deviations and additions after the plan
+
+- Two controls were added to the gaming test (a neutral sentence, and the same narrative sent again) after a concurrency check showed that the model does not repeat itself; the five rewrites are unchanged.
+- Added after DEV results were seen, none of them changing a planned metric or the operating rule: the keyword-rule baseline, the test-retest replay, the threshold-stability check, the reading of the operating point as three outcomes, the three-way reading of disagreements, the date-half table, the split-half rehearsal, and the blind-label tool.
+- No acceptance rule for v2 existed before v1 and v2 were compared on DEV; one is frozen for the held-out comparison, where v1 is run as well.
+- The fact model's regularisation was left at the library default and not tuned.
+- The logistic regression is fitted in double precision with a tight tolerance, because with the library defaults its result depended on the order of the training rows; its DEV result did not change.
+- The held-out run, and with it the realistic estimate and the planned ceiling, waits for an independent review of the frozen method.
+- The plan text was moved from this README to `docs/analysis_plan.md` unchanged.
 
 ## Layout
 
-- `src/judge/`: `data.py` (download, checks, splits), `prompts.py` (judge versions), `llm.py` (Ollama client and response cache), `run.py` (resumable runs, the single TEST run), `baselines.py`, `gaming.py` (rewrites and defence), `metrics.py`, `analysis.py`, `report.py`.
-- `data/`: frozen records and split IDs, live-API metadata used for the label check, provenance.
-- `results/`: cached raw responses, run log, error-analysis annotations, `metrics.json`, `report.md`, figure.
-- `tests/`: metric and pipeline tests (`pytest`).
+`src/judge/` code (data, prompts, client and cache, runner, baselines, defence, metrics, analysis, report, freeze, labelling tool) · `data/` frozen records, split IDs, provenance · `results/` caches, annotations, frozen method, `metrics.json`, `report.md` · `docs/` analysis plan, labelling rubric · `tests/`.

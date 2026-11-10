@@ -143,6 +143,25 @@ class Cache:
         self.records[record["key"]] = record
 
 
+def fetch(env: dict, version: str, item_id: str, body: dict, rhash: str) -> dict:
+    """One model call; returns the cache record without storing it (thread-safe)."""
+    t0 = time.time()
+    resp = _http("/api/chat", body, timeout=C.REQUEST_TIMEOUT_S)
+    wall = time.time() - t0
+    return {
+        "key": Cache.key(version, item_id), "prompt_version": version, "item_id": item_id,
+        "request_sha256": rhash, "model": C.MODEL,
+        "model_digest": env["model_digest"], "ollama_version": env["ollama_version"],
+        "options": C.OPTIONS, "requested_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "wall_s": round(wall, 3), "content": resp["message"]["content"],
+        "thinking": resp["message"].get("thinking"), "done_reason": resp.get("done_reason"),
+        **{k: resp.get(k) for k in ("prompt_eval_count", "prompt_eval_cached_count", "eval_count",
+                                    "total_duration", "load_duration", "prompt_eval_duration",
+                                    "eval_duration")},
+        "logprobs": compact_logprobs(resp.get("logprobs")),
+    }
+
+
 def call(cache: Cache, env: dict | None, version: str, item_id: str,
          messages: list, schema: dict) -> tuple[dict, bool]:
     """Return (record, was_cached). Calls the model only on a cache miss."""
@@ -154,20 +173,6 @@ def call(cache: Cache, env: dict | None, version: str, item_id: str,
         return hit, True
     if env is None:
         raise RuntimeError(f"cache miss for {key} in offline mode")
-    t0 = time.time()
-    resp = _http("/api/chat", body, timeout=C.REQUEST_TIMEOUT_S)
-    wall = time.time() - t0
-    rec = {
-        "key": key, "prompt_version": version, "item_id": item_id,
-        "request_sha256": rhash, "model": C.MODEL,
-        "model_digest": env["model_digest"], "ollama_version": env["ollama_version"],
-        "options": C.OPTIONS, "requested_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "wall_s": round(wall, 3), "content": resp["message"]["content"],
-        "thinking": resp["message"].get("thinking"), "done_reason": resp.get("done_reason"),
-        **{k: resp.get(k) for k in ("prompt_eval_count", "prompt_eval_cached_count", "eval_count",
-                                    "total_duration", "load_duration", "prompt_eval_duration",
-                                    "eval_duration")},
-        "logprobs": compact_logprobs(resp.get("logprobs")),
-    }
+    rec = fetch(env, version, item_id, body, rhash)
     cache.put(rec)
     return rec, False

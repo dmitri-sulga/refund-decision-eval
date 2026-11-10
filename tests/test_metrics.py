@@ -107,3 +107,13 @@ def test_invalid_outputs_are_never_automated():
     assert r["n_auto"] == 2
     assert r["coverage"]["value"] == pytest.approx(2 / 3)
     assert r["agreement"]["value"] == pytest.approx(0.5)
+
+
+def test_the_two_kinds_of_automated_error_are_counted_apart():
+    y = np.array([1, 0, 0, 1, 0])
+    pred = np.array([0, 0, 1, 1, 1])
+    conf = np.array([0.9, 0.9, 0.9, 0.9, 0.1])
+    r = M.at_threshold(y, pred, conf, 0.5, B=200, seed=0)
+    assert (r["n_auto"], r["wrong_no_relief"], r["wrong_relief"]) == (4, 1, 1)
+    assert M.bootstrap(y, pred, B=50)["confusion"] == {"relief_relief": 1, "relief_none": 1,
+                                                       "none_relief": 2, "none_none": 1}

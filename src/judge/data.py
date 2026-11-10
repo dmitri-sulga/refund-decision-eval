@@ -1,7 +1,7 @@
 """Build the frozen dataset.
 
 Steps (all deterministic, recorded in data/provenance.json):
-1. Stream the archived official bulk export (mirror, sha256-checked) and keep
+1. Stream a third-party copy of the official bulk export (sha256-pinned) and keep
    one decision type: product "Credit card", issue "Problem with a purchase
    shown on your statement", received 2023-01-01..2025-12-31, narrative present.
 2. Download the same slice's metadata from the live official API (CSV export,
@@ -212,10 +212,9 @@ def build(zip_path: str | None) -> None:
     prov = {"source": {
         "mirror_url": C.MIRROR_URL, "official_bulk_url": C.OFFICIAL_BULK_URL,
         "mirror_as_of": "2026-08-11", "live_api": C.LIVE_API_URL,
-        "note": ("Consumer narratives were removed from the live CFPB database in "
-                 "September 2026 (API release 24). Narratives come from an archived "
-                 "copy of the official bulk export; labels and metadata are checked "
-                 "against the live API."),
+        "note": ("The live API export used for the cross-check has no narrative column. "
+                 "Narratives come from a third-party copy of the official bulk export, "
+                 "pinned by SHA-256; labels and metadata are checked against the live API."),
     }}
     if zip_path:
         prov["extract"] = extract_subset(zip_path)

@@ -11,10 +11,11 @@ CACHE_FILE = RESULTS / "cache" / "responses.jsonl"
 RUN_LOG = RESULTS / "run_log.jsonl"
 
 # ---------------------------------------------------------------- data source
-# The live CFPB API no longer serves consumer narratives (release 24,
-# September 2026). Narratives come from a byte-identical mirror of the official
-# bulk export taken on 2026-08-11; labels and metadata are cross-checked
-# against the live official API (see data.py).
+# The live CFPB API export used for the label cross-check carries no narrative
+# column, so narratives come from a third-party copy of the official bulk export
+# (dated 2026-08-11 by its uploader), pinned here by SHA-256. Product, issue,
+# company and company response of every complaint are cross-checked against the
+# live official API (see data.py); the narrative text itself cannot be.
 MIRROR_URL = ("https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints"
               "/resolve/main/complaints.csv.zip")
 MIRROR_SHA256 = "d92239489715c816fa4fc77a27324878cfc88de5b417065ea185e80ac92a6658"

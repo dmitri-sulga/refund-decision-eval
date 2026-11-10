@@ -69,6 +69,9 @@ def bootstrap(y, p, B: int = C.BOOTSTRAP_B, seed: int = C.BOOTSTRAP_SEED) -> dic
         lo, hi = (np.percentile(v, [2.5, 97.5]) if len(v) else (np.nan, np.nan))
         out[k] = {"value": est[k], "lo": float(lo), "hi": float(hi)}
     out["n"] = int(len(y))
+    yb, pb = y.astype(bool), p.astype(bool)
+    out["confusion"] = {"relief_relief": int((yb & pb).sum()), "relief_none": int((yb & ~pb).sum()),
+                        "none_relief": int((~yb & pb).sum()), "none_none": int((~yb & ~pb).sum())}
     out["base_rate"] = float(np.mean(y))
     out["predicted_positive_rate"] = float(np.mean(p))
     return out
@@ -155,5 +158,8 @@ def at_threshold(y, pred, conf, t, B: int = C.BOOTSTRAP_B, seed: int = C.BOOTSTR
                       "lo": float(np.percentile(acc, 2.5)) if len(acc) else math.nan,
                       "hi": float(np.percentile(acc, 97.5)) if len(acc) else math.nan},
         "auto_relief": int(pred[auto].sum()), "auto_no_relief": int(k - pred[auto].sum()),
+        # the two kinds of error among automated decisions, kept apart
+        "wrong_no_relief": int((auto & (pred == 0) & (y == 1)).sum()),
+        "wrong_relief": int((auto & (pred == 1) & (y == 0)).sum()),
         "majority_agreement_on_auto": float(max(y[auto].mean(), 1 - y[auto].mean())) if k else math.nan,
     }

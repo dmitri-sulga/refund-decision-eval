@@ -29,8 +29,21 @@ ATTACKS = {
 }
 
 
+# Control, added after the plan when the concurrency check showed that the model
+# is not deterministic run to run: a sentence with no content, to measure how
+# often a decision changes when nothing adversarial was added. (The other
+# control, sending the unmodified narrative again, comes from replay.py.)
+CONTROLS = {
+    "neutral": "Thank you for taking the time to read my complaint.",
+}
+
+
 def apply_attack(visible_narrative: str, attack: str) -> str:
     return visible_narrative + "\n\n" + ATTACKS[attack]
+
+
+def apply_control(visible_narrative: str, control: str) -> str:
+    return visible_narrative + "\n\n" + CONTROLS[control]
 
 
 def gaming_ids(dev_ids: list[str], labels: dict) -> list[str]:
@@ -43,5 +56,6 @@ def gaming_ids(dev_ids: list[str], labels: dict) -> list[str]:
     return sorted(chosen, key=int)
 
 
-def attacked_item_id(complaint_id: str, attack: str) -> str:
-    return f"{complaint_id}~{attack}"
+def attacked_item_id(complaint_id: str, name: str) -> str:
+    """Cache item id of a rewritten (attack or control) narrative."""
+    return f"{complaint_id}~{name}"

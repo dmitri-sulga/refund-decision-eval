@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -120,9 +121,21 @@ def run(version: str, items, offline: bool = False, label: str = "", cache_tag: 
     return summary
 
 
+ALLOWED_DIRTY = {"results/cache/responses.jsonl", "results/cache/replays.jsonl", "results/run_log.jsonl",
+                 "results/test_run.json"}      # files the held-out run itself writes
+
+
+def git_state() -> tuple[str, list[str]]:
+    """HEAD commit and the paths that differ from it (the run must start from a commit)."""
+    def git(*args):
+        return subprocess.run(["git", "-C", str(C.ROOT), *args], capture_output=True, text=True, check=True).stdout
+    dirty = [line[3:] for line in git("status", "--porcelain").splitlines()]
+    return git("rev-parse", "HEAD").strip(), dirty
+
+
 def heldout_plan(frozen: dict, records: dict, splits: dict, cache: llm.Cache) -> list[dict]:
-    """Every call of the held-out run: each frozen judge version on every TEST
-    complaint, plus v2 on the filtered text of complaints the input filter changes."""
+    """Every call of the scored held-out pass: each frozen judge version on every
+    TEST complaint, plus v2 on the filtered text of complaints the input filter changes."""
     plan = []
     for v in frozen["final_versions"]:
         items = list(split_items("test", records, splits))
@@ -134,9 +147,11 @@ def heldout_plan(frozen: dict, records: dict, splits: dict, cache: llm.Cache) ->
 
 
 def final_test_run(dry_run: bool = False) -> None:
-    """The single scored pass over TEST. Refuses to start unless the method is
-    frozen and unchanged, refuses to start twice; an interrupted run resumes
-    with the same frozen method."""
+    """The single scored pass over TEST, followed by the registered noise pass.
+    Refuses to start unless the method is frozen, unchanged and committed;
+    refuses to start twice; an interrupted run resumes with the same frozen method."""
+    from .replay import replay
+
     frozen = freeze.load()
     if frozen is None:
         sys.exit("results/frozen.json is missing: freeze the method first (python -m judge.freeze).")
@@ -145,40 +160,49 @@ def final_test_run(dry_run: bool = False) -> None:
     for k in ("ollama_version", "model_digest"):
         if env[k] != frozen["environment"][k]:
             problems.append(f"{k} is {env[k]}, frozen {frozen['environment'][k]}")
+    commit, dirty = git_state()
+    state = json.loads(TEST_MARKER.read_text()) if TEST_MARKER.exists() else None
+    not_allowed = [p for p in dirty if p not in (ALLOWED_DIRTY if state else set())]
+    if not_allowed:
+        problems.append("uncommitted changes: " + ", ".join(not_allowed))
     if problems:
-        sys.exit("refusing the held-out run, the frozen method changed:\n- " + "\n- ".join(problems))
+        sys.exit("refusing the held-out run:\n- " + "\n- ".join(problems))
     frozen_sha = freeze.sha256_path(freeze.FROZEN_FILE)
-    state = None
-    if TEST_MARKER.exists():
-        state = json.loads(TEST_MARKER.read_text())
-        if state.get("finished_at"):
+    if state is not None:
+        if state.get("noise_finished_at"):
             sys.exit(f"TEST was already run at {state['started_at']}; refusing to run again.")
-        if state["frozen_sha256"] != frozen_sha:
-            sys.exit("an interrupted TEST run used a different frozen method; refusing.")
-    records, splits = load_records(), load_splits()
-    plan = heldout_plan(frozen, records, splits, llm.Cache())
-    calls = sum(p["missing"] for p in plan)
-    print(json.dumps({"held_out_complaints": len(splits["test"]),
-                      "versions": frozen["final_versions"], "workers": frozen["workers"],
-                      "calls_per_version": {p["version"]: p["n_items"] for p in plan},
-                      "calls_to_make": calls, "already_cached": sum(p["n_items"] - p["missing"] for p in plan),
-                      "expected_minutes": round(calls * frozen["expected_s_per_call"] / 60),
+        if state["frozen_sha256"] != frozen_sha or state["commit"] != commit:
+            sys.exit("an interrupted TEST run used a different frozen method or commit; refusing.")
+    n_test = len(load_splits()["test"])
+    calls = len(frozen["final_versions"]) * n_test
+    print(json.dumps({"held_out_complaints": n_test, "versions": frozen["final_versions"],
+                      "workers": frozen["workers"], "commit": commit, "frozen_sha256": frozen_sha,
+                      "scored_pass_calls": f"{calls} (plus one for every complaint the input filter changes)",
+                      "noise_pass_calls": calls,
+                      "expected_minutes": round(2 * calls * frozen["expected_s_per_call"] / 60),
                       "resuming": state is not None}, indent=1), flush=True)
     if dry_run:
-        print("dry run: checks passed, no model call was made.")
+        print("dry run: checks passed, no model call was made and no held-out text was processed.")
         return
+    records, splits = load_records(), load_splits()
     if state is None:
-        state = {"started_at": now(), "versions": frozen["final_versions"],
-                 "workers": frozen["workers"], "frozen_sha256": frozen_sha}
+        state = {"started_at": now(), "versions": frozen["final_versions"], "workers": frozen["workers"],
+                 "frozen_sha256": frozen_sha, "commit": commit}
         TEST_MARKER.write_text(json.dumps(state, indent=1) + "\n")
         log_event({"event": "test_run_started", "versions": frozen["final_versions"],
-                   "workers": frozen["workers"], "frozen_sha256": frozen_sha, "calls_to_make": calls})
-    for p in plan:
-        s = run(p["version"], p["items"], label="test", workers=frozen["workers"])
-        log_event({"event": "run", "cache_tag": "", **s})
-    state["finished_at"] = now()
+                   "workers": frozen["workers"], "frozen_sha256": frozen_sha, "commit": commit})
+    if not state.get("finished_at"):
+        for p in heldout_plan(frozen, records, splits, llm.Cache()):
+            s = run(p["version"], p["items"], label="test", workers=frozen["workers"])
+            log_event({"event": "run", "cache_tag": "", **s})
+        state["finished_at"] = now()
+        TEST_MARKER.write_text(json.dumps(state, indent=1) + "\n")
+        log_event({"event": "test_run_finished", "versions": frozen["final_versions"]})
+    for v in frozen["final_versions"]:          # registered noise pass: stored apart, never scored
+        replay(v, splits["test"], records, label="test noise pass")
+    state["noise_finished_at"] = now()
     TEST_MARKER.write_text(json.dumps(state, indent=1) + "\n")
-    log_event({"event": "test_run_finished", "versions": frozen["final_versions"]})
+    log_event({"event": "test_noise_pass_finished", "versions": frozen["final_versions"]})
 
 
 def main() -> None:

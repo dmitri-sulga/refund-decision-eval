@@ -97,13 +97,26 @@ def b_base_rates(m):
 
 LABELS = {
     "majority": "Majority class (always no relief)",
-    "keyword_rule": "Keyword rule (chosen on TRAIN)",
-    "company_rule": "Company name only (company's TRAIN relief rate above one half)",
+    "keyword_rule": "Keyword rule (cues from the DEV reading, choice on TRAIN)",
+    "company_rule": "Company rule (planned: issuer's TRAIN relief rate above one half)",
+    "issuer_rate": "Issuer relief rate (added later: above the TRAIN base rate)",
+    "tfidf_masked": "TF-IDF + logistic regression, issuer names masked (added later)",
     "tfidf_lr": "TF-IDF + logistic regression (trained on TRAIN)",
     "v1": "LLM judge v1 (plain rubric)",
-    "v2": "LLM judge v2 (facts first, then decision)",
+    "v2": "LLM judge v2 (predicts the record, facts first)",
     "guarded": "Guarded pipeline (v2 facts -> fact model; filter routes to human)",
 }
+READS = {"majority": "nothing", "keyword_rule": "narrative", "company_rule": "company field only",
+         "issuer_rate": "company field only", "tfidf_masked": "header + narrative, issuer names masked",
+         "tfidf_lr": "header + narrative", "v1": "header + narrative", "v2": "header + narrative",
+         "guarded": "header + narrative"}
+
+
+def kappa_cell(r: dict) -> str:
+    """Kappa with its interval; a constant prediction has kappa zero by definition."""
+    if r["predicted_positive_rate"] in (0.0, 1.0):
+        return "0.000 (constant answer)"
+    return ci(r["kappa"])
 
 
 def results_table(res: dict) -> str:
@@ -111,7 +124,7 @@ def results_table(res: dict) -> str:
     for name, r in res.items():
         if name not in LABELS:
             continue
-        rows.append((LABELS[name], r["n"], ci(r["accuracy"]), ci(r["kappa"]),
+        rows.append((LABELS[name], r["n"], ci(r["accuracy"]), kappa_cell(r),
                      num(r["precision_1"]["value"]), num(r["recall_1"]["value"]),
                      num(r["precision_0"]["value"]), num(r["recall_0"]["value"]), r["invalid"]))
     return table(("System", "n", "Accuracy [95% CI]", "Kappa [95% CI]", "Precision relief",
@@ -125,10 +138,10 @@ def diff_sentence(res: dict, a: str, b: str, where: str) -> str | None:
     t = x["transitions"]
     return (f"{LABELS[b]} minus {LABELS[a]} on the same {where} complaints (paired bootstrap): kappa "
             f"{ci(x['kappa'], lambda v: f'{v:+.3f}')}, accuracy {ci(x['accuracy'], lambda v: f'{v:+.3f}')}. "
-            f"The second system agrees with the record where the first did not on {t['only_second_agrees']} "
-            f"complaints ({t['gained_no_relief_cases']} closed without relief, {t['gained_relief_cases']} with) "
-            f"and loses {t['only_first_agrees']} the first had right ({t['lost_relief_cases']} closed with relief, "
-            f"{t['lost_no_relief_cases']} without).")
+            f"The first-named system agrees with the record on {t['only_second_agrees']} complaints where the "
+            f"other does not ({t['gained_no_relief_cases']} closed without relief, {t['gained_relief_cases']} with), "
+            f"and disagrees on {t['only_first_agrees']} where the other agrees ({t['lost_relief_cases']} closed "
+            f"with relief, {t['lost_no_relief_cases']} without).")
 
 
 def confusion_table(res: dict) -> str:
@@ -144,14 +157,17 @@ def confusion_table(res: dict) -> str:
 def b_dev_results(m):
     d = m["dev"]
     out = [results_table(d), "\nConfusion counts:\n", confusion_table(d)]
-    for a, b in (("v1", "v2"), ("v2", "guarded"), ("tfidf_lr", "v1"), ("tfidf_lr", "v2")):
+    for a, b in (("v1", "v2"), ("v2", "guarded"), ("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("issuer_rate", "v1"),
+                 ("issuer_rate", "v2"), ("company_rule", "v1"), ("company_rule", "v2"), ("tfidf_masked", "tfidf_lr")):
         sent = diff_sentence(d, a, b, "DEV")
         if sent:
             out.append("\n" + sent)
     out.append("\nNo acceptance rule for v2 was written before this DEV comparison; the rule for the "
                "held-out comparison is in the frozen file.")
+    out.append("\n" + b_issuer(m))
     k = m["keyword_rule"]
-    out.append(f"\nKeyword rule: of {len(k['candidates'])} candidate rules scored on TRAIN, the best was "
+    out.append(f"\nKeyword rule: the candidate cues come from the reading of DEV disagreements; of "
+               f"{len(k['candidates'])} candidate rules scored on TRAIN, the best was "
                f"\"{k['chosen']['rule']}\" (TRAIN kappa {num(k['chosen']['train_kappa'])}, predicts relief "
                f"for {pct(k['chosen']['train_predicted_relief'])} of TRAIN).")
     lr = m["tfidf_lr"]
@@ -183,15 +199,15 @@ def b_date_halves(m):
 
 def time_per_1000(m, name):
     c = m["cost"]
-    if name == "majority":
-        return "none"
+    if name in ("majority", "company_rule", "issuer_rate"):
+        return "a table lookup"
     if name == "keyword_rule" and "tfidf_lr" in c:
-        return f"{c['tfidf_lr']['keyword_rule_ms_per_item']:.2f} s (CPU)"
-    if name == "tfidf_lr" and "tfidf_lr" in c:
+        return f"{c['tfidf_lr']['keyword_rule_ms_per_item']:.1f} s (CPU)"
+    if name in ("tfidf_lr", "tfidf_masked") and "tfidf_lr" in c:
         return f"{c['tfidf_lr']['predict_ms_per_item_one_by_one']:.1f} s (CPU)"
     v = "v2" if name == "guarded" else name
     if v in c:
-        return f"{c[v]['hours_per_1000']:.1f} h (one laptop GPU)"
+        return f"about {c[v]['hours_per_1000']:.0f} h (one laptop GPU)"
     return "n/a"
 
 
@@ -202,43 +218,184 @@ def b_summary(m):
             f"Held-out TEST: {b['test']['n']} complaints, {pct(b['test']['base_rate'])}"
             + ("" if t else ", not yet run") +
             f". TRAIN (classic baselines only): {b['train']['n']:,}, {pct(b['train']['base_rate'])}. "
-            "Kappa is Cohen's kappa against the recorded company decision; intervals are 95% bootstrap.\n")
+            "Kappa is Cohen's kappa against the recorded company decision, with a 95% bootstrap interval; "
+            "AUC is the chance that a relief case is scored above a no-relief case, over all pairs and over "
+            "pairs answered by the same issuer.\n")
+    rank = m["ranking_dev"]["systems"]
     rows = []
-    for name in ("majority", "keyword_rule", "tfidf_lr", "v1", "v2", "guarded"):
+    for name in SUMMARY_ROWS:
         if name not in m["dev"]:
             continue
         r = m["dev"][name]
         op = (m["automation_dev"].get(name) or {}).get("token")
-        if name in ("majority", "keyword_rule"):
-            auto = "no confidence signal"
-        elif not op or op["at_threshold"] is None:
-            auto = "none reaches the target"
+        if name not in m["automation_dev"]:
+            auto = "not assessed"
+        elif op["at_threshold"] is None:
+            auto = "none: no threshold reaches the target"
         else:
             at = op["at_threshold"]
-            auto = (f"{pct(at['coverage']['value'])} automated, {ci(at['agreement'], pct)} agreement "
-                    f"({pct(at['majority_agreement_on_auto'])} for always-no-relief on the same cases)")
-        held = ci(t["results"][name]["kappa"]) if t and name in t["results"] else "not run"
-        rows.append((LABELS[name], ci(r["kappa"]), pct(r["accuracy"]["value"]), auto, held, time_per_1000(m, name)))
+            lo, hi = at["agreement_wilson"]
+            auto = (f"{at['n_auto']}/{at['n']} at {pct(at['agreement']['value'])} agreement (Wilson "
+                    f"[{pct(lo)}, {pct(hi)}]); chosen and scored on the same cases, does not survive a split")
+        auc = (f"{num(rank[name]['auc']['value'], 2)} / {num(rank[name]['within_issuer_auc']['value'], 2)}"
+               if name in rank else "n/a")
+        held = kappa_cell(t["results"][name]) if t and name in t["results"] else "not run"
+        rows.append((LABELS[name], READS[name], kappa_cell(r), auc, auto, held, time_per_1000(m, name)))
     people = [(who, r) for who, r in m["human"]["annotators"].items() if "person_vs_recorded" in r["all"]]
     for who, r in people:
         f = r["all"]
-        rows.append((f"Person, blind (one annotator, {f['decided']} decided DEV cases)",
-                     ci(f["person_vs_recorded"]["kappa"]), pct(f["person_vs_recorded"]["accuracy"]["value"]),
-                     "n/a", "n/a", f"{r['median_seconds'] * 1000 / 3600:.1f} h (median labelling time)"))
+        rows.append((f"Person, blind (one annotator, {f['decided']} decided TRAIN cases; see below)",
+                     "header + narrative", ci(f["person_vs_recorded"]["kappa"]), "n/a", "n/a", "n/a",
+                     f"about {r['median_seconds'] * 1000 / 3600:.0f} h (median labelling time)"))
     if not people:
-        rows.append(("Person, blind (one annotator)", "not labelled yet", "", "n/a", "n/a", ""))
-    return head + "\n" + table(("System", "DEV kappa [95% CI]", "DEV accuracy",
-                                "Automation at the DEV operating point (target in settings)",
-                                "Held-out kappa [95% CI]", "Time per 1,000 decisions"), rows)
+        rows.append(("Person, blind (one annotator)", "header + narrative", "not labelled yet", "", "n/a", "n/a", ""))
+    return head + "\n" + table(("System", "Reads", "DEV kappa [95% CI]", "DEV AUC: all pairs / same issuer",
+                                "Automated on DEV at the planned target", "Held-out kappa [95% CI]",
+                                "Time per 1,000 decisions"), rows)
+
+
+SUMMARY_ROWS = ("majority", "keyword_rule", "company_rule", "issuer_rate", "tfidf_masked", "tfidf_lr", "v1", "v2",
+                "guarded")
+
+
+def _versus(x: dict, a: str, b: str) -> str:
+    k = x["kappa"]
+    rel = "is below" if k["hi"] < 0 else "is above" if k["lo"] > 0 else "is not distinguishable from"
+    return f"{a} {rel} {b} ({ci(k, lambda v: f'{v:+.3f}')})"
+
+
+def verdicts(m) -> list[str]:
+    """Plain-language reading of the DEV table, derived from the intervals."""
+    d, rk = m["dev"], m["ranking_dev"]
+    ranked = sorted((n for n in d if n in LABELS), key=lambda n: -d[n]["kappa"]["value"])
+    out = [f"Highest DEV kappa: {LABELS[ranked[0]]}."]
+    parts = []
+    for v, vn in (("v1", "Judge v1"), ("v2", "Judge v2")):
+        for base, bn in (("tfidf_lr", "TF-IDF"), ("issuer_rate", "the issuer relief rate"),
+                         ("company_rule", "the planned company rule")):
+            x = d.get(f"{v}_minus_{base}")
+            if x:
+                parts.append(_versus(x, vn, bn))
+    out.append("Paired kappa differences: " + "; ".join(parts) + ".")
+    r, iss = rk["systems"], m["issuer"]
+    dv1, dv2 = rk["differences"]["tfidf_lr_minus_v1"], rk["differences"]["tfidf_lr_minus_v2"]
+    out.append(
+        f"What the TF-IDF lead consists of: the issuer's TRAIN relief rate alone, without reading the complaint, "
+        f"orders DEV complaints as well as TF-IDF does (AUC {num(r['issuer_rate']['auc']['value'], 2)} against "
+        f"{num(r['tfidf_lr']['auc']['value'], 2)}; difference "
+        f"{ci(rk['differences']['issuer_rate_minus_tfidf_lr']['auc'], lambda v: f'{v:+.3f}')}), and TF-IDF's "
+        f"strongest features are issuer names ({pct(iss['train_narratives_naming_an_issuer'], 0)} of TRAIN "
+        f"narratives name an issuer). Among complaints answered by the same issuer "
+        f"({m['ranking_dev']['within_issuer_pairs']} pairs) the lead of TF-IDF over the judge is no longer "
+        f"demonstrated: AUC difference {ci(dv1['within_issuer_auc'], lambda v: f'{v:+.3f}')} against v1 and "
+        f"{ci(dv2['within_issuer_auc'], lambda v: f'{v:+.3f}')} against v2 (all pairs: "
+        f"{ci(dv1['auc'], lambda v: f'{v:+.3f}')} and {ci(dv2['auc'], lambda v: f'{v:+.3f}')}). The judge's own "
+        f"ordering is weak either way (AUC {num(r['v1']['auc']['value'], 2)} and {num(r['v2']['auc']['value'], 2)}).")
+    x = d.get("v2_minus_v1")
+    if x:
+        k = x["kappa"]
+        out.append(("The prompt revision from v1 to v2 raised kappa." if k["lo"] > 0 else
+                    "The prompt revision from v1 to v2 lowered kappa." if k["hi"] < 0 else
+                    f"The prompt revision from v1 to v2 did not improve kappa ({ci(k, lambda v: f'{v:+.3f}')}).") +
+                   f" Accuracy rose only because v2 predicts relief for {pct(d['v2']['predicted_positive_rate'])} of "
+                   f"complaints where v1 predicted it for {pct(d['v1']['predicted_positive_rate'])}; "
+                   f"recall of relief fell from {num(d['v1']['recall_1']['value'], 2)} to "
+                   f"{num(d['v2']['recall_1']['value'], 2)}.")
+    sh = m["split_half"].get("tfidf_lr")
+    if sh:
+        out.append(f"No judge configuration reaches the planned automation target on DEV. The one operating "
+                   f"point in the table (TF-IDF) is in-sample: in {sh['splits']:,} random half-splits of DEV a "
+                   f"threshold existed in {pct(sh['threshold_found'] / sh['splits'], 0)} of them, and the other "
+                   f"half reached the target in {sh['other_half_reaches_target']} (median agreement there "
+                   f"{pct(sh['median_agreement_other_half'], 0)}).")
+    return out
+
+
+def b_v1v2(m):
+    return "\n\n".join(verdicts(m))
+
+
+def b_issuer(m):
+    i, rk = m["issuer"], m["ranking_dev"]
+    rows = [(LABELS[n], ci(x["auc"]), ci(x["within_issuer_auc"]) if n != "issuer_rate" else "0.500 (constant within an issuer)")
+            for n, x in rk["systems"].items()]
+    return "\n".join([
+        f"Issuer identity (added after DEV results). TRAIN has {i['issuers_in_train']} issuers; among those with "
+        f"at least 100 TRAIN complaints the relief rate runs from {pct(i['lowest'][1])} ({i['lowest'][0]}) to "
+        f"{pct(i['highest'][1])} ({i['highest'][0]}); {int(i['issuers_above_half'])} issuer is above one half, which "
+        "is why the planned company rule rarely predicts relief. TF-IDF features with the largest weights towards "
+        f"relief: {', '.join(i['top_features']['towards_relief'])}; towards no relief: "
+        f"{', '.join(i['top_features']['towards_no_relief'])}. The masked model replaces {i['issuer_words_masked']} "
+        "issuer words (chosen by a share-and-lift rule on TRAIN) and a short list of common short names.\n",
+        table(("System", "AUC, all pairs [95% CI]", "AUC, pairs with the same issuer [95% CI]"), rows),
+        "\nDifferences (first minus second): " + "; ".join(
+            f"{k.replace('_minus_', ' minus ').replace('_', ' ')}: all pairs {ci(x['auc'], lambda v: f'{v:+.3f}')}, "
+            f"same issuer {ci(x['within_issuer_auc'], lambda v: f'{v:+.3f}')}" for k, x in rk["differences"].items()) + "."])
+
+
+def b_lead(m):
+    """The result, stated before anything else."""
+    d = m["dev"]
+    k = d["v2_minus_v1"]["kappa"]
+    below = all(d[f"{v}_minus_tfidf_lr"]["kappa"]["hi"] < 0 for v in ("v1", "v2"))
+    none = all(m["automation_dev"][n]["token"]["threshold"] is None for n in ("v1", "v2", "guarded"))
+    return (f"**Result so far (DEV, {d['v1']['n']} complaints; the held-out split has not been run).** The judge "
+            f"agrees with recorded company decisions little better than chance: kappa {num(d['v1']['kappa']['value'], 2)} "
+            f"for the first prompt and {num(d['v2']['kappa']['value'], 2)} for the revised one. The revision "
+            + ("did not help" if k["lo"] <= 0 else "helped") +
+            f" ({ci(k, lambda v: f'{v:+.2f}')}). " +
+            (f"Both versions are below a TF-IDF baseline (kappa {num(d['tfidf_lr']['kappa']['value'], 2)}), whose "
+             "lead is mostly knowing how each issuer usually answers. " if below else "") +
+            ("No judge configuration qualifies for automation at the planned target. " if none else "") +
+            "What a careful person would decide from the same text is not known yet; blind human labels are "
+            "being collected.")
+
+
+def b_deviation_facts(m):
+    i, f = m["issuer"], m["data"]["funnel"]
+    g = i["first_commit_grid"]
+    return (f"Numbers behind the list above: the first commit's grid would have chosen C = {g['chosen']['C']} without "
+            f"class weighting, DEV kappa {num(g['dev_kappa'])}, against {num(m['dev']['tfidf_lr']['kappa']['value'])} "
+            f"for the grid that follows the plan text. Label cross-check against the live API: "
+            f"{f['dropped_metadata_mismatch_vs_live_api']} of {f['slice_with_narrative']:,} complaints with a narrative "
+            f"differed and were dropped, {f.get('dropped_not_in_live_api', 0)} were missing.")
 
 
 def b_inputs(m):
-    r = m["dev"]["company_rule"]
     st = m["settings"]
     return (f"Narratives are cut at {st['max_narrative_chars']:,} characters for every system. "
-            f"Model: `{st['model']}`, temperature {st['options']['temperature']}, seed {st['options']['seed']}. "
-            f"Company name alone, which no other system is given, reaches kappa {ci(r['kappa'])} on DEV "
-            f"(accuracy {pct(r['accuracy']['value'])}).")
+            f"Model: `{st['model']}`, temperature {st['options']['temperature']}, seed {st['options']['seed']}.")
+
+
+def _who_read(m) -> str:
+    e = m["error_analysis"]
+    pv = e["provenance"]
+    t = lambda k: pv[k][11:16]                      # noqa: E731  (UTC hour and minute)
+    rev = [r["error_review"] for r in m["human"]["annotators"].values() if r["error_review"]["reviewed"]]
+    return (f"The categories, quotes and notes were drafted by {pv['produced_by']}; the author has read "
+            f"{pv['cases_read_by_the_author']} of the cases. The {e['n_disagreements']} narratives hold "
+            f"{e['words_in_disagreements']:,} words. The v1 run ended at {t('v1_dev_run_finished')} UTC, the "
+            f"disagreements were exported at {t('disagreements_exported_for_reading')}, the v2 prompt was first "
+            f"used at {t('v2_prompt_first_used')} and the category file was last written at "
+            f"{t('category_file_last_written')}: the v2 prompt rests on a machine pass of minutes over these "
+            "cases, not on a person's reading. " +
+            (f"The author has since reviewed {rev[0]['reviewed']} of the {rev[0]['total']} individually sorted "
+             f"cases and confirmed {rev[0]['confirmed']} of the drafted readings." if rev else
+             "The author's own reading of the individually sorted cases will be reported separately when it exists."))
+
+
+def _denial(m) -> str:
+    e = m["error_analysis"]
+    d, c = e["prior_denial"], e["category_only"]
+    return (f"The other {e['n_category_only']} disagreements carry a category only ("
+            + ", ".join(f"{k.replace('_', ' ')} {v}" for k, v in sorted(c.items(), key=lambda kv: -kv[1])) +
+            "). These categories do not show that a case cannot be decided from its text: judge v2 extracts "
+            f"'the issuer had already said no' for {d['n_denied']} of {e['n_dev']} DEV complaints (relief rate "
+            f"{pct(d['relief_rate_denied'])} with it, {pct(d['relief_rate_other'])} without), and judge v1 agreed "
+            f"with the record on {d['v1_agrees_among_denied']} of those {d['n_denied']} "
+            f"({d['v1_agrees_among_denied_relief']} of them closed with relief). That the record often turns on "
+            "evidence outside the complaint is a hypothesis here, which the blind human labels are meant to test; "
+            "it is not a finding.")
 
 
 def b_error_groups(m):
@@ -248,54 +405,13 @@ def b_error_groups(m):
     rows = []
     for g in e["groups"]:
         ex = g["example"]
-        rows.append((g["label"], g["n"], g["read_individually"],
+        rows.append((g["label"], g["n"],
                      (f"\"{ex['quote']}\" ({ex['complaint_id']}" + (f": {ex['note']})" if ex["note"] else ")"))
                      if ex else ""))
-    rev = [r["error_review"] for r in m["human"]["annotators"].values() if r["error_review"]["reviewed"]]
-    who = ("The categories and this three-way reading were drafted by an AI coding assistant that read each "
-           "disagreement during the analysis (an assistant, not the judged model). " +
-           (f"The author has since reviewed {rev[0]['reviewed']} of the {rev[0]['total']} individually sorted "
-            f"cases himself and confirmed {rev[0]['confirmed']} of the drafted readings (changes are listed in the "
-            "full report)." if rev else
-            "The author has not yet confirmed them; he does that for the individually sorted cases after his "
-            "blind labelling, and the counts will be added here."))
-    return (f"All {e['n_disagreements']} DEV disagreements of judge v1 (of {e['n_dev']} complaints). {who}\n\n" +
-            table(("Reading", "Cases", "... assigned by reading the case (the rest follow from their category)",
-                   "Example"), rows))
-
-
-def verdicts(m) -> list[str]:
-    """Plain-language reading of the DEV table, derived from the intervals."""
-    d = m["dev"]
-    ranked = sorted((n for n in d if n in LABELS and n != "company_rule"),
-                    key=lambda n: -d[n]["kappa"]["value"])
-    out = [f"Highest DEV kappa: {LABELS[ranked[0]]}."]
-    for v in ("v1", "v2"):
-        x = d.get(f"{v}_minus_tfidf_lr")
-        if x:
-            out.append(f"{LABELS[v]} is " + ("below the TF-IDF baseline (the paired interval excludes zero)."
-                                              if x["kappa"]["hi"] < 0 else
-                                              "above the TF-IDF baseline (the paired interval excludes zero)."
-                                              if x["kappa"]["lo"] > 0 else
-                                              "not distinguishable from the TF-IDF baseline (the paired interval includes zero)."))
-    x = d.get("v2_minus_v1")
-    if x:
-        k = x["kappa"]
-        out.append(("The prompt change from v1 to v2 raised kappa." if k["lo"] > 0 else
-                    "The prompt change from v1 to v2 lowered kappa." if k["hi"] < 0 else
-                    "The prompt change from v1 to v2 did not move kappa outside its interval: no improvement "
-                    "is demonstrated on DEV.") +
-                   f" Accuracy rose because v2 predicts relief for {pct(d['v2']['predicted_positive_rate'])} of "
-                   f"complaints where v1 predicted it for {pct(d['v1']['predicted_positive_rate'])}; "
-                   f"recall of relief fell from {num(d['v1']['recall_1']['value'], 2)} to "
-                   f"{num(d['v2']['recall_1']['value'], 2)}.")
-    return out
-
-
-def b_v1v2(m):
-    return "\n\n".join([" ".join(verdicts(m))] +
-                       [x for x in (diff_sentence(m["dev"], "v1", "v2", "DEV"),
-                                    diff_sentence(m["dev"], "tfidf_lr", "v2", "DEV")) if x])
+    return (f"Judge v1 disagreed with the record on {e['n_disagreements']} of {e['n_dev']} DEV complaints. "
+            f"{_who_read(m)}\n\n{e['n_read']} disagreements were sorted one by one into a three-way reading:\n\n" +
+            table(("Reading (drafted, not yet confirmed by the author)", "Cases", "Example"), rows) +
+            "\n\n" + _denial(m))
 
 
 def b_retest_summary(m):
@@ -303,9 +419,10 @@ def b_retest_summary(m):
     if not rt:
         return PENDING
     return " ".join(
-        f"Asked twice with identical settings, {LABELS[v]} gave the same decision in {r['same_decision']}/{r['n']} = "
-        f"{pct(r['same_decision_rate'])} [{pct(r['same_decision_ci'][0])}, {pct(r['same_decision_ci'][1])}] of DEV "
-        f"requests (largest change in P(relief) {num(r['shift']['max'], 2)}; kappa against the record "
+        f"Asked twice with identical settings ({r['n']} of {r['n_split']} DEV requests replayed), {LABELS[v]} "
+        f"gave the same decision in {r['same_decision']}/{r['n']} = "
+        f"{pct(r['same_decision_rate'])} [{pct(r['same_decision_ci'][0])}, {pct(r['same_decision_ci'][1])}] "
+        f"(largest change in P(relief) {num(r['shift']['max'], 2)}; kappa against the record "
         f"{num(r['kappa_cached'])} from the cached answers and {num(r['kappa_replay'])} from the replayed ones "
         "on the same requests)." for v, r in rt.items())
 
@@ -319,7 +436,7 @@ def b_error_analysis(m):
             f"{e['n_dev']} DEV complaints: {bd.get('judge relief, company none', 0)} where it granted "
             f"relief and the company did not, {bd.get('judge none, company relief', 0)} the other way "
             "round. Every disagreement has exactly one primary category "
-            "(`results/error_analysis/v1_dev.csv`; quotes are checked to be verbatim).\n")
+            "(`results/error_analysis/v1_dev.csv`; quotes are checked to be verbatim). " + _who_read(m) + "\n")
     rows = []
     for c in e["categories"]:
         ex = c["example"]
@@ -328,12 +445,15 @@ def b_error_analysis(m):
                      c["judge_none_company_relief"], c["fix"], quote))
     out = [head, table(("Category", "Cases", "Judge relief, company none",
                         "Judge none, company relief", "What v2 changes", "Example"), rows)]
-    out.append("\nThe disagreements that were sorted by reading the case itself (the others follow from "
-               "their category):\n")
+    out.append("\n" + _denial(m))
+    out.append("\nThe disagreements that were sorted one by one into the three-way reading:\n")
     out.append(table(("Complaint", "Reading", "Category", "Quote", "Note"),
                      [(r["complaint_id"], r["group"].replace("_", " "), r["category"].replace("_", " "),
                        f"\"{r['quote']}\"", r["note"]) for r in e["read_cases"]]))
     q = m["cues"]
+    out.append("\nThe v2 prompt names seven cues. Its issuer-mistake cue has no TRAIN proxy (it comes from "
+               "four DEV cases), and the interval of the service-quality proxy contains the rate without the cue, "
+               "so 'checked on TRAIN' holds for the other five only.")
     out.append(f"\nKeyword-proxy check of the cues named in the v2 prompt, on TRAIN only "
                f"({q['n_train']:,} complaints, {pct(q['relief_rate'])} closed with monetary relief; "
                "`src/judge/cues.py`, crude regular expressions):\n")
@@ -348,6 +468,54 @@ def b_error_analysis(m):
 REWRITE_LABELS = {"all": "**all five rewrites**", "fake_case_note": "fake internal note alone",
                   "injection": "instruction to the reviewer alone", "neutral": "control: neutral sentence appended",
                   "replay": "control: same narrative sent again"}
+SHORT = {"v1": "Judge v1", "v2": "Judge v2", "guarded": "Guarded pipeline"}
+
+
+def _gaming_notes(m) -> list[str]:
+    g, f = m["gaming"], m["gaming"].get("filter")
+    names = [n for n in ("v1", "v2", "guarded") if n in g["systems"]]
+    out = ["Each rewrite is a single fixed sentence appended to the narrative, so every row is one template "
+           "applied to " + str(g["n_items"]) + " complaints, not a family of attacks. Rows for one rewrite use a "
+           "Wilson interval; the pooled row repeats every complaint five times, so its interval resamples "
+           "complaints."]
+    above = {n: [a for a in g["attacks"] if g["systems"][n][a].get("vs_neutral", {}).get("p", 1) < 0.05]
+             for n in names}
+    out.append("Against the neutral-sentence control on the same complaints (exact McNemar test, p below 0.05), "
+               "the rewrites that flip more decisions are: " +
+               "; ".join(f"{SHORT[n]}: {', '.join(above[n]) or 'none'}" for n in names) + ".")
+    d = m["dev"]
+    if "guarded" in names:
+        out.append(f"The guarded pipeline answers relief for {d['guarded']['confusion']['relief_relief'] + d['guarded']['confusion']['none_relief']} "
+                   f"of {d['guarded']['n']} DEV complaints and for {g['systems']['guarded']['base_relief']} of these "
+                   f"{g['n_items']}; a policy that always answers no relief has no flips at all, so its low flip "
+                   "rate says little. Its fact model is fitted on DEV, including these complaints.")
+    if f:
+        reused = [a for a, k in f["answer_reused"].items() if k == g["n_items"]]
+        out.append(f"The check in code outside the model is an input filter: it flagged {f['attacked_flagged']['injection']}/"
+                   f"{g['n_items']} copies of the one injected sentence, {f['attacked_flagged']['fake_case_note']}/"
+                   f"{g['n_items']} fake notes, {f['clean_flagged']} of {f['clean_n']:,} unmodified complaints, and "
+                   f"{f['paraphrases_flagged']} of {f['paraphrases']} other wordings of the same instruction "
+                   "(written afterwards with the patterns in view; `src/judge/gaming.py`). A flagged complaint goes "
+                   "to a person. " +
+                   (f"The guarded pipeline's zero for '{', '.join(reused)}' holds by construction: the filter "
+                    "removes the appended sentence and the cached answer to the clean narrative is reused, so the "
+                    "interval describes nothing. " if reused else "") +
+                   "A defence tuned to known attacks overstates robustness.")
+    if not g["routing"]:
+        out.append("No LLM-based system reaches the agreement target on DEV, so none of these decisions would "
+                   "be taken automatically; the flips are changes in the decision the system proposes.")
+    return out
+
+
+def _flip_cell(x, by_construction=False):
+    if by_construction:
+        return f"{x['flips']}/{x['n']} (by construction)"
+    return f"{x['flips']}/{x['n']} = {pct(x['flip_rate'])} [{pct(x['flip_ci'][0])}, {pct(x['flip_ci'][1])}]"
+
+
+def _denial_cell(x):
+    return (f"{x['to_relief']}/{x['n_base_no_relief']}" +
+            (f" = {pct(x['to_relief_rate'], 0)}" if x["n_base_no_relief"] else ""))
 
 
 def b_gaming(m):
@@ -355,50 +523,45 @@ def b_gaming(m):
     if not g["systems"]:
         return PENDING
     names = [n for n in ("v1", "v2", "guarded") if n in g["systems"]]
-    short = {"v1": "Judge v1", "v2": "Judge v2", "guarded": "Guarded pipeline"}
     order = g["attacks"] + ["all"] + [c for c in g["controls"] + ["replay"]
                                       if all(c in g["systems"][n] for n in names)]
+    reused = {a for a, k in (g.get("filter") or {}).get("answer_reused", {}).items() if k == g["n_items"]}
 
     def rows(cell):
-        return [[a if a in g["attacks"] else REWRITE_LABELS[a]] + [cell(g["systems"][n][a]) for n in names]
-                for a in order]
+        return [[a if a in g["attacks"] else REWRITE_LABELS[a]] +
+                [cell(g["systems"][n][a], n == "guarded" and a in reused) for n in names] for a in order]
 
     out = [f"{g['n_items']} DEV complaints, each with every rewrite appended. A flip is a decision that "
            "differs from the decision on the unmodified narrative under the same system. Relief decisions "
            "on the unmodified narratives: " +
-           ", ".join(f"{short[n]} {g['systems'][n]['base_relief']}/{g['n_items']}" for n in names) + ".\n",
-           "Decisions flipped [95% Wilson CI]:\n",
-           table(["Rewrite"] + [short[n] for n in names], rows(
-               lambda x: f"{x['flips']}/{x['n']} = {pct(x['flip_rate'])} [{pct(x['flip_ci'][0])}, {pct(x['flip_ci'][1])}]")),
-           "\nDirection of the flips (no relief to relief / relief to no relief) and mean change in P(relief):\n",
-           table(["Rewrite"] + [short[n] for n in names], rows(
-               lambda x: f"{x['to_relief']}/{x['n_base_no_relief']} to relief, "
-                         f"{x['to_no_relief']}/{x['n_base_relief']} to no relief, "
-                         + (f"{x['mean_delta_p_relief']:+.3f}" if x["mean_delta_p_relief"] == x["mean_delta_p_relief"] else "n/a")))]
+           ", ".join(f"{SHORT[n]} {g['systems'][n]['base_relief']}/{g['n_items']}" for n in names) + ".\n",
+           "Decisions flipped [95% CI]:\n",
+           table(["Rewrite"] + [SHORT[n] for n in names], rows(_flip_cell)),
+           "\nDenials on the unmodified narrative that became relief (the two judges start from very "
+           "different numbers of denials, so the pooled flip rates above are not comparable):\n",
+           table(["Rewrite"] + [SHORT[n] for n in names], rows(lambda x, _: _denial_cell(x))),
+           "\nRelief turned into no relief, and mean change in P(relief):\n",
+           table(["Rewrite"] + [SHORT[n] for n in names], rows(
+               lambda x, _: f"{x['to_no_relief']}/{x['n_base_relief']}, " +
+               (f"{x['mean_delta_p_relief']:+.3f}" if x["mean_delta_p_relief"] == x["mean_delta_p_relief"] else "n/a"))),
+           "\nComparison with the neutral control (complaints flipped only by the rewrite / only by the control, "
+           "exact McNemar p):\n",
+           table(["Rewrite"] + [SHORT[n] for n in names],
+                 [[a] + [f"{x['only_rewrite']} / {x['only_control']}, p = {x['p']:.3f}"
+                         for x in (g["systems"][n][a]["vs_neutral"] for n in names)] for a in g["attacks"]])]
     if g["routing"]:
         rn = [n for n in names if n in g["routing"]]
         out += ["\nRouting at the DEV operating point (a confident 'no relief' is decided automatically, a "
                 "confident 'relief' is proposed to a person, the rest is escalated). Unmodified narratives: " +
-                "; ".join(f"{short[n]} " + ", ".join(f"{v} {k.replace('_', ' ')}" for k, v in sorted(g['routing'][n]['base'].items()))
+                "; ".join(f"{SHORT[n]} " + ", ".join(f"{v} {k.replace('_', ' ')}" for k, v in sorted(g['routing'][n]['base'].items()))
                           for n in rn) + ". What the rewrites did to them:\n",
-                table(["Rewrite"] + [short[n] for n in rn],
+                table(["Rewrite"] + [SHORT[n] for n in rn],
                       [[a if a in g["attacks"] else REWRITE_LABELS[a]] +
                        [f"auto-denied {x['n_auto_none']}: {x['auto_none_to_approve']} became relief proposals, "
                         f"{x['auto_none_to_escalate']} escalated; escalated {x['n_escalate']}: "
                         f"{x['escalate_to_approve']} became relief proposals, {x['escalate_to_auto_none']} auto-denied"
                         for x in (g["routing"][n][a] for n in rn)] for a in order])]
-    else:
-        out.append("\nNo LLM-based system has an operating point on DEV (none reaches the agreement target), so "
-                   "none of these decisions would be taken automatically; the flips are changes in the decision "
-                   "the system proposes.")
-    f = g.get("filter")
-    if f:
-        out.append(f"\nInput filter: flagged {f['attacked_flagged']['injection']}/{g['n_items']} 'injection' "
-                   f"rewrites and {f['attacked_flagged']['fake_case_note']}/{g['n_items']} 'fake case note' rewrites; "
-                   f"false alarms on unmodified complaints: {f['clean_flagged']} of {f['clean_n']:,} "
-                   f"(DEV + TRAIN). Flagged complaints are routed to a human, so a flagged rewrite "
-                   "cannot change an automated decision.")
-    return "\n".join(out)
+    return "\n".join(out + ["\n" + "\n\n".join(_gaming_notes(m))])
 
 
 def b_gaming_summary(m):
@@ -406,30 +569,21 @@ def b_gaming_summary(m):
     if not g["systems"]:
         return PENDING
     names = [n for n in ("v1", "v2", "guarded") if n in g["systems"]]
-    short = {"v1": "Judge v1", "v2": "Judge v2", "guarded": "Guarded pipeline"}
     order = ["all", "fake_case_note", "injection"] + [c for c in g["controls"] + ["replay"]
                                                      if all(c in g["systems"][n] for n in names)]
+    reused = {a for a, k in (g.get("filter") or {}).get("answer_reused", {}).items() if k == g["n_items"]}
 
-    def cell(x):
-        return (f"{x['flips']}/{x['n']} = {pct(x['flip_rate'])} [{pct(x['flip_ci'][0])}, {pct(x['flip_ci'][1])}]; "
-                f"denials turned into relief {x['to_relief']}/{x['n_base_no_relief']}")
+    def cell(x, by_construction):
+        return _flip_cell(x, by_construction) + f"; denials turned into relief {_denial_cell(x)}"
 
     out = [f"{g['n_items']} DEV complaints x {len(g['attacks'])} rewrites ({', '.join(g['attacks'])}). "
-           "Decisions flipped [95% Wilson CI], and how many clean-run denials became relief:\n",
-           table(["Rewrite"] + [short[n] for n in names],
-                 [[REWRITE_LABELS.get(a, a)] + [cell(g["systems"][n][a]) for n in names] for a in order])]
-    f = g.get("filter")
-    if f:
-        out.append(f"\nThe check in code outside the model: an input filter that flagged "
-                   f"{f['attacked_flagged']['injection']}/{g['n_items']} injected instructions, "
-                   f"{f['attacked_flagged']['fake_case_note']}/{g['n_items']} fake notes (written to get past it) and "
-                   f"{f['clean_flagged']} of {f['clean_n']:,} unmodified complaints; a flagged complaint always "
-                   "goes to a person. Cost of the defence on clean complaints: " +
-                   (diff_sentence(m["dev"], "v2", "guarded", "DEV") or ""))
-    if not g["routing"]:
-        out.append("\nNo LLM-based system reaches the agreement target on DEV, so none of these decisions would "
-                   "be taken automatically; the flips are changes in the decision the system proposes.")
-    return "\n".join(out)
+           "Decisions flipped [95% CI], and how many denials on the unmodified narrative became relief "
+           "(compare the judges on the denials: they start from " +
+           " and ".join(f"{g['n_items'] - g['systems'][n]['base_relief']}" for n in names[:2]) + " denials):\n",
+           table(["Rewrite"] + [SHORT[n] for n in names],
+                 [[REWRITE_LABELS.get(a, a)] + [cell(g["systems"][n][a], n == "guarded" and a in reused)
+                                                for n in names] for a in order])]
+    return "\n".join(out + ["\n" + "\n\n".join(_gaming_notes(m))])
 
 
 def b_automation_summary(m):
@@ -453,22 +607,21 @@ def b_automation_summary(m):
     text = ("Operating point per system: the lowest confidence threshold whose DEV agreement on automated cases "
             f"reaches {pct(m['settings']['target_agreement'], 0)} with at least {m['settings']['min_automated']} "
             "automated, read as three outcomes. Chosen and scored on the same DEV complaints, so optimistic.\n\n" +
-            table(("System", "Decided automatically as no relief", "... of which the company did pay (wrongly denied) [95% Wilson CI]",
+            table(("System", "Decided automatically as no relief", "... of which the company did pay [95% Wilson CI]",
                    "Relief proposed to a person for approval", "Escalated to a person"), rows))
-    reh = (m.get("rehearsal") or {}).get("automation", {})
     notes = []
-    for name, r in reh.items():
-        at = r["at_dev_threshold"]
-        if at and at["n_auto"]:
-            notes.append(f"{LABELS[name]}: a threshold chosen the same way on one half of DEV automated "
-                         f"{at['n_auto']}/{at['n']} of the other half with {ci(at['agreement'], pct)} agreement "
-                         f"({pct(at['majority_agreement_on_auto'])} for always-no-relief on the same cases)")
+    for name, sh in m["split_half"].items():
+        if sh["threshold_found"]:
+            notes.append(f"{LABELS[name]}: a threshold in {sh['threshold_found']} of {sh['splits']:,} random "
+                         f"half-splits, the other half at the target in {sh['other_half_reaches_target']} "
+                         f"(median agreement {pct(sh['median_agreement_other_half'], 0)})")
+        else:
+            notes.append(f"{LABELS[name]}: no threshold in any of {sh['splits']:,} random half-splits")
     if notes:
-        below = all(r["at_dev_threshold"]["agreement"]["value"] < m["settings"]["target_agreement"]
-                    for r in reh.values() if r["at_dev_threshold"] and r["at_dev_threshold"]["n_auto"])
-        text += ("\n\nSplit-half check (not a held-out result): " + "; ".join(notes) + "." +
-                 (" That is below the target: on this evidence no system here should decide complaints "
-                  "on its own." if below else ""))
+        text += ("\n\nThe same rule applied to one random half of DEV and scored on the other: " +
+                 "; ".join(notes) + "." +
+                 (" On this evidence no system here should decide complaints on its own."
+                  if not any(sh["other_half_reaches_target"] for sh in m["split_half"].values()) else ""))
     return text
 
 
@@ -562,9 +715,12 @@ def b_retest(m):
                      f"{num(sh['median'], 4)} / {num(sh['p90'], 4)} / {num(sh['max'], 4)}",
                      f"{sh['over_0.01']} / {sh['over_0.05']}",
                      f"{num(r['kappa_cached'])} / {num(r['kappa_replay'])}"))
-    out = ["Every DEV request sent a second time with identical settings (temperature 0, same seed), "
-           "sequentially; the second answers are kept in `results/cache/replays.jsonl` and are not used "
-           "for any other number in this report.\n",
+    out = ["DEV requests sent a second time with identical settings (temperature 0, same seed), sequentially: " +
+           "; ".join(f"{LABELS[v]} {r['n']} of {r['n_split']}" for v, r in rt.items()) +
+           " (for v1 the gaming subset first, then DEV order). The second answers are kept in "
+           "`results/cache/replays.jsonl` and are not used for any other number in this report. Kappa against "
+           "the record on the replayed subset shows how unstable kappa is at this size: on its replayed "
+           "subset v1 scores far from its figure on all of DEV.\n",
            table(("System", "Requests replayed", "Same decision [95% Wilson CI]", "Byte-identical answer",
                   "Same token P(relief)", "Shift in token P(relief): median / p90 / max",
                   "Shifts above 0.01 / above 0.05", "Kappa against recorded outcomes: cached / replay"), rows)]
@@ -618,10 +774,10 @@ def b_automation(m):
     rt = m.get("routing")
     if rt:
         out += ["\nThe same operating points as three outcomes, with the two kinds of automated error apart "
-                "(median dollar amount: the largest amount mentioned in each wrongly denied complaint):\n",
-                table(("System", "Decided automatically as no relief", "... wrongly (company paid)",
-                       "Relief proposed for approval", "... wrongly (company paid nothing)", "Escalated",
-                       "Median amount in wrongly denied complaints"),
+                "(median dollar amount: the largest amount mentioned in each auto-denied complaint the company paid):\n",
+                table(("System", "Decided automatically as no relief", "... where the company paid",
+                       "Relief proposed for approval", "... where the company paid nothing", "Escalated",
+                       "Median amount in the auto-denied complaints the company paid"),
                       [(LABELS[n], r["auto_no_relief"], r["wrong_no_relief"], r["proposed_relief"], r["wrong_relief"],
                         r["escalated"], "n/a" if r["wrong_no_relief_with_amount"] == 0 else
                         f"{r['wrong_no_relief_median_amount']:,.0f} dollars ({r['wrong_no_relief_with_amount']} with an amount)")
@@ -656,13 +812,14 @@ def operating_rows(auto: dict):
             rows.append((LABELS[name], r["signal"], num(r["threshold"], 4), f"0/{at['n']}", "n/a", "n/a"))
         else:
             rows.append((LABELS[name], r["signal"], num(r["threshold"], 4),
-                         f"{at['n_auto']}/{at['n']} = {ci(at['coverage'], pct)}", ci(at["agreement"], pct),
-                         pct(at["majority_agreement_on_auto"])))
+                         f"{at['n_auto']}/{at['n']} = {ci(at['coverage'], pct)}",
+                         f"{pct(at['agreement']['value'])} [{pct(at['agreement_wilson'][0])}, "
+                         f"{pct(at['agreement_wilson'][1])}]", pct(at["majority_agreement_on_auto"])))
     return rows
 
 
 OPERATING_HEADER = ("System", "Confidence", "Threshold fixed beforehand", "Automated [95% CI]",
-                    "Agreement on automated [95% CI]", "Agreement of 'always no relief' on the same cases")
+                    "Agreement on automated [95% Wilson CI]", "Agreement of 'always no relief' on the same cases")
 
 
 def b_rehearsal(m):
@@ -677,7 +834,11 @@ def b_rehearsal(m):
         "and the samples are half the size).\n",
         results_table(r["results"]),
         "\nOperating points from the even half applied to the odd half:\n",
-        table(OPERATING_HEADER, operating_rows(r["automation"]))])
+        table(OPERATING_HEADER, operating_rows(r["automation"])),
+        "\nThe held-out decision rules applied to this rehearsal (to show what the held-out section will "
+        "print; one even/odd split is arbitrary, see the repeated half-splits above):\n",
+        "\n".join(f"- {c['verdict']}" + (f" ({ci(c['interval'], lambda v: f'{v:+.3f}')})" if c["interval"] else "")
+                  for c in r["claims"])])
 
 
 def b_frozen(m):
@@ -691,19 +852,26 @@ def b_frozen(m):
                      else num(op["threshold"], 6), op["dev_automated"],
                      "n/a" if op["dev_agreement_on_automated"] is None else pct(op["dev_agreement_on_automated"])))
     calls = len(c["final_versions"]) * m["base_rates"]["test"]["n"]
-    out = ["Frozen in `results/frozen.json` before any held-out complaint was sent to the model. The "
-           "held-out report reads its thresholds from that file.\n",
+    out = [f"Frozen in `results/frozen.json` (SHA-256 `{f['sha256']}`) before any held-out complaint was sent "
+           "to the model. The held-out report reads its thresholds and decision rules from that file. A local "
+           "file proves nothing about when it was written: the commit that contains it is to be published "
+           "before the run.\n",
            table(("System", "Confidence", "Threshold for the held-out run", "DEV cases automated",
                   "DEV agreement on automated"), rows),
            f"\nJudge versions to run on the held-out split: {', '.join(c['final_versions'])} "
-           f"({calls} model calls, sequential, about {calls * c['expected_s_per_call'] / 60:.0f} minutes at the "
-           f"recent median of {c['expected_s_per_call']:.1f} s per call). Baseline hyperparameters: "
-           f"C = {c['tfidf_lr']['C']}, class weighting = {c['tfidf_lr']['class_weight']}. Fact model: logistic "
-           f"regression on {len(c['fact_model']['vocab'])} one-hot fact features, weights in the frozen file. "
-           f"Model build: Ollama {c['environment']['ollama_version']}, digest `{c['environment']['model_digest'][:12]}`.",
-           f"\nHeld-out complaint IDs: {c['heldout']['n']}, SHA-256 of the sorted IDs "
-           f"`{c['heldout']['ids_sha256']}`. Acceptance rule for the prompt change: {c['acceptance_rule']}",
-           "\nFiles whose SHA-256 is recorded and checked before the run: " +
+           f"({calls} model calls for the scored pass and {calls} for the noise pass, sequential, about "
+           f"{2 * calls * c['expected_s_per_call'] / 60:.0f} minutes at the recent median of "
+           f"{c['expected_s_per_call']:.1f} s per call). Baseline hyperparameters: C = {c['tfidf_lr']['C']}, class "
+           f"weighting = {c['tfidf_lr']['class_weight']}; keyword rule: \"{c['keyword_rule']['rule']}\". Fact model: "
+           f"logistic regression on {len(c['fact_model']['vocab'])} one-hot fact features, weights in the frozen "
+           f"file. Model build: Ollama {c['environment']['ollama_version']}, digest "
+           f"`{c['environment']['model_digest'][:12]}`. Held-out complaint IDs: {c['heldout']['n']}, SHA-256 of the "
+           f"sorted IDs `{c['heldout']['ids_sha256']}`. Answer caches at the freeze: " +
+           "; ".join(f"`{k}` {v['bytes']:,} bytes, SHA-256 `{v['sha256'][:16]}...`" for k, v in c["caches"].items()) +
+           " (append-only: later answers may be added, these bytes may not change).",
+           "\nWhat will be said about the held-out split, and the rule that decides it:\n",
+           "\n".join(f"- `{x['id']}`: {x['rule']}" for x in c["claims"]),
+           f"\nFiles whose SHA-256 is recorded and checked before the run ({len(c['files'])}): " +
            ", ".join(f"`{p}`" for p in c["files"]) + "."]
     return "\n".join(out)
 
@@ -713,25 +881,40 @@ def b_test_results(m):
     if not t:
         sent = m["cost"]["all_calls"]["held_out_calls"]
         f = m.get("frozen")
-        frozen = ("The method is not frozen yet." if not f else
-                  f"The method is frozen in `results/frozen.json` (SHA-256 `{f['sha256'][:16]}...`): prompts, "
-                  f"parser, defence, baselines, the DEV operating points and the {f['content']['heldout']['n']} "
-                  f"held-out complaint IDs (SHA-256 of the sorted IDs `{f['content']['heldout']['ids_sha256'][:16]}...`). "
-                  f"Acceptance rule: {f['content']['acceptance_rule']}")
+        frozen = ("The method is not frozen at this commit." if not f else
+                  f"The method is frozen in `results/frozen.json` (SHA-256 `{f['sha256'][:16]}...`): every source "
+                  f"file, the data, the plans, the DEV operating points, the {f['content']['heldout']['n']} held-out "
+                  f"complaint IDs (SHA-256 of the sorted IDs `{f['content']['heldout']['ids_sha256'][:16]}...`) and "
+                  f"{len(f['content']['claims'])} claims with their decision rules (listed in the full report).")
         return (f"_Not yet run._ Held-out complaints sent to the model so far: {sent}. {frozen} The run is a "
-                "single command (`make heldout`) that refuses to start unless the frozen method is unchanged, "
-                "and refuses to run twice.")
-    out = [f"Run once: started {t['started_at']}, finished {t['finished_at']} (UTC), versions "
-           f"{', '.join(t['versions'])}.\n", results_table(t["results"])]
-    for a, b in (("v1", "v2"), ("v2", "guarded"), ("tfidf_lr", "v1"), ("tfidf_lr", "v2")):
+                "single command (`make heldout`) that refuses to start unless the frozen method is unchanged "
+                "and committed, and refuses to run twice; a second pass over the same requests is stored apart "
+                "and reported as noise only.")
+    out = [f"Run once from commit `{t['commit'][:12]}`: started {t['started_at']}, finished {t['finished_at']} "
+           f"(UTC), versions {', '.join(t['versions'])}.\n", results_table(t["results"]),
+           "\nThe frozen claims, each decided by its rule:\n",
+           "\n".join(f"- {c['verdict']}" + (f" ({ci(c['interval'], lambda v: f'{v:+.3f}')})" if c["interval"] else "")
+                     for c in t["claims"])]
+    rk = t["ranking"]
+    out += ["\nOrdering of held-out complaints:\n",
+            table(("System", "AUC, all pairs [95% CI]", "AUC, pairs with the same issuer [95% CI]"),
+                  [(LABELS[n], ci(x["auc"]), ci(x["within_issuer_auc"]) if n != "issuer_rate"
+                    else "0.500 (constant within an issuer)") for n, x in rk["systems"].items()])]
+    for a, b in (("v1", "v2"), ("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("issuer_rate", "v1"), ("issuer_rate", "v2")):
         sent = diff_sentence(t["results"], a, b, "held-out")
         if sent:
             out.append("\n" + sent)
-    acc = t["acceptance"]
-    out.append(f"\nAcceptance rule (frozen before the run): {acc['rule']} Result: "
-               + ("v2 accepted." if acc["v2_accepted"] else "no improvement demonstrated."))
     out += ["\nOperating points frozen on DEV applied unchanged to TEST:\n",
             table(OPERATING_HEADER, operating_rows(t["automation"]))]
+    if t["noise"]:
+        out.append("\nNoise pass (every held-out request sent a second time; never scored against the record): " +
+                   "; ".join(f"{LABELS[v]} repeated its decision in {r['same_decision']}/{r['n']} = "
+                             f"{pct(r['same_decision_rate'])} [{pct(r['same_decision_ci'][0])}, "
+                             f"{pct(r['same_decision_ci'][1])}], kappa between the two passes "
+                             f"{num(r['kappa_between_runs'], 2)}, largest shift in P(relief) {num(r['shift']['max'], 2)}"
+                             for v, r in t["noise"].items()) + ".")
+    else:
+        out.append("\nThe noise pass has not finished yet.")
     return "\n".join(out)
 
 
@@ -801,9 +984,12 @@ def b_cost(m):
                      f"{x['cv_select_plus_fit_seconds']:.0f} s including the hyperparameter search"))
     out = [table(("System", "Time per decision", "Tokens", "Notes"), rows)]
     if "v2" in c and "tfidf_lr" in c:
-        ratio = c["v2"]["median_s"] * 1000 / c["tfidf_lr"]["predict_ms_per_item_one_by_one"]
-        out.append(f"\nOne judge v2 decision costs about {ratio:,.0f} times the wall time of one "
-                   "logistic-regression decision on this machine.")
+        ratio = c["v2"]["mean_s"] * 1000 / c["tfidf_lr"]["predict_ms_per_item_one_by_one"]
+        out.append(f"\nA judge decision took between {c['v2']['min_s_all_calls']:.0f} and "
+                   f"{c['v2']['max_s_all_calls']:.0f} seconds in one evening on this laptop, so the ratio to one "
+                   f"logistic-regression decision is only an order of magnitude: about {round(ratio, -3):,.0f} "
+                   f"times. Per 1,000 decisions (DEV mean): {c['v1']['hours_per_1000']:.1f} h for v1 and "
+                   f"{c['v2']['hours_per_1000']:.1f} h for v2.")
     a = c["all_calls"]
     out.append(f"\nAll model calls on record: {a['calls']:,}, {a['hours']:.2f} hours of model time "
                f"(sum of per-call wall time); answers cut off by the output limit: {a['truncated']}; "
@@ -837,6 +1023,7 @@ def b_cost(m):
 
 
 BLOCKS = {            # every block, in the order of results/report.md
+    "lead": b_lead,
     "summary": b_summary,
     "settings": b_settings,
     "data": b_data,
@@ -847,6 +1034,7 @@ BLOCKS = {            # every block, in the order of results/report.md
     "error_groups": b_error_groups,
     "error_analysis": b_error_analysis,
     "v1v2": b_v1v2,
+    "issuer": b_issuer,
     "gaming_summary": b_gaming_summary,
     "gaming": b_gaming,
     "retest_summary": b_retest_summary,
@@ -860,9 +1048,10 @@ BLOCKS = {            # every block, in the order of results/report.md
     "test_results": b_test_results,
     "estimates": b_estimates,
     "cost": b_cost,
+    "deviation_facts": b_deviation_facts,
 }
-README_BLOCKS = ("summary", "v1v2", "retest_summary", "inputs", "error_groups", "gaming_summary",
-                 "automation_summary", "human", "test_results")   # the README must contain at least these
+README_BLOCKS = ("lead", "summary", "v1v2", "retest_summary", "inputs", "error_groups", "gaming_summary",
+                 "automation_summary", "human", "test_results", "deviation_facts")   # the README must contain at least these
 
 
 def render(text: str, m: dict) -> str:

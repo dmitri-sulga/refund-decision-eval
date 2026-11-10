@@ -117,3 +117,20 @@ def test_the_two_kinds_of_automated_error_are_counted_apart():
     assert (r["n_auto"], r["wrong_no_relief"], r["wrong_relief"]) == (4, 1, 1)
     assert M.bootstrap(y, pred, B=50)["confusion"] == {"relief_relief": 1, "relief_none": 1,
                                                        "none_relief": 2, "none_none": 1}
+
+
+def test_auc_and_within_group_auc_by_hand():
+    y = [1, 0, 1, 0]
+    assert M.auc(y, [0.9, 0.1, 0.8, 0.2]) == 1.0
+    assert M.auc(y, [0.5, 0.5, 0.5, 0.5]) == 0.5
+    assert math.isnan(M.auc([1, 1], [0.1, 0.2]))
+    # inside each group the order is reversed; across groups one pair is in order
+    y, s, g = [1, 0, 1, 0], [0.9, 0.95, 0.1, 0.2], ["a", "a", "b", "b"]
+    assert M.within_group_auc(y, s, g) == 0.0 and M.auc(y, s) == 0.25
+
+
+def test_threshold_tolerates_last_digit_noise():
+    y, pred = np.array([0, 0, 1]), np.array([0, 0, 0])
+    conf = np.array([0.7316803363204014, 0.9, 0.2])
+    r = M.at_threshold(y, pred, conf, 0.7316803363204015, B=50, seed=0)
+    assert r["n_auto"] == 2 and r["agreement_wilson"][0] < 1.0

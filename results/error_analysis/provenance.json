@@ -1,0 +1,11 @@
+{
+ "produced_by": "an AI coding assistant working on this repository (not the judged model)",
+ "cases_read_by_the_author": 0,
+ "v1_dev_run_finished": "2026-11-09T19:56:54+00:00",
+ "disagreements_exported_for_reading": "2026-11-09T19:57:41+00:00",
+ "v2_prompt_first_used": "2026-11-09T20:08:01+00:00",
+ "category_file_last_written": "2026-11-09T20:17:00+00:00",
+ "three_way_reading_added": "2026-11-09T22:35:00+00:00",
+ "cases_sorted_individually_into_the_three_way_reading": 24,
+ "source_of_times": "run log and cache for the first and third; file modification times noted during the session for the others (minute precision)"
+}

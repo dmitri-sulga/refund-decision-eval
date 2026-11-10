@@ -12,6 +12,7 @@ import numpy as np
 from . import config as C
 
 METRICS = ("accuracy", "kappa", "precision_1", "recall_1", "precision_0", "recall_0")
+THRESHOLD_TOLERANCE = 1e-9   # a threshold equals one case's confidence; last-digit float noise must not move it
 
 
 def _rates(Y: np.ndarray, P: np.ndarray) -> dict:
@@ -92,6 +93,40 @@ def paired_difference(y, p_a, p_b, B: int = C.BOOTSTRAP_B, seed: int = C.BOOTSTR
     return out
 
 
+def auc(y, score) -> float:
+    """Probability that a relief case is scored above a no-relief case (ties count half)."""
+    y, score = np.asarray(y).astype(bool), np.asarray(score, dtype=float)
+    pos, neg = score[y], score[~y]
+    if len(pos) == 0 or len(neg) == 0:
+        return math.nan
+    d = pos[:, None] - neg[None, :]
+    return float(((d > 0).sum() + 0.5 * (d == 0).sum()) / d.size)
+
+
+def within_group_auc(y, score, groups) -> float:
+    """AUC over pairs of one relief and one no-relief case from the same group
+    (here: the same issuer), pooled over groups."""
+    y, score, groups = np.asarray(y).astype(bool), np.asarray(score, dtype=float), np.asarray(groups)
+    wins = pairs = 0.0
+    for g in np.unique(groups):
+        m = groups == g
+        pos, neg = score[m & y], score[m & ~y]
+        if len(pos) and len(neg):
+            d = pos[:, None] - neg[None, :]
+            wins += (d > 0).sum() + 0.5 * (d == 0).sum()
+            pairs += d.size
+    return float(wins / pairs) if pairs else math.nan
+
+
+def bootstrap_stat(fn, n: int, B: int = 2000, seed: int = C.BOOTSTRAP_SEED) -> dict:
+    """Percentile interval of fn(idx) over resampled complaint indices."""
+    rng = np.random.default_rng(seed)
+    reps = np.array([fn(rng.integers(0, n, n)) for _ in range(B)], dtype=float)
+    reps = reps[~np.isnan(reps)]
+    return {"value": float(fn(np.arange(n))), "lo": float(np.percentile(reps, 2.5)),
+            "hi": float(np.percentile(reps, 97.5))}
+
+
 def wilson(k: int, n: int, z: float = 1.959963984540054) -> tuple[float, float]:
     """Wilson score interval for a binomial proportion (good at 0/n)."""
     if n == 0:
@@ -141,7 +176,7 @@ def choose_threshold(y, pred, conf, target: float = C.TARGET_AGREEMENT,
 def at_threshold(y, pred, conf, t, B: int = C.BOOTSTRAP_B, seed: int = C.BOOTSTRAP_SEED) -> dict:
     """Coverage and agreement when automating conf >= t, with bootstrap CIs."""
     y, pred, conf = np.asarray(y), np.asarray(pred), np.asarray(conf, dtype=float)
-    auto = ~np.isnan(conf) & (conf >= t)
+    auto = ~np.isnan(conf) & (conf >= t - THRESHOLD_TOLERANCE)
     n, k = len(y), int(auto.sum())
     agree = (y == pred)
     idx = _indices(n, B, seed)
@@ -157,6 +192,7 @@ def at_threshold(y, pred, conf, t, B: int = C.BOOTSTRAP_B, seed: int = C.BOOTSTR
         "agreement": {"value": float(agree[auto].mean()) if k else math.nan,
                       "lo": float(np.percentile(acc, 2.5)) if len(acc) else math.nan,
                       "hi": float(np.percentile(acc, 97.5)) if len(acc) else math.nan},
+        "agreement_wilson": list(wilson(int(agree[auto].sum()), k)),
         "auto_relief": int(pred[auto].sum()), "auto_no_relief": int(k - pred[auto].sum()),
         # the two kinds of error among automated decisions, kept apart
         "wrong_no_relief": int((auto & (pred == 0) & (y == 1)).sum()),

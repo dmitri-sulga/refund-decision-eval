@@ -4,12 +4,14 @@ python -m judge.errors --export v1
     writes results/tmp/v1_dev_disagreements.md (every disagreement, full text) for reading.
 
 The annotations live in results/error_analysis/<version>_dev.csv, one row per
-disagreement: complaint_id, category, group, group_basis, quote, note. The group
-is one of three coarse readings (model wrong / recorded decision questionable /
-not decidable from the text); group_basis says whether it was assigned by reading
-the case ('read') or follows from the definition of its category ('category'). `validate` checks that every
-disagreement is annotated exactly once (no cherry-picking) and that every quote
-is a verbatim substring of the complaint narrative (no invented evidence).
+disagreement: complaint_id, category, group, group_basis, example, quote, note.
+They were drafted by an AI coding assistant, not by the author (see
+results/error_analysis/provenance.json). The group is a coarse three-way
+reading (model wrong / recorded decision questionable / not decidable from the
+text) and is filled only for the cases that were sorted individually
+(group_basis == 'read'); the other cases carry a category only. `validate`
+checks that every disagreement is annotated exactly once and that every quote
+is a verbatim substring of the complaint narrative.
 """
 from __future__ import annotations
 
@@ -78,7 +80,7 @@ def validate(version: str, rows: list[dict], records: dict, expected_ids: set) -
     for r in rows:
         if r["quote"] and _norm(r["quote"]) not in _norm(records[r["complaint_id"]]["narrative"]):
             raise ValueError(f"quote for {r['complaint_id']} is not in the narrative")
-        if r["group"] not in GROUPS or r["group_basis"] not in ("read", "category"):
+        if (r["group"], r["group_basis"]) != ("", "") and (r["group"] not in GROUPS or r["group_basis"] != "read"):
             raise ValueError(f"bad group for {r['complaint_id']}")
 
 

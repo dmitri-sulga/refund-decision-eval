@@ -43,7 +43,8 @@ SPLIT_SEED = 20261109
 N_DEBUG = 12     # prompt smoke tests and timing only; never scored
 N_DEV = 200      # iterate here
 N_TEST = 250     # touched exactly once
-N_TRAIN = 8000   # classic baseline only (the DEV learning curve is flat beyond ~2000)
+N_TRAIN = 8000   # classic baseline only. The size was chosen with a DEV learning curve in view, before
+                 # the plan was committed; that curve was not flat (see the learning-curve table).
 NEAR_DUP_COSINE = 0.5   # word-trigram TF-IDF cosine; groups collapse to one record
 
 # ---------------------------------------------------------------- model

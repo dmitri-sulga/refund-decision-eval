@@ -82,6 +82,93 @@ def company_rule(train_ids, records):
     return lambda rec: int(rate.get(rec["company"], overall) > 0.5), rate
 
 
+ISSUER_PSEUDO_COUNT = 10
+
+
+def issuer_rate(train_ids, records):
+    """Added after DEV results (review): the issuer's TRAIN relief rate, smoothed
+    towards the overall rate with ISSUER_PSEUDO_COUNT pseudo-complaints, as a
+    score; relief is predicted when it is above the overall TRAIN rate. Uses the
+    company field only, which no text system is given."""
+    by_co: dict[str, list[int]] = {}
+    for i in train_ids:
+        by_co.setdefault(records[i]["company"], []).append(records[i]["label"])
+    base = float(np.mean([records[i]["label"] for i in train_ids]))
+    rate = {co: (sum(v) + ISSUER_PSEUDO_COUNT * base) / (len(v) + ISSUER_PSEUDO_COUNT) for co, v in by_co.items()}
+    return (lambda rec: rate.get(rec["company"], base)), base, rate
+
+
+GENERIC_COMPANY_WORDS = {
+    "bank", "banks", "financial", "finance", "corporation", "corp", "company", "inc", "llc", "ltd", "national",
+    "association", "services", "service", "holdings", "holding", "group", "credit", "card", "cards", "union",
+    "federal", "first", "one", "the", "and", "of", "usa", "america", "american", "united", "states", "trust",
+    "savings", "community", "capital", "state", "city", "new", "north", "south", "east", "west", "global",
+    "international", "partners", "solutions", "systems", "payments", "payment", "loan", "loans", "mortgage",
+    "consumer", "customer", "member", "members", "cash", "money", "pay", "express", "citizens", "people",
+    "peoples", "home", "street", "main", "valley", "mountain", "river", "ocean", "bay", "lake", "shop", "way",
+}
+ISSUER_ALIASES = ("bank of america", "bofa", "boa", "capital one", "cap one", "american express", "amex",
+                  "citi", "citicard", "citicards", "us bank", "u.s. bank", "cash app", "apple card", "td bank",
+                  "navy federal", "wells fargo", "goldman sachs", "credit one", "first premier", "one main")
+
+
+def issuer_pattern(train_ids, records, min_complaints: int = 20, min_share: float = 0.10, min_lift: float = 5.0):
+    """Words that identify an issuer, for the masked-text baseline only. A word
+    of a company name (three letters or more, not a generic corporate word) is
+    kept if the company has at least `min_complaints` TRAIN complaints, the word
+    occurs in at least `min_share` of that company's TRAIN narratives, and at
+    least `min_lift` times as often there as in the narratives of all other
+    companies. A short list of common short names is added by hand."""
+    import re
+
+    texts = {i: set(re.findall(r"[a-z]+", records[i]["narrative"].lower())) for i in train_ids}
+    by_co: dict[str, list[str]] = {}
+    for i in train_ids:
+        by_co.setdefault(records[i]["company"], []).append(i)
+    words = set()
+    for co, ids in by_co.items():
+        if len(ids) < min_complaints:
+            continue
+        inside = set(ids)
+        for w in set(re.findall(r"[a-z]+", co.lower())):
+            if len(w) < 3 or w in GENERIC_COMPANY_WORDS:
+                continue
+            share_in = sum(w in texts[i] for i in ids) / len(ids)
+            share_out = sum(w in texts[i] for i in train_ids if i not in inside) / (len(train_ids) - len(ids))
+            if share_in >= min_share and share_in >= min_lift * share_out:
+                words.add(w)
+    alternatives = sorted(words | set(ISSUER_ALIASES), key=len, reverse=True)
+    return re.compile(r"\b(?:" + "|".join(re.escape(w).replace(r"\ ", r"\s+") for w in alternatives) + r")\b",
+                      re.I), words
+
+
+def masked_text(rec: dict, pattern) -> str:
+    return pattern.sub("ISSUER", classic_text(rec))
+
+
+def fit_masked_lr(train_ids, records, params: dict, pattern):
+    """The same TF-IDF model with issuer words masked in TRAIN and at prediction
+    (added after DEV results; hyperparameters are those of the main model)."""
+    return make_lr(params).fit([masked_text(records[i], pattern) for i in train_ids],
+                               np.array([records[i]["label"] for i in train_ids]))
+
+
+def first_commit_grid(cv_scores: list) -> dict:
+    """The hyperparameters the grid of the first commit (four values of C, no class
+    weighting) would have selected, from the same cross-validation scores."""
+    old = [r for r in cv_scores if r["class_weight"] is None and r["C"] in (0.25, 1.0, 4.0, 16.0)]
+    best = max(old, key=lambda r: r["cv_kappa"])
+    return {"C": best["C"], "class_weight": None}
+
+
+def top_features(model, k: int = 12) -> dict:
+    names = model.named_steps["tfidf"].get_feature_names_out()
+    coef = model.named_steps["lr"].coef_[0]
+    order = np.argsort(coef)
+    return {"towards_relief": [names[i] for i in order[::-1][:k]],
+            "towards_no_relief": [names[i] for i in order[:k]]}
+
+
 def keyword_rule(train_ids, records):
     """A rule a person could write: predict relief when the narrative matches a
     set of keyword cues (cues.py). Candidates are every single cue, the union of

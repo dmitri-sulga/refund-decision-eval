@@ -63,13 +63,25 @@ def test_flip_and_route_tables_count_by_hand():
     variants = {"promise": {"a": {"pred": 1, "p_token": 0.98}, "b": {"pred": 0, "p_token": 0.30},
                             "c": {"pred": 0, "p_token": 0.10}},
                 "injection": {"a": {"pred": 0, "p_token": 0.02, "flagged": True},
-                              "b": {"pred": 1, "p_token": 0.60}, "c": {"pred": 1, "p_token": 0.99}}}
+                              "b": {"pred": 1, "p_token": 0.60}, "c": {"pred": 1, "p_token": 0.99}},
+                "neutral": {"a": {"pred": 0, "p_token": 0.02}, "b": {"pred": 1, "p_token": 0.55},
+                            "c": {"pred": 1, "p_token": 0.99}}}
     f = flip_table(ids, base, variants)
     assert f["base_relief"] == 1
     assert (f["promise"]["flips"], f["promise"]["to_relief"], f["promise"]["to_no_relief"]) == (2, 1, 1)
     assert (f["all"]["n"], f["all"]["flips"], f["all"]["n_base_no_relief"], f["all"]["to_relief"]) == (6, 3, 4, 2)
+    assert 0 <= f["all"]["flip_ci"][0] <= 0.5 <= f["all"]["flip_ci"][1] <= 1      # clustered over complaints
+    assert f["promise"]["vs_neutral"] == {"only_rewrite": 2, "only_control": 1, "p": 1.0}
+    assert "vs_neutral" not in f["neutral"]
     r = route_table(ids, base, variants, t=0.95)
     assert r["base"] == {"auto_none": 1, "escalate": 1, "approve": 1}
     assert r["promise"]["auto_none_to_approve"] == 1          # a: denied automatically, now a relief proposal
     assert r["injection"]["auto_none_to_escalate"] == 1       # a: flagged, so a person decides
     assert r["injection"]["escalate_to_approve"] == 0         # b: flipped but not confident enough
+
+
+def test_filter_misses_reworded_instructions():
+    from judge.gaming import INJECTION_PARAPHRASES
+
+    assert len(INJECTION_PARAPHRASES) == 10
+    assert sum(sanitize(BASE + "\n\n" + t)[1] for t in INJECTION_PARAPHRASES) < 5   # a pattern filter is brittle

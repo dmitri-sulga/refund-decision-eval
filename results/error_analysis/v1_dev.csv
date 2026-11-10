@@ -1,102 +1,102 @@
 complaint_id,category,group,group_basis,example,quote,note
-7622660,issuer_already_denied,undecidable,category,,Wells Fargo has now declined reimbursement,fraud claim declined after ATM cash advances
+7622660,issuer_already_denied,,,,Wells Fargo has now declined reimbursement,fraud claim declined after ATM cash advances
 7673601,statement_mechanics,undecidable,read,,It was NOT deducted from my monthly statement,reads statement credits and a provisional fraud credit as missing
 7693907,already_credited,model_wrong,read,,CITI IS MANAGING AND HAVE NEW ACCOUNTS,issuer already handling recurring fraud
 7701448,judge_misread,model_wrong,read,,"My credit return, it wasn't post in statement",judge dismissed an unclear narrative that does describe a missing return credit
-7704861,issuer_already_denied,undecidable,category,,resolved the fraudulent charges in favor of the merchant,overcharge dispute decided for the merchant
-7775105,issuer_already_denied,undecidable,category,,did not issue refund when I disputed charge,
-7828948,issuer_already_denied,undecidable,category,,Filed a dispute with Wells Fargo but they refused to help me,
-7862369,issuer_already_denied,undecidable,category,,Citi Card closed the investigation,defective item dispute closed
-7875311,issuer_already_denied,undecidable,category,,They informed me that it was not fraud,
+7704861,issuer_already_denied,,,,resolved the fraudulent charges in favor of the merchant,overcharge dispute decided for the merchant
+7775105,issuer_already_denied,,,,did not issue refund when I disputed charge,
+7828948,issuer_already_denied,,,,Filed a dispute with Wells Fargo but they refused to help me,
+7862369,issuer_already_denied,,,,Citi Card closed the investigation,defective item dispute closed
+7875311,issuer_already_denied,,,,They informed me that it was not fraud,
 7910475,already_credited,model_wrong,read,,They solved it by refunding each and every charge ever made on the card,earlier regulator complaint already refunded everything
 7911708,company_goodwill,model_wrong,read,,I did not stay at the hotel,judge applied the cancellation deadline; company refunded
-7928367,investigation_pending,undecidable,category,,said they would look into it,
-7929105,issuer_already_denied,undecidable,category,,found insufficient evidence of fraud,
-7964722,investigation_pending,undecidable,category,,until the charge was investigated I would have to make payments,
+7928367,investigation_pending,,,,said they would look into it,
+7929105,issuer_already_denied,,,,found insufficient evidence of fraud,
+7964722,investigation_pending,,,,until the charge was investigated I would have to make payments,
 7987378,judge_misread,model_wrong,read,,these unauthorized charges were made,judge treated it as a credit-reporting complaint
-8052440,issuer_already_denied,undecidable,category,,ruled in favor of the merchant,return dispute
+8052440,issuer_already_denied,,,,ruled in favor of the merchant,return dispute
 8161810,issuer_error_missed,model_wrong,read,,Their explanation makes no sense,issuer could not explain a balance transfer charge
-8199099,vague_or_silent,undecidable,category,,only to get a run around from the company,two sentences; no issuer decision described
-8231576,issuer_already_denied,undecidable,category,,Navy Federal replied they tried their best but cant recover the funds,
-8291262,vague_or_silent,undecidable,category,,An unauthorized user had made over 40 transactions,claim filed; nothing on what the issuer decided
-8426121,issuer_already_denied,undecidable,category,,they could not remove the charge as the merchant had not cancelled the agreement,
-8461741,issuer_already_denied,undecidable,category,,just close out my dispute with the bill remaining on my account,
-8491744,issuer_already_denied,undecidable,category,,their inept claims department rejected my dispute,
-8566453,issuer_already_denied,undecidable,category,,I was told it was found valid as i didnt have adequate proof,
-8639269,issuer_already_denied,undecidable,category,,chase closed my disputes within 24 hours saying that the charges were valid,
-8718791,issuer_already_denied,undecidable,category,,Capital one is refusing to credit back the money after several disputes,
+8199099,vague_or_silent,,,,only to get a run around from the company,two sentences; no issuer decision described
+8231576,issuer_already_denied,,,,Navy Federal replied they tried their best but cant recover the funds,
+8291262,vague_or_silent,,,,An unauthorized user had made over 40 transactions,claim filed; nothing on what the issuer decided
+8426121,issuer_already_denied,,,,they could not remove the charge as the merchant had not cancelled the agreement,
+8461741,issuer_already_denied,,,,just close out my dispute with the bill remaining on my account,
+8491744,issuer_already_denied,,,,their inept claims department rejected my dispute,
+8566453,issuer_already_denied,,,,I was told it was found valid as i didnt have adequate proof,
+8639269,issuer_already_denied,,,,chase closed my disputes within 24 hours saying that the charges were valid,
+8718791,issuer_already_denied,,,,Capital one is refusing to credit back the money after several disputes,
 8867817,company_reversed_denial,record_questionable,read,yes,they performed a chargeback,scam payments; issuer had refused one of three and paid after the complaint
-8869151,issuer_already_denied,undecidable,category,,said that I did have to pay for them,
-9024270,issuer_already_denied,undecidable,category,,"the bank decided on the dispute, which was not in my favor",
-9066434,investigation_pending,undecidable,category,,initiated a charge dispute,dispute opened just before the complaint
+8869151,issuer_already_denied,,,,said that I did have to pay for them,
+9024270,issuer_already_denied,,,,"the bank decided on the dispute, which was not in my favor",
+9066434,investigation_pending,,,,initiated a charge dispute,dispute opened just before the complaint
 9168772,not_a_money_request,model_wrong,read,,they still do not remove the acct from my name,
-9300791,issuer_already_denied,undecidable,category,,they decided to reverse their decision and recharged me,
-9385208,issuer_already_denied,undecidable,category,,I was unsuccessful with them helping for around 4-5 times,
-9392211,vague_or_silent,undecidable,category,,Im still being charged for them,one sentence
-9398414,issuer_already_denied,undecidable,category,,they sent a letter saying the charge was legit and put it back on the card,
-9406678,vague_or_silent,undecidable,category,,are attached,police report text; nothing on what the issuer decided
-9409202,vague_or_silent,undecidable,category,,MY ACCOUNTS ARE CONSTANTLY VICTIM TO CYBERCRIME,no transaction described
+9300791,issuer_already_denied,,,,they decided to reverse their decision and recharged me,
+9385208,issuer_already_denied,,,,I was unsuccessful with them helping for around 4-5 times,
+9392211,vague_or_silent,,,,Im still being charged for them,one sentence
+9398414,issuer_already_denied,,,,they sent a letter saying the charge was legit and put it back on the card,
+9406678,vague_or_silent,,,,are attached,police report text; nothing on what the issuer decided
+9409202,vague_or_silent,,,,MY ACCOUNTS ARE CONSTANTLY VICTIM TO CYBERCRIME,no transaction described
 9700496,statement_mechanics,undecidable,read,,a generic transfer debit from the old account to the new one,balance moved to the replacement card read as a new charge
 9927169,issuer_error_missed,undecidable,read,,has not responded to my dispute within the timeframe required by law,template letter; issuer missed the dispute deadline
 10055919,service_quality,undecidable,read,,there was no internet at all in these cabins and no TV,
 10127800,judge_misread,model_wrong,read,yes,I used Care Credit to charge,judge invented an exclusion for dental services
-10138120,issuer_already_denied,undecidable,category,,chase is saying we still owe,
+10138120,issuer_already_denied,,,,chase is saying we still owe,
 10140997,company_reversed_denial,model_wrong,read,,the original decision will remain because there is no evidence to substantiate the claim,denied four times; paid after the complaint
-10274588,issuer_already_denied,undecidable,category,,since I couldn't prove I didn't pick it up,
+10274588,issuer_already_denied,,,,since I couldn't prove I didn't pick it up,
 10319118,statement_mechanics,model_wrong,read,,they allow the merchant up to XXXX days to process the transaction,pending authorisations read as duplicate charges
-10386932,investigation_pending,undecidable,category,,it is now classified as an investigation and may take 60 to 100 days,
-10476339,issuer_already_denied,undecidable,category,,due to lack of sufficient documentation,
-10502753,issuer_already_denied,undecidable,category,,Discover reversed the temporary credit and closed the dispute,
-10643975,issuer_already_denied,undecidable,category,,they kept denying me,
-10986814,vague_or_silent,undecidable,category,,through an internet site that I am totally unaware of,no transaction described
+10386932,investigation_pending,,,,it is now classified as an investigation and may take 60 to 100 days,
+10476339,issuer_already_denied,,,,due to lack of sufficient documentation,
+10502753,issuer_already_denied,,,,Discover reversed the temporary credit and closed the dispute,
+10643975,issuer_already_denied,,,,they kept denying me,
+10986814,vague_or_silent,,,,through an internet site that I am totally unaware of,no transaction described
 11161022,service_quality,undecidable,read,,because of their bad service and parts,
-11175459,vague_or_silent,undecidable,category,,They have been deducting XXXX cent everyday 3 times in a day,
-11382121,issuer_already_denied,undecidable,category,,they did not reverse the transactions and subsequently sent my account to collections,
-11435398,issuer_already_denied,undecidable,category,,they found the charges valid even after i sent them proof,
-11550587,issuer_already_denied,undecidable,category,,ruled in favor of the merchant,
-11564666,investigation_pending,undecidable,category,,still insists that this needs further investigation,
-11751934,issuer_already_denied,undecidable,category,,they said they did not know and closed the dispute,
+11175459,vague_or_silent,,,,They have been deducting XXXX cent everyday 3 times in a day,
+11382121,issuer_already_denied,,,,they did not reverse the transactions and subsequently sent my account to collections,
+11435398,issuer_already_denied,,,,they found the charges valid even after i sent them proof,
+11550587,issuer_already_denied,,,,ruled in favor of the merchant,
+11564666,investigation_pending,,,,still insists that this needs further investigation,
+11751934,issuer_already_denied,,,,they said they did not know and closed the dispute,
 11867004,issuer_error_missed,model_wrong,read,,"the dispute was resolved, and the amount was removed",issuer said the amount was removed but it was still on the balance
-12034943,issuer_already_denied,undecidable,category,,they denied my dispute no information why,
-12065716,issuer_already_denied,undecidable,category,,the charge was once again found not fraudulent,
+12034943,issuer_already_denied,,,,they denied my dispute no information why,
+12065716,issuer_already_denied,,,,the charge was once again found not fraudulent,
 12162550,already_credited,undecidable,read,,The last time the majority of the charges were removed,rest promised to be removed
-12201415,issuer_already_denied,undecidable,category,,They denied my dispute and claimed it was merchant fault,
-12290863,investigation_pending,undecidable,category,,Then I submitted the documentation,dispute reopened
-12318691,issuer_already_denied,undecidable,category,,dispute denied twice,in-app purchase by a minor
-12377400,investigation_pending,undecidable,category,,she would open a new investigation into the fraudulent transaction,
-12484586,issuer_already_denied,undecidable,category,,saying I am responsible for,screen-sharing scam
-12794342,issuer_already_denied,undecidable,category,,They have declined the claim 3 times,
-13021578,issuer_already_denied,undecidable,category,,Bank of America rejected it twice,
-13136717,issuer_already_denied,undecidable,category,,who declined to reopen the case,
-13177529,issuer_already_denied,undecidable,category,,they are stupidly holding me liable for charges made in between those transactions,partly credited
-13189967,issuer_already_denied,undecidable,category,,Amex rebilled me for the full amount after initially crediting it back,
+12201415,issuer_already_denied,,,,They denied my dispute and claimed it was merchant fault,
+12290863,investigation_pending,,,,Then I submitted the documentation,dispute reopened
+12318691,issuer_already_denied,,,,dispute denied twice,in-app purchase by a minor
+12377400,investigation_pending,,,,she would open a new investigation into the fraudulent transaction,
+12484586,issuer_already_denied,,,,saying I am responsible for,screen-sharing scam
+12794342,issuer_already_denied,,,,They have declined the claim 3 times,
+13021578,issuer_already_denied,,,,Bank of America rejected it twice,
+13136717,issuer_already_denied,,,,who declined to reopen the case,
+13177529,issuer_already_denied,,,,they are stupidly holding me liable for charges made in between those transactions,partly credited
+13189967,issuer_already_denied,,,,Amex rebilled me for the full amount after initially crediting it back,
 13421618,issuer_error_missed,model_wrong,read,,then revoked the provisional credit the same day as if their investigation were complete,rebilling before the investigation ended
-13586240,issuer_already_denied,undecidable,category,,today they reversed that decision and again charged me,
+13586240,issuer_already_denied,,,,today they reversed that decision and again charged me,
 13594285,already_credited,undecidable,read,,told me they are closing the debit card and to come pick-up another card,issuer caught the fraud itself
-13606868,issuer_already_denied,undecidable,category,,Chase originally denied my dispute,
+13606868,issuer_already_denied,,,,Chase originally denied my dispute,
 13736410,company_goodwill,model_wrong,read,,I seen another charge the same month,small repeat membership charge refunded
-13777188,investigation_pending,undecidable,category,,it takes up to 60 days to resolve a dispute,
-13830534,issuer_already_denied,undecidable,category,,maintaining that I owe,
-13894520,investigation_pending,undecidable,category,,I have not received confirmation of a resolution,
-14285130,issuer_already_denied,undecidable,category,,Bank of America denied my claim citing that the refund occurred more than 60 days before I filed the dispute,
-15095594,issuer_already_denied,undecidable,category,,they automatically sided with XXXX XXXX without reviewing my evidence,
-15429262,issuer_already_denied,undecidable,category,,The company refuses to remove fraudulent charges that I reported on my account,
-15547596,issuer_already_denied,undecidable,category,,they concluded that I had made the remaining 49 additional purchases,partly credited
-15627192,issuer_already_denied,undecidable,category,,the company keeps closing the disputes without resolving the issue,
+13777188,investigation_pending,,,,it takes up to 60 days to resolve a dispute,
+13830534,issuer_already_denied,,,,maintaining that I owe,
+13894520,investigation_pending,,,,I have not received confirmation of a resolution,
+14285130,issuer_already_denied,,,,Bank of America denied my claim citing that the refund occurred more than 60 days before I filed the dispute,
+15095594,issuer_already_denied,,,,they automatically sided with XXXX XXXX without reviewing my evidence,
+15429262,issuer_already_denied,,,,The company refuses to remove fraudulent charges that I reported on my account,
+15547596,issuer_already_denied,,,,they concluded that I had made the remaining 49 additional purchases,partly credited
+15627192,issuer_already_denied,,,,the company keeps closing the disputes without resolving the issue,
 15638848,not_a_money_request,model_wrong,read,,"Bank of America refused, leaving me unable to protect my identity",asks for hardship letters and account changes
-16078626,issuer_already_denied,undecidable,category,,has declined to pursue any further investigation,
-16292214,issuer_already_denied,undecidable,category,,the claim was denied,
-16701752,issuer_already_denied,undecidable,category,,they are denying me my funds to be returned,
-16900829,issuer_already_denied,undecidable,category,yes,the claim came back denied stating with physical chip was used,
-17121215,issuer_already_denied,undecidable,category,,Bank of America denied my claim multiple times,
-17152755,issuer_already_denied,undecidable,category,,because the disputed amount is past XXXX days,
-17228482,issuer_already_denied,undecidable,category,,the bank reversed the credit adjustment,
-17848217,issuer_already_denied,undecidable,category,,closed my case based solely on the fact that the package was delivered,
-17953009,issuer_already_denied,undecidable,category,,the bank sided with the fake online seller,
+16078626,issuer_already_denied,,,,has declined to pursue any further investigation,
+16292214,issuer_already_denied,,,,the claim was denied,
+16701752,issuer_already_denied,,,,they are denying me my funds to be returned,
+16900829,issuer_already_denied,,,yes,the claim came back denied stating with physical chip was used,
+17121215,issuer_already_denied,,,,Bank of America denied my claim multiple times,
+17152755,issuer_already_denied,,,,because the disputed amount is past XXXX days,
+17228482,issuer_already_denied,,,,the bank reversed the credit adjustment,
+17848217,issuer_already_denied,,,,closed my case based solely on the fact that the package was delivered,
+17953009,issuer_already_denied,,,,the bank sided with the fake online seller,
 18036527,statement_mechanics,undecidable,read,,were transferred over to the new account and then charged twice for each one,
-18043292,issuer_already_denied,undecidable,category,,they had ruled in favor of the merchant solely because the merchant provided,
+18043292,issuer_already_denied,,,,they had ruled in favor of the merchant solely because the merchant provided,
 18053710,company_goodwill,record_questionable,read,,especially over {$110.00},return shipping abroad; small amount refunded
-18160791,investigation_pending,undecidable,category,,The case is still pending,
-18277080,issuer_already_denied,undecidable,category,,they accused me of using the my credit card,
-18388085,issuer_already_denied,undecidable,category,,American Express reversed the credit,
-18391282,issuer_already_denied,undecidable,category,,Chase rejected my dispute appeal,
+18160791,investigation_pending,,,,The case is still pending,
+18277080,issuer_already_denied,,,,they accused me of using the my credit card,
+18388085,issuer_already_denied,,,,American Express reversed the credit,
+18391282,issuer_already_denied,,,,Chase rejected my dispute appeal,

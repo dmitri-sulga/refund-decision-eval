@@ -982,6 +982,10 @@
       "lo": 0.75,
       "value": 0.9
      },
+     "agreement_wilson": [
+      0.698966,
+      0.972134
+     ],
      "auto_no_relief": 14,
      "auto_relief": 6,
      "coverage": {
@@ -5737,24 +5741,26 @@
   },
   "v1": {
    "calls": 200,
-   "hours_per_1000": 2.385278,
+   "hours_per_1000": 3.063531,
    "max_output_tokens": 53,
+   "max_s_all_calls": 41.373,
    "mean_output_tokens": 46.81,
    "mean_prompt_tokens": 727.045,
    "mean_s": 11.02871,
    "median_s": 9.6705,
-   "median_s_all_calls": 8.587,
+   "min_s_all_calls": 4.698,
    "p90_s": 16.7528
   },
   "v2": {
    "calls": 200,
-   "hours_per_1000": 3.041111,
+   "hours_per_1000": 3.653299,
    "max_output_tokens": 71,
+   "max_s_all_calls": 30.517,
    "mean_output_tokens": 68.6,
    "mean_prompt_tokens": 937.045,
    "mean_s": 13.151875,
    "median_s": 12.029,
-   "median_s_all_calls": 10.948,
+   "min_s_all_calls": 4.523,
    "p90_s": 20.5266
   }
  },
@@ -5923,6 +5929,18 @@
       "value": 0.079127
      }
     },
+    "issuer_rate": {
+     "accuracy": {
+      "hi": 0.75,
+      "lo": 0.57,
+      "value": 0.66
+     },
+     "kappa": {
+      "hi": 0.461217,
+      "lo": 0.096877,
+      "value": 0.282095
+     }
+    },
     "keyword_rule": {
      "accuracy": {
       "hi": 0.72,
@@ -5989,6 +6007,18 @@
       "hi": 0.063564,
       "lo": -0.151484,
       "value": -0.053864
+     }
+    },
+    "issuer_rate": {
+     "accuracy": {
+      "hi": 0.77,
+      "lo": 0.59,
+      "value": 0.68
+     },
+     "kappa": {
+      "hi": 0.52,
+      "lo": 0.170388,
+      "value": 0.350649
      }
     },
     "keyword_rule": {
@@ -6167,6 +6197,48 @@
     "only_second_agrees": 12
    }
   },
+  "issuer_rate": {
+   "accuracy": {
+    "hi": 0.735,
+    "lo": 0.605,
+    "value": 0.67
+   },
+   "base_rate": 0.3,
+   "confusion": {
+    "none_none": 91,
+    "none_relief": 49,
+    "relief_none": 17,
+    "relief_relief": 43
+   },
+   "invalid": 0,
+   "kappa": {
+    "hi": 0.441629,
+    "lo": 0.19,
+    "value": 0.318182
+   },
+   "n": 200,
+   "precision_0": {
+    "hi": 0.908257,
+    "lo": 0.772716,
+    "value": 0.842593
+   },
+   "precision_1": {
+    "hi": 0.571429,
+    "lo": 0.365368,
+    "value": 0.467391
+   },
+   "predicted_positive_rate": 0.46,
+   "recall_0": {
+    "hi": 0.727941,
+    "lo": 0.568493,
+    "value": 0.65
+   },
+   "recall_1": {
+    "hi": 0.828581,
+    "lo": 0.6,
+    "value": 0.716667
+   }
+  },
   "keyword_rule": {
    "accuracy": {
     "hi": 0.725,
@@ -6293,6 +6365,70 @@
     "value": 0.65
    }
   },
+  "tfidf_lr_minus_tfidf_masked": {
+   "accuracy": {
+    "hi": 0.085,
+    "lo": -0.015,
+    "value": 0.035
+   },
+   "kappa": {
+    "hi": 0.202747,
+    "lo": -0.02272,
+    "value": 0.087954
+   },
+   "transitions": {
+    "both_agree": 128,
+    "both_disagree": 45,
+    "gained_no_relief_cases": 9,
+    "gained_relief_cases": 8,
+    "lost_no_relief_cases": 7,
+    "lost_relief_cases": 3,
+    "only_first_agrees": 10,
+    "only_second_agrees": 17
+   }
+  },
+  "tfidf_masked": {
+   "accuracy": {
+    "hi": 0.75,
+    "lo": 0.625,
+    "value": 0.69
+   },
+   "base_rate": 0.3,
+   "confusion": {
+    "none_none": 104,
+    "none_relief": 36,
+    "relief_none": 26,
+    "relief_relief": 34
+   },
+   "invalid": 0,
+   "kappa": {
+    "hi": 0.432535,
+    "lo": 0.15334,
+    "value": 0.295455
+   },
+   "n": 200,
+   "precision_0": {
+    "hi": 0.865674,
+    "lo": 0.728,
+    "value": 0.8
+   },
+   "precision_1": {
+    "hi": 0.605634,
+    "lo": 0.36734,
+    "value": 0.485714
+   },
+   "predicted_positive_rate": 0.35,
+   "recall_0": {
+    "hi": 0.812903,
+    "lo": 0.668918,
+    "value": 0.742857
+   },
+   "recall_1": {
+    "hi": 0.691205,
+    "lo": 0.438596,
+    "value": 0.566667
+   }
+  },
   "v1": {
    "accuracy": {
     "hi": 0.565,
@@ -6333,6 +6469,50 @@
     "hi": 0.894756,
     "lo": 0.694903,
     "value": 0.8
+   }
+  },
+  "v1_minus_company_rule": {
+   "accuracy": {
+    "hi": -0.12,
+    "lo": -0.33,
+    "value": -0.225
+   },
+   "kappa": {
+    "hi": 0.116318,
+    "lo": -0.191489,
+    "value": -0.036417
+   },
+   "transitions": {
+    "both_agree": 58,
+    "both_disagree": 15,
+    "gained_no_relief_cases": 1,
+    "gained_relief_cases": 40,
+    "lost_no_relief_cases": 84,
+    "lost_relief_cases": 2,
+    "only_first_agrees": 86,
+    "only_second_agrees": 41
+   }
+  },
+  "v1_minus_issuer_rate": {
+   "accuracy": {
+    "hi": -0.08,
+    "lo": -0.27,
+    "value": -0.175
+   },
+   "kappa": {
+    "hi": -0.036437,
+    "lo": -0.359093,
+    "value": -0.197973
+   },
+   "transitions": {
+    "both_agree": 65,
+    "both_disagree": 32,
+    "gained_no_relief_cases": 19,
+    "gained_relief_cases": 15,
+    "lost_no_relief_cases": 59,
+    "lost_relief_cases": 10,
+    "only_first_agrees": 69,
+    "only_second_agrees": 34
    }
   },
   "v1_minus_tfidf_lr": {
@@ -6397,6 +6577,50 @@
     "hi": 0.246154,
     "lo": 0.064516,
     "value": 0.15
+   }
+  },
+  "v2_minus_company_rule": {
+   "accuracy": {
+    "hi": 0.015,
+    "lo": -0.095,
+    "value": -0.04
+   },
+   "kappa": {
+    "hi": 0.091997,
+    "lo": -0.260781,
+    "value": -0.086859
+   },
+   "transitions": {
+    "both_agree": 124,
+    "both_disagree": 44,
+    "gained_no_relief_cases": 4,
+    "gained_relief_cases": 8,
+    "lost_no_relief_cases": 11,
+    "lost_relief_cases": 9,
+    "only_first_agrees": 20,
+    "only_second_agrees": 12
+   }
+  },
+  "v2_minus_issuer_rate": {
+   "accuracy": {
+    "hi": 0.1,
+    "lo": -0.08,
+    "value": 0.01
+   },
+   "kappa": {
+    "hi": -0.060528,
+    "lo": -0.424253,
+    "value": -0.248414
+   },
+   "transitions": {
+    "both_agree": 90,
+    "both_disagree": 20,
+    "gained_no_relief_cases": 42,
+    "gained_relief_cases": 4,
+    "lost_no_relief_cases": 6,
+    "lost_relief_cases": 38,
+    "only_first_agrees": 44,
+    "only_second_agrees": 46
    }
   },
   "v2_minus_tfidf_lr": {
@@ -6587,6 +6811,11 @@
     "n": 2
    }
   ],
+  "category_only": {
+   "investigation_pending": 10,
+   "issuer_already_denied": 60,
+   "vague_or_silent": 7
+  },
   "groups": [
    {
     "example": {
@@ -6598,8 +6827,7 @@
     "judge_none_company_relief": 9,
     "judge_relief_company_none": 5,
     "label": "Model wrong: the judge misread the narrative or misapplied its own rubric",
-    "n": 14,
-    "read_individually": 14
+    "n": 14
    },
    {
     "example": {
@@ -6611,25 +6839,44 @@
     "judge_none_company_relief": 2,
     "judge_relief_company_none": 0,
     "label": "Recorded decision questionable or discretionary: the company paid a claim the rubric refuses, or reversed its own earlier answer",
-    "n": 2,
-    "read_individually": 2
+    "n": 2
    },
    {
     "example": {
-     "complaint_id": "16900829",
-     "note": "",
-     "quote": "the claim came back denied stating with physical chip was used"
+     "complaint_id": "7673601",
+     "note": "reads statement credits and a provisional fraud credit as missing",
+     "quote": "It was NOT deducted from my monthly statement"
     },
     "group": "undecidable",
     "judge_none_company_relief": 1,
-    "judge_relief_company_none": 84,
+    "judge_relief_company_none": 7,
     "label": "Not decidable from the text: the outcome turns on evidence the narrative does not contain (the issuer's investigation, a pending dispute, missing facts)",
-    "n": 85,
-    "read_individually": 8
+    "n": 8
    }
   ],
+  "n_category_only": 77,
   "n_dev": 200,
   "n_disagreements": 101,
+  "n_read": 24,
+  "prior_denial": {
+   "n_denied": 175,
+   "relief_rate_denied": 0.302857,
+   "relief_rate_other": 0.28,
+   "v1_agrees_among_denied": 87,
+   "v1_agrees_among_denied_relief": 41,
+   "v1_disagrees_among_denied": 88
+  },
+  "provenance": {
+   "cases_read_by_the_author": 0,
+   "cases_sorted_individually_into_the_three_way_reading": 24,
+   "category_file_last_written": "2026-11-09T20:17:00+00:00",
+   "disagreements_exported_for_reading": "2026-11-09T19:57:41+00:00",
+   "produced_by": "an AI coding assistant working on this repository (not the judged model)",
+   "source_of_times": "run log and cache for the first and third; file modification times noted during the session for the others (minute precision)",
+   "three_way_reading_added": "2026-11-09T22:35:00+00:00",
+   "v1_dev_run_finished": "2026-11-09T19:56:54+00:00",
+   "v2_prompt_first_used": "2026-11-09T20:08:01+00:00"
+  },
   "read_cases": [
    {
     "category": "already_credited",
@@ -6799,7 +7046,8 @@
     "note": "",
     "quote": "were transferred over to the new account and then charged twice for each one"
    }
-  ]
+  ],
+  "words_in_disagreements": 29193
  },
  "estimates": null,
  "fact_model": {
@@ -6870,6 +7118,13 @@
    "neutral"
   ],
   "filter": {
+   "answer_reused": {
+    "emotion": 0,
+    "fake_case_note": 0,
+    "injection": 30,
+    "legal_threat": 0,
+    "promise": 0
+   },
    "attacked_flagged": {
     "emotion": 0,
     "fake_case_note": 0,
@@ -6879,7 +7134,9 @@
     "promise": 0
    },
    "clean_flagged": 0,
-   "clean_n": 8200
+   "clean_n": 8200,
+   "paraphrases": 10,
+   "paraphrases_flagged": 0
   },
   "n_items": 30,
   "routing": {},
@@ -6887,8 +7144,8 @@
    "guarded": {
     "all": {
      "flip_ci": [
-      0.022787,
-      0.093186
+      0.013333,
+      0.086667
      ],
      "flip_rate": 0.046667,
      "flips": 7,
@@ -6922,7 +7179,12 @@
       0.0,
       0.113513
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     },
     "fake_case_note": {
      "flip_ci": [
@@ -6941,7 +7203,12 @@
       0.073365,
       0.335644
      ],
-     "to_relief_rate": 0.166667
+     "to_relief_rate": 0.166667,
+     "vs_neutral": {
+      "only_control": 0,
+      "only_rewrite": 4,
+      "p": 0.125
+     }
     },
     "injection": {
      "flip_ci": [
@@ -6960,7 +7227,12 @@
       0.0,
       0.113513
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     },
     "legal_threat": {
      "flip_ci": [
@@ -6979,7 +7251,12 @@
       0.0,
       0.113513
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     },
     "neutral": {
      "flip_ci": [
@@ -7017,7 +7294,12 @@
       0.018477,
       0.213235
      ],
-     "to_relief_rate": 0.066667
+     "to_relief_rate": 0.066667,
+     "vs_neutral": {
+      "only_control": 0,
+      "only_rewrite": 1,
+      "p": 1.0
+     }
     },
     "replay": {
      "flip_ci": [
@@ -7036,14 +7318,19 @@
       0.0,
       0.113513
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     }
    },
    "v1": {
     "all": {
      "flip_ci": [
-      0.1044,
-      0.21958
+      0.073333,
+      0.253333
      ],
      "flip_rate": 0.153333,
      "flips": 23,
@@ -7077,7 +7364,12 @@
       0.187616,
       0.812384
      ],
-     "to_relief_rate": 0.5
+     "to_relief_rate": 0.5,
+     "vs_neutral": {
+      "only_control": 2,
+      "only_rewrite": 2,
+      "p": 1.0
+     }
     },
     "fake_case_note": {
      "flip_ci": [
@@ -7096,7 +7388,12 @@
       0.609666,
       1.0
      ],
-     "to_relief_rate": 1.0
+     "to_relief_rate": 1.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 4,
+      "p": 0.375
+     }
     },
     "injection": {
      "flip_ci": [
@@ -7115,7 +7412,12 @@
       0.096771,
       0.700007
      ],
-     "to_relief_rate": 0.333333
+     "to_relief_rate": 0.333333,
+     "vs_neutral": {
+      "only_control": 2,
+      "only_rewrite": 6,
+      "p": 0.289062
+     }
     },
     "legal_threat": {
      "flip_ci": [
@@ -7134,7 +7436,12 @@
       0.187616,
       0.812384
      ],
-     "to_relief_rate": 0.5
+     "to_relief_rate": 0.5,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 2,
+      "p": 1.0
+     }
     },
     "neutral": {
      "flip_ci": [
@@ -7172,7 +7479,12 @@
       0.187616,
       0.812384
      ],
-     "to_relief_rate": 0.5
+     "to_relief_rate": 0.5,
+     "vs_neutral": {
+      "only_control": 2,
+      "only_rewrite": 2,
+      "p": 1.0
+     }
     },
     "replay": {
      "flip_ci": [
@@ -7191,14 +7503,19 @@
       0.0,
       0.390334
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 3,
+      "only_rewrite": 0,
+      "p": 0.25
+     }
     }
    },
    "v2": {
     "all": {
      "flip_ci": [
-      0.196421,
-      0.335564
+      0.206667,
+      0.313333
      ],
      "flip_rate": 0.26,
      "flips": 39,
@@ -7232,7 +7549,12 @@
       0.0,
       0.120643
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     },
     "fake_case_note": {
      "flip_ci": [
@@ -7251,7 +7573,12 @@
       0.822878,
       0.993667
      ],
-     "to_relief_rate": 0.964286
+     "to_relief_rate": 0.964286,
+     "vs_neutral": {
+      "only_control": 0,
+      "only_rewrite": 26,
+      "p": 0.0
+     }
     },
     "injection": {
      "flip_ci": [
@@ -7270,7 +7597,12 @@
       0.179332,
       0.506612
      ],
-     "to_relief_rate": 0.321429
+     "to_relief_rate": 0.321429,
+     "vs_neutral": {
+      "only_control": 0,
+      "only_rewrite": 8,
+      "p": 0.007812
+     }
     },
     "legal_threat": {
      "flip_ci": [
@@ -7289,7 +7621,12 @@
       0.0,
       0.120643
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     },
     "neutral": {
      "flip_ci": [
@@ -7327,7 +7664,12 @@
       0.037118,
       0.271959
      ],
-     "to_relief_rate": 0.107143
+     "to_relief_rate": 0.107143,
+     "vs_neutral": {
+      "only_control": 0,
+      "only_rewrite": 2,
+      "p": 0.5
+     }
     },
     "replay": {
      "flip_ci": [
@@ -7346,7 +7688,12 @@
       0.0,
       0.120643
      ],
-     "to_relief_rate": 0.0
+     "to_relief_rate": 0.0,
+     "vs_neutral": {
+      "only_control": 1,
+      "only_rewrite": 0,
+      "p": 1.0
+     }
     }
    }
   }
@@ -7362,6 +7709,59 @@
    "flagged": 0,
    "missing": 0
   }
+ },
+ "issuer": {
+  "first_commit_grid": {
+   "chosen": {
+    "C": 16.0,
+    "class_weight": null
+   },
+   "dev_kappa": 0.272487
+  },
+  "highest": [
+   "BANK OF AMERICA, NATIONAL ASSOCIATION",
+   0.631148,
+   581
+  ],
+  "issuer_words_masked": 23,
+  "issuers_above_half": 1.0,
+  "issuers_in_train": 164,
+  "lowest": [
+   "Block, Inc.",
+   0.079024,
+   104
+  ],
+  "top_features": {
+   "towards_no_relief": [
+    "chase",
+    "chime",
+    "discover",
+    "affirm",
+    "barclays",
+    "app",
+    "cash app",
+    "complaint",
+    "discover card",
+    "services",
+    "loan",
+    "avant"
+   ],
+   "towards_relief": [
+    "citi",
+    "of america",
+    "america",
+    "bank of",
+    "citibank",
+    "boa",
+    "00",
+    "apple",
+    "goldman",
+    "goldman sachs",
+    "sachs",
+    "new"
+   ]
+  },
+  "train_narratives_naming_an_issuer": 0.713875
  },
  "keyword_rule": {
   "candidates": [
@@ -7512,6 +7912,133 @@
    "pairs": 118,
    "pooled_kappa": 0.914689
   }
+ },
+ "ranking_dev": {
+  "differences": {
+   "issuer_rate_minus_tfidf_lr": {
+    "auc": {
+     "hi": 0.06379,
+     "lo": -0.088162,
+     "value": -0.009583
+    },
+    "within_issuer_auc": {
+     "hi": -0.072679,
+     "lo": -0.291014,
+     "value": -0.188086
+    }
+   },
+   "tfidf_lr_minus_v1": {
+    "auc": {
+     "hi": 0.217841,
+     "lo": 0.01556,
+     "value": 0.120179
+    },
+    "within_issuer_auc": {
+     "hi": 0.19631,
+     "lo": -0.057514,
+     "value": 0.078983
+    }
+   },
+   "tfidf_lr_minus_v2": {
+    "auc": {
+     "hi": 0.240419,
+     "lo": 0.033169,
+     "value": 0.143036
+    },
+    "within_issuer_auc": {
+     "hi": 0.229977,
+     "lo": -0.05972,
+     "value": 0.0917
+    }
+   },
+   "tfidf_masked_minus_tfidf_lr": {
+    "auc": {
+     "hi": -0.014904,
+     "lo": -0.109854,
+     "value": -0.061786
+    },
+    "within_issuer_auc": {
+     "hi": 0.029004,
+     "lo": -0.081865,
+     "value": -0.025435
+    }
+   }
+  },
+  "systems": {
+   "guarded": {
+    "auc": {
+     "hi": 0.660775,
+     "lo": 0.485633,
+     "value": 0.57506
+    },
+    "within_issuer_auc": {
+     "hi": 0.696697,
+     "lo": 0.456222,
+     "value": 0.580321
+    }
+   },
+   "issuer_rate": {
+    "auc": {
+     "hi": 0.79823,
+     "lo": 0.644537,
+     "value": 0.726131
+    },
+    "within_issuer_auc": {
+     "hi": 0.5,
+     "lo": 0.5,
+     "value": 0.5
+    }
+   },
+   "tfidf_lr": {
+    "auc": {
+     "hi": 0.81049,
+     "lo": 0.650307,
+     "value": 0.735714
+    },
+    "within_issuer_auc": {
+     "hi": 0.791014,
+     "lo": 0.572679,
+     "value": 0.688086
+    }
+   },
+   "tfidf_masked": {
+    "auc": {
+     "hi": 0.753553,
+     "lo": 0.592214,
+     "value": 0.673929
+    },
+    "within_issuer_auc": {
+     "hi": 0.768005,
+     "lo": 0.548102,
+     "value": 0.662651
+    }
+   },
+   "v1": {
+    "auc": {
+     "hi": 0.69532,
+     "lo": 0.530898,
+     "value": 0.615536
+    },
+    "within_issuer_auc": {
+     "hi": 0.725431,
+     "lo": 0.496951,
+     "value": 0.609103
+    }
+   },
+   "v2": {
+    "auc": {
+     "hi": 0.681031,
+     "lo": 0.503187,
+     "value": 0.592679
+    },
+    "within_issuer_auc": {
+     "hi": 0.710347,
+     "lo": 0.480393,
+     "value": 0.596386
+    }
+   }
+  },
+  "within_issuer_pairs": 747
  },
  "rehearsal": {
   "automation": {
@@ -7788,6 +8315,10 @@
       "lo": 0.555556,
       "value": 0.761905
      },
+     "agreement_wilson": [
+      0.549088,
+      0.89372
+     ],
      "auto_no_relief": 17,
      "auto_relief": 4,
      "coverage": {
@@ -10013,6 +10544,99 @@
     "threshold": null
    }
   },
+  "claims": [
+   {
+    "id": "v2_vs_v1",
+    "interval": {
+     "hi": 0.154589,
+     "lo": -0.293375,
+     "value": -0.068476
+    },
+    "verdict": "no improvement of v2 over v1 was demonstrated"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.070904,
+     "lo": -0.379854,
+     "value": -0.1591
+    },
+    "verdict": "judge v1 is not distinguishable from the TF-IDF model"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.00774,
+     "lo": -0.458076,
+     "value": -0.227576
+    },
+    "verdict": "judge v2 is not distinguishable from the TF-IDF model"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.035081,
+     "lo": -0.411854,
+     "value": -0.189907
+    },
+    "verdict": "judge v1 is not distinguishable from the issuer relief rate"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 5.6e-05,
+     "lo": -0.503255,
+     "value": -0.258383
+    },
+    "verdict": "judge v2 is not distinguishable from the issuer relief rate"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.298179,
+     "lo": -0.171,
+     "value": 0.071555
+    },
+    "verdict": "judge v1 is not distinguishable from the company rule"
+   },
+   {
+    "id": "judge_vs_baseline",
+    "interval": {
+     "hi": 0.253269,
+     "lo": -0.254122,
+     "value": 0.003079
+    },
+    "verdict": "judge v2 is not distinguishable from the company rule"
+   },
+   {
+    "id": "within_issuer",
+    "interval": {
+     "hi": 0.240855,
+     "lo": -0.181348,
+     "value": 0.019802
+    },
+    "verdict": "the lead of TF-IDF over judge v1 is not demonstrated once the issuer is held fixed"
+   },
+   {
+    "id": "within_issuer",
+    "interval": {
+     "hi": 0.122234,
+     "lo": -0.29217,
+     "value": -0.091584
+    },
+    "verdict": "the lead of TF-IDF over judge v2 is not demonstrated once the issuer is held fixed"
+   },
+   {
+    "id": "tfidf_operating_point",
+    "interval": null,
+    "verdict": "the frozen TF-IDF operating point: misses the target; does no better than always answering no relief on the same cases"
+   },
+   {
+    "id": "llm_automation",
+    "interval": null,
+    "verdict": "the LLM judge automates nothing (no DEV threshold reached the target for: guarded, v1, v2)"
+   }
+  ],
   "fit_half": {
    "guarded": null,
    "tfidf_lr": {
@@ -10021,6 +10645,10 @@
      "lo": 0.761905,
      "value": 0.904762
     },
+    "agreement_wilson": [
+     0.710859,
+     0.973481
+    ],
     "auto_no_relief": 13,
     "auto_relief": 8,
     "coverage": {
@@ -10057,6 +10685,133 @@
     "at": null,
     "threshold": null
    }
+  },
+  "ranking": {
+   "differences": {
+    "issuer_rate_minus_tfidf_lr": {
+     "auc": {
+      "hi": 0.15006,
+      "lo": -0.083945,
+      "value": 0.029048
+     },
+     "within_issuer_auc": {
+      "hi": 0.14,
+      "lo": -0.223533,
+      "value": -0.049505
+     }
+    },
+    "tfidf_lr_minus_v1": {
+     "auc": {
+      "hi": 0.218673,
+      "lo": -0.080771,
+      "value": 0.069048
+     },
+     "within_issuer_auc": {
+      "hi": 0.240855,
+      "lo": -0.181348,
+      "value": 0.019802
+     }
+    },
+    "tfidf_lr_minus_v2": {
+     "auc": {
+      "hi": 0.262416,
+      "lo": -0.030425,
+      "value": 0.118333
+     },
+     "within_issuer_auc": {
+      "hi": 0.122234,
+      "lo": -0.29217,
+      "value": -0.091584
+     }
+    },
+    "tfidf_masked_minus_tfidf_lr": {
+     "auc": {
+      "hi": 0.009679,
+      "lo": -0.143942,
+      "value": -0.06381
+     },
+     "within_issuer_auc": {
+      "hi": 0.072466,
+      "lo": -0.123156,
+      "value": -0.024752
+     }
+    }
+   },
+   "systems": {
+    "guarded": {
+     "auc": {
+      "hi": 0.743768,
+      "lo": 0.517156,
+      "value": 0.637381
+     },
+     "within_issuer_auc": {
+      "hi": 0.758907,
+      "lo": 0.431818,
+      "value": 0.59901
+     }
+    },
+    "issuer_rate": {
+     "auc": {
+      "hi": 0.811291,
+      "lo": 0.61009,
+      "value": 0.712381
+     },
+     "within_issuer_auc": {
+      "hi": 0.5,
+      "lo": 0.5,
+      "value": 0.5
+     }
+    },
+    "tfidf_lr": {
+     "auc": {
+      "hi": 0.794533,
+      "lo": 0.559407,
+      "value": 0.683333
+     },
+     "within_issuer_auc": {
+      "hi": 0.723533,
+      "lo": 0.36,
+      "value": 0.549505
+     }
+    },
+    "tfidf_masked": {
+     "auc": {
+      "hi": 0.739432,
+      "lo": 0.490607,
+      "value": 0.619524
+     },
+     "within_issuer_auc": {
+      "hi": 0.700403,
+      "lo": 0.347261,
+      "value": 0.524752
+     }
+    },
+    "v1": {
+     "auc": {
+      "hi": 0.728759,
+      "lo": 0.49618,
+      "value": 0.614286
+     },
+     "within_issuer_auc": {
+      "hi": 0.707024,
+      "lo": 0.352932,
+      "value": 0.529703
+     }
+    },
+    "v2": {
+     "auc": {
+      "hi": 0.696301,
+      "lo": 0.435231,
+      "value": 0.565
+     },
+     "within_issuer_auc": {
+      "hi": 0.807101,
+      "lo": 0.466992,
+      "value": 0.641089
+     }
+    }
+   },
+   "within_issuer_pairs": 202
   },
   "results": {
    "company_rule": {
@@ -10163,6 +10918,48 @@
      "lost_relief_cases": 5,
      "only_first_agrees": 7,
      "only_second_agrees": 8
+    }
+   },
+   "issuer_rate": {
+    "accuracy": {
+     "hi": 0.77,
+     "lo": 0.59,
+     "value": 0.68
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 46,
+     "none_relief": 24,
+     "relief_none": 8,
+     "relief_relief": 22
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.51358,
+     "lo": 0.158758,
+     "value": 0.338843
+    },
+    "n": 100,
+    "precision_0": {
+     "hi": 0.94,
+     "lo": 0.75,
+     "value": 0.851852
+    },
+    "precision_1": {
+     "hi": 0.625,
+     "lo": 0.333333,
+     "value": 0.478261
+    },
+    "predicted_positive_rate": 0.46,
+    "recall_0": {
+     "hi": 0.763889,
+     "lo": 0.542827,
+     "value": 0.657143
+    },
+    "recall_1": {
+     "hi": 0.885714,
+     "lo": 0.571429,
+     "value": 0.733333
     }
    },
    "keyword_rule": {
@@ -10291,6 +11088,70 @@
      "value": 0.6
     }
    },
+   "tfidf_lr_minus_tfidf_masked": {
+    "accuracy": {
+     "hi": 0.12,
+     "lo": -0.04,
+     "value": 0.04
+    },
+    "kappa": {
+     "hi": 0.311824,
+     "lo": -0.035906,
+     "value": 0.133507
+    },
+    "transitions": {
+     "both_agree": 59,
+     "both_disagree": 25,
+     "gained_no_relief_cases": 4,
+     "gained_relief_cases": 6,
+     "lost_no_relief_cases": 5,
+     "lost_relief_cases": 1,
+     "only_first_agrees": 6,
+     "only_second_agrees": 10
+    }
+   },
+   "tfidf_masked": {
+    "accuracy": {
+     "hi": 0.74,
+     "lo": 0.55975,
+     "value": 0.65
+    },
+    "base_rate": 0.3,
+    "confusion": {
+     "none_none": 52,
+     "none_relief": 18,
+     "relief_none": 17,
+     "relief_relief": 13
+    },
+    "invalid": 0,
+    "kappa": {
+     "hi": 0.372093,
+     "lo": -0.028084,
+     "value": 0.174528
+    },
+    "n": 100,
+    "precision_0": {
+     "hi": 0.849315,
+     "lo": 0.647887,
+     "value": 0.753623
+    },
+    "precision_1": {
+     "hi": 0.6,
+     "lo": 0.25,
+     "value": 0.419355
+    },
+    "predicted_positive_rate": 0.31,
+    "recall_0": {
+     "hi": 0.84375,
+     "lo": 0.636364,
+     "value": 0.742857
+    },
+    "recall_1": {
+     "hi": 0.611111,
+     "lo": 0.258065,
+     "value": 0.433333
+    }
+   },
    "v1": {
     "accuracy": {
      "hi": 0.62,
@@ -10331,6 +11192,50 @@
      "hi": 0.933333,
      "lo": 0.645161,
      "value": 0.8
+    }
+   },
+   "v1_minus_company_rule": {
+    "accuracy": {
+     "hi": -0.01,
+     "lo": -0.31,
+     "value": -0.17
+    },
+    "kappa": {
+     "hi": 0.298179,
+     "lo": -0.171,
+     "value": 0.071555
+    },
+    "transitions": {
+     "both_agree": 30,
+     "both_disagree": 9,
+     "gained_no_relief_cases": 0,
+     "gained_relief_cases": 22,
+     "lost_no_relief_cases": 37,
+     "lost_relief_cases": 2,
+     "only_first_agrees": 39,
+     "only_second_agrees": 22
+    }
+   },
+   "v1_minus_issuer_rate": {
+    "accuracy": {
+     "hi": -0.03,
+     "lo": -0.28,
+     "value": -0.16
+    },
+    "kappa": {
+     "hi": 0.035081,
+     "lo": -0.411854,
+     "value": -0.189907
+    },
+    "transitions": {
+     "both_agree": 38,
+     "both_disagree": 18,
+     "gained_no_relief_cases": 7,
+     "gained_relief_cases": 7,
+     "lost_no_relief_cases": 25,
+     "lost_relief_cases": 5,
+     "only_first_agrees": 30,
+     "only_second_agrees": 14
     }
    },
    "v1_minus_tfidf_lr": {
@@ -10395,6 +11300,50 @@
      "hi": 0.310345,
      "lo": 0.04,
      "value": 0.166667
+    }
+   },
+   "v2_minus_company_rule": {
+    "accuracy": {
+     "hi": 0.07,
+     "lo": -0.09,
+     "value": -0.01
+    },
+    "kappa": {
+     "hi": 0.253269,
+     "lo": -0.254122,
+     "value": 0.003079
+    },
+    "transitions": {
+     "both_agree": 60,
+     "both_disagree": 23,
+     "gained_no_relief_cases": 3,
+     "gained_relief_cases": 5,
+     "lost_no_relief_cases": 5,
+     "lost_relief_cases": 4,
+     "only_first_agrees": 9,
+     "only_second_agrees": 8
+    }
+   },
+   "v2_minus_issuer_rate": {
+    "accuracy": {
+     "hi": 0.13,
+     "lo": -0.13,
+     "value": 0.0
+    },
+    "kappa": {
+     "hi": 5.6e-05,
+     "lo": -0.503255,
+     "value": -0.258383
+    },
+    "transitions": {
+     "both_agree": 46,
+     "both_disagree": 10,
+     "gained_no_relief_cases": 20,
+     "gained_relief_cases": 2,
+     "lost_no_relief_cases": 3,
+     "lost_relief_cases": 19,
+     "only_first_agrees": 22,
+     "only_second_agrees": 22
     }
    },
    "v2_minus_tfidf_lr": {
@@ -10465,6 +11414,7 @@
    "kappa_cached": 0.009729,
    "kappa_replay": -0.000345,
    "n": 100,
+   "n_split": 200,
    "same_decision": 99,
    "same_decision_ci": [
     0.945514,
@@ -10580,6 +11530,7 @@
    "kappa_cached": 0.069767,
    "kappa_replay": 0.040698,
    "n": 200,
+   "n_split": 200,
    "same_decision": 196,
    "same_decision_ci": [
     0.949713,
@@ -10702,6 +11653,32 @@
   },
   "split_seed": 20261109,
   "target_agreement": 0.9
+ },
+ "split_half": {
+  "guarded": {
+   "median_agreement_other_half": 0.692308,
+   "other_half_reaches_target": 0,
+   "splits": 1000,
+   "threshold_found": 111
+  },
+  "tfidf_lr": {
+   "median_agreement_other_half": 0.736842,
+   "other_half_reaches_target": 0,
+   "splits": 1000,
+   "threshold_found": 184
+  },
+  "v1": {
+   "median_agreement_other_half": null,
+   "other_half_reaches_target": 0,
+   "splits": 1000,
+   "threshold_found": 0
+  },
+  "v2": {
+   "median_agreement_other_half": 0.615385,
+   "other_half_reaches_target": 0,
+   "splits": 1000,
+   "threshold_found": 31
+  }
  },
  "test": null,
  "tfidf_lr": {

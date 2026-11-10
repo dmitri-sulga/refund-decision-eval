@@ -53,3 +53,57 @@ def test_cost_table_files_noise_pass_calls_under_the_held_out_split(tmp_path, mo
     assert sets == {("v1", "dev"): 1, ("v1", "test"): 1, ("v1@replay", "dev (replay file)"): 1,
                     ("v1@replay", "test noise pass (replay file)"): 1}
     assert c["all_calls"]["held_out_calls"] == 2 and c["translation_calls_not_counted"] == 3
+
+
+def test_headline_states_each_frozen_claim_as_its_rule_decides():
+    m = copy.deepcopy(METRICS)
+    head = Rp.b_headline(m)
+    assert head.startswith("**Held-out result") and "Result so far" not in head
+    assert "*v2 replaces v1*" in head and "**not met**" in head
+    assert "**undetermined**, not shown to meet the target" in head
+    assert "not labelled yet" in head                       # placeholder until the blind labels are locked
+    for c in m["test"]["claims"]:
+        if c["id"] == "v2_vs_v1":
+            c["verdict"] = "v2 replaces v1"
+        if c["id"] == "tfidf_operating_point":
+            c["verdict"] = "the frozen TF-IDF operating point: misses the target"
+    head = Rp.b_headline(m)
+    assert "*v2 replaces v1* (accepted only if the paired kappa difference lies entirely above zero): **met**" in head
+    assert "**not met**, misses the target" in head
+    m["test"] = None
+    assert Rp.b_headline(m) == Rp.b_lead(m)
+
+
+def test_practice_says_what_is_not_measured_while_labels_are_pending():
+    m = copy.deepcopy(METRICS)
+    text = Rp.b_practice(m)
+    if not m["human"]["annotators"]:
+        assert "blind labels pending" in text and "a person: not measured yet" in text
+    m["test"] = None
+    assert Rp.b_practice(m) == Rp.PENDING
+
+
+def test_post_run_change_is_accepted_only_for_a_recorded_presentation_file(tmp_path, monkeypatch):
+    from judge import freeze
+
+    report_sha = freeze.sha256_path(C.ROOT / "src/judge/report.py")
+    frozen_files = {"src/judge/report.py": "a" * 64, "src/judge/analysis.py": "b" * 64}
+    problems = ["src/judge/report.py changed since the freeze", "src/judge/analysis.py changed since the freeze"]
+
+    def world(records, test=True):
+        f = tmp_path / "post_run_changes.json"
+        f.write_text(json.dumps(records))
+        monkeypatch.setattr(Rp, "POST_RUN_FILE", f)
+        return {"test": {"n": 1} if test else None,
+                "frozen": {"sha256": "x", "content": {"files": frozen_files}, "problems": list(problems)}}
+
+    rec = {"file": "src/judge/report.py", "frozen_sha256": "a" * 64, "sha256": report_sha, "what": "presentation"}
+    out = Rp.accept_post_run_changes(world([rec]))
+    assert out["frozen"]["problems"] == problems[1:] and [x["file"] for x in out["frozen"]["post_run_changes"]] == \
+        ["src/judge/report.py"]
+    assert Rp.accept_post_run_changes(world([rec], test=False))["frozen"]["problems"] == problems   # before the run
+    assert Rp.accept_post_run_changes(world([{**rec, "sha256": "c" * 64}]))["frozen"]["problems"] == problems
+    assert Rp.accept_post_run_changes(world([{**rec, "frozen_sha256": "c" * 64}]))["frozen"]["problems"] == problems
+    other = {**rec, "file": "src/judge/analysis.py", "frozen_sha256": "b" * 64,
+             "sha256": freeze.sha256_path(C.ROOT / "src/judge/analysis.py")}
+    assert Rp.accept_post_run_changes(world([other]))["frozen"]["problems"] == problems   # not a presentation file

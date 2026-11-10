@@ -7288,6 +7288,14 @@
  },
  "figure": "results/automation_curve.png",
  "frozen": {
+  "post_run_changes": [
+   {
+    "file": "src/judge/report.py",
+    "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
+    "sha256": "27e4f06ac104c985593f94a9107b547ceb6bea1995d44e5cede9592cb7f59f90",
+    "what": "presentation only, after the held-out run: blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. No computation was changed; results/metrics.json was compared before and after the change."
+   }
+  ],
   "problems": [],
   "sha256": "cd8950249f3e1997e1e295091f688a752f5635850aa74898bd7a4170dff841fb"
  },

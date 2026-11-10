@@ -639,8 +639,9 @@ def _human_table(f: dict) -> str:
 def _human_head(h: dict) -> str:
     t = h["translations"]
     return (f"Sample: {h['sample_n']} {h['split'].upper()} complaints drawn by a hash of the ID "
-            "(`data/label_sample.json`), which no model had answered and nobody had read one by one; labelled "
-            "blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any "
+            "(`data/label_sample.json`), which the judged model had not answered and the annotator had not "
+            "seen; labelled blind by one person against `docs/labelling_rubric.md`. The analysis was registered "
+            "before any "
             f"label existed (`docs/analysis_plan_human_labels.md`, {h['plan_registered_at'][:16].replace('T', ' ')} "
             f"UTC, amended {h['amended_at'][:16].replace('T', ' ')} UTC). The annotator reads a Russian machine "
             "translation beside the English original: a reading aid made by a separate model, not the judged "

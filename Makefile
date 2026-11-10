@@ -38,7 +38,8 @@ replay: venv
 freeze: venv
 	$(PY) -m judge.freeze
 
-# the single held-out run: refuses unless the frozen method is unchanged, refuses to run twice
+# the single held-out run (scored pass, then the noise pass): refuses unless the frozen method is
+# unchanged and committed, refuses to run twice
 heldout: venv
 	$(PY) -m judge.run --final
 	$(PY) -m judge.report

@@ -129,7 +129,7 @@ The same rule applied to one random half of DEV and scored on the other: TF-IDF 
 ## A person's blind labels
 
 <!-- BEGIN human -->
-Sample: 100 TRAIN complaints drawn by a hash of the ID (`data/label_sample.json`), which no model had answered and nobody had read one by one; labelled blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any label existed (`docs/analysis_plan_human_labels.md`, 2026-11-10 01:16 UTC, amended 2026-11-10 02:31 UTC). The annotator reads a Russian machine translation beside the English original: a reading aid made by a separate model, not the judged one, never part of a judged input (0 of 100 translations fail a completeness check, 0 are missing). The classic baselines are refitted without the sampled complaints.
+Sample: 100 TRAIN complaints drawn by a hash of the ID (`data/label_sample.json`), which the judged model had not answered and the annotator had not seen; labelled blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any label existed (`docs/analysis_plan_human_labels.md`, 2026-11-10 01:16 UTC, amended 2026-11-10 02:31 UTC). The annotator reads a Russian machine translation beside the English original: a reading aid made by a separate model, not the judged one, never part of a judged input (0 of 100 translations fail a completeness check, 0 are missing). The classic baselines are refitted without the sampled complaints.
 
 _No locked set of labels yet._ Nothing is reported from a partial set. Model answers for the sampled complaints so far: 0 (the judge runs on them only after the labels are locked).
 <!-- END human -->
@@ -139,7 +139,7 @@ The Russian rubric (`docs/labelling_rubric_ru.md`), the Russian button labels an
 ## Held-out TEST
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The method is not frozen at this commit. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
+_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `ca3db51987ec78d9...`): every source file, the data, the plans, the DEV operating points, the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`) and 6 claims with their decision rules (listed in the full report). The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
 <!-- END test_results -->
 
 The realistic estimate is the held-out result at the frozen thresholds; the ceiling discussion (label noise among near-identical complaints, the judge's agreement with itself) is in the full report.

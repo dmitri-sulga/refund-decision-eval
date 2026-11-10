@@ -7105,7 +7105,10 @@
   ]
  },
  "figure": "results/automation_curve.png",
- "frozen": null,
+ "frozen": {
+  "problems": [],
+  "sha256": "ca3db51987ec78d9c073a70ef23b93ab0a9a536de64222046892c5055cce429d"
+ },
  "gaming": {
   "attacks": [
    "promise",

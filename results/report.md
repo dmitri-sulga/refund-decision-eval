@@ -504,7 +504,7 @@ The held-out decision rules applied to this rehearsal (to show what the held-out
 ## Human
 
 <!-- BEGIN human -->
-Sample: 100 TRAIN complaints drawn by a hash of the ID (`data/label_sample.json`), which no model had answered and nobody had read one by one; labelled blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any label existed (`docs/analysis_plan_human_labels.md`, 2026-11-10 01:16 UTC, amended 2026-11-10 02:31 UTC). The annotator reads a Russian machine translation beside the English original: a reading aid made by a separate model, not the judged one, never part of a judged input (0 of 100 translations fail a completeness check, 0 are missing). The classic baselines are refitted without the sampled complaints.
+Sample: 100 TRAIN complaints drawn by a hash of the ID (`data/label_sample.json`), which the judged model had not answered and the annotator had not seen; labelled blind by one person against `docs/labelling_rubric.md`. The analysis was registered before any label existed (`docs/analysis_plan_human_labels.md`, 2026-11-10 01:16 UTC, amended 2026-11-10 02:31 UTC). The annotator reads a Russian machine translation beside the English original: a reading aid made by a separate model, not the judged one, never part of a judged input (0 of 100 translations fail a completeness check, 0 are missing). The classic baselines are refitted without the sampled complaints.
 
 _No locked set of labels yet._ Nothing is reported from a partial set. Model answers for the sampled complaints so far: 0 (the judge runs on them only after the labels are locked).
 <!-- END human -->
@@ -518,13 +518,33 @@ _No locked set of labels yet._
 ## Frozen
 
 <!-- BEGIN frozen -->
-_Not frozen yet._
+Frozen in `results/frozen.json` (SHA-256 `ca3db51987ec78d9c073a70ef23b93ab0a9a536de64222046892c5055cce429d`) before any held-out complaint was sent to the model. The held-out report reads its thresholds and decision rules from that file. A local file proves nothing about when it was written: the commit that contains it is to be published before the run.
+
+| System | Confidence | Threshold for the held-out run | DEV cases automated | DEV agreement on automated |
+|---|---|---|---|---|
+| TF-IDF + logistic regression (trained on TRAIN) | token | 0.731680 | 20 | 90.0% |
+| LLM judge v1 (plain rubric) | token | none (automates nothing) | 0 | n/a |
+| LLM judge v2 (predicts the record, facts first) | token | none (automates nothing) | 0 | n/a |
+| Guarded pipeline (v2 facts -> fact model; filter routes to human) | token | none (automates nothing) | 0 | n/a |
+
+Judge versions to run on the held-out split: v1, v2 (500 model calls for the scored pass and 500 for the noise pass, sequential, about 150 minutes at the recent median of 9.0 s per call). Baseline hyperparameters: C = 1.0, class weighting = balanced; keyword rule: "any cue the v2 prompt calls 'more relief'". Fact model: logistic regression on 23 one-hot fact features, weights in the frozen file. Model build: Ollama 0.40.15, digest `47951e4a6661`. Held-out complaint IDs: 250, SHA-256 of the sorted IDs `25a48d7a40a3214086f0b2f49068a490cef5a0bab81ad16a47781934e7678dfc`. Answer caches at the freeze: `results/cache/responses.jsonl` 1,534,135 bytes, SHA-256 `51a76a354214799e...`; `results/cache/replays.jsonl` 618,162 bytes, SHA-256 `54c029aa0cc3c60c...` (append-only: later answers may be added, these bytes may not change).
+
+What will be said about the held-out split, and the rule that decides it:
+
+- `v2_vs_v1`: Kappa of v2 minus kappa of v1, paired interval. Entirely above zero: 'v2 replaces v1'. Otherwise: 'no improvement of v2 over v1 was demonstrated'.
+- `judge_vs_baseline`: For each judge version (v1, v2) and each of the TF-IDF model, the issuer relief rate and the company rule: kappa of the judge minus kappa of the baseline, paired interval. Entirely below zero: 'the judge is below the baseline'. Entirely above: 'the judge is above the baseline'. Otherwise: 'not distinguishable'.
+- `within_issuer`: Within-issuer AUC of TF-IDF minus that of each judge version, interval. Entirely above zero: 'TF-IDF orders complaints better than the judge within the same issuer'. Entirely below: the reverse. Otherwise: 'the lead of TF-IDF is not demonstrated once the issuer is held fixed'.
+- `tfidf_operating_point`: The TF-IDF threshold frozen on DEV, applied unchanged. Fewer automated held-out cases than the minimum in the settings: 'too few automated cases to judge'. Otherwise the Wilson interval of agreement on the automated cases: lower bound at or above the target: 'meets the target'; upper bound below it: 'misses the target'; else 'not shown to meet the target'. If agreement is not above that of always answering no relief on the same cases, the report adds that the automation does no better than that rule.
+- `llm_automation`: No threshold reached the target on DEV for judge v1, judge v2 or the guarded pipeline, so none automates a held-out case: 'the LLM judge automates nothing'. Their best threshold chosen on the held-out split itself is shown as an optimistic bound only.
+- `noise_pass`: After the scored pass, every held-out request is sent a second time and stored apart (results/cache/replays.jsonl). The second answers are never scored against recorded decisions; the report gives only how often the decision repeated, the kappa between the two passes and the shifts in P(relief).
+
+Files whose SHA-256 is recorded and checked before the run (39): `Makefile`, `data/label_sample.json`, `data/near_duplicate_pairs.json`, `data/records.jsonl.gz`, `data/splits.json`, `docs/analysis_plan.md`, `docs/analysis_plan_human_labels.md`, `docs/labelling_rubric.md`, `docs/labelling_rubric_ru.md`, `requirements.txt`, `results/baseline_cost.json`, `results/error_analysis/categories.csv`, `results/error_analysis/groups.csv`, `results/error_analysis/provenance.json`, `results/error_analysis/v1_dev.csv`, `src/judge/__init__.py`, `src/judge/analysis.py`, `src/judge/baselines.py`, `src/judge/bench.py`, `src/judge/config.py`, `src/judge/cues.py`, `src/judge/data.py`, `src/judge/defence.py`, `src/judge/errors.py`, `src/judge/figures.py`, `src/judge/freeze.py`, `src/judge/gaming.py`, `src/judge/human.py`, `src/judge/judgments.py`, `src/judge/label.py`, `src/judge/labelserver.py`, `src/judge/llm.py`, `src/judge/metrics.py`, `src/judge/prompts.py`, `src/judge/replay.py`, `src/judge/report.py`, `src/judge/review.py`, `src/judge/run.py`, `src/judge/translate.py`.
 <!-- END frozen -->
 
 ## Test results
 
 <!-- BEGIN test_results -->
-_Not yet run._ Held-out complaints sent to the model so far: 0. The method is not frozen at this commit. The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
+_Not yet run._ Held-out complaints sent to the model so far: 0. The method is frozen in `results/frozen.json` (SHA-256 `ca3db51987ec78d9...`): every source file, the data, the plans, the DEV operating points, the 250 held-out complaint IDs (SHA-256 of the sorted IDs `25a48d7a40a32140...`) and 6 claims with their decision rules (listed in the full report). The run is a single command (`make heldout`) that refuses to start unless the frozen method is unchanged and committed, and refuses to run twice; a second pass over the same requests is stored apart and reported as noise only.
 <!-- END test_results -->
 
 ## Estimates

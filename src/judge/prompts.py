@@ -54,15 +54,16 @@ def _v1_user(rec: dict, narrative: str) -> str:
 
 
 # ====================================================================== v2
-# Written after the v1 error analysis on DEV. Changes, each traced to the analysis:
-# - v1 granted relief in most DEV cases although most complaints end without it:
-#   state the base rate and that the narrative is one-sided (calibration).
-# - v1 missed issuer-side mistakes and invented exclusions: name issuer errors as
-#   a relief signal and forbid invented rules.
-# - Cue directions were checked on TRAIN with keyword proxies before being
-#   written down; the largest v1 error category (a prior denial by the issuer)
-#   did not separate outcomes on TRAIN, so it is recorded as a fact, not a rule.
-# - Facts are extracted before the decision, for the fact model and for audits.
+# Written eleven minutes after the v1 DEV run, from a machine pass over the v1
+# disagreements (not a person's reading; see the README). What changed, all at once:
+# - the question: v1 decides what should happen, v2 predicts the recorded answer;
+# - the base rate and the one-sidedness of the narrative are stated;
+# - a list of cues. Five of them have a keyword proxy on TRAIN that points the same
+#   way (cues.py); the issuer-mistake cue comes from four DEV cases and has no
+#   TRAIN proxy; the service-quality proxy is too rare to support its cue;
+# - facts are extracted before the decision (used by the fact model).
+# The largest category of v1 disagreements (a prior denial by the issuer) is
+# recorded as a fact and not addressed by any rule.
 V2_SYSTEM = """You review complaints that credit card holders filed with a regulator about a purchase shown on their statement. The card issuer has already answered each complaint. Predict how the issuer's answer was recorded:
 - monetary_relief = true: closed with monetary relief (money back: a refund, a statement credit, or a reversal of a charge, fee or interest).
 - monetary_relief = false: closed with an explanation, or with non-monetary action only.

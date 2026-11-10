@@ -1,0 +1,196 @@
+{
+ "caches": {
+  "results/cache/replays.jsonl": {
+   "bytes": 618162,
+   "sha256": "54c029aa0cc3c60c5ee466ae66d4e09fa886632bc429a93cc3291bd41e77e8af"
+  },
+  "results/cache/responses.jsonl": {
+   "bytes": 1534135,
+   "sha256": "51a76a354214799e6320deeccf3ccd09a572defaa619e36d03c97e6f6f0ea6ad"
+  }
+ },
+ "claims": [
+  {
+   "id": "v2_vs_v1",
+   "rule": "Kappa of v2 minus kappa of v1, paired interval. Entirely above zero: 'v2 replaces v1'. Otherwise: 'no improvement of v2 over v1 was demonstrated'."
+  },
+  {
+   "id": "judge_vs_baseline",
+   "rule": "For each judge version (v1, v2) and each of the TF-IDF model, the issuer relief rate and the company rule: kappa of the judge minus kappa of the baseline, paired interval. Entirely below zero: 'the judge is below the baseline'. Entirely above: 'the judge is above the baseline'. Otherwise: 'not distinguishable'."
+  },
+  {
+   "id": "within_issuer",
+   "rule": "Within-issuer AUC of TF-IDF minus that of each judge version, interval. Entirely above zero: 'TF-IDF orders complaints better than the judge within the same issuer'. Entirely below: the reverse. Otherwise: 'the lead of TF-IDF is not demonstrated once the issuer is held fixed'."
+  },
+  {
+   "id": "tfidf_operating_point",
+   "rule": "The TF-IDF threshold frozen on DEV, applied unchanged. Fewer automated held-out cases than the minimum in the settings: 'too few automated cases to judge'. Otherwise the Wilson interval of agreement on the automated cases: lower bound at or above the target: 'meets the target'; upper bound below it: 'misses the target'; else 'not shown to meet the target'. If agreement is not above that of always answering no relief on the same cases, the report adds that the automation does no better than that rule."
+  },
+  {
+   "id": "llm_automation",
+   "rule": "No threshold reached the target on DEV for judge v1, judge v2 or the guarded pipeline, so none automates a held-out case: 'the LLM judge automates nothing'. Their best threshold chosen on the held-out split itself is shown as an optimistic bound only."
+  },
+  {
+   "id": "noise_pass",
+   "rule": "After the scored pass, every held-out request is sent a second time and stored apart (results/cache/replays.jsonl). The second answers are never scored against recorded decisions; the report gives only how often the decision repeated, the kappa between the two passes and the shifts in P(relief)."
+  }
+ ],
+ "environment": {
+  "model_digest": "47951e4a666180bc2aedfc93c169472f2de783696fe196efbf063f5730ecf163",
+  "ollama_version": "0.40.15"
+ },
+ "expected_s_per_call": 9.02,
+ "fact_model": {
+  "C": 1.0,
+  "coef": [
+   -0.06542995370054994,
+   0.06639076501243465,
+   -0.12715841229695493,
+   -0.15292350782685168,
+   -0.4449699192628614,
+   0.30671676328101954,
+   -0.5778564690500225,
+   0.9971523564675552,
+   0.08594881142913412,
+   -0.08498800011724894,
+   -0.20273148973453461,
+   0.20369230104641906,
+   -0.25279602365377013,
+   0.517751483495741,
+   -0.07322716269445786,
+   0.7434012962074297,
+   -0.20467889644347098,
+   -0.7294898855995867,
+   -0.1980323321239658,
+   -0.11076885144559935,
+   0.30976199488144934,
+   -0.01058956577598491,
+   0.011550377087869787
+  ],
+  "intercept": -1.4777223044837906,
+  "vocab": [
+   "ask=money",
+   "ask=non_money",
+   "claim=billing_error",
+   "claim=cancellation",
+   "claim=not_as_described",
+   "claim=not_received",
+   "claim=other",
+   "claim=unauthorized",
+   "detail=specific",
+   "detail=vague",
+   "issuer_error=False",
+   "issuer_error=True",
+   "issuer_status=credited",
+   "issuer_status=denied",
+   "issuer_status=not_contacted",
+   "issuer_status=partly_credited",
+   "issuer_status=pending",
+   "issuer_status=unclear",
+   "sub_issue=Card was charged for something you did not purchase with the card",
+   "sub_issue=Credit card company isn't resolving a dispute about a purchase on your statement",
+   "sub_issue=Overcharged for something you did purchase with the card",
+   "sub_product=General-purpose credit card or charge card",
+   "sub_product=Store credit card"
+  ]
+ },
+ "files": {
+  "Makefile": "a322fccdaba30af89b94b2fdc713a04f5e70e5ff09f5e47d353b855ecb9ccfdc",
+  "data/label_sample.json": "1b3659b24a78e3ef625bef0d340c066e4ca49d2b9a5b9629a9e5f27866a38740",
+  "data/near_duplicate_pairs.json": "2b6eef8d5ca19979e900bda93b319eaacdeaaaa3989b8d558bc30563108800b7",
+  "data/records.jsonl.gz": "aa485c77ccb6e5f72f57976fc723cbc5adbcecd19d18c0cbe8d2279c813e6b24",
+  "data/splits.json": "5bbd43d5d863e133c83c52299532fcbef90546a632a7cb5bf02f7c97d4c67bc0",
+  "docs/analysis_plan.md": "6301ae15c5bfd4c8706e18d9e27550f93e1b382e606f147a5e12b655f21f21b3",
+  "docs/analysis_plan_human_labels.md": "e113c084188d2251f22b488174e95724b79f1b498a57965fb127c7fc9a61bd26",
+  "docs/labelling_rubric.md": "af7329b8d1a80b1468de07158a4ee164f03ae042160f9af2d381e13b8dc63090",
+  "docs/labelling_rubric_ru.md": "110d5b209ba73e61c641765261ef154d9dea455694eea322d1cc55c98c751c8b",
+  "requirements.txt": "6c64221860d52101f1e1e86de3839a0eac69173c5c871567c22079e7a6f8b4e2",
+  "results/baseline_cost.json": "276df99a69d5ce553e80d59324641bd25ea003f187d07f4665e6d62634e92b00",
+  "results/error_analysis/categories.csv": "06ad62591d47f779504db10b29d5f8d13f9a2bbce21f6f1264a2d1ae1d3e978f",
+  "results/error_analysis/groups.csv": "a642d7270f81eb693adbd24e991ebfa9d091e2ede88e206c85f3c4c58940e350",
+  "results/error_analysis/provenance.json": "8e04b1c5c576e5b4872efcbda1598d3bf4359bfa8f13697a0910c19afbf63138",
+  "results/error_analysis/v1_dev.csv": "5b8112979cf6c131521f0109a95058f7e104d0ae6eb8c6d0f4b455aee76d72f3",
+  "src/judge/__init__.py": "2d4e74378165dc169002afc359dc8bc33b97080bec9d26ac532af9540dcff9c2",
+  "src/judge/analysis.py": "8fac705d2a39e19fe4da8299d35b885752b68e54c052c4528490b641922f3589",
+  "src/judge/baselines.py": "4746215c3f5ff28c3477eecb762f7b58f4141707ba4f935b7489ec46c90bb68b",
+  "src/judge/bench.py": "748a62ea5dfd8b98510c5a1c72dd8f15a0c12cb08f9ae71328241a9e9656461e",
+  "src/judge/config.py": "cef8feb58c881599aea63d8ea8b9c98a0856fd10468451d5ebcadd9237d3191c",
+  "src/judge/cues.py": "5f9246a72045eaa66d8e7198037314f60d9d66ffaa46361db4531e2cc1b37a6f",
+  "src/judge/data.py": "116d39d0a43afa09bfeeea8b6523fe58f455d2543d8fb18cc812895039c44fdb",
+  "src/judge/defence.py": "0af8a9d2e6453a055d23a9a8e2b82cdeeda422c8a59ee3b0108d6441301e2a99",
+  "src/judge/errors.py": "72ac76a4140f5626f6732d89f890980e70458d767612968ab99cf050d4e9d09f",
+  "src/judge/figures.py": "cb845dff4d05a1ba00293bde1063c3b6068f4341a5f1792d31b0ff3fa9135b22",
+  "src/judge/freeze.py": "9a618309b4eead00a84a9d2e3eeca85aee51798d4139afdedd49d5bec20b93cc",
+  "src/judge/gaming.py": "0e02b2aff52d36f9087b75149399c10cd9f4fce775099894923a73c77d3c438b",
+  "src/judge/human.py": "66c12464d3aa3ad5e93f0d12578025736d7714e3bac3bb2e466f80562be1ae7a",
+  "src/judge/judgments.py": "fe0d2549f989f3876cbcd4ae605478e9fb267978f68055621f3b575d77021971",
+  "src/judge/label.py": "43a91a69d6f220f9e68a144980e98b2d919bf53e848ca5ecaa6944249c143b01",
+  "src/judge/labelserver.py": "29e78eab69ee08e8fcbe6621507b013b0e6f0d7af2487bea7f90be8bb18db273",
+  "src/judge/llm.py": "72765954c21e200a69dc57e02f8210ca07e33c46cf4ec6d1a0ec8a08c73c05f2",
+  "src/judge/metrics.py": "a0f5c53d43d1dd573a72dae03f6ecd31c9752ebab27f39ccb6098a71547d0386",
+  "src/judge/prompts.py": "c92a94ee637a7d85f9e347f80e9558f74a03ec56879b06eb5509ff9b47bfc226",
+  "src/judge/replay.py": "666b47e9010f438e33282c8d4433d6d266cd888cb2db79892c08f338e9273feb",
+  "src/judge/report.py": "15970cee4d271634899f9e9b6330a2f88e9a5dae39f14d250e77fc5466271562",
+  "src/judge/review.py": "b611ddd4e8f462532fa697f74eedad2c6bb9a6e8fe87f5498e771c58016cb952",
+  "src/judge/run.py": "0fb028f2728d8a0047a66b2cbced6a073efecd7c566d67879ae9d8fe5f91ae05",
+  "src/judge/translate.py": "83051ed23f13be296b0e91bca19a13bbfd2be855248062aceaee089fa8e0ba5b"
+ },
+ "final_versions": [
+  "v1",
+  "v2"
+ ],
+ "guarded_facts_version": "v2",
+ "heldout": {
+  "ids_sha256": "25a48d7a40a3214086f0b2f49068a490cef5a0bab81ad16a47781934e7678dfc",
+  "n": 250
+ },
+ "keyword_rule": {
+  "cues": [
+   "largest amount under 100 dollars",
+   "fees or interest mentioned",
+   "card replaced or reissued"
+  ],
+  "rule": "any cue the v2 prompt calls 'more relief'"
+ },
+ "operating_points": {
+  "guarded": {
+   "dev_agreement_on_automated": null,
+   "dev_automated": 0,
+   "signal": "token",
+   "threshold": null
+  },
+  "tfidf_lr": {
+   "dev_agreement_on_automated": 0.9,
+   "dev_automated": 20,
+   "signal": "token",
+   "threshold": 0.7316803363204014
+  },
+  "v1": {
+   "dev_agreement_on_automated": null,
+   "dev_automated": 0,
+   "signal": "token",
+   "threshold": null
+  },
+  "v2": {
+   "dev_agreement_on_automated": null,
+   "dev_automated": 0,
+   "signal": "token",
+   "threshold": null
+  }
+ },
+ "request_templates": {
+  "v1": "2d88613f39ab8a646d1ad41fb0bc2689afa1f6d6535217db46e646429bf70638",
+  "v2": "6b294253af71dcb3e84eecc31827702028ec7aadb4eee621f74edeb320226d71"
+ },
+ "settings": {
+  "bootstrap_b": 10000,
+  "bootstrap_seed": 0,
+  "min_automated": 20,
+  "target_agreement": 0.9
+ },
+ "tfidf_lr": {
+  "C": 1.0,
+  "class_weight": "balanced"
+ },
+ "workers": 1
+}

@@ -21,3 +21,4 @@
 {"at": "2026-11-10T02:31:23+00:00", "event": "human_label_plan_amended", "amendment": 1, "labels_exist": false, "new_sample_drawn": false}
 {"at": "2026-11-10T02:47:51+00:00", "event": "translations_replaced", "discarded": "translations made with the judged model (never shown to the annotator)", "now": "124 translations by a separate model"}
 {"at": "2026-11-10T02:47:51+00:00", "event": "method_unfrozen", "reason": "revision after the independent review; to be frozen again before the held-out run"}
+{"at": "2026-11-10T03:57:50+00:00", "event": "method_frozen"}

@@ -1198,10 +1198,14 @@ README_BLOCKS = ("first_screen", "who", "headline", "practice", "inputs", "human
                  "deviations_in_short")   # the README must contain at least these
 
 
-def render(text: str, m: dict) -> str:
+def render(text: str, m: dict, root: str = "") -> str:
+    """Fill every block of text. root is the path from the rendered file to the repository root, for the relative
+    links the blocks write (seventh change): empty for the README, "../" for results/report.md."""
+    mb = {**m, F.LINK_BASE: root} if root else m
+
     def sub(mt):
         name = mt.group(2)
-        body = BLOCKS[name](m) if name in BLOCKS else PENDING
+        body = BLOCKS[name](mb) if name in BLOCKS else PENDING
         return mt.group(1) + body.rstrip() + "\n" + mt.group(4)
     return BLOCK_RE.sub(sub, text)
 
@@ -1250,7 +1254,7 @@ def emit(m: dict, check: bool = False) -> list[str]:
     readme_old = README.read_text()
     readme_new = render(readme_old, m)
     from .analysis import report_markdown
-    report_new = report_markdown(m, BLOCKS, render)
+    report_new = report_markdown(m, BLOCKS, lambda text, mm: render(text, mm, root="../"))   # one level down
     problems = []
     for path, new in ((README, readme_new), (METRICS_FILE, metrics_text), (REPORT_FILE, report_new)):
         old = path.read_text() if path.exists() else ""

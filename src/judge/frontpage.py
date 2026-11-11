@@ -38,6 +38,18 @@ NAME = {"majority": "always answering no relief", "keyword_rule": "keyword rule"
 TEXT_SYSTEMS = ("tfidf_lr", "tfidf_masked", "v1", "v2", "guarded")
 EXPL = "*(exploratory)*"
 NOT_REGISTERED = "not in the registered plan; descriptive"
+# Seventh change (after the held-out run): where a block points the reader to a file or directory of the repository,
+# the path is a relative Markdown link. The same block is rendered into the README (at the root) and into
+# results/report.md (one level down), so report.render passes the path from the rendered file to the root under
+# this key; the README gets no key and links from the root.
+LINK_BASE = "_link_base"
+
+
+def link(path: str, m) -> str:
+    """`path` as a clickable relative link, with the path kept as code in the link text."""
+    return f"[`{path}`]({m.get(LINK_BASE, '')}{path})"
+
+
 ATTACK_WORDS = {"promise": "claimed promise", "emotion": "emotional pressure", "legal_threat": "legal threat",
                 "injection": "instruction to the reviewer", "fake_case_note": "fake internal note",
                 "neutral": "neutral sentence (control)", "names_towards_relief": "issuer names weighted towards relief",
@@ -568,7 +580,8 @@ def b_practice(m):
         f"The input filter is seven English patterns: it caught the one wording it was written against "
         f"({f['attacked_flagged']['injection']}/{g['n_items']} copies), {f['paraphrases_flagged']} of "
         f"{f['paraphrases']} other wordings of the same instruction, {fr['further_flagged']} of {fr['further_wordings']} "
-        "further wordings (obfuscated or reworded) written after the AI-agent reviews listed in `docs/deviations.md`, "
+        "further wordings (obfuscated or reworded) written after the AI-agent reviews listed in "
+        f"{link('docs/deviations.md', m)}, "
         f"{f['attacked_flagged']['fake_case_note']} of {g['n_items']} fake notes, and {real['flagged']} of "
         f"{real['n']:,} real narratives; it flags {fr['benign_flagged']} of {fr['benign']} harmless sentences that were "
         f"written to hit its patterns, so its flag is a routing lever the complainant holds. The guarded pipeline flipped {sv['guarded']['fake_case_note']['flips']}/"
@@ -727,7 +740,8 @@ def b_exploratory(m):
                                                            for k in ("names_towards_relief", "names_towards_no_relief")) + ".")
     fr, gm, hl = ph["filter"], ph["guarded_mechanism"], ph["holm"]
     rn = ph["filter_on_real_narratives"]
-    out.append(f"\nInput filter on further wordings (written after the AI-agent reviews listed in `docs/deviations.md`, "
+    out.append("\nInput filter on further wordings (written after the AI-agent reviews listed in "
+               f"{link('docs/deviations.md', m)}, "
                f"checked against the filter only): {fr['further_flagged']} of {fr['further_wordings']} obfuscated or "
                f"reworded instructions flagged, {fr['benign_flagged']} of {fr['benign']} harmless sentences flagged "
                f"(written to hit the patterns), {fr['heldout_flagged']} of {fr['heldout_n']} held-out narratives and "
@@ -964,7 +978,8 @@ def _v3(m) -> str:
             f"stands: a v3 prompt would be {RULE_V3}. Not writing one was decided after the labels were locked and "
             "read. The plan had already said that at the size of a half only a large improvement could pass and that "
             "'no improvement demonstrated' was the likely outcome, and it registered the step all the same, so leaving "
-            "it out is a departure from the plan, recorded in `docs/deviations.md`, not something the plan provides "
+            f"it out is a departure from the plan, recorded in {link('docs/deviations.md', m)}, not something the plan "
+            "provides "
             f"for. For scale: each half holds {' or '.join(str(x) for x in per)} decided labels" +
             (f", and on the evaluation half the paired kappa intervals against the person that were computed reach "
              f"{R.num(hw[0], 2)} to {R.num(hw[-1], 2)} either side of their estimates ({AFTER_LOCK})" if hw else "") +
@@ -993,14 +1008,16 @@ def b_who(m):
     e = m["error_analysis"]
     tail = ("It wrote the rules that were frozen before the held-out run and started that run" +
             (" and, after the lock, the run of the judges on the labelled sample" if people else "") +
-            ". The reviews named in `docs/deviations.md` were separate AI-agent sessions, not people, and there is no "
+            f". The reviews named in {link('docs/deviations.md', m)} were separate AI-agent sessions, not people, and "
+            "there is no "
             "independent second author. Where a code comment says \"by hand\" (for example the issuer alias list in "
             "`src/judge/baselines.py`), it means a fixed list written into the code by that assistant.")
     if not (people and rev and rev["reviewed"]):
         return ("**Who did what.** The author set the task and directed the work, run on his own laptop, through an AI coding "
                 "assistant, and decided to publish the result as it came out. He is labelling the complaints of the "
                 "labelling sample himself, blind. The AI coding assistant chose the data and the label and wrote or "
-                "drafted the code (after the held-out run also the SQL queries in `sql/`), the prompts, the gaming "
+                f"drafted the code (after the held-out run also the SQL queries in {link('sql/', m)}), the prompts, "
+                "the gaming "
                 "rewrites, the defence and the first reading of the "
                 f"{e['n_disagreements']} DEV disagreements. " + tail)
     who, f = people[0][0], people[0][1]["all"]
@@ -1012,7 +1029,8 @@ def b_who(m):
             f"(the other {e['n_category_only']} carry only a category) on a second screen{t}: "
             f"he confirmed {rev['confirmed']} drafted readings, changed {len(rev['changed'])}{notes}. The AI coding "
             "assistant chose the data and the label and wrote or drafted the code (after the held-out run also the SQL "
-            "queries in `sql/`, which it chose and wrote when the author asked for an SQL section), the prompts, the "
+            f"queries in {link('sql/', m)}, which it chose and wrote when the author asked for an SQL section), the "
+            "prompts, the "
             "gaming rewrites, "
             f"the defence and the first reading of the {e['n_disagreements']} DEV disagreements, "
             f"{e['n_disagreements'] - rev['reviewed']} of which no person has confirmed. " + tail)
@@ -1030,7 +1048,8 @@ def b_sql_queries(m):
     iv = m["posthoc"]["issuer_volume"]
     lo, hi = _within_issuer_range(m)
     top = sorted(wb["pairs_by_issuer"].items(), key=lambda kv: (-kv[1], kv[0]))[:2]
-    return ("`sql/` holds eight short, commented SQL queries, run in SQLite through Python's built-in `sqlite3`. Most "
+    return (f"{link('sql/', m)} holds eight short, commented SQL queries, run in SQLite through Python's built-in "
+            "`sqlite3`. Most "
             "of what they print recomputes figures this study already reports (the README and `results/report.md`) "
             f"from the same data: the relief base rate per split ({R.pct(m['base_rates']['test']['base_rate'])} "
             "held-out); the issuer lookup's TRAIN payout rates (GROUP BY) and its decision for each held-out complaint "
@@ -1046,7 +1065,8 @@ def b_sql_queries(m):
             "issuer (" + " and ".join(f"{g} {k:,}" for g, k in top) + f" of the {wb['pairs']:,}). `make sql` prints "
             "the results; `tests/test_sql.py` checks every value of every result, row by row and in order, against the "
             "same figure computed in Python from the same data (by the frozen code where it computes one) and against "
-            "`results/metrics.json`, not against the queries' own output; `docs/sql.md` explains every query clause by "
+            f"`results/metrics.json`, not against the queries' own output; {link('docs/sql.md', m)} explains every "
+            "query clause by "
             "clause. The AI coding assistant chose and wrote the queries after the held-out run and the human labels, "
             "when the author asked for an SQL section. They decide nothing and feed no reported number, and the "
             "intervals, which come from resampling, are not reproduced.")
@@ -1072,6 +1092,9 @@ CHANGES_IN_SHORT = {
        "print a descriptive breakdown not reported before, and correcting wording published at commit `72b077a`: in "
        "the README the key to the tags, the first screen, 'Who did what', the human-label sections and the person's "
        "cost line, and in the full report the wording of the second screen and of the issuer rates",
+    7: "removing, at the author's decision, a clause about his own level from the introduction of the SQL "
+       "walk-through, without changing who is stated to have written the SQL, and making the README's pointers to "
+       "the SQL, its walk-through and the deviations list clickable links",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 
@@ -1095,7 +1118,8 @@ def b_deviations_in_short(m):
                                                                              else "") + f" {CHANGES_IN_SHORT[k]}"
                                               for k in range(1, n + 1)) if n else "")
     return ("The README's section on deviations is the one that `docs/analysis_plan.md`, a frozen file, calls "
-            "\"Deviations and additions\"; the full list is in `docs/deviations.md`. In short: two statements of the "
+            f"\"Deviations and additions\"; the full list is in {link('docs/deviations.md', m)}. In short: two "
+            "statements of the "
             "first commit about the data source were withdrawn; the baseline grid was widened after the first commit to "
             "follow the plan text; judge v2 does not do what the plan said it would; the reading of the disagreements "
             "was drafted by the AI coding assistant, not by a person; several analyses were added after DEV results "

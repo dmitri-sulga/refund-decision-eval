@@ -1097,6 +1097,9 @@ CHANGES_IN_SHORT = {
        "the SQL, its walk-through and the deviations list clickable links",
     8: "registering a plan (`docs/analysis_plan_models.md`) to run the same two prompts on four other local models, "
        "on DEV and the labelled sample only, before any of them was sent a complaint",
+    9: "amending that plan after an AI-agent review, before any of those models was sent a request: labels instead "
+       "of verdicts, neutral sampling penalties in every request, no replacement of a model, three more models at "
+       "the author's request, and the run and analysis code, published before the first request",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 

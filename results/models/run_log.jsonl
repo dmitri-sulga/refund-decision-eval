@@ -1,0 +1,2 @@
+{"at": "2026-11-11T19:44:52.476116+00:00", "event": "run_started", "model": "qwen3.5:9b", "resend_unanswered": false}
+{"answers": 600, "at": "2026-11-11T20:19:39.837071+00:00", "event": "model_finished", "model": "qwen3.5:9b"}

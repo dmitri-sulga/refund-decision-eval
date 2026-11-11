@@ -2,7 +2,7 @@ PY := .venv/bin/python
 export PYTHONPATH := src
 MIRROR := https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints/resolve/main/complaints.csv.zip
 
-.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data
+.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data sql
 
 PYTHON ?= python3
 
@@ -26,6 +26,10 @@ check: venv
 	$(PY) -m judge.report --check
 
 reproduce: test check
+
+# the SQL in sql/ (added after the held-out run): load the data into SQLite in memory, run every query, print
+sql: venv
+	$(PY) -m judge.sql
 
 # model calls that are missing from the cache (DEV side only)
 run: venv

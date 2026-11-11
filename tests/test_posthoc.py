@@ -2,6 +2,7 @@
 import json
 
 import numpy as np
+import pytest
 
 from judge import config as C
 from judge import metrics as M
@@ -104,8 +105,37 @@ def test_first_screen_fits_in_the_first_twelve_lines_of_the_readme():
     # output once (the person against the record, the systems against the person, the paired differences, the
     # check of the two readings: 35 lines), a 4-line summary in the held-out section and the markers of the
     # 'who' block; nothing else grew. The cap is the length that needs, so any repeat of a table fails it.
-    assert len(lines) <= 200
+    # Sixth change (after the held-out run and the labels): a section pointing to the SQL in sql/ adds 6 lines (a
+    # blank line, the heading, a blank line, the block's two markers and its one paragraph), so the cap is 206. The
+    # paragraph's figures come from metrics.json, so it has to be a generated block, and a block needs its markers.
+    # Also in the sixth change: the deviations paragraph became a generated block ('deviations_in_short'), so that its
+    # count of post-run changes comes from the records; that adds its two markers, so the cap is 208.
+    assert len(lines) <= 208
     assert sum(ln.startswith("| Person (blind") for ln in lines) == 1      # the person's table prints once
+
+
+def test_the_count_of_post_run_changes_comes_from_the_records_and_matches_the_deviations_list():
+    """The README once said 'five times after the held-out run' after a sixth change, because the count was a
+    hand-written word that the check does not see. It is generated now: the highest 'Nth change' the post-run records
+    name, which must equal the number of post-run entries in docs/deviations.md and the changes the summary lists."""
+    import re
+
+    from judge import frontpage as F
+    from judge import report as Rp
+
+    m = json.loads((C.RESULTS / "metrics.json").read_text())
+    n = F.post_run_change_count(m)
+    entries = re.findall(r"^- \*\*After the held-out run, (?:presentation only \()?(\w+) change",
+                         (C.ROOT / "docs" / "deviations.md").read_text(), re.M)
+    assert entries == list(F.ORDINALS[:n]) and n >= 6
+    assert set(F.CHANGES_IN_SHORT) == set(range(1, n + 1))
+    readme = (C.ROOT / "README.md").read_text()
+    block = readme.split("<!-- BEGIN deviations_in_short -->")[1].split("<!-- END deviations_in_short -->")[0]
+    assert f"{F.TIMES[n]} after the held-out run" in block
+    outside = Rp.BLOCK_RE.sub("", readme)
+    assert not re.search(r"\b(?:" + "|".join(F.TIMES[2:]) + r"|once|twice) after the held-out run", outside)
+    with pytest.raises(RuntimeError):            # a recorded change the summary does not describe stops the report
+        F.b_deviations_in_short({"frozen": {"post_run_changes": [{"what": f"{F.ORDINALS[n].capitalize()} change: x"}]}})
 
 
 def test_the_registered_check_of_the_two_readings_flags_a_sign_change_or_a_crossing_of_zero():

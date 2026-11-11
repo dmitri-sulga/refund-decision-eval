@@ -5,6 +5,7 @@ or, where marked exploratory, from posthoc.py.
 """
 from __future__ import annotations
 
+import re
 
 
 class _Report:
@@ -151,7 +152,7 @@ def b_first_screen(m):
         f"charge. Most came after the card issuer had already handled the dispute. Of the "
         f"{m['base_rates']['train']['n']:,} training complaints, {R.pct(share, 0)} are filed as 'company isn't "
         "resolving a dispute'. On "
-        f"the {m['error_analysis']['n_dev']} development complaints, the second prompt (judge v2, below) found that "
+        f"the {m['error_analysis']['n_dev']} development complaints, the second prompt (judge v2, below) reported that "
         f"the issuer had already refused in {pdn['n_denied']}; a cruder keyword search finds a refusal in "
         f"{R.pct(proxy['n_with'] / m['cues']['n_train'], 0)} of the training complaints. The label is how the "
         "company closed the complaint with the regulator, with money back (goodwill credits included) or without, so "
@@ -345,7 +346,7 @@ def _person_first_screen(m) -> str:
             f"{f['cannot_tell']} of {f['n']}; on the {f['decided']} he decided, his agreement with the record is kappa "
             f"{R.ci(pv)} (registered)" + (", an interval that includes zero" if _includes_zero(pv) else "") +
             (f", {where} the spread of the systems on the same cases ({R.num(same['min'])} to {R.num(same['max'])}; "
-             "descriptive, no difference tested)" if same else "") + "." +
+             f"{AFTER_LOCK}; no difference tested)" if same else "") + "." +
             (" For this annotator, as for the text systems, the complaint text alone was a weak guide to what the "
              "company did (see below)." if weak else " See below."))
 
@@ -367,7 +368,7 @@ def _judge_sides(sp: dict, sides: dict, decided: int) -> str:
             a, b = (s["main"]["lo_min"], s["main"]["lo_max"]) if lo else (s["main"]["hi_min"], s["main"]["hi_max"])
             out.append(f"{_cap(NAME[v])}'s {'lower' if lo else 'upper'} bound sits at zero: from {a:+.3f} to {b:+.3f} "
                        f"over {len(SEEDS_OF(sides))} bootstrap seeds ({AFTER_LOCK}), so whether its interval clears zero "
-                       f"is not settled by these {decided} cases, and nothing is concluded for {NAME[v]} either way.")
+                       f"depends on the bootstrap seed, and nothing is concluded for {NAME[v]} either way.")
         else:
             side = ("includes zero" if _includes_zero(x) else "lies entirely above zero" if x["lo"] > TINY else
                     "lies entirely below zero")
@@ -406,8 +407,8 @@ def human_summary(m) -> str:
               f" ({dec[0]} decided each" if len(dec) == 1 else
               f" ({' and '.join(str(g['decided']) for g in hv.values())} decided") + "; registered)" if hv else ""
     where = (f" The {same['n']} systems' kappas against the record on the same {f['decided']} cases run from "
-             f"{R.num(same['min'])} ({NAME[same['min_system']]}) to {R.num(same['max'])} ({NAME[same['max_system']]}) "
-             f"({AFTER_LOCK}); no difference between the person and any system was tested." if same else "")
+             f"{R.num(same['min'])} ({NAME[same['min_system']]}) to {R.num(same['max'])} ({NAME[same['max_system']]}; "
+             f"{AFTER_LOCK}); no difference between the person and any system was tested." if same else "")
     ct = ex.get("cannot_tell_counted")
     counted = (f"; counted as money back, {R.num(ct['as_money_back'])}, and from {R.num(ct['as_the_opposite'])} to "
                f"{R.num(ct['as_the_record'])} if every 'cannot tell' took the opposite of the record or the record "
@@ -436,10 +437,12 @@ def _person_cost(m) -> str:
     who, r = _people(m)[0]
     med = r["median_seconds"]
     s = ((((m.get("posthoc") or {}).get("human") or {}).get(who) or {}).get("seconds") or {})
+    f = r["all"]
     capped = (f", or about {s['mean_capped'] * 1000 / 3600:.0f} h from the mean time per label with each record capped "
-              f"at {s['cap_s'] // 60:.0f} minutes so that long breaks do not count ({s['mean_capped']:.0f} s; "
-              f"{AFTER_LOCK})" if "mean_capped" in s else "")
-    return (f"about {med * 1000 / 3600:.0f} h at the median time per label ({med:.0f} s) times 1,000{capped}; the "
+              f"at {s['cap_s'] // 60:.0f} minutes, so that a record that includes a long break counts for "
+              f"{s['cap_s'] // 60:.0f} minutes ({s['mean_capped']:.0f} s; {AFTER_LOCK})" if "mean_capped" in s else "")
+    return (f"about {med * 1000 / 3600:.0f} h at the median time per label ({med:.0f} s) times 1,000 labels (at this "
+            f"annotator's rate about {round(1000 * f['decided'] / f['n']):,} of them would be decisions){capped}; the "
             "recorded times include pauses with the page open, so neither is a measured handle time.")
 
 
@@ -994,21 +997,109 @@ def b_who(m):
             "independent second author. Where a code comment says \"by hand\" (for example the issuer alias list in "
             "`src/judge/baselines.py`), it means a fixed list written into the code by that assistant.")
     if not (people and rev and rev["reviewed"]):
-        return ("**Who did what.** The author set the task and directed the work on his own laptop through an AI coding "
+        return ("**Who did what.** The author set the task and directed the work, run on his own laptop, through an AI coding "
                 "assistant, and decided to publish the result as it came out. He is labelling the complaints of the "
                 "labelling sample himself, blind. The AI coding assistant chose the data and the label and wrote or "
-                "drafted the code, the prompts, the gaming rewrites, the defence and the first reading of the "
+                "drafted the code (after the held-out run also the SQL queries in `sql/`), the prompts, the gaming "
+                "rewrites, the defence and the first reading of the "
                 f"{e['n_disagreements']} DEV disagreements. " + tail)
     who, f = people[0][0], people[0][1]["all"]
     n, t, notes = _went_through(rev, _screen(m, who))
-    return ("**Who did what.** The author set the task and directed the work on his own laptop through an AI coding "
+    return ("**Who did what.** The author set the task and directed the work, run on his own laptop, through an AI coding "
             "assistant, and decided to publish the result as it came out. He chose to label all "
             f"{f['n']} complaints of the labelling sample himself rather than a smaller set, labelled them blind, and "
-            f"after the lock went through {n} individually sorted disagreements of judge v1 on DEV on a second screen{t}: "
+            f"after the lock went through {n} disagreements of judge v1 on DEV that the assistant had sorted one by one "
+            f"(the other {e['n_category_only']} carry only a category) on a second screen{t}: "
             f"he confirmed {rev['confirmed']} drafted readings, changed {len(rev['changed'])}{notes}. The AI coding "
-            "assistant chose the data and the label and wrote or drafted the code, the prompts, the gaming rewrites, "
+            "assistant chose the data and the label and wrote or drafted the code (after the held-out run also the SQL "
+            "queries in `sql/`, which it chose and wrote when the author asked for an SQL section), the prompts, the "
+            "gaming rewrites, "
             f"the defence and the first reading of the {e['n_disagreements']} DEV disagreements, "
             f"{e['n_disagreements'] - rev['reviewed']} of which no person has confirmed. " + tail)
+
+
+
+def b_sql_queries(m):
+    """A pointer to sql/ (sixth post-run change): which reported figures its queries recompute, and the descriptive
+    breakdown they print for the first time (added later; descriptive; posthoc.issuer_volume and
+    posthoc.within_issuer_by_issuer.pairs_by_issuer)."""
+    if not _ready(m):
+        return R.PENDING
+    ir = m["test"]["results"]["issuer_rate"]
+    wb = m["posthoc"]["within_issuer_by_issuer"]
+    iv = m["posthoc"]["issuer_volume"]
+    lo, hi = _within_issuer_range(m)
+    top = sorted(wb["pairs_by_issuer"].items(), key=lambda kv: (-kv[1], kv[0]))[:2]
+    return ("`sql/` holds eight short, commented SQL queries, run in SQLite through Python's built-in `sqlite3`. Most "
+            "of what they print recomputes figures this study already reports (the README and `results/report.md`) "
+            f"from the same data: the relief base rate per split ({R.pct(m['base_rates']['test']['base_rate'])} "
+            "held-out); the issuer lookup's TRAIN payout rates (GROUP BY) and its decision for each held-out complaint "
+            "(a LEFT JOIN on the issuer, with the rule for issuers unseen in TRAIN), with its agreement "
+            f"({R.pct(ir['accuracy']['value'])}) and kappa ({R.num(ir['kappa']['value'])}) computed in SQL from the 2x2 "
+            "counts; the agreement, 'pays', 'refuses' and kappa columns of the held-out table for every system in one "
+            f"query; the {wb['pairs']:,} same-issuer pairs from {wb['issuers_with_pairs']} issuers, counted by a "
+            f"self-join and by a product of grouped counts, and the within-issuer AUC over them ({R.num(lo, 2)} to "
+            f"{R.num(hi, 2)} for the text systems); and the issuer facts and the dates of the full report, with window "
+            "functions. They also print a breakdown that was not reported before (added later; descriptive): each "
+            "issuer's TRAIN count, paid count, raw and smoothed rate, share of TRAIN and running share (the "
+            f"{iv['k']} largest issuers hold {R.pct(iv['share_of_k_largest'])} of TRAIN), and the same-issuer pairs per "
+            "issuer (" + " and ".join(f"{g} {k:,}" for g, k in top) + f" of the {wb['pairs']:,}). `make sql` prints "
+            "the results; `tests/test_sql.py` checks every value of every result, row by row and in order, against the "
+            "same figure computed in Python from the same data (by the frozen code where it computes one) and against "
+            "`results/metrics.json`, not against the queries' own output; `docs/sql.md` explains every query clause by "
+            "clause. The AI coding assistant chose and wrote the queries after the held-out run and the human labels, "
+            "when the author asked for an SQL section. They decide nothing and feed no reported number, and the "
+            "intervals, which come from resampling, are not reproduced.")
+
+
+# ------------------------------------------------------------------ deviations, in short
+ORDINALS = ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
+TIMES = ("no times", "once", "twice", "three times", "four times", "five times", "six times", "seven times",
+         "eight times", "nine times", "ten times")
+# one line per post-run change, as recorded in docs/deviations.md; the count comes from the records
+CHANGES_IN_SHORT = {
+    1: "reorganising the README so that the held-out result comes first",
+    2: "adding the exploratory analyses above",
+    3: "correcting some of their wording after two further AI-agent reviews, adding the figures behind those "
+       "corrections and a check of the Python version to the `Makefile`",
+    4: "after the blind labels were locked, printing the human-label tables once, with a short summary in the "
+       "held-out section, and stating the time per label, the reading record and the decision not to write a v3 "
+       "prompt",
+    5: "after final reviews, rewording sentences on the human labels that read stronger than the data allow, "
+       "anchoring the locked labels under the check, and removing three unused personal-data columns from the label "
+       "cross-check file",
+    6: "after two further AI-agent reviews, adding the SQL queries in `sql/` that recompute reported figures and "
+       "print a descriptive breakdown not reported before, and correcting wording published at commit `72b077a`: in "
+       "the README the key to the tags, the first screen, 'Who did what', the human-label sections and the person's "
+       "cost line, and in the full report the wording of the second screen and of the issuer rates",
+}
+_ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
+
+
+def post_run_change_count(m) -> int:
+    """How many changes after the held-out run results/post_run_changes.json records: the highest 'Nth change' that
+    the accepted records name (a record names every change that touched its file)."""
+    recs = (m.get("frozen") or {}).get("post_run_changes") or []
+    return max((ORDINALS.index(w.lower()) + 1 for r in recs for w in _ORDINAL_CHANGE.findall(r["what"])), default=0)
+
+
+def b_deviations_in_short(m):
+    """The deviations list in short, with the number of post-run changes counted from the records, so that the
+    count written here cannot fall behind them."""
+    n = post_run_change_count(m)
+    if set(CHANGES_IN_SHORT) != set(range(1, n + 1)):
+        raise RuntimeError(f"results/post_run_changes.json records {n} post-run changes; CHANGES_IN_SHORT describes "
+                           f"{sorted(CHANGES_IN_SHORT)}")
+    after = (f"; and {TIMES[n]} after the held-out run the repository changed without any computation of a frozen "
+             "number changing: " + "; ".join(f"the {ORDINALS[k - 1]} time" + ("," if CHANGES_IN_SHORT[k].startswith("after")
+                                                                             else "") + f" {CHANGES_IN_SHORT[k]}"
+                                              for k in range(1, n + 1)) if n else "")
+    return ("The README's section on deviations is the one that `docs/analysis_plan.md`, a frozen file, calls "
+            "\"Deviations and additions\"; the full list is in `docs/deviations.md`. In short: two statements of the "
+            "first commit about the data source were withdrawn; the baseline grid was widened after the first commit to "
+            "follow the plan text; judge v2 does not do what the plan said it would; the reading of the disagreements "
+            "was drafted by the AI coding assistant, not by a person; several analyses were added after DEV results "
+            f"were seen{after}. The registered v3 step was not carried out.")
 
 
 WORDS = {"relief": "money back", "no_relief": "no money back", "cannot_tell": "cannot tell"}
@@ -1082,30 +1173,58 @@ def _labelled_anchor(m) -> str:
              "; `make check` fails if any of them changes, even with the lock file resealed to match." if lab else ""))
 
 
+def _band(b: dict) -> str:
+    return (f"under {b['to_s']} s" if not b["from_s"] else f"over {b['from_s']} s" if b["to_s"] is None
+            else f"from {b['from_s']} to {b['to_s']} s")
+
+
+def _undo_in_band(bands: list, cases: list) -> str:
+    """Where an answer re-entered after an undo is 'cannot tell', say which time band its recorded time puts it in
+    and, when the next band is close, how that band compares without it (descriptive)."""
+    out, th = [], ("first", "second", "third", "fourth", "fifth", "sixth")
+    for c in cases:
+        s = c.get("final_s")
+        if s is None or c.get("final") != "cannot_tell":
+            continue
+        k = next(j for j, b in enumerate(bands) if s >= b["from_s"] and (b["to_s"] is None or s < b["to_s"]))
+        if k + 1 >= len(bands) or bands[k]["n"] < 2:
+            continue
+        b, nx = bands[k], bands[k + 1]
+        a, n, r_next = b["cannot_tell"] - 1, b["n"] - 1, nx["cannot_tell"] / nx["n"]
+        side = "below" if a / n < r_next else "above" if a / n > r_next else "level with"
+        out.append(f" The {th[k]} and {th[k + 1]} bands are close ({R.pct(b['cannot_tell'] / b['n'], 0)} and "
+                   f"{R.pct(r_next, 0)}), and one of the {b['cannot_tell']} 'cannot tell' answers {_band(b)} is the answer "
+                   f"re-entered after the undo, recorded at {s:.1f} s (the answer it replaced was recorded at "
+                   f"{c['undone_s']:.1f} s); without it the {th[k]} band is {a} of {n}, {side} the {th[k + 1]}.")
+    return "".join(out)
+
+
 def _cannot_tell(f, r, ex=None) -> str:
     """What the share of 'cannot tell' means for anyone planning to use labels like these: it describes this one
     annotator. Facts only: the rubric's definition, who the annotator is, the registered count and recorded relief
     rate, the descriptive pace figures (posthoc), and whether reasons were recorded."""
     pc = (ex or {}).get("pace")
     if pc:
-        rates = [b["cannot_tell"] / b["n"] for b in pc["bands"] if b["n"]]
-        falls = all(x >= y for x, y in zip(rates, rates[1:]))
-        band = lambda b: (f"under {b['to_s']} s" if not b["from_s"] else f"over {b['from_s']} s" if b["to_s"] is None  # noqa: E731
-                          else f"from {b['from_s']} to {b['to_s']} s")
+        fast = [b for b in pc["bands"] if b["to_s"] is not None and b["to_s"] <= 60]
+        slow = [b for b in pc["bands"] if b not in fast]
+        split = (f"; that is {sum(b['cannot_tell'] for b in fast)} of the {sum(b['n'] for b in fast)} labels that took "
+                 f"under a minute and {sum(b['cannot_tell'] for b in slow)} of the {sum(b['n'] for b in slow)} that took "
+                 "longer" if fast and slow else "")
         pace = (" His share of 'cannot tell' by the time spent on a label: " +
-                ", ".join(f"{b['cannot_tell']} of {b['n']} {band(b)}" for b in pc["bands"]) +
-                ("; he answered 'cannot tell' more often the less time he spent" if falls else "") +
-                f"; and his median time per label was {pc['median_s_first']:.0f} s on his first {pc['n_first']} labels "
-                f"and {pc['median_s_last']:.0f} s on his last {pc['n_last']} ({AFTER_LOCK}). The share describes this "
-                "reader at this pace as much as the texts; a trained disputes handler might decide more.")
+                ", ".join(f"{b['cannot_tell']} of {b['n']} {_band(b)}" for b in pc["bands"]) + split + "." +
+                _undo_in_band(pc["bands"], ((ex or {}).get("undo") or {}).get("cases") or []) +
+                f" His median time per label was {pc['median_s_first']:.0f} s on his first {pc['n_first']} labels "
+                f"and {pc['median_s_last']:.0f} s on his last {pc['n_last']} ({AFTER_LOCK}). These figures show how "
+                "time and 'cannot tell' went together for this annotator; they cannot separate how much of the share "
+                "comes from the texts and how much from his reading and his pace.")
     else:
         pace = ""
     return (f"**'Cannot tell' in {f['cannot_tell']} of {f['n']}.** The rubric asks for 'cannot tell' when the text does "
             "not describe a transaction the reader can identify, or when the decision turns entirely on evidence the "
             "text does not give. This annotator (not a lawyer, not a native English reader, reading with a machine "
             f"translation beside the English, a median of {r['median_seconds']:.0f} s per label) left {f['cannot_tell']} "
-            f"of {f['n']} complaints without a decision, so labels like these cover only part of the cases, and which "
-            "part is chosen by the reader, not at random (registered: the companies paid in "
+            f"of {f['n']} complaints without a decision, so his labels cover {f['decided']} of the {f['n']} cases, and "
+            f"which {f['decided']} was chosen by him, not at random (registered: the companies paid in "
             f"{R.pct(f['cannot_tell_recorded_relief'])} of the 'cannot tell' cases, {R.pct(f['recorded_relief_share'])} "
             "of the whole sample)." + pace + " Which of the two reasons applied to a case was not recorded as a field "
             f"({r['with_note']} of {f['n']} labels " + ("carries" if r["with_note"] == 1 else "carry") +
@@ -1143,8 +1262,8 @@ def b_human_detail(m):
                     ["\nToo few decided cases."])
         e = r["error_review"]
         n, t, notes = _went_through(e, _screen(m, who))
-        out.append(f"\nSecond screen (after the lock), the author's own reading of the {e['total']} individually sorted "
-                   f"v1 DEV disagreements: he went through {n}{t}" + (f" ({AFTER_LOCK})" if t else "") +
+        out.append(f"\nSecond screen (after the lock), the author's own reading of the {e['total']} v1 DEV disagreements "
+                   f"that the assistant had sorted one by one: he went through {n}{t}" + (f" ({AFTER_LOCK})" if t else "") +
                    f", confirmed {e['confirmed']} drafted readings, changed {len(e['changed'])}{notes}.")
         rows = ex.get("review") or []
         if rows:

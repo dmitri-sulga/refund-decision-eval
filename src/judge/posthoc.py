@@ -394,8 +394,10 @@ def _undo(path, labels: dict) -> dict:
         if r.get("undo"):
             prev = next((x for x in reversed(raw[:k]) if x["complaint_id"] == r["complaint_id"] and not x.get("undo")),
                         None)
-            cases.append({"undone": prev["label"] if prev else None,
-                          "final": (labels.get(r["complaint_id"]) or {}).get("label")})
+            final = labels.get(r["complaint_id"]) or {}
+            cases.append({"undone": prev["label"] if prev else None, "final": final.get("label"),
+                          # sixth change: the recorded time of the undone answer and of the answer that stands
+                          "undone_s": prev["seconds"] if prev else None, "final_s": final.get("seconds")})
     return {"records": len(raw), "labels": len(labels), "cases": cases}
 
 
@@ -593,7 +595,15 @@ def within_issuer_by_issuer(S, m, B=C.BOOTSTRAP_B, seed=C.BOOTSTRAP_SEED) -> dic
                              "share_at_or_below_half": float(np.mean(reps <= 0.5))}
         pairs = int(pp.sum())
     out["pairs"] = pairs
+    # sixth change (descriptive; sql/05 prints it): the same-issuer pairs of each issuer
+    out["pairs_by_issuer"] = {str(g): int(k) for g, k in zip(groups, pp)}
     return out
+
+
+def issuer_volume(S, k: int = 5) -> dict:
+    """Sixth change (descriptive; sql/07 prints it): how much of TRAIN the k largest issuers hold together."""
+    n_by = sorted(Counter(S.records[i]["company"] for i in S.splits["train"]).values(), reverse=True)
+    return {"issuers": len(n_by), "k": k, "share_of_k_largest": sum(n_by[:k]) / sum(n_by)}
 
 
 def tfidf_slice_correct(S, m) -> dict:
@@ -688,4 +698,6 @@ def compute(m: dict) -> dict:
             "accuracy_vs_always_no_exact": accuracy_vs_always_no_exact(S, m),
             "within_issuer_by_issuer": within_issuer_by_issuer(S, m), "tfidf_slice_correct": tfidf_slice_correct(S, m),
             "issuer_smoothed_at_half": issuer_smoothed_at_half(S), "filter_on_real_narratives": filter_on_real_narratives(S),
-            "holm_one_sided": holm_one_sided(S, m), "data_window": data_window(S), "journal_first_at": journal_first_at()}
+            "holm_one_sided": holm_one_sided(S, m), "data_window": data_window(S), "journal_first_at": journal_first_at(),
+            # added in the sixth post-run change: descriptive figures that the SQL in sql/ prints for the first time
+            "issuer_volume": issuer_volume(S)}

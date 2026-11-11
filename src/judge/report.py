@@ -328,9 +328,10 @@ def b_issuer(m):
             for n, x in rk["systems"].items()]
     return "\n".join([
         f"Issuer identity (added after DEV results). TRAIN has {i['issuers_in_train']} issuers; among those with "
-        f"at least 100 TRAIN complaints the relief rate runs from {pct(i['lowest'][1])} ({i['lowest'][0]}) to "
-        f"{pct(i['highest'][1])} ({i['highest'][0]}); {int(i['issuers_above_half'])} issuer is above one half, which "
-        "is why the planned company rule rarely predicts relief. TF-IDF features with the largest weights towards "
+        f"at least 100 TRAIN complaints the smoothed relief rate (the issuer lookup's score) runs from "
+        f"{pct(i['lowest'][1])} ({i['lowest'][0]}) to {pct(i['highest'][1])} ({i['highest'][0]}); "
+        f"{int(i['issuers_above_half'])} issuer with at least 20 TRAIN complaints paid more than half of them (raw "
+        "rate), which is why the planned company rule rarely predicts relief. TF-IDF features with the largest weights towards "
         f"relief: {', '.join(i['top_features']['towards_relief'])}; towards no relief: "
         f"{', '.join(i['top_features']['towards_no_relief'])}. The masked model replaces {i['issuer_words_masked']} "
         "issuer words (chosen by a share-and-lift rule on TRAIN) and a short list of common short names.\n",
@@ -416,15 +417,15 @@ def _who_read(m) -> str:
             (_second_screen_sentence(m, rev[0]) +
              f" The drafted readings of the other {e['n_disagreements'] - rev[0]['reviewed']} of the "
              f"{e['n_disagreements']} disagreements are still the assistant's and unconfirmed." if rev else
-             "The author's own reading of the individually sorted cases will be reported separately when it exists."))
+             "The author's own reading of the cases sorted one by one will be reported separately when it exists."))
 
 
 def _second_screen_sentence(m, rev) -> str:
     """What the record of the second screen shows (frontpage._went_through: count, timing, notes)."""
     who = next(w for w, r in m["human"]["annotators"].items() if r["error_review"] is rev)
     n, t, notes = F._went_through(rev, F._screen(m, who))
-    return (f"After the blind labels were locked, the author went through {n} individually sorted cases on a second "
-            f"screen{t}: he confirmed {rev['confirmed']} drafted readings, changed {len(rev['changed'])}{notes} (case by "
+    return (f"After the blind labels were locked, the author went through {n} cases that the assistant had sorted one "
+            f"by one, on a second screen{t}: he confirmed {rev['confirmed']} drafted readings, changed {len(rev['changed'])}{notes} (case by "
             "case in the human detail section).")
 
 
@@ -753,8 +754,8 @@ def b_human_detail(m):
             out.append(f"\n{half.capitalize()} half ({g['n']} cases, {g['decided']} decided, {g['cannot_tell']} cannot tell):\n")
             out.append(_human_table(g) if "person_vs_recorded" in g else "Too few decided cases.")
         e = r["error_review"]
-        out.append(f"\nSecond screen (after the lock): {e['reviewed']} of {e['total']} individually sorted disagreements "
-                   f"reviewed, {e['confirmed']} drafted readings confirmed, {len(e['changed'])} changed" +
+        out.append(f"\nSecond screen (after the lock): {e['reviewed']} of the {e['total']} disagreements that the assistant "
+                   f"had sorted one by one reviewed, {e['confirmed']} drafted readings confirmed, {len(e['changed'])} changed" +
                    ("." if not e["changed"] else ": " + "; ".join(
                        f"{c['complaint_id']} from {c['from'].replace('_', ' ')} to {c['to'].replace('_', ' ')}"
                        for c in e["changed"]) + "."))
@@ -1124,9 +1125,11 @@ b_headline, b_practice = F.b_headline, F.b_practice
 POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
 # the only files a post-run change may touch: the presentation code, the exploratory module, the
 # deviations note (the last two did not exist at the freeze: their frozen hash is recorded as null), and the
-# Makefile, whose venv target only gained a check of the Python version (third change)
+# Makefile, whose venv target only gained a check of the Python version (third change). Sixth change: the SQL
+# loader and its walk-through (both new, frozen hash null; they feed no report number), and the Makefile's `sql`
+# target
 PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md",
-                      "Makefile")
+                      "Makefile", "src/judge/sql.py", "docs/sql.md")
 
 
 def accept_post_run_changes(m: dict) -> dict:
@@ -1187,9 +1190,12 @@ BLOCKS = {            # every block, in the order of results/report.md
     "cost": b_cost,
     "deviation_facts": b_deviation_facts,
     "data_licence": F.b_data_licence,
+    "sql_queries": F.b_sql_queries,     # sixth change, after the held-out run: a pointer to sql/
+    "deviations_in_short": F.b_deviations_in_short,   # sixth change: the count of post-run changes from the records
 }
 README_BLOCKS = ("first_screen", "who", "headline", "practice", "inputs", "human", "freeze_record",
-                 "deviation_facts", "data_licence")   # the README must contain at least these
+                 "deviation_facts", "data_licence", "sql_queries",
+                 "deviations_in_short")   # the README must contain at least these
 
 
 def render(text: str, m: dict) -> str:

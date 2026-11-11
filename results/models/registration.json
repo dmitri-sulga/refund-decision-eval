@@ -1,0 +1,19 @@
+{
+ "what": "The public record of the local-models extension (docs/analysis_plan_models.md, Amendment 1, section 6), written after the code commit was published and before any request. Times are GitHub's, not the author's clock.",
+ "repository": "dmitri-sulga/refund-decision-eval",
+ "code_commit": "6d066af7680709d135dbb244e09f578fc629e27e",
+ "code_published_at": "2026-11-11T15:00:40Z",
+ "code_published_source": "GitHub repository activity API (repos/dmitri-sulga/refund-decision-eval/activity): push of main from 162909f to 6d066af",
+ "registered_plan_commit": "162909f4d589a3070910f3295a03ade2d2366714",
+ "registered_plan_published_at": "2026-11-11T12:32:36Z",
+ "gist_id": "f17036e715dc7ae227fba1b7b4845abf",
+ "gist_url": "https://gist.github.com/dmitri-sulga/f17036e715dc7ae227fba1b7b4845abf",
+ "gist_visibility": "secret (unlisted: anyone with the link can read it)",
+ "gist_created_at": "2026-11-11T15:00:46Z",
+ "gist_first_revision": "010c34cf4c8033ba11a13495b2a19894c63a8d95",
+ "gist_file": "local-models-extension-hashes.txt",
+ "gist_file_sha256": "8115d426d99f391a4cdb74848ed3790c8867d68fe6dc0b8148965742bf775a44",
+ "gist_content": "the commit id above and the SHA-256 of 15 files at that commit: the plan with Amendment 1, the extension's runner, analysis and tests, environment.json, the review's power scripts and arrays, the Makefile, and the frozen prompts.py, llm.py, judgments.py, config.py and metrics.py",
+ "earlier_gist_not_edited": "dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)",
+ "requests_before_this_file": 0
+}

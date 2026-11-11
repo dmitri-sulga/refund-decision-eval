@@ -1127,9 +1127,10 @@ POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
 # deviations note (the last two did not exist at the freeze: their frozen hash is recorded as null), and the
 # Makefile, whose venv target only gained a check of the Python version (third change). Sixth change: the SQL
 # loader and its walk-through (both new, frozen hash null; they feed no report number), and the Makefile's `sql`
-# target
+# target. Eighth change: the plan for running the same task on other local models (new, frozen hash null; not run,
+# feeds no report number)
 PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md",
-                      "Makefile", "src/judge/sql.py", "docs/sql.md")
+                      "Makefile", "src/judge/sql.py", "docs/sql.md", "docs/analysis_plan_models.md")
 
 
 def accept_post_run_changes(m: dict) -> dict:

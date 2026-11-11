@@ -1095,6 +1095,8 @@ CHANGES_IN_SHORT = {
     7: "removing, at the author's decision, a clause about his own level from the introduction of the SQL "
        "walk-through, without changing who is stated to have written the SQL, and making the README's pointers to "
        "the SQL, its walk-through and the deviations list clickable links",
+    8: "registering a plan (`docs/analysis_plan_models.md`) to run the same two prompts on four other local models, "
+       "on DEV and the labelled sample only, before any of them was sent a complaint",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 

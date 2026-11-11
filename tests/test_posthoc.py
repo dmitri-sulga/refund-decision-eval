@@ -125,3 +125,73 @@ def test_within_issuer_by_issuer_resamples_issuers_and_matches_the_frozen_point(
     assert wb["issuers_with_pairs"] < 20 and wb["B"] == C.BOOTSTRAP_B
     for k, x in wb["systems"].items():
         assert abs(x["value"] - sy[k]["within_issuer_auc"]["value"]) < 1e-6 and x["lo"] <= x["value"] <= x["hi"]
+
+
+def test_the_locked_labels_are_anchored_even_when_the_lock_is_resealed(tmp_path, monkeypatch):
+    """Fifth change: a changed label file fails the check although a resealed lock matches it again."""
+    import hashlib
+    import shutil
+
+    for f in P.LABEL_FILES:
+        (tmp_path / f).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(C.ROOT / f, tmp_path / f)
+    assert P.label_file_problems(tmp_path) == []
+    labels = tmp_path / "results/human_labels/owner.jsonl"
+    lock = tmp_path / "results/human_labels/owner.lock.json"
+
+    def reseal():
+        x = json.loads(lock.read_text())
+        x["labels_sha256"] = hashlib.sha256(labels.read_bytes()).hexdigest()
+        lock.write_text(json.dumps(x, indent=1) + "\n")
+
+    lines = labels.read_text(encoding="utf-8").splitlines(True)
+    noted = next(k for k, ln in enumerate(lines) if json.loads(ln).get("note"))
+    r = json.loads(lines[noted])
+    r["note"] = r["note"] + "."                                        # the one free-text note, one byte longer
+    lines[noted] = json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n"
+    labels.write_text("".join(lines), encoding="utf-8")
+    reseal()
+    assert json.loads(lock.read_text())["labels_sha256"] == hashlib.sha256(labels.read_bytes()).hexdigest()
+    got = P.label_file_problems(tmp_path)
+    assert any("owner.jsonl" in p for p in got) and any("owner.lock.json" in p for p in got)
+
+    shutil.copy(C.ROOT / "results/human_labels/owner.jsonl", labels)    # the history of the undo dropped instead
+    kept = [ln for ln in labels.read_text(encoding="utf-8").splitlines(True) if not json.loads(ln).get("undo")]
+    labels.write_text("".join(kept), encoding="utf-8")
+    reseal()
+    assert any("owner.jsonl" in p for p in P.label_file_problems(tmp_path))
+
+    review = tmp_path / "results/human_labels/owner_error_review.jsonl"
+    review.write_bytes(review.read_bytes().replace(b'"note": ""', b'"note": "x"', 1))
+    assert any("owner_error_review.jsonl" in p for p in P.label_file_problems(tmp_path))
+
+    m = {"frozen": {"sha256": P.GIST["revisions"][-1]["frozen_sha256"]},
+         "test": {"commit": P.GIST["revisions"][-1]["commit"]}}
+    f = "results/human_labels/owner.jsonl"
+    monkeypatch.setitem(P.LABEL_FILES, f, (P.LABEL_FILES[f][0], "0" * 64))
+    assert any("locked labels committed in" in p for p in P.integrity(m)["problems"])
+
+
+def test_a_figure_whose_side_of_zero_moves_with_the_seed_is_left_out_of_the_check():
+    from judge import frontpage as F
+
+    clear = {"value": 0.2, "lo": 0.05, "hi": 0.35}
+    edge = {"value": 0.216, "lo": 0.0, "hi": 0.435}
+    wide = {"value": 0.19, "lo": -0.02, "hi": 0.4}
+    out = F._sign_check([("a", clear, clear), ("v2", edge, wide)], unsettled={"v2"}, registered={"a", "v2"})
+    assert "they agree in sign" in out and "For v2, a bound of the interval sits at zero" in out
+    assert "disagree" not in out and "No conclusion is drawn" in out
+    out = F._sign_check([("a", clear, wide), ("b", clear, wide)], registered={"a"})
+    assert "interval for a." in out and "(descriptive): they disagree for b." in out
+
+
+def test_seed_sides_name_only_figures_that_flip_and_reproduce_the_reported_interval():
+    h = METRICS["posthoc"]["human"]["owner"]
+    sides = h["seed_sides"]
+    assert sides["seeds"] == list(P.SEEDS) and C.BOOTSTRAP_SEED in sides["seeds"]
+    rep = METRICS["human"]["annotators"]["owner"]["all"]["systems_vs_person"]["v2"]["kappa"]
+    x = sides["scopes"]["all"]["v2_vs_person:kappa"]["main"]
+    assert x["lo_min"] - 1e-6 <= rep["lo"] <= x["lo_max"] + 1e-6 and x["hi_min"] - 1e-6 <= rep["hi"] <= x["hi_max"] + 1e-6
+    for scope in sides["scopes"].values():
+        for k, v in scope.items():
+            assert v["settled"] == (len(v["main"]["sides"]) == 1 and len(v["sens"]["sides"]) == 1), k

@@ -105,10 +105,10 @@ def test_the_person_never_sits_in_a_dev_or_held_out_column(locked):
         assert rows and not any("Person" in r for r in rows)
     assert "**Blind human labels**" in head and "| Person" not in head     # the full tables print once, below
     assert "(registered)" in head and "registered sensitivity line" in head
-    for text in (summary, human):
-        assert "same " in text and "decided cases of the 100-complaint TRAIN labelling sample" in text
-        person = _table_rows(text, "Kappa against the record")
-        assert person[0].startswith("| Person") and any(r.startswith("| Issuer relief rate") for r in person)
+    assert "| Person" not in summary and "prints once, in the human-label section" in summary
+    assert "same " in human and "decided cases of the 100-complaint TRAIN labelling sample" in human
+    person = _table_rows(human, "Kappa against the record")
+    assert person[0].startswith("| Person") and any(r.startswith("| Issuer relief rate") for r in person)
 
 
 def test_human_section_has_the_required_parts(locked):
@@ -127,8 +127,11 @@ def test_human_section_has_the_required_parts(locked):
     assert "Registered check of the two readings" in text and "Accuracy [95% CI], decided cases" in text
     assert "Person against the recorded company decision (registered)" in detail
     assert "'cannot tell' as no money back" in text and "Time per label (not in the registered plan" in text
-    for t in (text, Rp.b_summary(m)):
-        assert "Issuer relief rate (added later) (not in the registered plan" in t
+    assert "Issuer relief rate (added later) (not in the registered plan" in text
+    assert "they disagree in sign" in text or "they agree in sign" in text
+    assert "His share of 'cannot tell' by the time spent on a label" in text and "This annotator" in text
+    assert "he went through 1 of the 24" in detail and "The plan registers these figures for each half" in detail
+    assert "reads these only through the v3 rule" not in detail
     review = _table_rows(detail, "Author's reading")
     assert len(review) == 1 and "synthetic" in review[0]
     assert "Calibration half" in detail and "Evaluation half" in detail

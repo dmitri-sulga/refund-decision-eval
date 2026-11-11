@@ -67,9 +67,13 @@ def test_headline_states_each_frozen_claim_as_its_rule_decides():
         f = m["human"]["annotators"]["owner"]["all"]
         assert "**Blind human labels**" in head and "Blind human labels are being collected" not in head
         assert f"could not decide {f['cannot_tell']} of them from the text (registered)" in head
-        assert "agrees with the record about as weakly as the systems do" in head
+        assert "about as weakly" not in head and "no system is shown to agree" not in head     # fifth change
         assert "no difference between the person and any system was tested" in head
-        assert "no system is shown to agree with the person" in head and "Registered check of the two readings" in head
+        assert "an interval that includes zero" in head and "Registered check of the two readings" in head
+        sides = m["posthoc"]["human"]["owner"]["seed_sides"]["scopes"]["all"]["v2_vs_person:kappa"]
+        if not sides["settled"]:              # a bound at zero that moves with the seed is named, never concluded on
+            assert "Judge v2's lower bound sits at zero" in head and "nothing is concluded for judge v2" in head
+            assert "the check cannot be applied to it" in head
         assert "not a lawyer" in head and "machine translation" in head
         assert len([ln for ln in head.split("**Blind human labels**")[1].splitlines() if ln.strip()]) <= 4
     pending = copy.deepcopy(m)
@@ -94,7 +98,8 @@ def test_practice_says_what_is_not_measured_while_labels_are_pending():
     if not m["human"]["annotators"]:
         assert "a person: not measured until the blind labels are locked" in text
     else:
-        assert "the median time per label" in text and "times 1,000, which leaves out breaks" in text
+        assert "at the median time per label" in text and "times 1,000" in text
+        assert "capped at 5 minutes" in text and "neither is a measured handle time" in text       # fifth change
     assert text.startswith("Only the claims above were frozen before the run. Everything in this section is exploratory")
     assert "Only the prompt that asks the model to predict the record is moved" not in text
     assert "at least as well" not in text and "0 of 10 other wordings" in text

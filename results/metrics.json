@@ -7338,26 +7338,26 @@
    {
     "file": "docs/deviations.md",
     "frozen_sha256": null,
-    "sha256": "cd40cc4e22282400991f2efe1fe24ae46c0c72b6503fde2af57f56c5975543a1",
-    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out."
+    "sha256": "e40310f1044706339d2c9d2ef9779129ba7de5939314a49410c1e49d2c5392c8",
+    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out. Fifth change: the fifth post-run change recorded, including the removal of three unused personal-data columns from data/live_api_metadata.csv.gz and why; the v3 entry says that the plan anticipated the small halves."
    },
    {
     "file": "src/judge/frontpage.py",
     "frozen_sha256": null,
-    "sha256": "c53e2ac9878d530241cd9b4e0a0fb7bc480841f0cdb0adf9e73a77abde01f78e",
-    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers."
+    "sha256": "37c6ba08f0ecd22e8003cedcd9d2b1471b66512d801ec3f765abc5388409a298",
+    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers. Fifth change (after final reviews): the first screen splits the sentence over three denominators, words the within-issuer result and the error counts, states the person's interval and the systems' spread without implying a tested equivalence, says the fake note was appended and the TF-IDF sentence written with the feature list in view; 'Who did what' gives the author's part first; the judges against the person and the registered check of the two readings leave out a figure whose side of zero moves with the bootstrap seed and list registered and descriptive figures apart; the 'cannot tell' paragraph describes this annotator; the second screen as the record shows it; the undo before the lock; the hashes of the locked labels; the per-half 'cannot tell' rates; the v3 paragraph; the error-direction, automation-slice, cost and 'before trying again' wording; the scrubbing misses in the data block."
    },
    {
     "file": "src/judge/posthoc.py",
     "frozen_sha256": null,
-    "sha256": "83b26e63b3ba2e835e631c4ffc3e16e7ef4ec77c561deb5b3b4e9d3110942eb8",
-    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim. Fourth change (after the blind labels were locked): the longest single time record, the range of the eight systems' kappa against the record on the person's decided cases and on the held-out split, and the decided labels per half with the half-width of each paired kappa interval on the evaluation half (for the v3 decision); descriptive, from figures already computed. None decides a frozen claim. Also in the fourth change: the response cache as committed in 7194269, with the judges' answers for the labelled sample, is anchored like the run-commit files; the check fails if those bytes change."
+    "sha256": "1967256278ff917d9ccc967ba9fbada5755e601211adebe71d3d719cab972dd6",
+    "what": "added after the held-out run: exploratory analyses from the same data and caches, no model call (accuracy against always answering no relief, errors by direction, DEV against held-out, Bonferroni intervals, the TF-IDF automation slice, gaming the TF-IDF model, the filter on further wordings, the fake note's effect on extracted facts, Holm correction, relief by sub-issue, the answer files at the run commit and the gist hashes). None decides a frozen claim. Third change (after two re-reviews): agreement against always no with exact McNemar tests and Bonferroni intervals for eight systems, the within-issuer AUC with issuers resampled, how many of the automation slice TF-IDF and the issuer lookup get right, the smoothed issuer rates at one half, the filter on every real narrative, a one-sided Holm reading of the gaming tests, the date window, the first entry of the request journal, the gist's server fields, and the registered sensitivity line of the paired differences against the person. None decides a frozen claim. Fourth change (after the blind labels were locked): the longest single time record, the range of the eight systems' kappa against the record on the person's decided cases and on the held-out split, and the decided labels per half with the half-width of each paired kappa interval on the evaluation half (for the v3 decision); descriptive, from figures already computed. None decides a frozen claim. Also in the fourth change: the response cache as committed in 7194269, with the judges' answers for the labelled sample, is anchored like the run-commit files; the check fails if those bytes change. Fifth change (after final reviews): the locked labels, the lock and the second-screen file as committed in 30655fe are anchored as whole files; descriptive figures from the labels already locked: 'cannot tell' by time per label and the median time on the first and last half of the labels, the answer undone before the lock, the timing of the second screen, the person's kappa with 'cannot tell' counted four ways, the mean time per label with records capped at five minutes, and the side of zero of every interval in the registered check over bootstrap seeds 0 to 9 (checked against the reported interval at the configured seed). None decides a frozen claim."
    },
    {
     "file": "src/judge/report.py",
     "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-    "sha256": "b95557e091118366c72c602a75f06307744755df0f66bd17b76c60131f15c494",
-    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README."
+    "sha256": "5aef1ed01e137a12174bb77b64406ffcc7b0828589bb4ae82fdd2a378516ac61",
+    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README. Fifth change (after final reviews): the Summary no longer prints the person's table a second time and points to the human-label section; the figure link in report.md is relative to results/; the error-reading sections say the author went through the 24 sorted cases with the timing the record shows, and that the blind labels bear on the hypothesis, which no registered test decides."
    }
   ],
   "problems": [],
@@ -12353,6 +12353,12 @@
   },
   "human": {
    "owner": {
+    "cannot_tell_counted": {
+     "as_money_back": 0.042553,
+     "as_no_money_back": 0.196597,
+     "as_the_opposite": -0.255708,
+     "as_the_record": 0.523397
+    },
     "kappa_ranges_vs_record": {
      "held_out": {
       "max": 0.35368,
@@ -12368,6 +12374,40 @@
       "min_system": "v1",
       "n": 8
      }
+    },
+    "pace": {
+     "bands": [
+      {
+       "cannot_tell": 9,
+       "from_s": 0,
+       "n": 16,
+       "to_s": 30
+      },
+      {
+       "cannot_tell": 19,
+       "from_s": 30,
+       "n": 35,
+       "to_s": 60
+      },
+      {
+       "cannot_tell": 10,
+       "from_s": 60,
+       "n": 26,
+       "to_s": 120
+      },
+      {
+       "cannot_tell": 6,
+       "from_s": 120,
+       "n": 23,
+       "to_s": null
+      }
+     ],
+     "cannot_tell_first": 19,
+     "cannot_tell_last": 25,
+     "median_s_first": 75.05,
+     "median_s_last": 47.25,
+     "n_first": 50,
+     "n_last": 50
     },
     "paired_sensitivity": {
      "all": {
@@ -12655,15 +12695,1064 @@
       "note": ""
      }
     ],
+    "second_screen": {
+     "median_gap_s": 32.0,
+     "minutes_first_to_last": 15.233333,
+     "n": 24,
+     "notes": 0
+    },
     "seconds": {
+     "cap_s": 300,
      "max": 15161.8,
+     "mean_capped": 87.77,
      "median": 58.3,
      "n": 100,
      "p25": 36.55,
      "p75": 111.75,
      "under_30": 16
     },
+    "seed_sides": {
+     "scopes": {
+      "all": {
+       "company_rule_vs_person:kappa": {
+        "main": {
+         "hi_max": -0.035758,
+         "hi_min": -0.035838,
+         "lo_max": -0.319149,
+         "lo_min": -0.325031,
+         "sides": [
+          "below zero"
+         ]
+        },
+        "sens": {
+         "hi_max": -0.073132,
+         "hi_min": -0.074499,
+         "lo_max": -0.229508,
+         "lo_min": -0.232798,
+         "sides": [
+          "below zero"
+         ]
+        },
+        "settled": true
+       },
+       "guarded_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.223608,
+         "hi_min": 0.216783,
+         "lo_max": -0.105263,
+         "lo_min": -0.106719,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.231332,
+         "hi_min": 0.220779,
+         "lo_max": -0.114458,
+         "lo_min": -0.120696,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "issuer_rate_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.238342,
+         "hi_min": 0.23,
+         "lo_max": -0.26615,
+         "lo_min": -0.279373,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.11231,
+         "hi_min": 0.104097,
+         "lo_max": -0.244541,
+         "lo_min": -0.25,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "keyword_rule_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.259259,
+         "hi_min": 0.250033,
+         "lo_max": -0.187279,
+         "lo_min": -0.197861,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.206853,
+         "hi_min": 0.195553,
+         "lo_max": -0.182965,
+         "lo_min": -0.186758,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "majority_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.0,
+         "lo_min": -0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": 0.0,
+         "lo_min": 0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "person_vs_recorded:kappa": {
+        "main": {
+         "hi_max": 0.455959,
+         "hi_min": 0.44559,
+         "lo_max": -0.051813,
+         "lo_min": -0.062852,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.394212,
+         "hi_min": 0.388033,
+         "lo_max": -0.000944,
+         "lo_min": -0.010363,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "tfidf_lr_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.388175,
+         "hi_min": 0.37859,
+         "lo_max": -0.121661,
+         "lo_min": -0.136681,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.288762,
+         "hi_min": 0.281545,
+         "lo_max": -0.091085,
+         "lo_min": -0.098131,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "tfidf_masked_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.428571,
+         "hi_min": 0.421935,
+         "lo_max": -0.081081,
+         "lo_min": -0.09434,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.351521,
+         "hi_min": 0.341025,
+         "lo_max": -0.02646,
+         "lo_min": -0.034502,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_minus_tfidf_lr:accuracy": {
+        "main": {
+         "hi_max": 0.142857,
+         "hi_min": 0.142857,
+         "lo_max": -0.214286,
+         "lo_min": -0.214286,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": -0.01,
+         "hi_min": -0.02,
+         "lo_max": -0.26,
+         "lo_min": -0.27,
+         "sides": [
+          "below zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_minus_tfidf_lr:kappa": {
+        "main": {
+         "hi_max": 0.280714,
+         "hi_min": 0.268589,
+         "lo_max": -0.325732,
+         "lo_min": -0.347175,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.22095,
+         "hi_min": 0.214468,
+         "lo_max": -0.219772,
+         "lo_min": -0.227675,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.321457,
+         "hi_min": 0.314436,
+         "lo_max": -0.108265,
+         "lo_min": -0.118602,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.221244,
+         "hi_min": 0.217687,
+         "lo_max": -0.02649,
+         "lo_min": -0.034823,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_tfidf_lr:accuracy": {
+        "main": {
+         "hi_max": 0.196429,
+         "hi_min": 0.196429,
+         "lo_max": -0.089286,
+         "lo_min": -0.089286,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.22025,
+         "hi_min": 0.22,
+         "lo_max": 0.02,
+         "lo_min": 0.02,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_tfidf_lr:kappa": {
+        "main": {
+         "hi_max": 0.367262,
+         "hi_min": 0.358506,
+         "lo_max": -0.183652,
+         "lo_min": -0.192283,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.32352,
+         "hi_min": 0.312287,
+         "lo_max": -0.125749,
+         "lo_min": -0.134836,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_v1:accuracy": {
+        "main": {
+         "hi_max": 0.303571,
+         "hi_min": 0.285714,
+         "lo_max": -0.107143,
+         "lo_min": -0.125,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.4,
+         "hi_min": 0.39,
+         "lo_max": 0.12,
+         "lo_min": 0.12,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_v1:kappa": {
+        "main": {
+         "hi_max": 0.425864,
+         "hi_min": 0.415187,
+         "lo_max": -0.178571,
+         "lo_min": -0.192944,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.343976,
+         "hi_min": 0.3337,
+         "lo_max": -0.140431,
+         "lo_min": -0.149142,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.44,
+         "hi_min": 0.430233,
+         "lo_max": 0.006821,
+         "lo_min": -0.004636,
+         "sides": [
+          "above zero",
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.406176,
+         "hi_min": 0.396783,
+         "lo_max": -0.019185,
+         "lo_min": -0.0246,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": false
+       }
+      },
+      "calibration": {
+       "company_rule_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.4,
+         "lo_min": -0.414894,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": -0.072607,
+         "hi_min": -0.07362,
+         "lo_max": -0.292135,
+         "lo_min": -0.297968,
+         "sides": [
+          "below zero"
+         ]
+        },
+        "settled": true
+       },
+       "guarded_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.275862,
+         "hi_min": 0.251337,
+         "lo_max": -0.191489,
+         "lo_min": -0.197368,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.266526,
+         "hi_min": 0.253787,
+         "lo_max": -0.17284,
+         "lo_min": -0.176471,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "issuer_rate_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.357143,
+         "hi_min": 0.345029,
+         "lo_max": -0.371134,
+         "lo_min": -0.392265,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.15931,
+         "hi_min": 0.147287,
+         "lo_max": -0.307928,
+         "lo_min": -0.32,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "keyword_rule_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.112676,
+         "hi_min": 0.101604,
+         "lo_max": -0.430108,
+         "lo_min": -0.44,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": -0.009501,
+         "hi_min": -0.024096,
+         "lo_max": -0.415115,
+         "lo_min": -0.417769,
+         "sides": [
+          "below zero"
+         ]
+        },
+        "settled": true
+       },
+       "majority_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.0,
+         "lo_min": -0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.0,
+         "lo_min": -0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "person_vs_recorded:kappa": {
+        "main": {
+         "hi_max": 0.72,
+         "hi_min": 0.715736,
+         "lo_max": 0.080808,
+         "lo_min": 0.071429,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.630314,
+         "hi_min": 0.612737,
+         "lo_max": 0.116735,
+         "lo_min": 0.108734,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "settled": true
+       },
+       "tfidf_lr_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.473165,
+         "hi_min": 0.451047,
+         "lo_max": -0.244444,
+         "lo_min": -0.27288,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.234234,
+         "hi_min": 0.220273,
+         "lo_max": -0.264755,
+         "lo_min": -0.272582,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "tfidf_masked_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.700535,
+         "hi_min": 0.653465,
+         "lo_max": 0.0,
+         "lo_min": -0.020833,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.457429,
+         "hi_min": 0.44062,
+         "lo_max": -0.036866,
+         "lo_min": -0.04,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_minus_tfidf_lr:accuracy": {
+        "main": {
+         "hi_max": 0.25,
+         "hi_min": 0.25,
+         "lo_max": -0.25,
+         "lo_min": -0.25,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.08,
+         "hi_min": 0.06,
+         "lo_max": -0.26,
+         "lo_min": -0.28,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_minus_tfidf_lr:kappa": {
+        "main": {
+         "hi_max": 0.52232,
+         "hi_min": 0.5,
+         "lo_max": -0.39375,
+         "lo_min": -0.412595,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.380466,
+         "hi_min": 0.36374,
+         "lo_max": -0.251534,
+         "lo_min": -0.264976,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.505051,
+         "hi_min": 0.5,
+         "lo_max": -0.146552,
+         "lo_min": -0.166667,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.217687,
+         "hi_min": 0.212894,
+         "lo_max": -0.137846,
+         "lo_min": -0.146221,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_tfidf_lr:accuracy": {
+        "main": {
+         "hi_max": 0.25,
+         "hi_min": 0.25,
+         "lo_max": -0.178571,
+         "lo_min": -0.178571,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.32,
+         "hi_min": 0.32,
+         "lo_max": 0.0,
+         "lo_min": 0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_tfidf_lr:kappa": {
+        "main": {
+         "hi_max": 0.442239,
+         "hi_min": 0.428571,
+         "lo_max": -0.388844,
+         "lo_min": -0.402986,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.387506,
+         "hi_min": 0.373461,
+         "lo_max": -0.287708,
+         "lo_min": -0.298091,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_v1:accuracy": {
+        "main": {
+         "hi_max": 0.321429,
+         "hi_min": 0.321429,
+         "lo_max": -0.25,
+         "lo_min": -0.25,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.46,
+         "hi_min": 0.44,
+         "lo_max": 0.06,
+         "lo_min": 0.06,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_v1:kappa": {
+        "main": {
+         "hi_max": 0.413057,
+         "hi_min": 0.39759,
+         "lo_max": -0.470416,
+         "lo_min": -0.485977,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.332972,
+         "hi_min": 0.306211,
+         "lo_max": -0.326346,
+         "lo_min": -0.339262,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.409639,
+         "hi_min": 0.404255,
+         "lo_max": -0.1375,
+         "lo_min": -0.141304,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.302326,
+         "hi_min": 0.289406,
+         "lo_max": -0.220807,
+         "lo_min": -0.22739,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       }
+      },
+      "evaluation": {
+       "company_rule_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.337079,
+         "lo_min": -0.347594,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.211454,
+         "lo_min": -0.215645,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "guarded_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.322581,
+         "hi_min": 0.312883,
+         "lo_max": -0.144231,
+         "lo_min": -0.146552,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.340528,
+         "hi_min": 0.336283,
+         "lo_max": -0.148796,
+         "lo_min": -0.154734,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "issuer_rate_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.350515,
+         "hi_min": 0.322581,
+         "lo_max": -0.320755,
+         "lo_min": -0.337079,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.238095,
+         "hi_min": 0.220624,
+         "lo_max": -0.293103,
+         "lo_min": -0.304366,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "keyword_rule_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.533333,
+         "hi_min": 0.52,
+         "lo_max": -0.091743,
+         "lo_min": -0.105263,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.562382,
+         "hi_min": 0.554466,
+         "lo_max": -0.018809,
+         "lo_min": -0.030928,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "majority_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.0,
+         "lo_min": -0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.0,
+         "lo_min": -0.0,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "person_vs_recorded:kappa": {
+        "main": {
+         "hi_max": 0.337337,
+         "hi_min": 0.326969,
+         "lo_max": -0.33,
+         "lo_min": -0.336364,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.299065,
+         "hi_min": 0.28023,
+         "lo_max": -0.247692,
+         "lo_min": -0.261682,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "tfidf_lr_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.5,
+         "hi_min": 0.494845,
+         "lo_max": -0.214286,
+         "lo_min": -0.226804,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.524715,
+         "hi_min": 0.507874,
+         "lo_max": -0.045627,
+         "lo_min": -0.060606,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "tfidf_masked_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.357214,
+         "hi_min": 0.357143,
+         "lo_max": -0.343502,
+         "lo_min": -0.357143,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.396552,
+         "hi_min": 0.387755,
+         "lo_max": -0.161616,
+         "lo_min": -0.168224,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_minus_tfidf_lr:accuracy": {
+        "main": {
+         "hi_max": 0.178571,
+         "hi_min": 0.178571,
+         "lo_max": -0.321429,
+         "lo_min": -0.321429,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.0,
+         "hi_min": 0.0,
+         "lo_max": -0.36,
+         "lo_min": -0.36,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_minus_tfidf_lr:kappa": {
+        "main": {
+         "hi_max": 0.278797,
+         "hi_min": 0.263152,
+         "lo_max": -0.5319,
+         "lo_min": -0.561672,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.233047,
+         "hi_min": 0.22405,
+         "lo_max": -0.393644,
+         "lo_min": -0.40293,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v1_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.279412,
+         "hi_min": 0.252427,
+         "lo_max": -0.26506,
+         "lo_min": -0.272727,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.335664,
+         "hi_min": 0.330042,
+         "lo_max": -0.023778,
+         "lo_min": -0.029426,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_tfidf_lr:accuracy": {
+        "main": {
+         "hi_max": 0.285714,
+         "hi_min": 0.25,
+         "lo_max": -0.107143,
+         "lo_min": -0.142857,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.2,
+         "hi_min": 0.2,
+         "lo_max": -0.04,
+         "lo_min": -0.04,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_tfidf_lr:kappa": {
+        "main": {
+         "hi_max": 0.528505,
+         "hi_min": 0.504092,
+         "lo_max": -0.222129,
+         "lo_min": -0.245538,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.394499,
+         "hi_min": 0.377642,
+         "lo_max": -0.170056,
+         "lo_min": -0.183369,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_v1:accuracy": {
+        "main": {
+         "hi_max": 0.428571,
+         "hi_min": 0.428571,
+         "lo_max": -0.142857,
+         "lo_min": -0.142857,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.46,
+         "hi_min": 0.44,
+         "lo_max": 0.06,
+         "lo_min": 0.06,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_minus_v1:kappa": {
+        "main": {
+         "hi_max": 0.703657,
+         "hi_min": 0.684871,
+         "lo_max": -0.118068,
+         "lo_min": -0.142588,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.534948,
+         "hi_min": 0.519152,
+         "lo_max": -0.138801,
+         "lo_min": -0.150124,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "settled": true
+       },
+       "v2_vs_person:kappa": {
+        "main": {
+         "hi_max": 0.615385,
+         "hi_min": 0.588235,
+         "lo_max": -0.039604,
+         "lo_min": -0.048128,
+         "sides": [
+          "spanning zero"
+         ]
+        },
+        "sens": {
+         "hi_max": 0.628713,
+         "hi_min": 0.621928,
+         "lo_max": 0.040913,
+         "lo_min": 0.031008,
+         "sides": [
+          "above zero"
+         ]
+        },
+        "settled": true
+       }
+      }
+     },
+     "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ]
+    },
     "translation_shown": 100,
+    "undo": {
+     "cases": [
+      {
+       "final": "cannot_tell",
+       "undone": "relief"
+      }
+     ],
+     "labels": 100,
+     "records": 102
+    },
     "v3_decision": {
      "decided_per_half": {
       "calibration": 28,
@@ -12695,6 +13784,20 @@
     "updated_at": "2026-11-10T08:16:37Z",
     "url": "https://gist.github.com/dmitri-sulga/dc5fd5e1dd67532a64698ce11b0d3ea5"
    },
+   "label_files": {
+    "results/human_labels/owner.jsonl": {
+     "bytes": 21754,
+     "sha256": "8ae00f2423e3a2208d2f94d6f3e254019bf723a0d13cc36f817283c4cd98e261"
+    },
+    "results/human_labels/owner.lock.json": {
+     "bytes": 166,
+     "sha256": "e8435f891ac795031b4a37d881d3b28b6d68bf36e41efa411857b2e27fbdc216"
+    },
+    "results/human_labels/owner_error_review.jsonl": {
+     "bytes": 4429,
+     "sha256": "be52defcbef30495488cb89a8de50e60c03fa86ce0c292d6a94fc84690736fc8"
+    }
+   },
    "labelled_run_commit": "7194269",
    "labelled_run_files": {
     "results/cache/responses.jsonl": {
@@ -12702,6 +13805,7 @@
      "sha256": "8f4a66c923a8b3a3766c5d1e83294de373cd38b9846fa585afe6639430b8f250"
     }
    },
+   "labels_commit": "30655fe",
    "problems": [],
    "run_commit": "81f37e5",
    "run_files": {

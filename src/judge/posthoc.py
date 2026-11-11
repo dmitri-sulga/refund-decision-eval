@@ -58,6 +58,17 @@ LABELLED_RUN_COMMIT = "7194269"
 LABELLED_RUN_FILES = {
     "results/cache/responses.jsonl": (2924507, "8f4a66c923a8b3a3766c5d1e83294de373cd38b9846fa585afe6639430b8f250"),
 }
+# the blind labels, their lock and the second screen as committed in 30655fe (fifth change): whole files, not a
+# prefix, so any later change fails the check even when the lock file is resealed to match the changed labels
+LABELS_COMMIT = "30655fe"
+LABEL_FILES = {
+    "results/human_labels/owner.jsonl": (21754, "8ae00f2423e3a2208d2f94d6f3e254019bf723a0d13cc36f817283c4cd98e261"),
+    "results/human_labels/owner.lock.json": (166, "e8435f891ac795031b4a37d881d3b28b6d68bf36e41efa411857b2e27fbdc216"),
+    "results/human_labels/owner_error_review.jsonl": (4429, "be52defcbef30495488cb89a8de50e60c03fa86ce0c292d6a94fc84690736fc8"),
+}
+SEEDS = tuple(range(10))     # bootstrap seeds over which the side of zero of a human-label interval is checked
+TIME_BANDS = (0, 30, 60, 120)                # seconds: the bands of time per label for the 'cannot tell' rate
+CAP_S = 300                                  # a record longer than this counts as this much (breaks left out)
 
 # Gaming the TF-IDF baseline (no model call). Two sentences name card issuers: the first names four
 # issuers whose names are among the twelve TF-IDF features weighted most towards relief in the report,
@@ -256,20 +267,28 @@ def holm(m) -> dict:
     return {"tests": k, "survive": survive, "smallest": [{"system": v, "rewrite": a, "p": p} for p, v, a in tests[:3]]}
 
 
-def _paired_sensitivity(m, labels_by_who: dict) -> dict:
-    """The registered sensitivity line for the paired differences against the person: 'cannot tell'
-    counted as 'no money back', over every labelled case, for all cases and for each half. Same systems,
-    same refitted baselines and same resamples as the frozen figures (analysis._human_figures)."""
+def _labelled_systems(m):
+    """The labelling sample and the systems scored on it, with the classic baselines refitted without the sampled
+    complaints (as analysis.human_labels does)."""
     from . import label as L
-    from .human import halves
 
-    if not labels_by_who:
-        return {}
     ids = L.load_sample()["ids"]
     S = Systems(load_records(), load_splits(), Cache(), lr_params=m["tfidf_lr"]["chosen"])
     rest = [i for i in S.splits["train"] if i not in set(ids)]
     SL = Systems(S.records, {"train": rest, "dev": S.splits["dev"], "label": ids}, S.cache,
                  lr_params=m["tfidf_lr"]["chosen"])
+    return ids, SL
+
+
+def _paired_sensitivity(m, labels_by_who: dict, ctx=None) -> dict:
+    """The registered sensitivity line for the paired differences against the person: 'cannot tell'
+    counted as 'no money back', over every labelled case, for all cases and for each half. Same systems,
+    same refitted baselines and same resamples as the frozen figures (analysis._human_figures)."""
+    from .human import halves
+
+    if not labels_by_who:
+        return {}
+    ids, SL = ctx or _labelled_systems(m)
     pos = {i: k for k, i in enumerate(ids)}
     preds = {n: pr["pred"] for n in ("tfidf_lr", "v1", "v2") if (pr := SL.predict(n, "label")) is not None}
     out = {}
@@ -285,29 +304,163 @@ def _paired_sensitivity(m, labels_by_who: dict) -> dict:
     return out
 
 
+# ------------------------------------------------------------------ fifth post-run change (final reviews)
+TINY = 1e-9                  # as in frontpage.py: float noise around zero
+
+
+def _side(x: dict) -> str:
+    return "above zero" if x["lo"] > TINY else "below zero" if x["hi"] < -TINY else "spanning zero"
+
+
+def _spread(xs: list) -> dict:
+    return {"lo_min": min(x["lo"] for x in xs), "lo_max": max(x["lo"] for x in xs),
+            "hi_min": min(x["hi"] for x in xs), "hi_max": max(x["hi"] for x in xs),
+            "sides": sorted({_side(x) for x in xs})}
+
+
+def seed_sides(f_main: dict, ids, SL, labels, sub, sens_paired) -> dict:
+    """Every interval that enters the registered check of the two readings ('cannot tell' left out, and counted as
+    no money back), recomputed with each of SEEDS as the bootstrap seed, same resampling as the frozen code
+    (metrics.bootstrap and metrics.paired_difference). A figure is settled when neither reading changes its side of
+    zero across the seeds; the report draws the check only for settled figures. The interval at the configured
+    seed must equal the one already computed, or this raises."""
+    from .analysis import SYSTEMS
+
+    if "person_vs_recorded" not in f_main:
+        return {}
+    pos = {i: k for k, i in enumerate(ids)}
+    idx = np.array([pos[i] for i in sub])
+    y = SL.labels("label")[idx]
+    lab = np.array([labels[i]["label"] for i in sub])
+    d, h = lab != "cannot_tell", (lab == "relief").astype(int)
+    preds = {n: pr["pred"][idx] for n in SYSTEMS if (pr := SL.predict(n, "label")) is not None}
+    pairs = [(a, b) for a, b in (("tfidf_lr", "v1"), ("tfidf_lr", "v2"), ("v1", "v2")) if a in preds and b in preds]
+    runs = {}
+    for s in SEEDS:
+        main = {"person_vs_recorded:kappa": M.bootstrap(y[d], h[d], seed=s)["kappa"]}
+        sens = {"person_vs_recorded:kappa": M.bootstrap(y, h, seed=s)["kappa"]}
+        for n, p in preds.items():
+            main[f"{n}_vs_person:kappa"] = M.bootstrap(h[d], p[d], seed=s)["kappa"]
+            sens[f"{n}_vs_person:kappa"] = M.bootstrap(h, p, seed=s)["kappa"]
+        for a, b in pairs:
+            x, z = M.paired_difference(h[d], preds[a][d], preds[b][d], seed=s), M.paired_difference(h, preds[a], preds[b], seed=s)
+            for w in ("kappa", "accuracy"):
+                main[f"{b}_minus_{a}:{w}"], sens[f"{b}_minus_{a}:{w}"] = x[w], z[w]
+        if s == C.BOOTSTRAP_SEED:             # the figures already reported must come out again
+            want = {"person_vs_recorded:kappa": (f_main["person_vs_recorded"]["kappa"],
+                                                 f_main["sensitivity"]["person_vs_recorded"]["kappa"])}
+            want.update({f"{n}_vs_person:kappa": (x["kappa"], f_main["sensitivity"]["systems_vs_person"][n]["kappa"])
+                         for n, x in f_main["systems_vs_person"].items()})
+            for k, x in f_main["paired_vs_person"].items():
+                for w in ("kappa", "accuracy"):
+                    want[f"{k}:{w}"] = (x[w], (sens_paired or {}).get(k, {}).get(w))
+            for k, (a, b) in want.items():
+                for got, ref in ((main[k], a), (sens[k], b)):
+                    if ref is not None and any(abs(got[q] - ref[q]) > 1e-9 for q in ("lo", "hi")):
+                        raise RuntimeError(f"seed sides: {k} at the configured seed differs from the reported interval")
+        for k in main:
+            runs.setdefault(k, {"main": [], "sens": []})
+            runs[k]["main"].append(main[k])
+            runs[k]["sens"].append(sens[k])
+    out = {}
+    for k, r in runs.items():
+        a, b = _spread(r["main"]), _spread(r["sens"])
+        out[k] = {"main": a, "sens": b, "settled": len(a["sides"]) == 1 and len(b["sides"]) == 1}
+    return out
+
+
+def _pace(labels: dict) -> dict:
+    """'Cannot tell' by time spent on the label, and the median time on the first and the last half of the labels
+    in the order they were given (descriptive)."""
+    rows = sorted(labels.values(), key=lambda r: r["labelled_at"])
+    secs = np.array([r["seconds"] for r in rows], float)
+    ct = np.array([r["label"] == "cannot_tell" for r in rows])
+    edges = list(TIME_BANDS) + [np.inf]
+    bands = [{"from_s": lo, "to_s": None if hi == np.inf else hi, "n": int(((secs >= lo) & (secs < hi)).sum()),
+              "cannot_tell": int((ct & (secs >= lo) & (secs < hi)).sum())} for lo, hi in zip(edges, edges[1:])]
+    k = len(rows) // 2
+    return {"bands": bands, "n_first": k, "n_last": len(rows) - k,
+            "median_s_first": float(np.median(secs[:k])), "median_s_last": float(np.median(secs[k:])),
+            "cannot_tell_first": int(ct[:k].sum()), "cannot_tell_last": int(ct[k:].sum())}
+
+
+def _undo(path, labels: dict) -> dict:
+    """Answers undone in the labelling tool before the lock: the answer that was undone and the one that stands."""
+    import json
+
+    raw = [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    cases = []
+    for k, r in enumerate(raw):
+        if r.get("undo"):
+            prev = next((x for x in reversed(raw[:k]) if x["complaint_id"] == r["complaint_id"] and not x.get("undo")),
+                        None)
+            cases.append({"undone": prev["label"] if prev else None,
+                          "final": (labels.get(r["complaint_id"]) or {}).get("label")})
+    return {"records": len(raw), "labels": len(labels), "cases": cases}
+
+
+def _second_screen(reviews: dict) -> dict:
+    """How long the second screen took: from the first answer to the last, and the gaps between answers."""
+    from datetime import datetime
+
+    at = sorted(datetime.fromisoformat(r["reviewed_at"]) for r in reviews.values())
+    gaps = [(b - a).total_seconds() for a, b in zip(at, at[1:])]
+    return {"n": len(at), "minutes_first_to_last": (at[-1] - at[0]).total_seconds() / 60 if at else None,
+            "median_gap_s": float(np.median(gaps)) if gaps else None,
+            "notes": sum(bool(r["note"]) for r in reviews.values())}
+
+
+def _cannot_tell_counted(SL, ids, labels) -> dict:
+    """The person's kappa against the record over every labelled case, with 'cannot tell' counted four ways: as no
+    money back (the registered sensitivity line), as money back, as the record itself and as its opposite (the two
+    bounds)."""
+    y = SL.labels("label")
+    lab = np.array([labels[i]["label"] for i in ids])
+    ct, h = lab == "cannot_tell", (lab == "relief").astype(int)
+    k = lambda alt: M.cohen_kappa(y, np.where(ct, alt, h))   # noqa: E731
+    return {"as_no_money_back": k(0), "as_money_back": k(1), "as_the_record": k(y), "as_the_opposite": k(1 - y)}
+
+
 def human_extras(m) -> dict:
     """Per locked annotator: the distribution of time per label and the second screen case by case
     (not in the registered plan; descriptive), and the registered sensitivity line of the paired
-    differences, which the frozen computation did not produce."""
+    differences, which the frozen computation did not produce. Fifth change: the pace of the labels, the answer
+    undone before the lock, the timing of the second screen, 'cannot tell' counted four ways, and the side of zero
+    of every interval in the registered check over ten bootstrap seeds."""
     from . import label as L
+    from .human import halves
     from .review import load_reviews, review_path, review_rows
 
     out = {}
-    sens = _paired_sensitivity(m, {who: L.load_labels(L.labels_path(who)) for who in m["human"]["annotators"]})
+    if not m["human"]["annotators"]:
+        return out
+    ctx = _labelled_systems(m)
+    ids, SL = ctx
+    by_who = {who: L.load_labels(L.labels_path(who)) for who in m["human"]["annotators"]}
+    sens = _paired_sensitivity(m, by_who, ctx)
     for who in m["human"]["annotators"]:
-        labels = L.load_labels(L.labels_path(who))
+        labels = by_who[who]
         secs = np.array([r["seconds"] for r in labels.values()], float)
         rows = {r["complaint_id"]: r for r in review_rows()}
         rev = load_reviews(review_path(who))
+        row = m["human"]["annotators"][who]
+        scopes = {"all": (ids, row["all"]), **{k: (v, row["halves"][k]) for k, v in halves(ids).items()}}
         out[who] = {"seconds": {"p25": float(np.percentile(secs, 25)), "median": float(np.median(secs)),
                                 "p75": float(np.percentile(secs, 75)), "under_30": int((secs < 30).sum()),
-                                "n": int(len(secs)), "max": float(secs.max())},
+                                "n": int(len(secs)), "max": float(secs.max()),
+                                "cap_s": CAP_S, "mean_capped": float(np.minimum(secs, CAP_S).mean())},
                     "translation_shown": sum(bool(r.get("translation_shown")) for r in labels.values()),
                     "review": [{"complaint_id": i, "drafted": rows[i]["group"], "author": r["group"],
                                 "confirmed": bool(r["confirmed"]), "note": r["note"]}
                                for i, r in sorted(rev.items(), key=lambda kv: int(kv[0])) if i in rows],
                     "paired_sensitivity": sens.get(who, {}),
-                    **human_summary(m, who)}
+                    **human_summary(m, who),
+                    "pace": _pace(labels), "undo": _undo(L.labels_path(who), labels),
+                    "second_screen": _second_screen(rev),
+                    "cannot_tell_counted": _cannot_tell_counted(SL, ids, labels),
+                    "seed_sides": {"seeds": list(SEEDS),
+                                   "scopes": {k: seed_sides(f, ids, SL, labels, sub, sens.get(who, {}).get(k))
+                                              for k, (sub, f) in scopes.items()}}}
     return out
 
 
@@ -348,6 +501,7 @@ def integrity(m) -> dict:
             data = (C.ROOT / f).read_bytes()
             if len(data) < n or hashlib.sha256(data[:n]).hexdigest() != sha:
                 problems.append(f"{f}: the answers recorded at the labelled-run commit {LABELLED_RUN_COMMIT} were changed")
+    problems += label_file_problems(C.ROOT)
     last = GIST["revisions"][-1]
     frozen, marker = m.get("frozen") or {}, m.get("test") or {}
     if frozen.get("sha256") != last["frozen_sha256"] or marker.get("commit") != last["commit"]:
@@ -355,7 +509,20 @@ def integrity(m) -> dict:
     return {"problems": problems, "gist": GIST, "run_commit": RUN_COMMIT,
             "run_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in RUN_FILES.items()},
             "labelled_run_commit": LABELLED_RUN_COMMIT,
-            "labelled_run_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in LABELLED_RUN_FILES.items()}}
+            "labelled_run_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in LABELLED_RUN_FILES.items()},
+            "labels_commit": LABELS_COMMIT,
+            "label_files": {f: {"bytes": n, "sha256": s} for f, (n, s) in LABEL_FILES.items()}}
+
+
+def label_file_problems(root) -> list[str]:
+    """The locked labels, the lock and the second screen against their bytes at LABELS_COMMIT (whole files)."""
+    out = []
+    for f, (n, sha) in LABEL_FILES.items():
+        p = root / f
+        data = p.read_bytes() if p.exists() else b""
+        if len(data) != n or hashlib.sha256(data).hexdigest() != sha:
+            out.append(f"{f}: the locked labels committed in {LABELS_COMMIT} were changed")
+    return out
 
 
 def sub_issues(S) -> dict:

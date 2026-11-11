@@ -252,7 +252,8 @@ def b_summary(m):
         held = kappa_cell(t["results"][name]) if t and name in t["results"] else "not run"
         rows.append((LABELS[name], READS[name], kappa_cell(r), auc, auto, held, time_per_1000(m, name)))
     people = F._people(m)
-    tail = ("\n\n" + F.person_table(m) if people else
+    tail = ("\n\nThe blind human labels are a TRAIN sample, so the person never appears in a DEV column; the person's "
+            "table against the recorded decision prints once, in the human-label section." if people else
             "\n\nThe blind human labels are a TRAIN sample, so the person never appears in a DEV column; see the "
             "human-label sections.")
     return head + "\n" + table(("System", "Reads", "DEV kappa [95% CI]", "DEV AUC: all pairs / same issuer",
@@ -412,14 +413,19 @@ def _who_read(m) -> str:
             f"used at {t('v2_prompt_first_used')} and the category file was last written at "
             f"{t('category_file_last_written')}: the v2 prompt rests on a machine pass of minutes over these "
             "cases, not on a person's reading. " +
-            (f"After the blind labels were locked, the author read " +
-             (f"all {rev[0]['total']}" if rev[0]["reviewed"] == rev[0]["total"] else
-              f"{rev[0]['reviewed']} of the {rev[0]['total']}") +
-             f" individually sorted cases on a second screen: {rev[0]['confirmed']} drafted readings confirmed, "
-             f"{len(rev[0]['changed'])} changed (case by case in the human detail section). The drafted readings of "
-             f"the other {e['n_disagreements'] - rev[0]['reviewed']} of the {e['n_disagreements']} disagreements are "
-             "still the assistant's and unconfirmed." if rev else
+            (_second_screen_sentence(m, rev[0]) +
+             f" The drafted readings of the other {e['n_disagreements'] - rev[0]['reviewed']} of the "
+             f"{e['n_disagreements']} disagreements are still the assistant's and unconfirmed." if rev else
              "The author's own reading of the individually sorted cases will be reported separately when it exists."))
+
+
+def _second_screen_sentence(m, rev) -> str:
+    """What the record of the second screen shows (frontpage._went_through: count, timing, notes)."""
+    who = next(w for w, r in m["human"]["annotators"].items() if r["error_review"] is rev)
+    n, t, notes = F._went_through(rev, F._screen(m, who))
+    return (f"After the blind labels were locked, the author went through {n} individually sorted cases on a second "
+            f"screen{t}: he confirmed {rev['confirmed']} drafted readings, changed {len(rev['changed'])}{notes} (case by "
+            "case in the human detail section).")
 
 
 def _denial(m) -> str:
@@ -433,8 +439,14 @@ def _denial(m) -> str:
             f"with the record on {d['v1_agrees_among_denied']} of those {d['n_denied']} "
             f"({d['v1_agrees_among_denied_relief']} of them closed with relief). That the record often turns on "
             "evidence outside the complaint is a hypothesis here, which the blind human labels " +
-            ("test (see the human-label section)" if m["human"]["annotators"] else "are meant to test") +
+            (_bear_on(m) if m["human"]["annotators"] else "are meant to bear on") +
             "; it is not a finding.")
+
+
+def _bear_on(m) -> str:
+    f = next(iter(m["human"]["annotators"].values()))["all"]
+    return (f"bear on (the annotator could not decide {f['cannot_tell']} of {f['n']}; see the human-label section), "
+            "though no test of the hypothesis was registered")
 
 
 def b_error_groups(m):
@@ -846,7 +858,7 @@ def b_automation(m):
                 table(("System", "Threshold", "Largest shift on replay", "DEV cases within that shift of the threshold",
                        "... of which below the threshold", "Same threshold applied to the replayed answers"), rows)]
     if m.get("figure"):
-        out.append(f"\n![Automation against agreement]({m['figure']})")
+        out.append(f"\n![Automation against agreement]({m['figure'].rsplit('/', 1)[-1]})")   # report.md is in results/
     return "\n".join(out)
 
 

@@ -1114,8 +1114,9 @@ CHANGES_IN_SHORT = {
         "spending cap enforced in code and the run and analysis code, before any request to them",
     11: "after both arms of the model extension had run, reporting their results as the plan registers them: the "
         "registered analyses run unchanged, a README section for each arm with its details in the full report, one "
-        "sentence for each on the first screen, and the outputs the plan promises that the registered code does not "
-        "produce, listed",
+        "sentence for each on the first screen, and, after two reviews, the registered outputs that the registered "
+        "code leaves out, computed with the plan's definitions by code written after the results were seen and "
+        "marked so",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 

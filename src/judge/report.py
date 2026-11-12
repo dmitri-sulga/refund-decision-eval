@@ -1136,11 +1136,14 @@ POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
 # Tenth change: Amendment 2 of that plan, a separately registered hosted arm, its runner and analysis (new, frozen
 # hash null; no request was sent and they feed no report number), and the Makefile's `models-hosted` target and check.
 # Eleventh change: the extension's presentation module (new, frozen hash null), which prints the registered analyses'
-# output for both arms; it computes no frozen number
+# output for both arms; it computes no frozen number. Also in the eleventh change, after two reviews: the module that
+# computes the registered outputs the registered analysis code leaves out (new, frozen hash null; written after the
+# results were seen, with the plan's definitions)
 PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md",
                       "Makefile", "src/judge/sql.py", "docs/sql.md", "docs/analysis_plan_models.md",
                       "src/judge/models.py", "src/judge/models_analysis.py", "src/judge/hosted.py",
-                      "src/judge/hosted_analysis.py", "src/judge/extension_report.py")
+                      "src/judge/hosted_analysis.py", "src/judge/extension_report.py",
+                      "src/judge/extension_late.py")
 
 
 def accept_post_run_changes(m: dict) -> dict:

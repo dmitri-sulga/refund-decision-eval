@@ -8082,8 +8082,8 @@
      "fields_dropped": 0,
      "first": "2026-11-12T06:08:29.482214+00:00",
      "last": "2026-11-12T06:22:01.102097+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -8092,8 +8092,8 @@
      "fields_dropped": 0,
      "first": "2026-11-12T06:52:18.052041+00:00",
      "last": "2026-11-12T07:16:38.500537+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -8102,16 +8102,1328 @@
      "fields_dropped": 0,
      "first": "2026-11-12T06:28:18.014258+00:00",
      "last": "2026-11-12T06:48:17.121055+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
     }
    },
-   "other_events": [],
+   "other_event_count": 0,
    "resends": 0,
    "sends": 1800
+  },
+  "late": {
+   "arms": {
+    "hosted": {
+     "claude-haiku-5-5": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.49,
+        "lo": 0.355,
+        "value": 0.42
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.21,
+         "lo": -0.395,
+         "value": -0.305
+        },
+        "kappa": {
+         "hi": -0.140072,
+         "lo": -0.417924,
+         "value": -0.284029
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.485,
+         0.63
+        ],
+        "value": 0.56
+       },
+       "pays": 172,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.49,
+        "lo": 0.29,
+        "n": 100,
+        "value": 0.39
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.678571,
+        "lo": 0.428571,
+        "n": 56,
+        "value": 0.553571
+       },
+       "accuracy_vs_record": {
+        "hi": 0.49,
+        "lo": 0.3,
+        "value": 0.39
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.41,
+         0.64
+        ],
+        "value": 0.53
+       },
+       "pays": 87,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.75,
+        "lo": 0.625,
+        "value": 0.69
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": 0.05,
+         "lo": -0.12,
+         "value": -0.035
+        },
+        "kappa": {
+         "hi": -0.211398,
+         "lo": -0.530815,
+         "value": -0.376998
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.34,
+         -0.205
+        ],
+        "value": -0.27
+       },
+       "pays": 6,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.84,
+        "lo": 0.67,
+        "n": 100,
+        "value": 0.76
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.714286,
+        "lo": 0.464286,
+        "n": 56,
+        "value": 0.589286
+       },
+       "accuracy_vs_record": {
+        "hi": 0.75,
+        "lo": 0.56,
+        "value": 0.66
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.4,
+         -0.2
+        ],
+        "value": -0.3
+       },
+       "pays": 4,
+       "record_pays": 34
+      }
+     },
+     "claude-opus-5-5": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.495,
+        "lo": 0.355,
+        "value": 0.425
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.21,
+         "lo": -0.39,
+         "value": -0.3
+        },
+        "kappa": {
+         "hi": -0.146325,
+         "lo": -0.425642,
+         "value": -0.290348
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.46,
+         0.61
+        ],
+        "value": 0.535
+       },
+       "pays": 167,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.54,
+        "lo": 0.34,
+        "n": 100,
+        "value": 0.44
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.75,
+        "lo": 0.5,
+        "n": 56,
+        "value": 0.625
+       },
+       "accuracy_vs_record": {
+        "hi": 0.52,
+        "lo": 0.32,
+        "value": 0.42
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.36,
+         0.59
+        ],
+        "value": 0.48
+       },
+       "pays": 82,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.715,
+        "lo": 0.585,
+        "value": 0.65
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": 0.005,
+         "lo": -0.155,
+         "value": -0.075
+        },
+        "kappa": {
+         "hi": -0.096345,
+         "lo": -0.453977,
+         "value": -0.276265
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.15,
+         0.01
+        ],
+        "value": -0.07
+       },
+       "pays": 46,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.81,
+        "lo": 0.63,
+        "n": 100,
+        "value": 0.72
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.839286,
+        "lo": 0.607143,
+        "n": 56,
+        "value": 0.732143
+       },
+       "accuracy_vs_record": {
+        "hi": 0.66,
+        "lo": 0.46,
+        "value": 0.56
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.17,
+         0.09
+        ],
+        "value": -0.04
+       },
+       "pays": 30,
+       "record_pays": 34
+      }
+     },
+     "claude-sonnet-5-5": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.475,
+        "lo": 0.339875,
+        "value": 0.405
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.225,
+         "lo": -0.41,
+         "value": -0.32
+        },
+        "kappa": {
+         "hi": -0.153326,
+         "lo": -0.425212,
+         "value": -0.293194
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.515,
+         0.655
+        ],
+        "value": 0.585
+       },
+       "pays": 177,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.49,
+        "lo": 0.29,
+        "n": 100,
+        "value": 0.39
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.678571,
+        "lo": 0.428571,
+        "n": 56,
+        "value": 0.553571
+       },
+       "accuracy_vs_record": {
+        "hi": 0.51,
+        "lo": 0.31,
+        "value": 0.41
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.39,
+         0.62
+        ],
+        "value": 0.51
+       },
+       "pays": 85,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.7,
+        "lo": 0.57,
+        "value": 0.635
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.01,
+         "lo": -0.17,
+         "value": -0.09
+        },
+        "kappa": {
+         "hi": -0.274634,
+         "lo": -0.593417,
+         "value": -0.438321
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.265,
+         -0.105
+        ],
+        "value": -0.185
+       },
+       "pays": 23,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.82,
+        "lo": 0.64,
+        "n": 100,
+        "value": 0.73
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.767857,
+        "lo": 0.517857,
+        "n": 56,
+        "value": 0.642857
+       },
+       "accuracy_vs_record": {
+        "hi": 0.74,
+        "lo": 0.56,
+        "value": 0.65
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.28,
+         -0.06
+        ],
+        "value": -0.17
+       },
+       "pays": 17,
+       "record_pays": 34
+      }
+     }
+    },
+    "local": {
+     "gemma4:12b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.375,
+        "lo": 0.25,
+        "value": 0.31
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.32,
+         "lo": -0.505,
+         "value": -0.415
+        },
+        "kappa": {
+         "hi": -0.237542,
+         "lo": -0.504401,
+         "value": -0.374787
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "value": 0.69
+       },
+       "pays": 198,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.4,
+        "lo": 0.22,
+        "n": 100,
+        "value": 0.31
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.642857,
+        "lo": 0.392857,
+        "n": 56,
+        "value": 0.517857
+       },
+       "accuracy_vs_record": {
+        "hi": 0.44,
+        "lo": 0.26,
+        "value": 0.35
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.5,
+         0.71
+        ],
+        "value": 0.61
+       },
+       "pays": 95,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.695,
+        "lo": 0.565,
+        "value": 0.63
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.01,
+         "lo": -0.18,
+         "value": -0.095
+        },
+        "kappa": {
+         "hi": -0.099573,
+         "lo": -0.493666,
+         "value": -0.29925
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.125,
+         0.045
+        ],
+        "value": -0.04
+       },
+       "pays": 52,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.75,
+        "lo": 0.57,
+        "n": 100,
+        "value": 0.66
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.803571,
+        "lo": 0.553571,
+        "n": 56,
+        "value": 0.678571
+       },
+       "accuracy_vs_record": {
+        "hi": 0.66,
+        "lo": 0.46,
+        "value": 0.56
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.11,
+         0.15
+        ],
+        "value": 0.02
+       },
+       "pays": 36,
+       "record_pays": 34
+      }
+     },
+     "gemma4:31b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.4,
+        "lo": 0.27,
+        "value": 0.335
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.295,
+         "lo": -0.48,
+         "value": -0.39
+        },
+        "kappa": {
+         "hi": -0.216762,
+         "lo": -0.482907,
+         "value": -0.352796
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.6,
+         0.73
+        ],
+        "value": 0.665
+       },
+       "pays": 193,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.38,
+        "lo": 0.2,
+        "n": 100,
+        "value": 0.29
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.625,
+        "lo": 0.375,
+        "n": 56,
+        "value": 0.5
+       },
+       "accuracy_vs_record": {
+        "hi": 0.45,
+        "lo": 0.26,
+        "value": 0.35
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.53,
+         0.73
+        ],
+        "value": 0.63
+       },
+       "pays": 97,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.715,
+        "lo": 0.585,
+        "value": 0.65
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": 0.01,
+         "lo": -0.16,
+         "value": -0.075
+        },
+        "kappa": {
+         "hi": -0.1146,
+         "lo": -0.506799,
+         "value": -0.314259
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.195,
+         -0.03
+        ],
+        "value": -0.11
+       },
+       "pays": 38,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.85,
+        "lo": 0.69,
+        "n": 100,
+        "value": 0.77
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.803571,
+        "lo": 0.553571,
+        "n": 56,
+        "value": 0.678571
+       },
+       "accuracy_vs_record": {
+        "hi": 0.71,
+        "lo": 0.51,
+        "value": 0.61
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.27,
+         -0.03
+        ],
+        "value": -0.15
+       },
+       "pays": 19,
+       "record_pays": 34
+      }
+     },
+     "glm-4.7-flash:latest": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.49,
+        "lo": 0.35,
+        "value": 0.42
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.21,
+         "lo": -0.4,
+         "value": -0.305
+        },
+        "kappa": {
+         "hi": -0.158897,
+         "lo": -0.451819,
+         "value": -0.306975
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.44,
+         0.6
+        ],
+        "value": 0.52
+       },
+       "pays": 164,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.51,
+        "lo": 0.31,
+        "n": 100,
+        "value": 0.41
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.696429,
+        "lo": 0.446429,
+        "n": 56,
+        "value": 0.571429
+       },
+       "accuracy_vs_record": {
+        "hi": 0.51,
+        "lo": 0.31,
+        "value": 0.41
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.37,
+         0.60025
+        ],
+        "value": 0.49
+       },
+       "pays": 83,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.715,
+        "lo": 0.585,
+        "value": 0.65
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": 0.01,
+         "lo": -0.16,
+         "value": -0.075
+        },
+        "kappa": {
+         "hi": -0.161689,
+         "lo": -0.536199,
+         "value": -0.35563
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.23,
+         -0.07
+        ],
+        "value": -0.15
+       },
+       "pays": 30,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.79,
+        "lo": 0.62,
+        "n": 100,
+        "value": 0.71
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.696429,
+        "lo": 0.446429,
+        "n": 56,
+        "value": 0.571429
+       },
+       "accuracy_vs_record": {
+        "hi": 0.74,
+        "lo": 0.55,
+        "value": 0.65
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.28,
+         -0.06
+        ],
+        "value": -0.17
+       },
+       "pays": 17,
+       "record_pays": 34
+      }
+     },
+     "granite4.1:30b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.405,
+        "lo": 0.275,
+        "value": 0.34
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.29,
+         "lo": -0.475,
+         "value": -0.385
+        },
+        "kappa": {
+         "hi": -0.220291,
+         "lo": -0.490068,
+         "value": -0.359739
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.57,
+         0.705
+        ],
+        "value": 0.64
+       },
+       "pays": 188,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.46,
+        "lo": 0.27,
+        "n": 100,
+        "value": 0.36
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.660714,
+        "lo": 0.410714,
+        "n": 56,
+        "value": 0.535714
+       },
+       "accuracy_vs_record": {
+        "hi": 0.48,
+        "lo": 0.29,
+        "value": 0.38
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.42,
+         0.65
+        ],
+        "value": 0.54
+       },
+       "pays": 88,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.68,
+        "lo": 0.54,
+        "value": 0.61
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.025,
+         "lo": -0.205,
+         "value": -0.115
+        },
+        "kappa": {
+         "hi": -0.076748,
+         "lo": -0.477219,
+         "value": -0.277903
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.045,
+         0.13
+        ],
+        "value": 0.04
+       },
+       "pays": 68,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.76,
+        "lo": 0.58,
+        "n": 100,
+        "value": 0.67
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.785714,
+        "lo": 0.535714,
+        "n": 56,
+        "value": 0.660714
+       },
+       "accuracy_vs_record": {
+        "hi": 0.67,
+        "lo": 0.47,
+        "value": 0.57
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.06,
+         0.2
+        ],
+        "value": 0.07
+       },
+       "pays": 41,
+       "record_pays": 34
+      }
+     },
+     "mistral-small3.2:24b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.39,
+        "lo": 0.26,
+        "value": 0.325
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.305,
+         "lo": -0.49,
+         "value": -0.4
+        },
+        "kappa": {
+         "hi": -0.224184,
+         "lo": -0.491593,
+         "value": -0.361669
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.61,
+         0.74
+        ],
+        "value": 0.675
+       },
+       "pays": 195,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.41,
+        "lo": 0.23,
+        "n": 100,
+        "value": 0.32
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.625,
+        "lo": 0.375,
+        "n": 56,
+        "value": 0.5
+       },
+       "accuracy_vs_record": {
+        "hi": 0.45,
+        "lo": 0.27,
+        "value": 0.36
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.49,
+         0.7
+        ],
+        "value": 0.6
+       },
+       "pays": 94,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.675,
+        "lo": 0.54,
+        "value": 0.61
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.03,
+         "lo": -0.2,
+         "value": -0.115
+        },
+        "kappa": {
+         "hi": -0.102133,
+         "lo": -0.479755,
+         "value": -0.294623
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.07,
+         0.105
+        ],
+        "value": 0.02
+       },
+       "pays": 64,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.73,
+        "lo": 0.55,
+        "n": 100,
+        "value": 0.64
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.767857,
+        "lo": 0.517857,
+        "n": 56,
+        "value": 0.642857
+       },
+       "accuracy_vs_record": {
+        "hi": 0.66,
+        "lo": 0.46,
+        "value": 0.56
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.09,
+         0.17
+        ],
+        "value": 0.04
+       },
+       "pays": 38,
+       "record_pays": 34
+      }
+     },
+     "phi4:14b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.375,
+        "lo": 0.25,
+        "value": 0.31
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.32,
+         "lo": -0.505,
+         "value": -0.415
+        },
+        "kappa": {
+         "hi": -0.236886,
+         "lo": -0.50483,
+         "value": -0.374787
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "value": 0.69
+       },
+       "pays": 198,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.39,
+        "lo": 0.21,
+        "n": 100,
+        "value": 0.3
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.607143,
+        "lo": 0.357143,
+        "n": 56,
+        "value": 0.482143
+       },
+       "accuracy_vs_record": {
+        "hi": 0.48,
+        "lo": 0.29,
+        "value": 0.38
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.52,
+         0.71
+        ],
+        "value": 0.62
+       },
+       "pays": 96,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.65,
+        "lo": 0.51,
+        "value": 0.58
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.06,
+         "lo": -0.23,
+         "value": -0.145
+        },
+        "kappa": {
+         "hi": -0.182021,
+         "lo": -0.543292,
+         "value": -0.364716
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.07,
+         0.11
+        ],
+        "value": 0.02
+       },
+       "pays": 64,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.78,
+        "lo": 0.6,
+        "n": 100,
+        "value": 0.69
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.785714,
+        "lo": 0.535714,
+        "n": 56,
+        "value": 0.660714
+       },
+       "accuracy_vs_record": {
+        "hi": 0.63,
+        "lo": 0.43,
+        "value": 0.53
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.15,
+         0.13
+        ],
+        "value": -0.01
+       },
+       "pays": 33,
+       "record_pays": 34
+      }
+     },
+     "qwen3.5:9b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.46,
+        "lo": 0.325,
+        "value": 0.39
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.24,
+         "lo": -0.425,
+         "value": -0.335
+        },
+        "kappa": {
+         "hi": -0.191245,
+         "lo": -0.485388,
+         "value": -0.342528
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.46,
+         0.62
+        ],
+        "value": 0.54
+       },
+       "pays": 168,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.48,
+        "lo": 0.28975,
+        "n": 100,
+        "value": 0.38
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.642857,
+        "lo": 0.375,
+        "n": 56,
+        "value": 0.517857
+       },
+       "accuracy_vs_record": {
+        "hi": 0.52,
+        "lo": 0.32,
+        "value": 0.42
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.36,
+         0.59
+        ],
+        "value": 0.48
+       },
+       "pays": 82,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.7,
+        "lo": 0.565,
+        "value": 0.635
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.005,
+         "lo": -0.175,
+         "value": -0.09
+        },
+        "kappa": {
+         "hi": -0.305038,
+         "lo": -0.613621,
+         "value": -0.46329
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.285,
+         -0.125
+        ],
+        "value": -0.205
+       },
+       "pays": 19,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.82,
+        "lo": 0.65,
+        "n": 100,
+        "value": 0.74
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.696429,
+        "lo": 0.446429,
+        "n": 56,
+        "value": 0.571429
+       },
+       "accuracy_vs_record": {
+        "hi": 0.69,
+        "lo": 0.5,
+        "value": 0.6
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.35,
+         -0.13
+        ],
+        "value": -0.24
+       },
+       "pays": 10,
+       "record_pays": 34
+      }
+     },
+     "qwen3.8:27b": {
+      "v1|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.565,
+        "lo": 0.425,
+        "value": 0.495
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": -0.14,
+         "lo": -0.315,
+         "value": -0.23
+        },
+        "kappa": {
+         "hi": -0.109751,
+         "lo": -0.408736,
+         "value": -0.263199
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         0.3,
+         0.465
+        ],
+        "value": 0.385
+       },
+       "pays": 137,
+       "record_pays": 60
+      },
+      "v1|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.56,
+        "lo": 0.36,
+        "n": 100,
+        "value": 0.46
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.660714,
+        "lo": 0.410714,
+        "n": 56,
+        "value": 0.535714
+       },
+       "accuracy_vs_record": {
+        "hi": 0.6,
+        "lo": 0.4,
+        "value": 0.5
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         0.24,
+         0.48
+        ],
+        "value": 0.36
+       },
+       "pays": 70,
+       "record_pays": 34
+      },
+      "v2|dev": {
+       "accuracy_vs_record": {
+        "hi": 0.745,
+        "lo": 0.615,
+        "value": 0.68
+       },
+       "minus_tfidf": {
+        "accuracy": {
+         "hi": 0.035,
+         "lo": -0.125,
+         "value": -0.045
+        },
+        "kappa": {
+         "hi": -0.135681,
+         "lo": -0.486787,
+         "value": -0.313641
+        }
+       },
+       "n": 200,
+       "payout_minus_record": {
+        "0.95": [
+         -0.265,
+         -0.115
+        ],
+        "value": -0.19
+       },
+       "pays": 22,
+       "record_pays": 60
+      },
+      "v2|labelled": {
+       "accuracy_vs_person_cannot_tell_as_no": {
+        "hi": 0.81,
+        "lo": 0.63,
+        "n": 100,
+        "value": 0.72
+       },
+       "accuracy_vs_person_decided": {
+        "hi": 0.75,
+        "lo": 0.5,
+        "n": 56,
+        "value": 0.625
+       },
+       "accuracy_vs_record": {
+        "hi": 0.75,
+        "lo": 0.57,
+        "value": 0.66
+       },
+       "n": 100,
+       "payout_minus_record": {
+        "0.95": [
+         -0.27,
+         -0.05
+        ],
+        "value": -0.16
+       },
+       "pays": 18,
+       "record_pays": 34
+      }
+     }
+    }
+   },
+   "tfidf_dev_kappa": {
+    "hi": 0.513198,
+    "lo": 0.245283,
+    "value": 0.383408
+   },
+   "what": "registered, computed after the results were seen"
   },
   "local": {
    "lookup_pays_dev": 92,
@@ -10072,8 +11384,8 @@
      "fields_dropped": 0,
      "first": "2026-11-11T20:25:11.873380+00:00",
      "last": "2026-11-11T21:17:32.150169+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -10082,8 +11394,8 @@
      "fields_dropped": 0,
      "first": "2026-11-12T03:40:33.813082+00:00",
      "last": "2026-11-12T05:45:56.097012+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -10092,8 +11404,8 @@
      "fields_dropped": 0,
      "first": "2026-11-12T03:07:18.112518+00:00",
      "last": "2026-11-12T03:34:11.072962+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -10102,8 +11414,8 @@
      "fields_dropped": 0,
      "first": "2026-11-12T00:45:53.314363+00:00",
      "last": "2026-11-12T03:03:27.773586+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -10112,8 +11424,8 @@
      "fields_dropped": 0,
      "first": "2026-11-11T22:36:54.194192+00:00",
      "last": "2026-11-12T00:40:47.451095+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -10122,8 +11434,8 @@
      "fields_dropped": 0,
      "first": "2026-11-11T21:22:15.902554+00:00",
      "last": "2026-11-11T22:31:39.392068+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
@@ -10132,14 +11444,14 @@
      "fields_dropped": 0,
      "first": "2026-11-11T19:44:52.477193+00:00",
      "last": "2026-11-11T20:19:36.566613+00:00",
+     "other_event_count": 0,
      "other_events": [],
-     "other_journal_kinds": [],
      "resends": 0,
      "runs": 1,
      "sends": 600
     }
    },
-   "other_events": [],
+   "other_event_count": 0,
    "resends": 0,
    "sends": 4200
   },
@@ -10218,8 +11530,8 @@
    {
     "file": "docs/deviations.md",
     "frozen_sha256": null,
-    "sha256": "f4b8cddbb5b53da6f0decc8b16cacde6d1b0d500e7c9c530d6f47ff852d2423f",
-    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out. Fifth change: the fifth post-run change recorded, including the removal of three unused personal-data columns from data/live_api_metadata.csv.gz and why; the v3 entry says that the plan anticipated the small halves. Sixth change: the sixth post-run change recorded (the baselines in SQL, and wording corrections to the version published at 72b077a); the fifth-change entry marks the person's kappa on each half as registered. Seventh change: the seventh post-run change recorded (a clause about the author's own level removed from the introduction of docs/sql.md, with no change to who is stated to have written the SQL; links made clickable); the same clause removed from the sixth-change entry. Eighth change: the eighth post-run change recorded (a plan to run the same task on four other local models, registered before any of them was sent a complaint; not run). Ninth change: the ninth post-run change recorded (Amendment 1 of the local-models plan, three more models, the runner and analysis code and the public record, before any request). Tenth change: the tenth post-run change recorded (Amendment 2 of the local-models plan, a hosted arm, and its code, before any request to it; not run). Eleventh change: the eleventh post-run change recorded (the results of the model extension, both arms, with the run facts, what was computed, where the registered code does not produce what the plan promises, and what was added after the results were seen)."
+    "sha256": "74ea9709c68cb53d449ec9beaa62f292ef4c421ec13a0bc206c9254ba31ff199",
+    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out. Fifth change: the fifth post-run change recorded, including the removal of three unused personal-data columns from data/live_api_metadata.csv.gz and why; the v3 entry says that the plan anticipated the small halves. Sixth change: the sixth post-run change recorded (the baselines in SQL, and wording corrections to the version published at 72b077a); the fifth-change entry marks the person's kappa on each half as registered. Seventh change: the seventh post-run change recorded (a clause about the author's own level removed from the introduction of docs/sql.md, with no change to who is stated to have written the SQL; links made clickable); the same clause removed from the sixth-change entry. Eighth change: the eighth post-run change recorded (a plan to run the same task on four other local models, registered before any of them was sent a complaint; not run). Ninth change: the ninth post-run change recorded (Amendment 1 of the local-models plan, three more models, the runner and analysis code and the public record, before any request). Tenth change: the tenth post-run change recorded (Amendment 2 of the local-models plan, a hosted arm, and its code, before any request to it; not run). Eleventh change: the eleventh post-run change recorded (the results of the model extension, both arms, with the run facts, what was computed, where the registered code does not produce what the plan promises, and what was added after the results were seen; after two reviews, completed: the registered outputs computed after the results were seen, the corrected wording and the correction of two statements of the first version)."
    },
    {
     "file": "docs/sql.md",
@@ -10228,16 +11540,22 @@
     "what": "added after the held-out run and after the blind labels were locked (sixth change): a plain-English walk-through of every query in sql/, clause by clause, written by the AI coding assistant; it explains every query clause by clause for a reader new to SQL; it says which printed figures were already reported and which are printed for the first time (descriptive), and what a run on PostgreSQL 14 showed; its expected outputs are written by python -m judge.sql --docs and checked by a snapshot test. Computes nothing. Seventh change (at the author's decision): a clause about the author's own level was removed from the introduction; it still says that the AI coding assistant that wrote the rest of the code chose and wrote the queries, the loader, the tests and the walk-through, after the held-out run and the human labels, because a review by a separate AI-agent session asked what the SQL for the issuer-rate baseline and the same-issuer pairs would be and the author then asked for an SQL section, and that the walk-through explains every query clause by clause for a reader new to SQL. This record's sixth-change text was edited the same way. Computes nothing."
    },
    {
+    "file": "src/judge/extension_late.py",
+    "frozen_sha256": null,
+    "sha256": "dd9ff69d02c78478630196b5c8a631a0d36bb31d2cf3929dcbd79bfb0beb27cd",
+    "what": "added after the held-out run, after the blind labels were locked and after both arms of the model extension had run (eleventh change, after two reviews); written after the results were seen. Computes the registered outputs of the extension that the registered analysis code leaves out, with the plan's definitions unchanged (docs/analysis_plan_models.md, lines 81-95): accuracy against the record and against the person under both registered readings (metrics.bootstrap), judge minus TF-IDF on DEV (metrics.paired_difference against the study's TF-IDF model with its frozen settings), and the payout share minus the record's with its paired interval for every cell (models_analysis.paired). No label. Feeds no frozen number."
+   },
+   {
     "file": "src/judge/extension_report.py",
     "frozen_sha256": null,
-    "sha256": "39eca91ffde82cd63a4942a9cfe2e5c037e3e3a414718378d23dee34e2dedbe6",
-    "what": "added after the held-out run, after the blind labels were locked and after both arms of the model extension had run (eleventh change): the README sections and full-report sections of the extension (docs/analysis_plan_models.md, Amendments 1 and 2). It runs models_analysis.analyse and hosted_analysis.analyse unchanged and prints their output, the arms' run records from their journals and run logs, the registered summary sentences word for word, the intervals and corrected-level words the registered code computes but does not print, the one first-screen sentence per amendment, a list of the registered outputs the code does not produce, and a short note headed 'Exploratory (not registered)' with descriptive payout counts. Computes no new metric, interval or label; presentation only."
+    "sha256": "bae2137664a7e05f643c300bdd03c63515e67912ebc21dee92c37276fb78df1d",
+    "what": "added after the held-out run, after the blind labels were locked and after both arms of the model extension had run (eleventh change): the README sections and full-report sections of the extension (docs/analysis_plan_models.md, Amendments 1 and 2). It runs models_analysis.analyse and hosted_analysis.analyse unchanged and prints their output, the arms' run records from their journals and run logs, the registered summary sentences word for word, the intervals and corrected-level words the registered code computes but does not print, the one first-screen sentence per amendment, a list of the registered outputs the code does not produce, and a short note headed 'Exploratory (not registered)' with descriptive payout counts. Computes no new metric, interval or label; presentation only. After two reviews: it also prints the figures of src/judge/extension_late.py, marked as computed after the results were seen, and the range of interval widths it computes from the registered intervals, marked so."
    },
    {
     "file": "src/judge/frontpage.py",
     "frozen_sha256": null,
-    "sha256": "aab8e35d660089ca888e4ffb7f6a50216a21c6c7ff6f3699dcac3ba391d051ef",
-    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers. Fifth change (after final reviews): the first screen splits the sentence over three denominators, words the within-issuer result and the error counts, states the person's interval and the systems' spread without implying a tested equivalence, says the fake note was appended and the TF-IDF sentence written with the feature list in view; 'Who did what' gives the author's part first; the judges against the person and the registered check of the two readings leave out a figure whose side of zero moves with the bootstrap seed and list registered and descriptive figures apart; the 'cannot tell' paragraph describes this annotator; the second screen as the record shows it; the undo before the lock; the hashes of the locked labels; the per-half 'cannot tell' rates; the v3 paragraph; the error-direction, automation-slice, cost and 'before trying again' wording; the scrubbing misses in the data block. Sixth change (after the held-out run and the human labels): the 'sql_queries' block, a paragraph that points to the SQL in sql/, names the reported figures its queries recompute and the descriptive breakdown they print for the first time, from metrics.json; the 'deviations_in_short' block, the README's deviations paragraph with the number of post-run changes counted from results/post_run_changes.json (it had said 'five times' after the sixth change); 'Who did what' says that the assistant chose and wrote the SQL queries after the held-out run, when the author asked for an SQL section. After an independent review, wording corrections: the 'cannot tell' paragraph gives the counts under and over a minute and the answer re-entered after the undo, and no longer weighs the reader against the texts or speaks of other readers; 'his labels cover' the decided cases; judge v2 'reported' a prior refusal; the full tag on the first screen's range of the systems; one parenthesis in the held-out summary; 'depends on the bootstrap seed'; 'sorted one by one'; 'run on his own laptop'; the person's cost line (what the cap does, and labels against decisions). Seventh change (after the held-out run and the human labels, at the author's decision): where a block points the reader to sql/, docs/sql.md or docs/deviations.md, the first such mention in the block is a relative Markdown link with the path kept as code ('who', 'practice', the v3 paragraph of 'human', 'exploratory', 'sql_queries', 'deviations_in_short'); the deviations paragraph describes the seventh change. No number changed. Eighth change (after the held-out run and the human labels): one line in the summary of post-run changes, for the registered plan to run the same two prompts on four other local models; the deviations paragraph counts eight changes. No number changed. Ninth change: one line in the summary of post-run changes, for Amendment 1 of the local-models plan and its code; the deviations paragraph counts nine changes. No number changed. Tenth change: one line in the summary of post-run changes, for Amendment 2 of the local-models plan and its code; the deviations paragraph counts ten changes; two more ordinals for later changes. No number changed. Eleventh change (after both arms of the model extension had run): the first screen gets the one sentence each amendment of the extension allows, word for word, with a link to its section and no figure; the practitioner section's 'Not tried' clause on a larger or hosted model says 'on the held-out split'; one line in the summary of post-run changes; the deviations paragraph counts eleven changes. No number changed."
+    "sha256": "3f190f9fd1f0b1060ad459b755084eacb72cb102cac80f4a1eaa68a4f34bfe1e",
+    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers. Fifth change (after final reviews): the first screen splits the sentence over three denominators, words the within-issuer result and the error counts, states the person's interval and the systems' spread without implying a tested equivalence, says the fake note was appended and the TF-IDF sentence written with the feature list in view; 'Who did what' gives the author's part first; the judges against the person and the registered check of the two readings leave out a figure whose side of zero moves with the bootstrap seed and list registered and descriptive figures apart; the 'cannot tell' paragraph describes this annotator; the second screen as the record shows it; the undo before the lock; the hashes of the locked labels; the per-half 'cannot tell' rates; the v3 paragraph; the error-direction, automation-slice, cost and 'before trying again' wording; the scrubbing misses in the data block. Sixth change (after the held-out run and the human labels): the 'sql_queries' block, a paragraph that points to the SQL in sql/, names the reported figures its queries recompute and the descriptive breakdown they print for the first time, from metrics.json; the 'deviations_in_short' block, the README's deviations paragraph with the number of post-run changes counted from results/post_run_changes.json (it had said 'five times' after the sixth change); 'Who did what' says that the assistant chose and wrote the SQL queries after the held-out run, when the author asked for an SQL section. After an independent review, wording corrections: the 'cannot tell' paragraph gives the counts under and over a minute and the answer re-entered after the undo, and no longer weighs the reader against the texts or speaks of other readers; 'his labels cover' the decided cases; judge v2 'reported' a prior refusal; the full tag on the first screen's range of the systems; one parenthesis in the held-out summary; 'depends on the bootstrap seed'; 'sorted one by one'; 'run on his own laptop'; the person's cost line (what the cap does, and labels against decisions). Seventh change (after the held-out run and the human labels, at the author's decision): where a block points the reader to sql/, docs/sql.md or docs/deviations.md, the first such mention in the block is a relative Markdown link with the path kept as code ('who', 'practice', the v3 paragraph of 'human', 'exploratory', 'sql_queries', 'deviations_in_short'); the deviations paragraph describes the seventh change. No number changed. Eighth change (after the held-out run and the human labels): one line in the summary of post-run changes, for the registered plan to run the same two prompts on four other local models; the deviations paragraph counts eight changes. No number changed. Ninth change: one line in the summary of post-run changes, for Amendment 1 of the local-models plan and its code; the deviations paragraph counts nine changes. No number changed. Tenth change: one line in the summary of post-run changes, for Amendment 2 of the local-models plan and its code; the deviations paragraph counts ten changes; two more ordinals for later changes. No number changed. Eleventh change (after both arms of the model extension had run): the first screen gets the one sentence each amendment of the extension allows, word for word, with a link to its section and no figure; the practitioner section's 'Not tried' clause on a larger or hosted model says 'on the held-out split'; one line in the summary of post-run changes, which after two reviews also names the registered outputs computed after the results were seen; the deviations paragraph counts eleven changes. No number changed."
    },
    {
     "file": "src/judge/hosted.py",
@@ -10272,8 +11590,8 @@
    {
     "file": "src/judge/report.py",
     "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-    "sha256": "a9d7a85ded9362df57956118e4acdf7371e6bc7787b545db9a6af309a9e2b9b0",
-    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README. Fifth change (after final reviews): the Summary no longer prints the person's table a second time and points to the human-label section; the figure link in report.md is relative to results/; the error-reading sections say the author went through the 24 sorted cases with the timing the record shows, and that the blind labels bear on the hypothesis, which no registered test decides. Sixth change (after the held-out run and the human labels): the SQL loader and its walk-through are listed among the files a post-run change may touch; two blocks are added and required in the README, 'sql_queries' (a pointer to the SQL in sql/) and 'deviations_in_short' (the README's deviations paragraph, with the number of post-run changes counted from these records); after an independent review, the issuer sentence calls the range of rates the smoothed relief rate and says that the issuer above one half is counted on its raw rate, and the second-screen sentences say 'sorted one by one' instead of 'individually sorted'. No computation of a reported number was changed. Seventh change (after the held-out run and the human labels, at the author's decision): render passes the path from the rendered file to the repository root, so that the links the blocks write resolve from the README and from results/report.md alike. No computation of a reported number was changed. Eighth change (after the held-out run and the human labels): docs/analysis_plan_models.md, the plan for running the same task on other local models, is added to the files a post-run change may touch. No computation of a reported number was changed. Ninth change: src/judge/models.py and src/judge/models_analysis.py, the local-models extension's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Tenth change: src/judge/hosted.py and src/judge/hosted_analysis.py, the hosted arm's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Eleventh change (after both arms of the model extension had run): four blocks for the extension, two of them required in the README ('other_local_models', 'hosted_arm') and two in the full report only (their detail), from the new src/judge/extension_report.py, which is added to the files a post-run change may touch; report generation runs the extension's registered analyses unchanged, and the check compares results/models/analysis.json and results/models/hosted/analysis.json with what they regenerate. No computation of a reported number was changed."
+    "sha256": "4ad1a8fc732dae74ffd5dd05e1cde03840ca01e60a87449d4fd2ee91d7e87f00",
+    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README. Fifth change (after final reviews): the Summary no longer prints the person's table a second time and points to the human-label section; the figure link in report.md is relative to results/; the error-reading sections say the author went through the 24 sorted cases with the timing the record shows, and that the blind labels bear on the hypothesis, which no registered test decides. Sixth change (after the held-out run and the human labels): the SQL loader and its walk-through are listed among the files a post-run change may touch; two blocks are added and required in the README, 'sql_queries' (a pointer to the SQL in sql/) and 'deviations_in_short' (the README's deviations paragraph, with the number of post-run changes counted from these records); after an independent review, the issuer sentence calls the range of rates the smoothed relief rate and says that the issuer above one half is counted on its raw rate, and the second-screen sentences say 'sorted one by one' instead of 'individually sorted'. No computation of a reported number was changed. Seventh change (after the held-out run and the human labels, at the author's decision): render passes the path from the rendered file to the repository root, so that the links the blocks write resolve from the README and from results/report.md alike. No computation of a reported number was changed. Eighth change (after the held-out run and the human labels): docs/analysis_plan_models.md, the plan for running the same task on other local models, is added to the files a post-run change may touch. No computation of a reported number was changed. Ninth change: src/judge/models.py and src/judge/models_analysis.py, the local-models extension's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Tenth change: src/judge/hosted.py and src/judge/hosted_analysis.py, the hosted arm's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Eleventh change (after both arms of the model extension had run): four blocks for the extension, two of them required in the README ('other_local_models', 'hosted_arm') and two in the full report only (their detail), from the new src/judge/extension_report.py, which is added to the files a post-run change may touch; report generation runs the extension's registered analyses unchanged, and the check compares results/models/analysis.json and results/models/hosted/analysis.json with what they regenerate. No computation of a reported number was changed. After two reviews: src/judge/extension_late.py is also added to those files."
    },
    {
     "file": "src/judge/sql.py",

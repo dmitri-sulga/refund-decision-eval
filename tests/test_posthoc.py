@@ -112,10 +112,11 @@ def test_first_screen_fits_in_the_first_twelve_lines_of_the_readme():
     # count of post-run changes comes from the records; that adds its two markers, so the cap is 208.
     # Eleventh change (after both arms of the model extension had run): the two sections the plan places in the
     # README (docs/analysis_plan_models.md, Amendment 1 and Amendment 2, section 10), each a heading and a generated
-    # block (the local arm's two tables of 16 cells, the hosted arm's registered table of 12 cells and the intervals
-    # behind its labels, the registered summaries, limits and pointers), and one line in 'Where the detail is': 120
-    # lines, so the cap is 328. Each table prints once.
-    assert len(lines) <= 328
+    # block (the local arm's DEV table of 16 cells, the hosted arm's registered table of 12 cells and the intervals
+    # behind its labels, the registered summaries, limits and pointers; the local labelled-sample table is in
+    # results/report.md, after two reviews), and one line in 'Where the detail is': 102 lines, so the cap is 310.
+    # Each table prints once.
+    assert len(lines) <= 310
     assert sum(ln.startswith("| Person (blind") for ln in lines) == 1      # the person's table prints once
 
 

@@ -6,14 +6,19 @@ and guard). Every request carries the frozen messages of judge v1 or v2 (prompts
 supports it, the frozen JSON schema. Its cache, journal, run log and spend journal live under results/models/cloud/;
 nothing is written anywhere else.
 
-The API key is read from a file (OPENROUTER_KEY_FILE, default ~/.openrouter_key, which must not be readable by group
-or others) when a request is sent, and only then. It is sent in one header that is never forwarded on a redirect
-(redirects are not followed), and it is never written to a file, a log line or an error message: errors are rebuilt
-from the response body with the key, and anything shaped like a key, removed.
+The API key is read from a file (--key-file, or OPENROUTER_KEY_FILE, default ~/.openrouter_key, which must not be
+readable by group or others) when a request is sent, and only then. For the paid arm it must be a key dedicated to this
+branch with a credit limit set in OpenRouter (Amendment 3, Correction, B1): its remaining limit, read from
+GET /api/v1/key, is the server-side guard; the caps in this file are the second one. The key is sent in one header that
+is never forwarded on a redirect (redirects are not followed), and it is never written to a file, a log line or an
+error message: errors are rebuilt from the response body with the key (held in memory only after a request read it)
+and anything shaped like a key removed.
 
 python -m judge.cloud --verify                          # the checks `make check` runs; no network
 python -m judge.cloud --estimate                        # projected and worst-case cost; no network
-python -m judge.cloud --status                          # credits and the free-model daily count (key; no model)
+python -m judge.cloud --status                          # the key's limit and the free-model daily count (no model)
+python -m judge.cloud --check-listings                  # the live listing check of every model (public; no key)
+python -m judge.cloud --watch-listing MODEL             # the listing check once an hour (public; no key), see s. 9
 python -m judge.cloud --run MODEL                       # one model's four cells, in the registered order
 python -m judge.cloud --run MODEL --resend-unanswered   # after an interruption: one resend of each served request
 python -m judge.cloud --close-incomplete MODEL          # only on a condition of section 9, checked in the files
@@ -45,11 +50,11 @@ CACHE_FILE = DIR / "responses.jsonl"
 JOURNAL = DIR / "sent.jsonl"
 RUN_LOG = DIR / "run_log.jsonl"
 SPEND = DIR / "spend.jsonl"
+QUARANTINE = DIR / "quarantine.jsonl"             # answers from another model or provider: kept, never scored
 REGISTRATION = DIR / "registration.json"
 LOCK = DIR / "run.lock"
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
-CREDITS_URL = "https://openrouter.ai/api/v1/credits"
 KEY_URL = "https://openrouter.ai/api/v1/key"
 MODELS_URL = "https://openrouter.ai/api/v1/models"
 ENDPOINTS_URL = "https://openrouter.ai/api/v1/models/{id}/endpoints"
@@ -69,22 +74,30 @@ COMPARED = tuple(t for t in MODELS if t not in REFERENCE_ONLY)
 SAME_WEIGHTS_AS = {"google/gemma-4-31b-it:free": "gemma4:31b"}
 FREE = set(FREE_QUEUE)
 # the pinned endpoint of each model: provider tag sent in provider.order, provider name the answer must report,
-# USD per token, and what the endpoint supports (which decides seed and the format field)
+# USD per token, what the endpoint supports (which decides seed and the format field), and the longest output the
+# listing allows (the bound of one answer billed beyond max_tokens; Correction, M1)
 ENDPOINT = {
     "nvidia/nemotron-3-ultra-550b-a55b:free": {"tag": "nvidia", "provider": "Nvidia", "quantization": "unknown",
-                                               "prompt": 0.0, "completion": 0.0, "seed": True, "format": None},
+                                               "prompt": 0.0, "completion": 0.0, "seed": True, "format": None,
+                                               "max_completion_tokens": 65536},
     "dots-studio/dots-3-note-preview:free": {"tag": "atlas-cloud/fp8", "provider": "AtlasCloud", "quantization": "fp8",
-                                             "prompt": 0.0, "completion": 0.0, "seed": False, "format": "json_schema"},
+                                             "prompt": 0.0, "completion": 0.0, "seed": False, "format": "json_schema",
+                                             "max_completion_tokens": 460800},
     "nvidia/nemotron-3.5-super-vl:free": {"tag": "nvidia", "provider": "Nvidia", "quantization": "unknown",
-                                          "prompt": 0.0, "completion": 0.0, "seed": True, "format": "json_schema"},
+                                          "prompt": 0.0, "completion": 0.0, "seed": True, "format": "json_schema",
+                                          "max_completion_tokens": 131072},
     "google/gemma-4-31b-it:free": {"tag": "google-ai-studio", "provider": "Google AI Studio", "quantization": "unknown",
-                                   "prompt": 0.0, "completion": 0.0, "seed": True, "format": "json_object"},
+                                   "prompt": 0.0, "completion": 0.0, "seed": True, "format": "json_object",
+                                   "max_completion_tokens": 32768},
     "deepseek/deepseek-v4-pro-0813": {"tag": "novita/fp8", "provider": "Novita", "quantization": "fp8",
-                                      "prompt": 0.99e-6, "completion": 2.97e-6, "seed": True, "format": "json_schema"},
+                                      "prompt": 0.99e-6, "completion": 2.97e-6, "seed": True, "format": "json_schema",
+                                      "max_completion_tokens": 393216},
     "moonshotai/kimi-k2.6": {"tag": "crusoe/bf16", "provider": "Crusoe", "quantization": "bf16",
-                             "prompt": 0.70e-6, "completion": 3.50e-6, "seed": True, "format": "json_schema"},
+                             "prompt": 0.70e-6, "completion": 3.50e-6, "seed": True, "format": "json_schema",
+                             "max_completion_tokens": 235929},
     "xiaomi/mimo-v2.6-pro": {"tag": "gmicloud/bf16", "provider": "GMICloud", "quantization": "bf16",
-                             "prompt": 0.32625e-6, "completion": 0.6525e-6, "seed": True, "format": "json_schema"},
+                             "prompt": 0.32625e-6, "completion": 0.6525e-6, "seed": True, "format": "json_schema",
+                             "max_completion_tokens": 945000},
 }
 TEMPERATURE, SEED, MAX_TOKENS = 0, 42, 512          # the local runs' temperature, seed and num_predict
 REASONING_OFF = {"effort": "none"}                    # OpenRouter's documented switch; checked on every answer
@@ -96,28 +109,36 @@ SUB_CAP_USD = 5.00                                    # each model
 FORMAT_ALLOWANCE = 2_000                              # worst case: tokens a provider may add for the format
 PROJECTED_BYTES_PER_TOKEN = 3
 FORMAT_PROJECTED = 500
-CREDIT_MARGIN_USD = 1.00                              # a paid model starts only with this much credit to spare
+CREDIT_MARGIN_USD = 1.00                              # a paid model starts only with this much key limit to spare
 
 # ------------------------------------------------------------------ pace and errors (Amendment 3, section 9)
 MIN_INTERVAL_S = {"free": 4.0, "paid": 1.0}           # 15 per minute on free models, under their 20
+FREE_PER_MINUTE = 20
 FREE_DAILY_MARGIN = 25                                # free sends left unused of the day's remaining count
 FREE_DAILY_FALLBACK = 950                             # if /api/v1/key does not report the count: journal-based cap
 RETRY_DELAYS_S = (30, 60, 120, 240)
 RETRY_AFTER_MAX_S = 300
 MAX_ERRORS_PER_MODEL = 150                            # waited-out error answers only
 REPEAT_GAP_S = 24 * 3600
+WATCH_INTERVAL_S = 3600                               # --watch-listing: one public listing check an hour
+MAX_LISTING_GAP_S = 2 * 3600                          # a failing streak counts only if no two checks are further apart
+LOCK_RETRY_S = 30
+# run_log events that record only a public listing check (no request, no key): they may be uncommitted when a model
+# starts (Correction, m10)
+LISTING_EVENTS = ("listing", "endpoint_status_changed", "listing_watch")
 TRANSIENT_STATUSES = (408, 429, 500, 502, 503, 504, 520, 522, 524, 529)
 ACCOUNT_STATUSES = (401, 402)
 # a refusal caused by the account's own settings, not by the request: privacy / data policy, guardrails
 ACCOUNT_PHRASES = ("data policy", "guardrail", "privacy setting")
-NOT_SERVED = ("transient", "rejected", "account", "quota", "refused")
+NOT_SERVED = ("transient", "rejected", "account", "quota", "refused", "mismatch")
 KEY_PATTERN = re.compile(r"sk-or-[A-Za-z0-9_\-]{8,}|sk-[A-Za-z0-9_\-]{20,}")
 DONE_REASON = {"stop": "stop", "length": "length"}    # every other finish_reason is kept as it is (malformed)
 VERDICT_WORDS = {"rejected": "the request was rejected",
                  "account": "an account condition (the key, the credit balance or the account's privacy settings)",
                  "quota": "the free models' daily request limit",
                  "transient": "a rate limit, an overload or a server error, after its retries",
-                 "unavailable": "the model or its pinned endpoint is no longer listed as registered"}
+                 "unavailable": "the model or its pinned endpoint is no longer listed as registered",
+                 "mismatch": "an answer from another model or provider (kept in quarantine, not scored)"}
 PROTECTED = ("docs/analysis_plan_models.md", "src/judge/cloud.py", "src/judge/cloud_select.py",
              "src/judge/cloud_analysis.py", "src/judge/hosted.py", "src/judge/models.py",
              "src/judge/models_analysis.py", "src/judge/prompts.py", "src/judge/llm.py", "src/judge/judgments.py",
@@ -150,6 +171,9 @@ def key_file_ok() -> str | None:
     return None
 
 
+_KEYS_READ: set[str] = set()      # the keys this process read to send a request (memory only), for scrub()
+
+
 def read_key() -> str:
     """Called only when a request is sent."""
     why = key_file_ok()
@@ -159,19 +183,16 @@ def read_key() -> str:
         k = f.read().strip()
     if not k:
         raise CloudError(None, "the key file is empty; nothing was sent.")
+    _KEYS_READ.add(k)
     return k
 
 
 def scrub(text) -> str:
+    """Removes the key this process sent (if any request was sent) and anything shaped like a key. Never reads the
+    key file (Correction, m1)."""
     s = str(text)
-    try:
-        if key_file_ok() is None:
-            with open(key_path(), encoding="utf-8") as f:
-                k = f.read().strip()
-            if k:
-                s = s.replace(k, "[redacted]")
-    except OSError:
-        pass
+    for k in _KEYS_READ:
+        s = s.replace(k, "[redacted]")
     return KEY_PATTERN.sub("[redacted]", s)
 
 
@@ -179,10 +200,10 @@ class CloudError(Exception):
     """A failed request, rebuilt without the request (no headers, no key)."""
 
     def __init__(self, status, message, request_id=None, etype=None, maybe_billed=False, retry_after=None,
-                 usage=None, date=None, remaining=None, moderation=None, in_200=False):
+                 usage=None, date=None, remaining=None, moderation=None, in_200=False, limit=None):
         self.status, self.message, self.request_id, self.etype = status, scrub(message)[:500], request_id, etype
         self.maybe_billed, self.retry_after, self.usage, self.date = maybe_billed, retry_after, usage, date
-        self.remaining, self.moderation, self.in_200 = remaining, moderation, in_200
+        self.remaining, self.moderation, self.in_200, self.limit = remaining, moderation, in_200, limit
         super().__init__(f"HTTP {status}: {self.message}" if status else self.message)
 
 
@@ -238,7 +259,16 @@ def cost(tag: str, usage: dict) -> float:
 
 def worst_case(tag: str, body: dict) -> float:
     ep = ENDPOINT[tag]
+    assert body["max_tokens"] == MAX_TOKENS          # the hard per-request output limit, on every request
     return ep["prompt"] * input_upper(body) + ep["completion"] * body["max_tokens"]
+
+
+def overrun_headroom(tag: str) -> float:
+    """Correction, M1: the most one answer can cost beyond its reservation if the provider bills output past
+    max_tokens, up to the endpoint's listed max_completion_tokens. Kept free under the branch cap before every paid
+    request, so one such answer cannot take the branch over 15 USD; the model is closed after it."""
+    ep = ENDPOINT[tag]
+    return ep["completion"] * max(0, ep["max_completion_tokens"] - MAX_TOKENS)
 
 
 def projected(tag: str, body: dict) -> float:
@@ -281,7 +311,7 @@ def _error_from_json(err: dict, status, hdrs, in_200=False, usage=None) -> Cloud
     return CloudError(code, message, hdrs.get("x-generation-id") if hdrs else None, err.get("type"),
                       retry_after=retry_after, usage=usage, date=hdrs.get("date") if hdrs else None,
                       remaining=hdrs.get("x-ratelimit-remaining") if hdrs else None, moderation=moderation,
-                      in_200=in_200)
+                      in_200=in_200, limit=hdrs.get("x-ratelimit-limit") if hdrs else None)
 
 
 class OpenRouterTransport:
@@ -360,6 +390,19 @@ def _http_failure(exc: urllib.error.HTTPError) -> CloudError:
     return e
 
 
+def per_minute(exc: CloudError) -> bool:
+    """A 429 with X-RateLimit-Remaining 0 can be the per-minute limit as well as the daily one (the headers describe
+    the limit that was hit; api-reference/limits, read 2026-11-12). It is the per-minute one when X-RateLimit-Limit is
+    the per-minute allowance (20) or the message names a minute; otherwise it is taken as the daily limit, which only
+    pauses the run (Correction, m2)."""
+    try:
+        if exc.limit is not None and int(str(exc.limit).strip()) == FREE_PER_MINUTE:
+            return True
+    except ValueError:
+        pass
+    return bool(re.search(r"per[- ]?min|per minute|/min", exc.message, re.I))
+
+
 def classify(exc: BaseException, tag: str) -> tuple[str, str]:
     """Amendment 3, section 9. 'moderated': a moderation flag (an answer, malformed, scored no money back).
     'quota': the free models' daily limit (stops; resumes after the reset). 'account': 401, 402, a 4xx naming the
@@ -370,7 +413,7 @@ def classify(exc: BaseException, tag: str) -> tuple[str, str]:
     s = exc.status
     if exc.moderation is not None:
         return "moderated", exc.message
-    if s == 429 and tag in FREE and str(exc.remaining) == "0":
+    if s == 429 and tag in FREE and str(exc.remaining) == "0" and not per_minute(exc):
         return "quota", exc.message
     if s in ACCOUNT_STATUSES or (s is not None and 400 <= s < 500
                                  and any(p in exc.message.lower() for p in ACCOUNT_PHRASES)):
@@ -421,8 +464,20 @@ def model_matches(tag: str, name) -> bool:
     return name in accepted_names(tag) or re.fullmatch(re.escape(base) + r"-(\d{8}|\d{4})(:free)?", name) is not None
 
 
-def reasoning_seen(resp: dict) -> tuple[int, int]:
-    """(reasoning tokens reported, characters of reasoning text returned)."""
+# reasoning written into the answer's text (Correction, M4): a <think>, <thinking> or <reasoning> block, closed or not
+THINK_BLOCK = re.compile(r"<(think|thinking|reasoning)>(.*?)(</\1>|$)", re.S | re.I)
+
+
+def reasoning_in_content(content) -> int:
+    """Characters of reasoning text inside the answer's own text."""
+    if not isinstance(content, str):
+        return 0
+    return sum(max(1, len(m.group(2))) for m in THINK_BLOCK.finditer(content))
+
+
+def reasoning_seen(resp: dict) -> tuple[int, int, int]:
+    """(reasoning tokens reported, characters of reasoning text returned in message.reasoning(_details), characters
+    of reasoning text inside message.content)."""
     usage = resp.get("usage") or {}
     rt = (usage.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0
     msg = resp["choices"][0]["message"]
@@ -430,14 +485,29 @@ def reasoning_seen(resp: dict) -> tuple[int, int]:
     details = msg.get("reasoning_details") or []
     chars = len(text) if isinstance(text, str) else 0
     chars += sum(len(str(d.get("text") or d.get("summary") or "")) for d in details if isinstance(d, dict))
-    return int(rt) if isinstance(rt, int) else 0, chars
+    return int(rt) if isinstance(rt, int) else 0, chars, reasoning_in_content(msg.get("content"))
+
+
+def _norm(name) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(name).casefold())
+
+
+def provider_matches(tag: str, name) -> bool:
+    """Correction, M2: the reported provider is compared after case folding and removing spaces and punctuation, with
+    the snapshot's provider name and with the provider part of the pinned tag (`atlas-cloud/fp8` -> atlascloud). A
+    missing provider field is accepted by an explicit rule: the request pins the endpoint with fallbacks off, so
+    OpenRouter cannot route it elsewhere; such answers are counted and reported per cell."""
+    if name is None:
+        return True
+    ep = ENDPOINT[tag]
+    return _norm(name) in {_norm(ep["provider"]), _norm(ep["tag"].split("/")[0])}
 
 
 def answer_record(tag, version, item_id, body, rhash, resp, headers, requested_at, wall, drop) -> dict:
     usage = resp["usage"]
     choice = resp["choices"][0]
     finish = choice.get("finish_reason")
-    rt, rchars = reasoning_seen(resp)
+    rt, rchars, cchars = reasoning_seen(resp)
     return {
         "key": key(tag, version, item_id), "model": tag, "prompt_version": version, "item_id": item_id,
         "request_sha256": rhash, "response_model": resp["model"], "provider": resp.get("provider"),
@@ -445,8 +515,8 @@ def answer_record(tag, version, item_id, body, rhash, resp, headers, requested_a
         "requested_at": requested_at, "wall_s": round(wall, 3), "fields_dropped": sorted(drop),
         "endpoint_tag": ENDPOINT[tag]["tag"], "content": choice["message"].get("content") or "",
         "finish_reason": finish, "native_finish_reason": choice.get("native_finish_reason"),
-        "done_reason": DONE_REASON.get(finish, finish), "reasoning_tokens": rt, "reasoning_chars": rchars,
-        "usage": usage, "prompt_eval_count": usage["prompt_tokens"], "eval_count": usage["completion_tokens"],
+        "done_reason": DONE_REASON.get(finish, finish), "reasoning_tokens": rt, "reasoning_chars": rchars + cchars,
+        "reasoning_in_content_chars": cchars, "usage": usage, "prompt_eval_count": usage["prompt_tokens"], "eval_count": usage["completion_tokens"],
         "logprobs": None, "thinking": None, "moderated": None,
     }
 
@@ -518,19 +588,57 @@ def free_sends_today(journal) -> int:
                and split_key(e["key"])[0] in FREE)
 
 
-def repeated(tag: str, run_log: list[dict], journal: list[dict]) -> dict | None:
-    """Section 9, condition (c): the model's last run stopped on a rejection or on 'unavailable', and the same
-    condition (same request, status and error type; or the model or endpoint missing from the listing) was observed
-    at least 24 hours apart by the server's date headers. Returns that last stop, or None."""
+def last_answer_s(tag: str, cache=None) -> float | None:
+    """When the model's last cached answer was requested (local clock), or None: a success that ends any failing
+    streak before it (Correction, B2)."""
+    cache = cache if cache is not None else {r["key"]: r for r in _jsonl(CACHE_FILE)}
+    times = [H._seconds(r["requested_at"]) for k, r in cache.items() if split_key(k)[0] == tag and r.get("requested_at")]
+    return max(times) if times else None
+
+
+def unavailable_streak(tag: str, run_log: list[dict], cache=None) -> list[dict]:
+    """Correction, B2: the failing listing checks of the model since its last passing check and since its last answer
+    (no intervening success), in order."""
+    after = last_answer_s(tag, cache)
+    streak: list[dict] = []
+    for e in run_log:
+        if e.get("model") != tag or e.get("event") != "listing":
+            continue
+        if e.get("ok"):
+            streak = []
+        elif after is None or H._seconds(e["at"]) > after:
+            streak.append(e)
+    return streak
+
+
+def streak_closes(streak: list[dict]) -> bool:
+    """A failing streak closes a model only if it spans at least 24 hours by the server's dates and no two consecutive
+    checks in it are more than MAX_LISTING_GAP_S apart (so the moment of a check cannot pick the result: Correction,
+    B2; `--watch-listing` checks once an hour)."""
+    times = [H._server_seconds(e.get("server_date")) for e in streak]
+    if len(times) < 2 or any(t is None for t in times):
+        return False
+    start = len(times) - 1                      # the latest run of checks with no gap over MAX_LISTING_GAP_S
+    while start > 0 and 0 <= times[start] - times[start - 1] <= MAX_LISTING_GAP_S:
+        start -= 1
+    return times[-1] - times[start] >= REPEAT_GAP_S
+
+
+def repeated(tag: str, run_log: list[dict], journal: list[dict], cache=None) -> dict | None:
+    """Section 9, condition (c), as corrected (Correction, B2): the model's last run stopped on a rejection or on
+    'unavailable', and with no answer of the model in between, either the same rejection (same request, status and
+    error type) was observed at least 24 hours apart by the server's date headers, or the listing check failed on
+    every check of a streak that spans 24 hours with checks at most two hours apart. Returns that last stop, or None."""
     runs = [e for e in run_log if e.get("model") == tag and e.get("event") in ("run_started", "run_stopped")]
     last = runs[-1] if runs and runs[-1]["event"] == "run_stopped" else None
     if not last or last.get("verdict") not in ("rejected", "unavailable"):
         return None
     if last["verdict"] == "unavailable":
-        same = [e for e in run_log if e.get("event") == "unavailable" and e.get("model") == tag]
-    else:
-        same = [e for e in journal if e.get("key") == last.get("key") and e.get("kind") == "rejected"
-                and e.get("status") == last.get("status") and e.get("error_type") == last.get("error_type")]
+        return last if streak_closes(unavailable_streak(tag, run_log, cache)) else None
+    after = last_answer_s(tag, cache)
+    same = [e for e in journal if e.get("key") == last.get("key") and e.get("kind") == "rejected"
+            and e.get("status") == last.get("status") and e.get("error_type") == last.get("error_type")
+            and (after is None or H._seconds(e["at"]) > after)]
     times = [t for t in (H._server_seconds(e.get("server_date")) for e in same) if t is not None]
     return last if len(times) >= 2 and max(times) - min(times) >= REPEAT_GAP_S else None
 
@@ -539,12 +647,13 @@ def load_registration() -> dict:
     if not REGISTRATION.exists():
         raise Refusal(f"results/models/cloud/{REGISTRATION.name} is missing; refusing.")
     reg = json.loads(REGISTRATION.read_text())
-    need = ("repository", "code_commit", "code_published_at", "gist_id", "gist_url", "gist_created_at")
+    need = ("repository", "code_commit", "code_published_at", "code_published_source", "gist_id", "gist_url",
+            "gist_created_at", "gist_file_sha256", "key_reading")
     missing = [k for k in need if not reg.get(k)]
     if missing:
         raise Refusal(f"results/models/cloud/{REGISTRATION.name} lacks {', '.join(missing)}: the branch's code "
-                      "commit, the time GitHub records for its publication and the secret gist must be recorded "
-                      "before the first request.")
+                      "commit, the time GitHub records for its publication and its source, the secret gist with its "
+                      "files' hashes, and the key's reading (`--status`) must be recorded before the first request.")
     return reg
 
 
@@ -557,35 +666,90 @@ def github_main_head() -> str:
 
 
 # ------------------------------------------------------------------ live listings (no key)
-def listing_check(tag: str, getter=public_get) -> tuple[str | None, str | None]:
-    """(None or why the model is not available as registered, the server's date). The model must still be listed
-    under its id with its Hugging Face id, the pinned endpoint must be listed with status 0, the same provider and
-    the same or wider precision, and a price no higher than the registered one (zero for a free model)."""
+def listing_check(tag: str, getter=public_get) -> tuple[str | None, str | None, int | None]:
+    """(None or why the model is not available as registered, the server's date, the pinned endpoint's status). The
+    model must still be listed under its id with its Hugging Face id, the pinned endpoint must be listed with the same
+    provider and the same or wider precision, and a price no higher than the registered one (zero for a free model).
+    The endpoint's status is recorded, not required (Correction, B2: it changed from 0 to -2 for crusoe/bf16 within an
+    hour of the snapshot); a request to an endpoint that is down fails and is handled by the rules of section 9."""
     from . import cloud_select as S
     snap = {m["id"]: m for m in S.load_snapshot()[0]}
     models, date = getter(MODELS_URL)
     live = {m["id"]: m for m in models.get("data") or []}
     if tag not in live:
-        return f"{tag} is no longer listed", date
+        return f"{tag} is no longer listed", date, None
     if live[tag].get("hugging_face_id") != snap[tag].get("hugging_face_id"):
-        return f"{tag} is now listed with other weights ({live[tag].get('hugging_face_id')})", date
+        return f"{tag} is now listed with other weights ({live[tag].get('hugging_face_id')})", date, None
     eps, date = getter(ENDPOINTS_URL.format(id=tag))
     ep = ENDPOINT[tag]
     match = [e for e in (eps.get("data") or {}).get("endpoints") or [] if e.get("tag") == ep["tag"]]
     if not match:
-        return f"the pinned endpoint {ep['tag']} of {tag} is no longer listed", date
+        return f"the pinned endpoint {ep['tag']} of {tag} is no longer listed", date, None
     e = match[0]
-    if e.get("status") != 0:
-        return f"the pinned endpoint {ep['tag']} reports status {e.get('status')}", date
-    if e.get("provider_name") != ep["provider"]:
-        return f"the pinned endpoint {ep['tag']} is now served by {e.get('provider_name')}", date
+    status = e.get("status")
+    if _norm(e.get("provider_name")) != _norm(ep["provider"]):
+        return f"the pinned endpoint {ep['tag']} is now served by {e.get('provider_name')}", date, status
     if (e.get("quantization") or "unknown") != ep["quantization"]:
-        return f"the pinned endpoint {ep['tag']} now reports quantization {e.get('quantization')}", date
+        return f"the pinned endpoint {ep['tag']} now reports quantization {e.get('quantization')}", date, status
     p = e.get("pricing") or {}
     if float(p.get("prompt") or 0) > ep["prompt"] + 1e-15 or float(p.get("completion") or 0) > ep["completion"] + 1e-15 \
             or float(p.get("request") or 0) > 0:
-        return f"the pinned endpoint {ep['tag']} of {tag} now costs more than registered", date
-    return None, date
+        return f"the pinned endpoint {ep['tag']} of {tag} now costs more than registered", date, status
+    return None, date, status
+
+
+def record_listing(tag: str, why, date, status, context: str) -> None:
+    """Every listing check goes to the run log with the server's date and the endpoint's status; a status different
+    from the last one recorded for the model (or from the snapshot's 0) is also recorded as a flip (Correction, B2)."""
+    prev = [e.get("endpoint_status") for e in _jsonl(RUN_LOG) if e.get("model") == tag and e.get("event") == "listing"
+            and e.get("endpoint_status") is not None]
+    before = prev[-1] if prev else 0
+    log_event({"event": "listing", "model": tag, "ok": why is None, "reason": why, "server_date": date,
+               "endpoint_status": status, "context": context})
+    if status is not None and status != before:
+        log_event({"event": "endpoint_status_changed", "model": tag, "endpoint": ENDPOINT[tag]["tag"], "from": before,
+                   "to": status, "server_date": date})
+
+
+def check_listings(getter=public_get) -> list[dict]:
+    """The listing check of every model, recorded (public requests, no key). Run on the start day before the first
+    request (pre_run_checklist.md, G)."""
+    out = []
+    for tag in MODELS:
+        why, date, status = listing_check(tag, getter)
+        record_listing(tag, why, date, status, "check-listings")
+        out.append({"model": tag, "ok": why is None, "reason": why, "endpoint_status": status, "server_date": date})
+    return out
+
+
+def watch_listing(tag: str, getter=public_get, sleep=time.sleep, max_checks: int | None = None) -> str:
+    """Correction, B2: the listing check of one model once an hour (public, no key) until it passes or its failing
+    streak can close the model (24 hours, no gap over two hours). Takes the run lock for each check only."""
+    if tag not in MODELS:
+        raise Refusal(f"{tag} is not a model of Amendment 3.")
+    checks = 0
+    while True:
+        while True:
+            try:
+                acquire_lock()
+                break
+            except Refusal:
+                sleep(LOCK_RETRY_S)
+        try:
+            why, date, status = listing_check(tag, getter)
+            record_listing(tag, why, date, status, "watch")
+            if why:
+                log_event({"event": "run_stopped", "model": tag, "verdict": "unavailable", "reason": why})
+        finally:
+            release_lock()
+        checks += 1
+        if why is None:
+            return f"{tag}: the listing check passes ({date}); resume with --run {tag}."
+        if streak_closes(unavailable_streak(tag, _jsonl(RUN_LOG))):
+            return f"{tag}: the listing check failed on every hourly check for 24 hours; --close-incomplete {tag} may close it."
+        if max_checks is not None and checks >= max_checks:
+            return f"{tag}: {checks} check(s), still failing ({why})."
+        sleep(WATCH_INTERVAL_S)
 
 
 # ------------------------------------------------------------------ before a model (lock held)
@@ -611,7 +775,7 @@ def preflight(tag: str, published_head=None, getter=public_get, transport=None) 
         raise Refusal("uncommitted changes outside results/models/cloud/: " + ", ".join(outside))
     st = state()
     started = any(split_key(e["key"])[0] == tag for e in st["journal"])
-    if dirty and not started:
+    if dirty and not started and not only_listing_appends(dirty):
         raise Refusal("results/models/cloud/ has uncommitted changes: commit and publish the previous model's results "
                       "before the next model starts.")
     head = X.git("rev-parse", "HEAD").strip()
@@ -631,34 +795,79 @@ def preflight(tag: str, published_head=None, getter=public_get, transport=None) 
     why = key_file_ok()
     if why:
         raise Refusal(why + "; nothing was sent.")
-    why, date = listing_check(tag, getter)
+    why, date, status = listing_check(tag, getter)
+    record_listing(tag, why, date, status, "run")
     if why:
-        log_event({"event": "unavailable", "model": tag, "reason": why, "server_date": date})
         log_event({"event": "run_stopped", "model": tag, "verdict": "unavailable", "reason": why})
-        raise Refusal(f"stopped before {tag}: {why}. Nothing is substituted; run again later, and if the same holds "
-                      "24 hours later the model can be closed with --close-incomplete.")
+        raise Refusal(f"stopped before {tag}: {why}. Nothing is substituted; run again later. The model can be closed "
+                      f"only after `--watch-listing {tag}` finds it failing on every hourly check for 24 hours with no "
+                      "passing check or answer in between.")
     sets, test = X.item_sets()
     return {"sets": sets, "test": test, "registration": reg}
 
 
+def only_listing_appends(dirty: list[str]) -> bool:
+    """Correction, m10: the only uncommitted change is the run log, grown by listing checks alone (no request), so a
+    failed listing check does not force a commit and a publication before the model can be tried again."""
+    rel = RUN_LOG.relative_to(C.ROOT).as_posix() if RUN_LOG.is_relative_to(C.ROOT) else None
+    if rel is None or dirty != [rel]:
+        return False
+    try:
+        committed = X.git("show", f"HEAD:{rel}")
+    except Exception:                            # noqa: BLE001 - not committed yet
+        committed = ""
+    now_text = RUN_LOG.read_text() if RUN_LOG.exists() else ""
+    if not now_text.startswith(committed):
+        return False
+    added = [json.loads(ln) for ln in now_text[len(committed):].splitlines() if ln.strip()]
+    return all(e.get("event") in LISTING_EVENTS or (e.get("event") == "run_stopped" and e.get("verdict") == "unavailable")
+               for e in added)
+
+
+# the fields of GET /api/v1/key that are recorded (api-reference/limits, read 2026-11-12: limit "or null if
+# unlimited", limit_remaining, limit_reset "null means it never resets", usage all time, usage_daily in the UTC day,
+# is_free_tier, free_model_daily_requests {used, limit, remaining} in the current UTC day)
+KEY_FIELDS = ("limit", "limit_remaining", "limit_reset", "include_byok_in_limit", "usage",
+              "usage_daily", "is_free_tier", "free_model_daily_requests")
+
+
 def account_readings(transport) -> dict:
-    """Credits and the free-model daily count, as the API reports them (key; no model is called)."""
+    """The key's limit, its use and the free-model daily count, from GET /api/v1/key (key; no model is called, nothing
+    is billed). GET /api/v1/credits is not used: it needs a management key (Correction, B1). The key's label, which
+    shows part of the key, is not kept."""
     out = {}
     try:
-        c = (transport.get(CREDITS_URL) or {}).get("data") or {}
-        out["total_credits"], out["total_usage"] = c.get("total_credits"), c.get("total_usage")
-        if isinstance(c.get("total_credits"), (int, float)) and isinstance(c.get("total_usage"), (int, float)):
-            out["remaining_credits"] = round(c["total_credits"] - c["total_usage"], 6)
-    except Exception as exc:                     # noqa: BLE001
-        out["credits_error"] = scrub(f"{type(exc).__name__}: {exc}")[:200]
-    try:
         k = (transport.get(KEY_URL) or {}).get("data") or {}
-        fr = k.get("free_model_daily_requests")
-        out["free_model_daily_requests"] = fr if isinstance(fr, dict) else None
-        out["is_free_tier"] = k.get("is_free_tier")
+        for f in KEY_FIELDS:
+            out[f] = k.get(f)
+        if not isinstance(out["free_model_daily_requests"], dict):
+            out["free_model_daily_requests"] = None
     except Exception as exc:                     # noqa: BLE001
         out["key_error"] = scrub(f"{type(exc).__name__}: {exc}")[:200]
     return out
+
+
+def _num(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def paid_key_refusal(tag: str, before: dict, worst: float) -> str | None:
+    """Correction, B1: a paid model starts only on a key whose limit is set in OpenRouter (not null), at most the
+    branch cap, that never resets, with at least the model's remaining worst case plus 1 USD left. None if it may."""
+    if before.get("key_error"):
+        return f"GET /api/v1/key failed ({before['key_error']})"
+    if before.get("limit") is None:
+        return ("the key has no credit limit (GET /api/v1/key reports limit null): the paid arm needs a key dedicated "
+                f"to this branch with a limit of at most {CAP_USD:.0f} USD set in OpenRouter")
+    if not _num(before["limit"]) or before["limit"] > CAP_USD + 1e-9:
+        return f"the key's limit is {before['limit']} USD, above the branch cap of {CAP_USD:.0f} USD"
+    if before.get("limit_reset") is not None:
+        return f"the key's limit resets ({before['limit_reset']}); it must never reset"
+    rem = before.get("limit_remaining")
+    if not _num(rem) or rem < worst + CREDIT_MARGIN_USD:
+        return (f"the key reports {rem} USD of its limit left, less than the worst case of the remaining requests "
+                f"({worst:.4f} USD) plus {CREDIT_MARGIN_USD:.2f}")
+    return None
 
 
 def work_list(tag, sets, records):
@@ -797,11 +1006,6 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
     _append(SPEND, {"at": now(), "event": "estimate", **est, "spent_before_usd": round(committed, 6),
                     "cap_usd": CAP_USD, "sub_cap_usd": SUB_CAP_USD})
     if tag not in FREE:
-        credits = before.get("remaining_credits")
-        if not isinstance(credits, (int, float)) or credits < est["worst_case_usd"] + CREDIT_MARGIN_USD:
-            raise Refusal(f"{tag}: the account reports {credits} USD of credit, less than the worst case of the "
-                          f"remaining requests ({est['worst_case_usd']:.4f} USD) plus {CREDIT_MARGIN_USD:.2f}; "
-                          "nothing was sent.")
         if committed + est["projected_usd"] > CAP_USD or mine + est["projected_usd"] > SUB_CAP_USD:
             scope = "branch" if committed + est["projected_usd"] > CAP_USD else "model"
             log_event({"event": "budget_stop", "model": tag, "scope": scope, "when": "before the model",
@@ -810,6 +1014,9 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                 split_key(k)[0] == tag for k in st["cache"]) else "stopped by the cap: the projection did not fit")
             raise Refusal(f"{tag}: the projection {est['projected_usd']:.4f} USD does not fit under the "
                           f"{'branch' if scope == 'branch' else 'model'} cap; nothing was sent, and it is closed.")
+        why = paid_key_refusal(tag, before, est["worst_case_usd"])
+        if why:
+            raise Refusal(f"{tag}: {why}; nothing was sent.")
     allowance = _free_allowance(tag, before, st["journal"])
     log_event({"event": "run_started", "model": tag, "resend_unanswered": resend_unanswered,
                "free_sends_allowed": allowance})
@@ -848,11 +1055,12 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
             rhash = request_hash(body)
             reserve = worst_case(tag, body)
             committed, mine = spent(), committed_for(tag)
-            if committed + reserve > CAP_USD or mine + reserve > SUB_CAP_USD:
-                scope = "branch" if committed + reserve > CAP_USD else "model"
+            headroom = overrun_headroom(tag)
+            if committed + reserve + headroom > CAP_USD or mine + reserve > SUB_CAP_USD:
+                scope = "branch" if committed + reserve + headroom > CAP_USD else "model"
                 log_event({"event": "budget_stop", "model": tag, "key": k, "scope": scope,
                            "spent_usd": round(committed, 6), "model_spent_usd": round(mine, 6),
-                           "next_worst_case_usd": round(reserve, 6)})
+                           "next_worst_case_usd": round(reserve, 6), "overrun_headroom_usd": round(headroom, 6)})
                 close_model(tag, f"stopped by the {'15 USD branch' if scope == 'branch' else '5 USD model'} cap: "
                                  "the next request's worst case did not fit")
                 raise Refusal(f"budget: the next request of {tag} could cost up to {reserve:.4f} USD, over the "
@@ -931,31 +1139,59 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                               "fixed.") from None
             r = answer_record(tag, version, item_id, body, rhash, resp, headers, requested_at, time.time() - t0, drop)
             c = cost(tag, r["usage"])
-            provider_ok = r["provider"] in (None, ENDPOINT[tag]["provider"])
-            if not model_matches(tag, r["response_model"]) or not provider_ok:
+            if not model_matches(tag, r["response_model"]) or not provider_matches(tag, r["provider"]):
+                # Correction, M2: charged, kept in quarantine (never scored), the run stops; the request is sent
+                # again on the next run. A second such answer of the model closes it.
                 record_spend({"event": "charged", "key": k, "request_id": r["generation_id"], "cost_usd": round(c, 10),
                               "note": f"answer served by {r['response_model']} at {r['provider']}",
                               "reservation": rid_})
-                _append(JOURNAL, {"at": now(), "key": k, "kind": "serving_mismatch",
-                                  "model_answered": r["response_model"], "provider": r["provider"]})
-                close_model(tag, f"served by {r['response_model']} at {r['provider']}")
-                raise Refusal(f"the API answered {k} with {r['response_model']} at {r['provider']}; {tag} is closed "
-                              "as incomplete.")
+                _append(QUARANTINE, r)
+                mm = {"at": now(), "key": k, "kind": "mismatch", "model_answered": r["response_model"],
+                      "provider": r["provider"]}
+                _append(JOURNAL, mm)
+                es.append(mm)
+                n_mm = sum(1 for e in _jsonl(JOURNAL) if e.get("kind") == "mismatch" and split_key(e["key"])[0] == tag)
+                if n_mm >= 2:
+                    close_model(tag, f"served by {r['response_model']} at {r['provider']} (a second answer from "
+                                     "another model or provider)")
+                    raise Refusal(f"the API answered {k} with {r['response_model']} at {r['provider']}, the second "
+                                  f"such answer of {tag}; {tag} is closed as incomplete.")
+                stop(k, "mismatch", f"served by {r['response_model']} at {r['provider']}", None)
+                raise Refusal(f"the API answered {k} with {r['response_model']} at {r['provider']}, not the "
+                              f"registered model at {ENDPOINT[tag]['provider']}; the answer is kept in quarantine and "
+                              f"charged, not scored. Resume with --run {tag}; a second such answer closes the model.")
+            over_out = r["eval_count"] > MAX_TOKENS
+            over_in = r["prompt_eval_count"] > input_upper(body)
+            over_cost = c > reserve + 1e-12
             record_spend({"event": "answer", "key": k, "request_id": r["generation_id"],
                           "prompt_tokens": r["usage"]["prompt_tokens"],
                           "completion_tokens": r["usage"]["completion_tokens"],
                           "reasoning_tokens": r["reasoning_tokens"], "reported_cost_usd": r["usage"].get("cost"),
-                          "cost_usd": round(c, 10), "reservation": rid_})
+                          "cost_usd": round(c, 10), "reservation": rid_,
+                          **({"over_reservation": True} if over_cost else {})})
             _append(CACHE_FILE, r)
             st["cache"][k] = r
             done += 1
             print(f"[{tag} {version} {split}] {item_id} {r['wall_s']:.1f}s finish={r['finish_reason']} "
                   f"in={r['prompt_eval_count']} out={r['eval_count']} reasoning={r['reasoning_tokens']} "
                   f"total={spend_state()['computed']:.4f} USD", flush=True)
-            if r["prompt_eval_count"] > input_upper(body) and tag not in FREE:
-                close_model(tag, f"{k}: billed input above the bound the cap relies on")
-                raise Refusal(f"{k}: {r['prompt_eval_count']} input tokens billed, above the bound "
-                              f"{input_upper(body)} the cap relies on; {tag} is closed as incomplete.")
+            if over_out or over_in or over_cost:
+                # Correction, M1: a deviation type of its own, journaled; the answer is kept and scored as it is.
+                # On a paid model the cap no longer rests on the reservation, so the model is closed.
+                ov = {"at": now(), "key": k, "kind": "overrun", "completion_tokens": r["eval_count"],
+                      "max_tokens": MAX_TOKENS, "prompt_tokens": r["prompt_eval_count"],
+                      "input_bound": input_upper(body), "cost_usd": round(c, 10), "reservation_usd": round(reserve, 10)}
+                _append(JOURNAL, ov)
+                es.append(ov)
+                log_event({"event": "overrun", "model": tag, "key": k, "output_over": over_out, "input_over": over_in,
+                           "cost_over_reservation": over_cost})
+                if tag not in FREE:
+                    what = ("output above max_tokens" if over_out else "input above the bound" if over_in
+                            else "a cost above the reservation")
+                    close_model(tag, f"{k}: billed {what}; the cap no longer rests on the reservation")
+                    raise Refusal(f"{k}: billed {what} ({r['prompt_eval_count']} in, {r['eval_count']} out, "
+                                  f"{c:.6f} USD against a reservation of {reserve:.6f}); {tag} is closed as "
+                                  "incomplete.")
             break
     expected = expected_keys(tag, sets)
     missing = expected - set(st["cache"])
@@ -998,10 +1234,12 @@ def close_incomplete(tag: str) -> str:
             last = repeated(tag, run_log, st["journal"])
             if last is None:
                 raise Refusal(f"{tag} cannot be closed: none of the conditions of section 9 holds (a budget stop, the "
-                              "error-answer limit, the same rejection or unavailability at least 24 hours apart by "
-                              f"the server's dates). Resume with --run {tag}.")
-            reason = (f"{VERDICT_WORDS[last['verdict']]}, observed at least 24 hours apart "
-                      f"({last.get('key') or tag}: {last.get('reason')})")
+                              "error-answer limit, the same rejection at least 24 hours apart by the server's dates "
+                              "with no answer in between, or the listing check failing on every check of 24 hours "
+                              f"with no gap over two hours and no success in between). Resume with --run {tag}.")
+            how = ("on every listing check for at least 24 hours, no two checks more than two hours apart"
+                   if last["verdict"] == "unavailable" else "observed at least 24 hours apart")
+            reason = f"{VERDICT_WORDS[last['verdict']]}, {how} ({last.get('key') or tag}: {last.get('reason')})"
         return close_model(tag, reason)
     finally:
         release_lock()
@@ -1058,6 +1296,17 @@ def verify(records=None) -> list[str]:
         if error_count(journal, tag) > MAX_ERRORS_PER_MODEL:
             problems.append(f"journal: {tag} has more error answers than the rules allow")
     answers = {e["key"]: e for e in spend if e.get("event") == "answer"}
+    overruns = {e["key"] for e in journal if e.get("kind") == "overrun"}
+    reserved = {e["id"]: e["cost_usd"] for e in spend if e.get("event") == "reserved"}
+    for e in spend:
+        if e.get("event") == "answer" and e.get("reservation") in reserved \
+                and e["cost_usd"] > reserved[e["reservation"]] + 1e-9 and e["key"] not in overruns:
+            problems.append(f"spend: {e['key']} cost more than its reservation and no overrun is journaled")
+    for tag in PAID_QUEUE:
+        mine = [e for e in journal if split_key(e["key"])[0] == tag]
+        first = next((n for n, e in enumerate(mine) if e.get("kind") == "overrun"), None)
+        if first is not None and any(e.get("kind") in ("send", "resend", "retry") for e in mine[first + 1:]):
+            problems.append(f"journal: {tag} was sent a request after an overrun, which closes a paid model")
     seen = set()
     for r in cache:
         k = r["key"]
@@ -1069,7 +1318,7 @@ def verify(records=None) -> list[str]:
             problems.append(f"cache: {k} records model {r.get('model')}")
             continue
         if r.get("moderated") is None and (not model_matches(tag, r.get("response_model"))
-                                           or r.get("provider") not in (None, ENDPOINT[tag]["provider"])):
+                                           or not provider_matches(tag, r.get("provider"))):
             problems.append(f"cache: {k} was answered by {r.get('response_model')} at {r.get('provider')}")
         if item in test or item not in records:
             problems.append(f"cache: {k} concerns a held-out or unknown complaint")
@@ -1080,8 +1329,8 @@ def verify(records=None) -> list[str]:
             problems.append(f"cache: {k} was not sent as registered")
         if set(r.get("fields_dropped") or ()) - set(DROPPABLE):
             problems.append(f"cache: {k} left out a field the rules do not allow to leave out")
-        if (r.get("eval_count") or 0) > MAX_TOKENS:
-            problems.append(f"cache: {k} reports more output tokens than max_tokens")
+        if (r.get("eval_count") or 0) > MAX_TOKENS and k not in overruns:
+            problems.append(f"cache: {k} reports more output tokens than max_tokens and no overrun is journaled")
         before = [e for e in sent.get(k, []) if e.get("kind") in ("send", "resend", "retry")
                   and e["at"] <= r["requested_at"] and e.get("request_sha256") == r["request_sha256"]]
         if not before:
@@ -1115,8 +1364,13 @@ def main() -> None:
     g.add_argument("--run", metavar="MODEL")
     g.add_argument("--close-incomplete", metavar="MODEL")
     g.add_argument("--break-stale-lock", action="store_true")
+    g.add_argument("--check-listings", action="store_true")
+    g.add_argument("--watch-listing", metavar="MODEL")
     ap.add_argument("--resend-unanswered", action="store_true")
+    ap.add_argument("--key-file", metavar="PATH", help=f"the key file (default: ${KEY_FILE_ENV}, else {DEFAULT_KEY_FILE})")
     a = ap.parse_args()
+    if a.key_file:
+        os.environ[KEY_FILE_ENV] = a.key_file
     try:
         if a.verify:
             problems = verify()
@@ -1135,6 +1389,14 @@ def main() -> None:
             print(json.dumps(account_readings(OpenRouterTransport()), indent=1))
         elif a.break_stale_lock:
             print(break_stale_lock())
+        elif a.check_listings:
+            acquire_lock()
+            try:
+                print(json.dumps(check_listings(), indent=1))
+            finally:
+                release_lock()
+        elif a.watch_listing:
+            print(watch_listing(a.watch_listing))
         elif a.run:
             print(json.dumps(run_model(a.run, resend_unanswered=a.resend_unanswered)))
         else:

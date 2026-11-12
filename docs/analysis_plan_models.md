@@ -1092,3 +1092,148 @@ free daily limit, at an account condition, at a rejection, after the fourth retr
 answer, or when the listing check fails; none of these drops a model or changes a setting. A model is closed only as
 §9 lists. No model is added or replaced, no cap is raised, and no request of this branch is sent outside the 4,200 of
 §4: no warm-up, no test call, no probe of a model.
+
+## Amendment 3, Correction (2026-11-12, after an independent review, before publication and before any request)
+
+**Where this note is and why.** An independent review by a separate AI-agent session read the unpublished commit that
+added Amendment 3 (`a192234`) and asked for the changes below before publication. Amendment 3 above is left exactly as
+that review read it; where this Correction says otherwise, this Correction holds. Lines 1–149, Amendment 1 and
+Amendment 2 are unchanged. When this was written nothing of the branch had been published, no gist existed, the
+OpenRouter key had not been read by this project's code and no request of the branch had been sent; no answer of any
+of its models existed. Pages under `https://openrouter.ai/docs/` were read again on 2026-11-12.
+
+**C1. The budget guard reads the key's own limit, not the account's credit (replaces the credit readings of §7).**
+- `GET /api/v1/credits` needs a management key (`api-reference/get-credits`: "Management key required", and a 403
+  "Only management keys can perform this operation"); with an ordinary key the paid arm could not have started. It is
+  not used.
+- The branch uses a key of its own, created for it, with a credit limit set in OpenRouter by the author (at most
+  15 USD, never resetting). It is OpenRouter's server-side ceiling on this branch's spend. The runner reads the key
+  file named by `--key-file` or `OPENROUTER_KEY_FILE`, by default the file in the author's home directory (§12).
+- Before each paid model, and before and after every run, `GET /api/v1/key` (`api-reference/limits`: `limit`, "Credit
+  limit for the key, or null if unlimited"; `limit_remaining`; `limit_reset`, null when it never resets; `usage`, all
+  time; `usage_daily`, the current UTC day; `is_free_tier`; `free_model_daily_requests` with `used`, `limit` and
+  `remaining` in the current UTC day). A paid model starts only if `limit` is set and at most 15 USD, `limit_reset` is
+  null, and `limit_remaining` is at least the worst case of the model's remaining requests plus 1 USD; otherwise
+  nothing is sent. A free model may run on a key with no limit. The readings are recorded (not the key's `label`, which
+  shows part of the key) and printed with the results in place of the credit figures of §7 and §11.
+- The caps in code (15 USD for the branch, 5 USD for each model, §7) are unchanged and are the second guard.
+
+**C2. The endpoint's status is recorded, not required; a model is closed for unavailability only after a full day
+of hourly failures with no success in between (replaces the status condition of §9's listing check and the
+listing condition of its closing rule).**
+- The pinned endpoint of P2 (`crusoe/bf16`) was listed with status 0 in the snapshot (11:50–11:52 UTC) and with
+  status −2 at 12:41 UTC the same day (the review's live check). A status read at the minute of a check would have
+  let the time of the attempt decide.
+- The listing check before each run still requires the model listed with the same Hugging Face id and its pinned
+  endpoint listed with the same provider (compared as in C4), the same precision and no higher price. The endpoint's
+  status is no longer a condition: it is recorded with the server's date on every check, and every change from the
+  status last recorded (0 at the snapshot) is recorded as a status flip with its time. A request to an endpoint that is
+  down fails and is handled by the rules of §9 (waited out, or a rejection).
+- A failed listing check stops the run; it closes the model only if every listing check of the model since its last
+  passing check and since its last answer failed, over at least 24 hours by the server's dates, with no two
+  consecutive checks more than two hours apart. `python -m judge.cloud --watch-listing MODEL` makes one check an hour.
+  A rejection closes a model only if its two observations 24 hours apart have no answer of the model between them.
+- On the start day, before the first request, `python -m judge.cloud --check-listings` re-reads the live listings of
+  all seven models and records the result. The snapshot is not re-taken and the list is not changed; the selection's
+  own use of status 0 at the minute of the snapshot is stated here, not changed.
+
+**C3. Output billed beyond `max_tokens` (corrects §7's statement of how the caps can bind, and §9).**
+- `max_tokens` 512 is sent on every request; the code refuses to reserve for any other value. A provider may still
+  bill more (reasoning counted outside the limit, for example). An answer billed with more than 512 output tokens,
+  more input than the bound of §7, or a cost above its reservation is an **overrun**, a deviation type of its own: it
+  is journaled (`kind: overrun` in `sent.jsonl`, with the tokens, the cost and the reservation), the answer is cached
+  and scored as it is, and the report lists it. On a paid model it closes the model ("incomplete (k of 600 answered):
+  billed output above max_tokens"); on a free model the run goes on. `make check` accepts an answer above `max_tokens`,
+  or a cost above its reservation, only with its overrun entry, and fails if a paid model was sent a request after one.
+- Before every paid request the branch cap also keeps room for one answer billed up to the endpoint's listed
+  `max_completion_tokens` (P1 393,216 tokens, 1.1663 USD beyond the reservation; P2 235,929, 0.8240 USD; P3 945,000,
+  0.6163 USD), so one overrun cannot take the branch over 15 USD; the registered worst case plus all three is
+  12.74 USD. A model's 5 USD cap can be exceeded by at most that one answer, after which the model is closed.
+- §7's sentence "the caps can bind only through lost answers ... or if a provider bills more than the registered
+  price" is therefore incomplete: an overrun is a third way.
+
+**C4. The served provider (replaces the provider part of §9's "An answer" and of its closing rule).**
+- The reported provider is compared after case folding and removing spaces and punctuation, with the snapshot's
+  provider name and with the provider part of the pinned tag (`NVIDIA` and `Nvidia`, `atlas-cloud` and `AtlasCloud`
+  are the same). An answer without a provider field is accepted, by this explicit rule: the request pins the endpoint
+  with fallbacks off; such answers are counted per cell and reported.
+- An answer from another model or provider is charged, kept in `results/models/cloud/quarantine.jsonl`, never scored,
+  and the run stops; the request is sent again on the next run, which does not use its one resend. A second such
+  answer of the same model closes it.
+
+**C5. Reasoning written into the answer's text (adds to §3).** A `<think>`, `<thinking>` or `<reasoning>` block in
+`message.content`, closed or not, is reported reasoning under §3, as a reasoning token is; it is recorded per answer.
+The text is parsed unchanged, so such an answer is usually malformed.
+
+**C6. The registered outputs are computed by the registered code (adds to §11).** For every complete cell,
+`src/judge/cloud_analysis.py` also computes items 1–4 of "What is computed" (lines 81–95), with the functions that
+`src/judge/extension_late.py` applies to the earlier arms: accuracy against the record; on DEV, judge minus TF-IDF;
+the payout share minus the record's with its interval; on the labelled sample, accuracy against the person (decided
+labels, and "cannot tell" counted as no money back). No label is attached to them. Item 5 (tokens per second) is not
+computed: the plan does not fix how per-call rates are aggregated and the answers carry no server timings; seconds per
+call are given.
+
+**C7. Factual errors in Amendment 3.**
+- §6, "DeepSeek's model has no endpoint run by DeepSeek in the snapshot", is wrong: the snapshot lists `deepseek`
+  (DeepSeek, status 0, 0.66 / 1.98 USD per million). It was not chosen because it states no precision ("unknown") and
+  does not list `structured_outputs`, both required of a paid endpoint by §2.
+- §6, the free daily limit: `api-reference/limits` describes `free_model_daily_requests` as counted in the current UTC
+  day, so the count resets with the UTC day. It does not say whether failed free requests count.
+- §2, on parameters: the sentence on Kimi K2.6's "int32-packed int4" weights is withdrawn; it contradicted itself.
+  The counts are as Hugging Face reports them (`safetensors.total`). For packed or 8-bit storage (Kimi K2.6: 1,014.7B
+  of its 1,026.9B stored as I32; MiMo-V2.6-Pro: 1,000.2B as U8; DeepSeek-V4-Pro-0813: 1,623.5B as I8) that count is
+  not necessarily the number of parameters. No choice depends on it: the next paid model by size has 780.0B and every
+  model of the set is far above 32B.
+- §1 and rule 7, "larger than every model run so far": the sizes of Amendment 2's Claude models are not published.
+  Read "larger than every open-weights model run so far".
+
+**C8. "The first such result" (replaces the last clause of §1's "Why it is worth asking").** An "above" label at the
+95% level is reported as it is; it is called a result of this branch only if it holds at the corrected level of §3
+(99.583%) as well, and the summary sentence gives that count. The three families of comparisons (Amendment 1's 14,
+Amendment 2's 4 and this branch's 12) are corrected each on its own and are not pooled into one familywise error rate
+for the study.
+
+**C9. Privacy and data (adds to §6, "Data"; a decision for the author before the first request).** OpenRouter's
+setting that allows routing to providers that may train on, or log, prompts is on the account's settings page, with
+"separate settings for paid and free models" (`guides/privacy/logging`); the page describes no per-key setting. A free
+endpoint may need it allowed. Allowing it for this branch would allow it for every other use of the same account.
+Recommended: a separate OpenRouter account (or a workspace, if OpenRouter offers one with its own setting) and its own
+limited key for this branch (C1); otherwise allow it only while free models run and switch it back. The author records
+the setting and its time in `results/models/cloud/pre_run_checklist.md` before the first request, and the report names
+each free provider's data policy as listed. The complaints of DEV and the labelled sample may enter the training data
+of third-party models, which affects any future re-run of this study; no held-out complaint is ever sent (§8).
+
+**C10. Smaller points.**
+- **The key in error messages.** Errors are cleaned of the key held in memory by the request that read it, and of
+  anything shaped like a key; the key file is never read when no request is sent.
+- **Per-minute and daily 429.** A 429 with `X-RateLimit-Remaining: 0` is the free daily limit (§9) unless
+  `X-RateLimit-Limit` is the per-minute allowance (20) or the message names a minute; then it is waited out.
+- **"13 of them free" (§2).** 13 models carry `:free`; 16 are listed at price 0. The three without `:free`
+  (`google/lyria-3-pro-preview`, `google/lyria-3-clip-preview`, `openrouter/free`) are not free models by the rule and
+  are listed among the rejected for completeness; `python -m judge.cloud_select --resolve` prints them separately.
+- **The check of the selection.** `python -m judge.cloud_select --check` (in `make check`) also compares, for each
+  model, the endpoint tag, provider, precision, prices, seed support, format field and `max_completion_tokens` with what
+  the rules select from the snapshot.
+- **Sensitivity of the paid list (§2).** P1 depends on the 1.00 USD input ceiling: `novita/fp8` costs 0.99. With a
+  ceiling from 0.9553 to just under 0.99 the DeepSeek place goes to `deepseek/deepseek-v4-pro` (1,598.8B, an earlier
+  release of the same weights family) on `streamlake/fp8`; below 0.9553 no DeepSeek model qualifies and
+  `tencent/hy4-preview` (780.0B) is third. With an output ceiling under 3.50, Kimi K2.6 moves to `siliconflow/fp8`
+  (no `seed`); at 3.00 the Kimi place goes to `moonshotai/kimi-k2-0905`. Requiring `structured_outputs` excludes
+  `meituan/longcat-2.0` (1,775.6B); requiring a stated precision excludes DeepSeek's own endpoint. Any parameter
+  threshold from 31.7B to 124B gives the same list. The ceilings are round numbers chosen with the snapshot in view;
+  the words of `EXCLUDED_ID_WORDS` that name products (`devstral`, `schematron`, `ui-tars`, `venice`) come from this
+  snapshot. The list stays as registered.
+- **Registration.** The runner also refuses while `code_published_source`, `gist_file_sha256` or `key_reading` (the
+  output of `python -m judge.cloud --status` when the branch is registered: the key's limit and the free daily limit)
+  is empty in `results/models/cloud/registration.json`.
+- **Schedule (§10).** "At least three days" holds only if the account has bought at least 10 USD of credits (1,000
+  free requests a day); with less it is 50 a day, of which the runner leaves 25 unused, and the free arm
+  would take about 96 days. The daily limit used is the one `key_reading` gives.
+- **Listing checks and the clean tree.** A run log changed only by listing checks does not need a commit and a
+  publication before a model that has not started can be tried again.
+- **A paid model that leaves the set for reasoning** still runs its 600 requests, for a complete descriptive row,
+  within the caps.
+- **Checks (§13).** `make check` also checks the overrun entries (C3) and compares providers as in C4;
+  `tests/test_cloud.py` also tests the refusals of the runner's preflight, the key limit, the status flips, the
+  24-hour streak, the overrun, the quarantine, reasoning in the text, the 429 kinds and that no key file is read without
+  a request.

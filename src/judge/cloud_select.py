@@ -198,9 +198,13 @@ def resolve(models: list[dict], hf: dict, endpoints: dict) -> dict:
             best[dev] = cand
     ranked = sorted(best.values(), key=lambda c: (-c[0], -c[1], c[2]["id"]))
     paid = [_row(m, hf, e, "paid") for _, _, m, e in ranked[:MAX_PAID]]
+    # priced at 0 but without ':free' (Correction, m3): not free models by the rule, listed with the first rule they fail
+    zero_price = {m["id"]: why_not(m, hf) or "no ':free' variant suffix" for m in models if not is_free(m)
+                  and float((m.get("pricing") or {}).get("prompt") or 0) == 0
+                  and float((m.get("pricing") or {}).get("completion") or 0) == 0}
     return {"free": out_free, "reference": out_ref, "paid": paid,
             "paid_next": [_row(m, hf, e, "paid")["id"] for _, _, m, e in ranked[MAX_PAID:MAX_PAID + 5]],
-            "free_rejected": rejected}
+            "free_rejected": rejected, "zero_price_not_free": zero_price}
 
 
 def _row(m: dict, hf: dict, e: dict, arm: str) -> dict:
@@ -290,11 +294,32 @@ def main() -> None:
     if a.resolve:
         print(json.dumps(sel, indent=1))
         return
+    problems = check(sel)
+    if problems:
+        sys.exit("cloud selection check failed:\n- " + "\n- ".join(problems))
+    print("the registered list and endpoints are what the rules select from the committed snapshot")
+
+
+def check(sel: dict) -> list[str]:
+    """The registered models, in order, and for each its endpoint tag, provider, prices, seed support, format field
+    and max_completion_tokens, against what the rules select from the snapshot (Correction, m4)."""
     from . import cloud
     got = [r["id"] for r in sel["free"] + sel["reference"] + sel["paid"]]
     if got != list(cloud.MODELS):
-        sys.exit(f"the rules select {got}; registered {list(cloud.MODELS)}")
-    print("the registered list is what the rules select from the committed snapshot")
+        return [f"the rules select {got}; registered {list(cloud.MODELS)}"]
+    problems = []
+    for r in sel["free"] + sel["reference"] + sel["paid"]:
+        ep, reg = r["endpoint"], cloud.ENDPOINT[r["id"]]
+        fmt = "json_schema" if ep["supports"]["structured_outputs"] else "json_object" if \
+            ep["supports"]["response_format"] else None
+        found = {"tag": ep["tag"], "provider": ep["provider_name"], "quantization": ep["quantization"] or "unknown",
+                 "prompt": ep["prompt_usd_per_token"], "completion": ep["completion_usd_per_token"],
+                 "seed": ep["supports"]["seed"], "format": fmt, "max_completion_tokens": ep["max_completion_tokens"]}
+        for f, v in found.items():
+            same = abs(v - reg[f]) <= 1e-15 if f in ("prompt", "completion") else v == reg[f]
+            if not same:
+                problems.append(f"{r['id']}: {f} is {v} in the snapshot, {reg[f]} registered")
+    return problems
 
 
 if __name__ == "__main__":

@@ -8,6 +8,14 @@ descriptive reference row; so is google/gemma-4-31b-it:free, the same weights as
 agreement with that local run is given (a serving contrast). Reads the branch's files, the local extension's cache and
 the study's cache. Calls no model.
 
+Corrected before any request, after the independent review (Amendment 3, Correction): every complete cell also gets the
+registered outputs 1-4 of the plan's "What is computed" (lines 81-95: accuracy against the record and against the
+person, judge minus TF-IDF on DEV, the payout share minus the record's with its interval, for every cell), computed by
+the same functions as src/judge/extension_late.py (cell_figures), so that this branch, unlike the earlier arms, does not
+need them computed after its results are seen; item 5 (tokens per second) is not computed, as for the hosted arm. The
+summary also counts the "above" labels that hold at the corrected level (M6), and the key's limit is read from
+GET /api/v1/key (B1).
+
 python -m judge.cloud_analysis            # writes results/models/cloud/analysis.json and prints table and text
 """
 from __future__ import annotations
@@ -19,6 +27,7 @@ import numpy as np
 
 from . import cloud as K
 from . import config as C
+from . import extension_late as EL
 from . import hosted as H
 from . import hosted_analysis as HA
 from . import metrics as M
@@ -58,14 +67,18 @@ def costs(spend: list[dict]) -> dict:
     return out
 
 
+ACCOUNT_FIELDS = ("at", "limit", "limit_remaining", "usage")
+
+
 def account(run_log: list[dict]) -> dict:
-    """The first and the last credit reading the runner recorded (the API's own figures)."""
+    """The first and the last reading of the key's limit the runner recorded (GET /api/v1/key, the API's own
+    figures); readings of a key with no limit (free models only) are not used."""
     reads = [e for e in run_log if e.get("event") in ("account_before", "account_after")
-             and isinstance(e.get("remaining_credits"), (int, float))]
+             and isinstance(e.get("limit_remaining"), (int, float))]
     if not reads:
         return {}
-    return {"first": {k: reads[0].get(k) for k in ("at", "total_credits", "total_usage", "remaining_credits")},
-            "last": {k: reads[-1].get(k) for k in ("at", "total_credits", "total_usage", "remaining_credits")}}
+    return {"first": {k: reads[0].get(k) for k in ACCOUNT_FIELDS},
+            "last": {k: reads[-1].get(k) for k in ACCOUNT_FIELDS}}
 
 
 def model_status(model, closed, answered, n, run_log) -> tuple[str, bool]:
@@ -85,7 +98,7 @@ def model_status(model, closed, answered, n, run_log) -> tuple[str, bool]:
 
 
 def analyse(cache_path=None, study_cache_path=None, local_cache_path=None, records=None, run_log=None,
-            spend_path=None) -> dict:
+            spend_path=None, tfidf=None) -> dict:
     from .baselines import issuer_rate
     from .data import load_records, load_splits
     from .label import labels_path, load_labels
@@ -106,6 +119,12 @@ def analyse(cache_path=None, study_cache_path=None, local_cache_path=None, recor
     out = {"arm": "cloud (Amendment 3)", "order": list(K.MODELS), "reference": REFERENCE[0],
            "record_pays_dev": int(y.sum()), "n_dev": len(dev), "lookup_pays_dev": int(lookup.sum()),
            "comparisons": {"A": N_A, "B": N_B}, "models": {}}
+    tf = [tfidf]                  # the study's TF-IDF DEV decisions, fitted only if a cell is complete
+
+    def tfidf_dev():
+        if tf[0] is None:
+            tf[0] = EL.tfidf_dev_decisions(records, splits)
+        return tf[0]
     ref = {}
     for version, split in CELLS:
         ids = dev if split == "dev" else lab
@@ -127,6 +146,9 @@ def analyse(cache_path=None, study_cache_path=None, local_cache_path=None, recor
             c["finish_reasons"] = {s: fins.count(s) for s in sorted(set(fins), key=str)}
             c["moderated"] = sum(1 for v in ans.values() if v[2].get("moderated"))
             c["providers"] = sorted({str(v[2].get("provider")) for v in ans.values()})
+            c["provider_not_reported"] = sum(1 for v in ans.values() if v[2].get("provider") is None
+                                             and not v[2].get("moderated"))
+            c["reasoning_in_content"] = sum(1 for v in ans.values() if (v[2].get("reasoning_in_content_chars") or 0))
             walls = [v[2]["wall_s"] for v in ans.values() if v[2].get("wall_s") is not None]
             if walls:
                 c["seconds_per_call"] = {"median": statistics.median(walls), "mean": statistics.fmean(walls)}
@@ -152,6 +174,9 @@ def analyse(cache_path=None, study_cache_path=None, local_cache_path=None, recor
             c["status"] = "not interpretable (format)" if c["malformed"] > A.FORMAT_LIMIT[split] else "complete"
             yy = y if split == "dev" else np.array([records[i]["label"] for i in ids])
             c["kappa_vs_record"] = M.bootstrap(yy, preds)["kappa"]
+            # registered outputs 1-4 (plan lines 81-95), every complete cell, reference rows included (M3)
+            c["registered_outputs"] = EL.cell_figures(yy, preds, split, tfidf_dev() if split == "dev" else None,
+                                                      person, ids)
             if split == "dev" and c["status"] == "complete":
                 if compared:
                     c["A"] = A.dev_cell(y, lookup, preds, bad, A.A_WORDS, "kappa", N_A)
@@ -191,19 +216,23 @@ def summary(out: dict) -> str:
         (excluded.append(f"{model} ({why})") if why else counted.append(model))
     m_ = len(counted)
     k = sum(out["models"][t]["cells"]["v1|dev"]["B"]["label"] == A.B_WORDS[0] for t in counted)
-    a_labels = [out["models"][t]["cells"][f"{v}|dev"]["A"]["label"] for t in counted for v in ("v1", "v2")]
+    a_cells = [out["models"][t]["cells"][f"{v}|dev"]["A"] for t in counted for v in ("v1", "v2")]
+    a_labels = [x["label"] for x in a_cells]
     j, a = a_labels.count(A.A_WORDS[1]), a_labels.count(A.A_WORDS[0])
+    # Correction, M6: an "above" counts as a result of this branch only if it holds at the corrected level as well
+    a_corr = sum(1 for x in a_cells if x["label"] == A.A_WORDS[0] and x.get("also_at_corrected_level"))
     if open_:
         s = "Cloud branch, on DEV: not finished, so no count is given; not closed: " + "; ".join(open_) + "."
         a = 0
     else:
         s = (f"Cloud branch, on DEV: judge v1 paid more often than the companies did for {k} of {m_} models; across "
              f"the {m_} models and both prompts, {j} of {2 * m_} comparisons with the issuer lookup were below it, {a} "
-             f"were above it and the rest were not distinguishable ({', '.join(counted) or 'none'}).")
+             f"were above it ({a_corr} of them also at the corrected level of {100 * (1 - 0.05 / N_A):.3f}%) and the "
+             f"rest were not distinguishable ({', '.join(counted) or 'none'}).")
     if a:
         s += (" This is one run of each model as OpenRouter and the pinned provider served it on the dates of the run; "
               "the models may have seen these complaints and their outcomes in training (see Amendment 3, section "
-              "11).")
+              "6).")
     s += (" The design compares each model with the issuer lookup and with the record, not models with one another; "
           "it does not show that the results are independent of the model.")
     if excluded:
@@ -222,8 +251,9 @@ def summary(out: dict) -> str:
               + (" (free models cost nothing)." if any(c[t]["answers"] for t in K.FREE_QUEUE) else "."))
     acc = out.get("account") or {}
     if acc:
-        s += (f" Credit remaining by the API: {acc['first']['remaining_credits']} USD before the first run, "
-              f"{acc['last']['remaining_credits']} USD after the last.")
+        s += (f" The branch's key, limited to {acc['first']['limit']} USD in OpenRouter, had "
+              f"{acc['first']['limit_remaining']} USD of its limit left by the API before the first paid run and "
+              f"{acc['last']['limit_remaining']} USD after the last.")
     return s
 
 

@@ -1120,7 +1120,8 @@ CHANGES_IN_SHORT = {
     12: "registering a separate cloud branch (Amendment 3 of that plan) on six larger open-weights models through "
         "OpenRouter, three free and three paid, chosen by rules written as code and applied to a committed snapshot of "
         "the public listings, with one free model whose weights were already run shown as a reference row, a 15 USD "
-        "cap enforced in code, and the run and analysis code, before any request to them",
+        "cap enforced in code and by a limit on the branch's own key, and the run and analysis code, corrected after "
+        "an independent review, before any request to them",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 

@@ -1,5 +1,5 @@
 {
- "what": "The public record of the cloud branch (docs/analysis_plan_models.md, Amendment 3, section 12). code_commit, code_published_at and the gist fields are filled after the branch's code commit is published and before any request; the runner refuses while any is null. Times are GitHub's, not the author's clock.",
+ "what": "The public record of the cloud branch (docs/analysis_plan_models.md, Amendment 3, section 12). code_commit, code_published_at, code_published_source and the gist fields are filled after the branch's code commit is published, and key_reading (the output of `python -m judge.cloud --status`: the branch key's limit, its reset and the free daily limit) when the branch is registered, all before any request (Amendment 3, Correction, C1 and C10); the runner refuses while any is null. Times are GitHub's, not the author's clock.",
  "repository": "dmitri-sulga/refund-decision-eval",
  "models": [
   "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -52,6 +52,7 @@
  "gist_url": null,
  "gist_created_at": null,
  "gist_file_sha256": null,
+ "key_reading": null,
  "earlier_gists_not_edited": [
   "dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)",
   "f17036e715dc7ae227fba1b7b4845abf (the local-models extension's record)"

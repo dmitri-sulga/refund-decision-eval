@@ -1638,13 +1638,15 @@ WAIVER_WORDS = {"quote_ru": "это лимит никакой, там и так 
                 "quote_en": "this limit is pointless; there are only 25 dollars there anyway; I just work carefully, "
                             "and everyone does it normally",
                 "date": "2026-11-12", "given_by": "the author"}
-READ_OK = {"balance_usd": 25.0, "read_at": "2026-11-12T11:00:00Z", "read_by": "operator", "source": "dashboard"}
+READ_OK = {"balance_usd": 25.0, "read_at": "2026-11-12T11:00:00Z", "read_by": "operator", "source": "dashboard",
+           "auto_top_up": False}                    # Correction 6, C28: auto top-up off, recorded with each reading
 NO_LIMIT = {"limit": None, "limit_remaining": None}
 
 
 def _waiver(monkeypatch, sandbox, readings=(READ_OK,), **over):
     """registration.json with the owner's waiver (Correction 5, C26), as the runner and `make check` read it."""
-    reg = {**FILLED, "key_reading": {"limit": None, "limit_reset": None, "free_model_daily_requests": {"limit": 1000}},
+    reg = {**FILLED, "key_reading": {"limit": None, "limit_reset": None, "usage": 0.0,    # C28: the usage baseline
+                                     "free_model_daily_requests": {"limit": 1000}},
            "key_limit_waived": True, "key_limit_waiver": dict(WAIVER_WORDS),
            "account_balance_readings": [dict(r) for r in readings], **over}
     reg = {k: v for k, v in reg.items() if v is not ...}
@@ -1690,7 +1692,10 @@ def test_the_owners_waiver_lets_a_paid_model_run_on_a_key_without_a_limit_and_is
         "status": "not run: x", "closed": True, "compared": True, "cells": {}, "row_note": None, "deviations": d}}}
     s = CA.summary(out)
     assert "had no credit limit in OpenRouter, by the owner's waiver of 2026-11-12" in s
-    assert "nothing outside the code stopped the paid arm at 15 USD" in s and "only outer bound" in s
+    assert "nothing outside the code stopped the paid arm at 15 USD" in s
+    # Correction 6, C28 (the sixth review's MAJOR-1): no longer "the only outer bound"; the balance as read, auto
+    # top-up off, not an upper bound fixed in advance, and it can go below zero by about one request
+    assert "only outer bound" not in s and "with auto top-up off" in s and "below zero" in s and "None" not in s
 
 
 def test_without_a_complete_waiver_a_key_without_a_limit_is_still_refused(sandbox, clock, monkeypatch):
@@ -1826,23 +1831,49 @@ def test_make_check_fails_on_a_paid_run_without_the_limit_or_the_waivers_record(
     assert any("without the owner's waiver recorded for it" in p for p in K.verify(records=sandbox["records"]))
 
 
-def test_under_the_waiver_key_use_is_read_from_usage_and_stops_nothing(sandbox, clock, monkeypatch):
-    """Correction 5, C26 with C25: a key without a limit has no limit_remaining; its all-time `usage` beyond the
-    branch's journal is a recorded deviation that stops nothing (a key that is not dedicated shows other use here)."""
-    _waiver(monkeypatch, sandbox)
-
+def test_under_the_waiver_key_use_since_registration_beyond_the_journal_stops_the_paid_run(sandbox, clock, monkeypatch):
+    """Correction 5, C26 with C25, as corrected by Correction 6, C28 (the sixth review's m-2): a key without a limit
+    has no limit_remaining; its all-time `usage` less the registered key_reading's `usage` (the baseline) is compared
+    with the branch's journal. Use beyond it under the waiver (spend outside the branch, or a journal edited or lost)
+    is a recorded deviation that now refuses the paid run, sending and closing nothing; the operator may then close
+    the model as stopped by the budget. Without a baseline the paid run under the waiver is refused."""
     class Used(FakeTransport):
         def get(self, url):
             r = super().get(url)
             r["data"]["usage"] = 3.0
             return r
+    reg = _waiver(monkeypatch, sandbox)
+    _waiver(monkeypatch, sandbox, key_reading={**reg["key_reading"], "usage": 3.0})   # 3 USD used before registration
     t = Used(**NO_LIMIT)
     assert run(PAID1, sandbox, t)["missing"] == 0 and len(t.calls) == 10
     dev = {e["kind"]: e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"}
-    assert set(dev) == {"key_use_exceeds_journal", "key_limit_waived"}
-    assert dev["key_use_exceeds_journal"]["key_used_usd"] == 3.0 and dev["key_use_exceeds_journal"]["stopped"] is False
+    assert set(dev) == {"key_limit_waived"} and dev["key_limit_waived"]["key_usage_baseline_usd"] == 3.0
+    assert dev["key_limit_waived"]["key_used_since_registration_usd"] == 0.0
+    for name in ("SPEND", "RUN_LOG", "JOURNAL", "CACHE_FILE"):
+        getattr(K, name).unlink(missing_ok=True)
+    _waiver(monkeypatch, sandbox)                        # baseline 0: the 3 USD are not in the (lost) journal
+    t = Used(**NO_LIMIT)
+    with pytest.raises(X.Refusal, match="exceeds the branch's spend journal .* by 3.0 USD"):
+        run(PAID1, sandbox, t)
+    assert t.calls == [] and X._jsonl(K.JOURNAL) == [] and not K.state()["status"]
+    dev = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    assert [d["kind"] for d in dev] == ["key_use_exceeds_journal"]
+    assert dev[0]["stopped"] is True and dev[0]["under_waiver"] is True and dev[0]["key_used_usd"] == 3.0
+    assert K.verify(records=sandbox["records"]) == []
+    assert K.close_incomplete(PAID1).startswith("not run: stopped by the budget: under the owner's waiver the key's use")
+    assert K.verify(records=sandbox["records"]) == []
+    for name in ("SPEND", "RUN_LOG", "JOURNAL", "CACHE_FILE"):
+        getattr(K, name).unlink(missing_ok=True)
+    for base in (None, "0", float("nan"), ...):         # no usage baseline in key_reading: refused
+        _waiver(monkeypatch, sandbox, key_reading={k: v for k, v in {**reg["key_reading"], "usage": base}.items()
+                                                   if v is not ...})
+        t = FakeTransport(**NO_LIMIT)
+        with pytest.raises(X.Refusal, match="records no usage as a finite number"):
+            run(PAID1, sandbox, t)
+        assert t.calls == [] and not K.state()["status"]
     assert K.key_use({"limit": None, "usage": 3.0}, 0.0) == {"key_used_usd": None, "journaled_usd": 0.0,
                                                              "beyond_journal_usd": None}   # no waiver: as before
+    assert K.key_use({"limit": None, "usage": 3.0}, 0.5, True, 1.0)["beyond_journal_usd"] == 1.5
 
 
 def test_the_committed_registration_records_the_owners_waiver_with_no_balance_yet():
@@ -1910,3 +1941,144 @@ def test_the_report_gives_the_server_gap_and_both_causes_of_key_use(sandbox):
     s = CA.deviations_sentence({"order": [FREE1], "models": {FREE1: {"deviations": d}}})
     assert "(the server's dates 1, 23.99 hours apart; 1 without a server date)" in s
     assert "(spend outside the branch, or charges the journal does not hold)" in s
+
+
+# ------------------------------------------------------------------ Correction 6: after the sixth review (C28)
+def test_under_the_waiver_a_balance_reading_must_record_auto_top_up_off(sandbox, clock, monkeypatch):
+    """Correction 6, C28 (the sixth review's MAJOR-1): with auto top-up on, OpenRouter buys credits when the balance
+    runs low, so the balance bounds nothing; a reading counts only if it records `auto_top_up` exactly false (true,
+    missing, the string "false", 0 or null are refused, sending and closing nothing). `make check` fails on a waiver
+    run whose reading in registration.json does not record it."""
+    no_top_up = {k: v for k, v in READ_OK.items() if k != "auto_top_up"}
+    for reading in ({**READ_OK, "auto_top_up": True}, no_top_up, {**READ_OK, "auto_top_up": "false"},
+                    {**READ_OK, "auto_top_up": 0}, {**READ_OK, "auto_top_up": None}):
+        _waiver(monkeypatch, sandbox, readings=(reading,))
+        t = FakeTransport(**NO_LIMIT)
+        with pytest.raises(X.Refusal, match="does not record auto_top_up as false"):
+            run(PAID1, sandbox, t)
+        assert t.calls == [] and X._jsonl(K.JOURNAL) == [] and not K.state()["status"]
+    assert not [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    reg = _waiver(monkeypatch, sandbox)
+    assert run(PAID1, sandbox, FakeTransport(**NO_LIMIT))["missing"] == 0
+    dev = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    assert [d["kind"] for d in dev] == ["key_limit_waived"] and dev[0]["auto_top_up"] is False
+    assert K.verify(records=sandbox["records"]) == []
+    for bad in ({**READ_OK, "auto_top_up": True}, no_top_up):
+        K.REGISTRATION.write_text(json.dumps({**reg, "account_balance_readings": [bad]}))
+        assert any("does not record auto_top_up as false" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_balance_reading_ahead_of_the_clock_or_used_before_serves_no_paid_run(sandbox, clock, monkeypatch):
+    """Correction 6, C28 (the sixth review's m-1, probe REUSE): C26 accepted a reading up to 300 seconds ahead of this
+    machine's clock, and such a reading, later than the run's own sends, served a second paid run. Now a reading ahead
+    of the clock by any amount is refused, and a reading not later than the one an earlier paid run under the waiver
+    named is refused even when that run sent nothing; `make check` fails on one reading named by two paid runs."""
+    for ahead in ("2026-11-12T12:04:00Z", "2026-11-12T12:00:01Z"):
+        _waiver(monkeypatch, sandbox, readings=({**READ_OK, "read_at": ahead},))
+        t = FakeTransport(**NO_LIMIT)
+        with pytest.raises(X.Refusal, match="later than this machine's clock"):
+            run(PAID1, sandbox, t)
+        assert t.calls == [] and not K.state()["status"]
+    _waiver(monkeypatch, sandbox, readings=({**READ_OK, "read_at": "2026-11-12T12:00:00Z"},))   # the clock's second
+    assert run(PAID1, sandbox, FakeTransport(**NO_LIMIT))["missing"] == 0
+    for name in ("SPEND", "RUN_LOG", "JOURNAL", "CACHE_FILE"):
+        getattr(K, name).unlink(missing_ok=True)
+    X._append(K.RUN_LOG, {"at": K.now(), "event": "deviation", "kind": "key_limit_waived", "model": P2,
+                          "balance_usd": 25.0, "balance_read_at": READ_OK["read_at"], "auto_top_up": False})
+    _waiver(monkeypatch, sandbox)                         # an earlier waiver run named this reading and sent nothing
+    t = FakeTransport(**NO_LIMIT)
+    with pytest.raises(X.Refusal, match="a reading serves one paid run only"):
+        run(PAID1, sandbox, t)
+    assert t.calls == [] and not K.state()["status"]
+    reg = _waiver(monkeypatch, sandbox, readings=(READ_OK, {**READ_OK, "read_at": "2026-11-12T11:30:00Z"}))
+    assert run(PAID1, sandbox, FakeTransport(**NO_LIMIT))["missing"] == 0
+    assert K.verify(records=sandbox["records"]) == []
+    log = X._jsonl(K.RUN_LOG)
+    K.RUN_LOG.write_text("".join(json.dumps({**e, "balance_read_at": READ_OK["read_at"]}
+                                            if e.get("kind") == "key_limit_waived" else e) + "\n" for e in log))
+    assert any("served two paid runs" in p for p in K.verify(records=sandbox["records"]))
+    assert reg["account_balance_readings"][-1]["read_at"] == "2026-11-12T11:30:00Z"
+
+
+def test_under_the_waiver_a_paid_run_on_another_key_is_a_recorded_deviation(sandbox, clock, monkeypatch):
+    """Correction 6, C28 (the sixth review's m-3): under the waiver a paid run compares the key's reading with the
+    registered key_reading, as a free run does, and records `key_differs`; the report counts it as a run on another
+    key. A key limited to exactly 15 USD (guard (a)) is unchanged: no comparison, no deviation."""
+    reg = _waiver(monkeypatch, sandbox)
+    _waiver(monkeypatch, sandbox, key_reading={**reg["key_reading"], "is_free_tier": True,
+                                               "free_model_daily_requests": {"limit": 50}})
+    assert run(PAID1, sandbox, FakeTransport(**NO_LIMIT))["missing"] == 0
+    dev = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    assert [d["kind"] for d in dev] == ["key_differs", "key_limit_waived"]
+    assert dev[0]["fields"] == ["is_free_tier", "free_model_daily_requests.limit"]
+    assert K.verify(records=sandbox["records"]) == []
+    from judge import cloud_analysis as CA
+    d = CA.deviations(PAID1, X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], X._jsonl(K.CACHE_FILE))
+    s = CA.deviations_sentence({"order": [PAID1], "models": {PAID1: {"deviations": d}}})
+    assert d["key_differs"] == 1 and "1 run on another key than the registered one" in s
+    for name in ("SPEND", "RUN_LOG", "JOURNAL", "CACHE_FILE"):
+        getattr(K, name).unlink(missing_ok=True)
+    _waiver(monkeypatch, sandbox, readings=(), key_reading={**reg["key_reading"], "is_free_tier": True})
+    assert run(PAID1, sandbox, FakeTransport())["missing"] == 0          # exactly 15 USD: as before
+    assert not [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+
+
+def test_the_key_sentence_never_prints_none_and_reports_each_guard(sandbox):
+    """Correction 6, C28 (the sixth review's m-4, probes R): readings without a limit but no run under the waiver; a
+    change from the waiver to a 15 USD limit; and from the limit to the waiver: the sentence names what happened and
+    never prints "None". The refusal for a 15 USD key that does not report what is left of it says so in words."""
+    from judge import cloud_analysis as CA
+    nolim = {"event": "account_before", "model": PAID1, "limit": None, "limit_remaining": None, "usage": 0.0}
+    lim = {"event": "account_before", "model": P2, "limit": 15.0, "limit_remaining": 14.5, "usage": 0.5}
+    after = {"event": "account_after", "model": P2, "limit": 15.0, "limit_remaining": 12.0, "usage": 3.0}
+    waived = {"event": "deviation", "kind": "key_limit_waived", "model": PAID1, "balance_usd": 25.0,
+              "balance_read_at": "2026-11-12T11:00:00Z", "auto_top_up": False, "waiver_date": "2026-11-12"}
+    s = CA.key_sentence(CA.account([nolim]))                        # refused or closed: no run under the waiver
+    assert "no paid run started under the owner's waiver" in s and "None" not in s
+    s = CA.key_sentence(CA.account([nolim, waived, {**nolim, "event": "account_after", "usage": 2.0}, lim, after]))
+    assert "On 1 paid run the branch's key had no credit limit" in s and "limited to 15.0 USD" in s
+    assert "14.5 USD of its limit left by the API before the first paid run on that limit and 12.0 USD" in s
+    assert "None" not in s and "with auto top-up off" in s and "below zero" in s
+    s = CA.key_sentence(CA.account([lim, after, {**nolim, "model": P3}, {**waived, "model": P3},
+                                    {**waived, "model": P3, "balance_usd": 20.0,
+                                     "balance_read_at": "2026-11-13T11:00:00Z"}]))
+    assert "On 2 paid runs" in s and "before the last, 20.0 USD at 2026-11-13T11:00:00Z" in s
+    assert "limited to 15.0 USD" in s and "None" not in s
+    s = CA.key_sentence(CA.account([lim, after]))                    # guard (a) only: the sentence as before
+    assert s == (" The branch's key, limited to 15.0 USD in OpenRouter, had 14.5 USD of its limit left by the API "
+                 "before the first paid run and 12.0 USD after the last.")
+    assert CA.key_sentence({}) == ""
+    before = {"limit": 15.0, "limit_remaining": None, "limit_reset": None, "fields_missing": [], "budgets": [],
+              "effective_budget": None}
+    why = K.paid_key_refusal(PAID1, before, 4.8)
+    assert why is not None and "None USD" not in why and "does not report what is left of its limit" in why
+
+
+def test_the_waivers_date_must_be_a_real_date_not_in_the_future(sandbox, clock, monkeypatch):
+    """Correction 6, C28 (the sixth review's m-6): the date is a real calendar date, not before 2026-11-12 (Amendment
+    3) and not after today in the earliest time zone (UTC+14); 2026-99-99, 0000-00-00, 2026-02-30 and 2099-01-01 are
+    no waiver, and the paid arm then refuses a key without a limit."""
+    w = dict(WAIVER_WORDS)
+    for bad in ("2026-99-99", "0000-00-00", "2026-02-30", "2099-01-01", "2026-11-14", "2026-11-11", "2026-11-1"):
+        reg = _waiver(monkeypatch, sandbox, key_limit_waiver={**w, "date": bad})
+        assert K.key_limit_waiver(reg)[0] is False, bad
+        t = FakeTransport(**NO_LIMIT)
+        with pytest.raises(X.Refusal, match=r"date \(YYYY-MM-DD\), a real date"):
+            run(PAID1, sandbox, t)
+        assert t.calls == [] and not K.state()["status"]
+    for good in ("2026-11-12", "2026-11-13"):           # 12:00 UTC on 12.11 is already 13.11 at UTC+14
+        assert K.key_limit_waiver({"key_limit_waived": True, "key_limit_waiver": {**w, "date": good}}) == (True, None)
+
+
+def test_the_committed_record_states_the_corrected_outer_bound_and_the_privacy_rule():
+    """Correction 6, C28 (MAJOR-1, m-5, m-7): the published record and the checklist no longer call the account's
+    balance the only outer bound without auto top-up off; the checklist's item 24 (b) records auto top-up off as read
+    on 2026-11-12, item 33 asks for "auto_top_up": false in every reading, and item 25 holds the rule for "publish
+    prompts", decided in advance. Every committed balance reading, if any, records auto top-up off."""
+    reg = json.loads((C.RESULTS / "models" / "cloud" / "registration.json").read_text())
+    assert "auto_top_up" in reg["what"] and "auto top-up is off" in reg["key_limit_waiver"]["what_it_weakens"]
+    assert all(r.get("auto_top_up") is False for r in reg["account_balance_readings"])
+    text = (C.RESULTS / "models" / "cloud" / "pre_run_checklist.md").read_text()
+    assert "Auto top-up on the Credits page: **off**" in text and '"auto_top_up": false' in text
+    assert "publish prompts" in text and "records a deviation first" in text
+    assert "is then the only outer bound" not in text

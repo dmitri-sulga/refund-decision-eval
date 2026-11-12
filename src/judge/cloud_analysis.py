@@ -24,7 +24,10 @@ the same 403 on 3 runs over 72 hours, and a key reading whose use exceeded the b
 too. A model closed on any of these is closed, so the count is given, and it is listed as not counted. Correction 5
 (C26-C27): each paid run on a key without a credit limit, under the owner's waiver, is counted and printed, and the key
 readings sentence says that nothing outside the code stopped the paid arm; a refusal made final by the local times is
-printed with the server's gap.
+printed with the server's gap. Correction 6 (C28): the account's balance is no longer called "the only outer bound"; the
+sentence says that the balance, read by hand with auto top-up off before each paid run under the waiver, bounded the
+spend only as read (it can be topped up by hand and go below zero by about one request), and it is built from the
+number of runs under the waiver and from the readings with and without a limit, so that it never prints "None".
 
 python -m judge.cloud_analysis            # writes results/models/cloud/analysis.json and prints table and text
 """
@@ -98,8 +101,24 @@ def account(run_log: list[dict]) -> dict:
     if waived:
         out["waiver"] = {"runs": len(waived), "first_balance_usd": waived[0].get("balance_usd"),
                          "first_balance_read_at": waived[0].get("balance_read_at"),
+                         "last_balance_usd": waived[-1].get("balance_usd"),
+                         "last_balance_read_at": waived[-1].get("balance_read_at"),
+                         "auto_top_up_off": all(e.get("auto_top_up") is False for e in waived),
                          "waiver_date": waived[0].get("waiver_date")}
+    # Correction 6, C28 (the sixth review's m-4): the readings with a limit and those without one, apart, so that a
+    # change of guard between runs ((a) to (b) or back) is reported for each
+    limited = [e for e in reads if _number(e.get("limit_remaining"))]
+    if limited:
+        out["limited"] = {"limit": limited[0].get("limit"), "first_remaining": limited[0]["limit_remaining"],
+                          "last_remaining": limited[-1]["limit_remaining"]}
+    unlimited = [e for e in reads if e.get("limit") is None and _number(e.get("usage"))]
+    if unlimited:
+        out["unlimited"] = {"first_usage": unlimited[0]["usage"], "last_usage": unlimited[-1]["usage"]}
     return out
+
+
+def _number(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and x == x and abs(x) != float("inf")
 
 
 DEVIATION_WORDS = (("overruns", "overrun", "overruns"), ("quarantined", "answer kept in quarantine",
@@ -118,12 +137,17 @@ DEVIATION_WORDS = (("overruns", "overrun", "overruns"), ("quarantined", "answer 
                     "use exceeded the branch's spend journal by more than 0.05 USD (spend outside the branch, or "
                     "charges the journal does not hold)"),
                    ("key_limit_waived", "paid run on a key without a credit limit, under the owner's waiver (Correction "
-                    "5, C26: no stop outside the code; bounded by the code's caps and the account's balance only)",
-                    "paid runs on a key without a credit limit, under the owner's waiver (Correction 5, C26: no stop "
-                    "outside the code; bounded by the code's caps and the account's balance only)"),
+                    "5, C26, and Correction 6, C28: no stop outside the code; bounded by the code's caps, and outside "
+                    "the code only by the account's balance as read by hand with auto top-up off, which can go below "
+                    "zero by about one request)",
+                    "paid runs on a key without a credit limit, under the owner's waiver (Correction 5, C26, and "
+                    "Correction 6, C28: no stop outside the code; bounded by the code's caps, and outside the code "
+                    "only by the account's balance as read by hand with auto top-up off, which can go below zero by "
+                    "about one request)"),
                    ("provider_not_reported", "answer without a provider field", "answers without a provider field"),
-                   ("key_differs", "free run on another key than the registered one",
-                    "free runs on another key than the registered one"))
+                   ("key_differs", "run on another key than the registered one (a free run, or a paid run under the "
+                    "owner's waiver, Correction 6, C28)", "runs on another key than the registered one (free runs, or "
+                    "paid runs under the owner's waiver, Correction 6, C28)"))
 
 
 def deviations(model: str, journal: list[dict], run_log: list[dict], quarantine: list[dict],
@@ -362,19 +386,41 @@ def summary(out: dict) -> str:
                                     for t in K.MODELS if c[t]["answers"] or c[t]["usd"])
               + f"; {c['total_usd']:.4f} USD in all, under a cap of {c['cap_usd']:.0f} USD"
               + (" (free models cost nothing)." if any(c[t]["answers"] for t in K.FREE_QUEUE) else "."))
-    acc = out.get("account") or {}
-    if acc and acc["first"].get("limit") is None:
-        w = acc.get("waiver") or {}
-        s += (f" The branch's key had no credit limit in OpenRouter, by the owner's waiver of {w.get('waiver_date')} "
-              f"(Amendment 3, Correction 5, C26), on {w.get('runs', 0)} paid run(s): nothing outside the code stopped "
-              f"the paid arm at {K.CAP_USD:.0f} USD; the code's caps did, with the account's balance "
-              f"({w.get('first_balance_usd')} USD read by hand at {w.get('first_balance_read_at')}) as the only "
-              f"outer bound. The API reported the key's use as {acc['first']['usage']} USD before the first paid run "
-              f"and {acc['last']['usage']} USD after the last.")
-    elif acc:
-        s += (f" The branch's key, limited to {acc['first']['limit']} USD in OpenRouter, had "
-              f"{acc['first']['limit_remaining']} USD of its limit left by the API before the first paid run and "
-              f"{acc['last']['limit_remaining']} USD after the last.")
+    s += key_sentence(out.get("account") or {})
+    return s
+
+
+def key_sentence(acc: dict) -> str:
+    """The key readings sentence (Correction 2, C17; Correction 5, C26). Correction 6, C28 (the sixth review's m-4 and
+    MAJOR-1): built from the number of paid runs under the owner's waiver and from the readings with and without a
+    limit, never printing "None"; the account's balance is an outer bound only as read with auto top-up off."""
+    if not acc:
+        return ""
+    s, w, lim, unl = "", acc.get("waiver") or {}, acc.get("limited"), acc.get("unlimited")
+    if w.get("runs"):
+        runs = w["runs"]
+        last = (f"; before the last, {w.get('last_balance_usd')} USD at {w.get('last_balance_read_at')}"
+                if runs > 1 else "")
+        top_up = "with auto top-up off" if w.get("auto_top_up_off") else "not every reading recording auto top-up off"
+        s += (f" On {runs} paid run{'s' if runs != 1 else ''} the branch's key had no credit limit in OpenRouter, by "
+              f"the owner's waiver of {w.get('waiver_date')} (Amendment 3, Correction 5, C26, as corrected by "
+              f"Correction 6, C28): nothing outside the code stopped the paid arm at {K.CAP_USD:.0f} USD; the code's "
+              f"caps did. Outside the code the only bound was the account's credit balance as read by hand before "
+              f"each of those runs, {top_up} ({w.get('first_balance_usd')} USD at {w.get('first_balance_read_at')} "
+              f"before the first{last}); it is not an upper bound fixed in advance (it can be topped up by hand), and "
+              "OpenRouter may let it go below zero by about one request.")
+        if unl:
+            s += (f" The API reported the key's all-time use as {unl['first_usage']} USD at the first reading without "
+                  f"a limit and {unl['last_usage']} USD at the last.")
+    elif unl:
+        s += (" The branch's key had no credit limit in OpenRouter when it was read before a paid run, and no paid run "
+              "started under the owner's waiver (Amendment 3, Correction 5, C26): no paid request was sent on a key "
+              "without a limit.")
+    if lim:
+        on = " on that limit" if (w.get("runs") or unl) else ""
+        s += (f" The branch's key, limited to {lim['limit']} USD in OpenRouter, had {lim['first_remaining']} USD of "
+              f"its limit left by the API before the first paid run{on} and {lim['last_remaining']} USD after the "
+              f"last.")
     return s
 
 

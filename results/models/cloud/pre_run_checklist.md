@@ -8,7 +8,9 @@ and m-1 to m-7 are answered by Correction 3, C18–C21, which also records the d
 2026-11-12), and with Correction 4 after the fourth (`959a2db` reviewed; its findings MAJOR-1, MAJOR-2 and m-1 to m-7
 are answered by Correction 4, C22–C25, with the documentation read again on 2026-11-12 16:39 UTC), and with Correction 5
 after the fifth (`9001223` reviewed; its findings m-1 to m-6 are answered by Correction 5, C27) and after the author's
-decision of 2026-11-12 to run without a credit limit on the key (C26, the owner's waiver).
+decision of 2026-11-12 to run without a credit limit on the key (C26, the owner's waiver), and with Correction 6 after
+the sixth (`b05e4f9` reviewed; its finding MAJOR-1, auto top-up, and m-1 to m-7 are answered by Correction 6, C28,
+which overrides C26's "the account's balance is the only outer bound").
 The reviewer is a separate session that did not write this code. Every item is checked against the files and the public documentation, not against this list's wording. A
 reviewer who finds a problem writes it down with the file and line; nothing is fixed silently, and any fix is made
 before publication and recorded in `docs/deviations.md`.
@@ -17,11 +19,13 @@ before publication and recorded in `docs/deviations.md`.
 1. `docs/analysis_plan_models.md`: lines 1–779 (lines 1–149, Amendment 1 and Amendment 2) are byte-identical to
    `60dfe9b`, lines 780–1094 (Amendment 3 as first reviewed) to `a192234`, lines 1095–1239 (the Correction as
    reviewed the second time) to `c01188a`, lines 1240–1344 (Correction 2 as reviewed the third time) to
-   `0287331`, lines 1345–1474 (Correction 3 as reviewed the fourth time) to `959a2db`, and lines 1475–1577 (Correction 4
-   as reviewed the fifth time) to `9001223`; each correction is only appended after them
+   `0287331`, lines 1345–1474 (Correction 3 as reviewed the fourth time) to `959a2db`, lines 1475–1577 (Correction 4
+   as reviewed the fifth time) to `9001223`, and lines 1578–1669 (Correction 5 as reviewed the sixth time) to
+   `b05e4f9`; each correction is only appended after them
    (`cmp <(git show 60dfe9b:docs/analysis_plan_models.md) <(head -n 779 docs/analysis_plan_models.md)`, the same with
-   `a192234` and 1094, with `c01188a` and 1239, with `0287331` and 1344, with `959a2db` and 1474 and with `9001223` and
-   1577, and `git diff 9001223 -- docs/analysis_plan_models.md` has no removed line).
+   `a192234` and 1094, with `c01188a` and 1239, with `0287331` and 1344, with `959a2db` and 1474, with `9001223` and
+   1577 and with `b05e4f9` and 1669, run in bash, not zsh, and `git diff b05e4f9 -- docs/analysis_plan_models.md` has
+   no removed line).
    `python -m judge.models --verify` passes (it checks lines 1–149 against `162909f`).
 2. Amendment 3 with its Correction says, and the code does, the same thing on every point (where they differ, the
    Correction holds): models and order (§2 table against
@@ -60,6 +64,14 @@ before publication and recorded in `docs/deviations.md`.
    (`key_limit_waived`, `key_limit_waiver`, `account_balance_readings`); C27 against `forbidden_series` (m-1), the
    closing check of `verify` (m-2), `cloud_analysis.deviations` and `deviations_sentence` (m-3), `DEVIATION_WORDS`
    (m-6), and items 2 and 27 of this list (m-5, m-4).
+   Correction 6: C28 against `balance_refusal` (`auto_top_up` exactly false, no allowance ahead of the clock, the
+   readings named by earlier waiver runs in `run_log`), `key_use` (`baseline`), the paid branch of `_run` (the usage
+   baseline from `key_reading`, the key-use stop under the waiver, `key_differs` on a waiver run, the deviation's
+   `auto_top_up` and baseline fields), `close_incomplete` (`under_waiver`), `key_limit_waiver` and `_waiver_date_ok`
+   (`WAIVER_EARLIEST_DATE`, `WAIVER_DATE_AHEAD_S`), `paid_key_refusal` (no "None USD"), the waiver checks of `verify`
+   (auto top-up off, one reading per paid run), `cloud_analysis.account`, `key_sentence` and `DEVIATION_WORDS`, the
+   module docstrings, `registration.json` (`what`, `what_it_weakens`), and items 14, 24, 25, 26, 28, 30, 32 and 33 of
+   this list.
 3. Nothing in the amendment or its Correction states a result: no answer of any model of the branch exists
    (`results/models/cloud/` holds only `registration.json`, `pre_run_checklist.md` and `snapshot/`).
 4. The twelfth-change entry in `docs/deviations.md`, the records in `results/post_run_changes.json` and the README's
@@ -114,10 +126,10 @@ before publication and recorded in `docs/deviations.md`.
     `test_an_overrun_line_written_twice_does_not_hide_overspend` (C21: one spend entry per overrun, one overrun per
     paid model), `test_an_http_error_that_reports_usage_is_charged_by_it` (C21) and, under the owner's waiver (no key
     limit), `test_under_the_waiver_the_in_code_caps_still_stop_a_probe_beyond_15_usd` (C26). A free model's reported
-    cost is counted. Under the waiver this is the only bound of the paid arm short of the account's balance (C26): judge
-    whether a defect could let the code's own accounting exceed 15 USD; a provider billing one answer beyond its
-    reservation and the overrun room takes the branch over its cap by that answer (the test shows it), with no stop
-    outside the code.
+    cost is counted. Under the waiver this is the only bound of the paid arm in code (C26); outside the code only the
+    account's balance bounds it, and only while auto top-up is off (Correction 6, C28): judge whether a defect could
+    let the code's own accounting exceed 15 USD; a provider billing one answer beyond its reservation and the overrun
+    room takes the branch over its cap by that answer (the test shows it), with no stop outside the code.
 15. The key: read only in `read_key` when a request is sent; sent only as `Authorization` with
     `add_unredirected_header`; redirects not followed; errors scrubbed; `main` prints no traceback; nothing under
     `results/models/cloud/` matches `KEY_PATTERN`; the Makefile names neither the key nor its file. The reviewer does
@@ -142,8 +154,17 @@ before publication and recorded in `docs/deviations.md`.
     `test_without_a_complete_waiver_a_key_without_a_limit_is_still_refused`,
     `test_the_waiver_never_admits_a_key_whose_limit_is_not_exactly_15_or_resets`,
     `test_under_the_waiver_each_paid_run_needs_a_fresh_balance_reading_that_covers_the_cap`,
-    `test_make_check_fails_on_a_paid_run_without_the_limit_or_the_waivers_record`,
-    `test_under_the_waiver_key_use_is_read_from_usage_and_stops_nothing`).
+    `test_make_check_fails_on_a_paid_run_without_the_limit_or_the_waivers_record`). Correction 6, C28: a balance
+    reading counts only with `auto_top_up` exactly false
+    (`test_under_the_waiver_a_balance_reading_must_record_auto_top_up_off`), never ahead of the clock and never for a
+    second paid run (`test_a_balance_reading_ahead_of_the_clock_or_used_before_serves_no_paid_run`); under the waiver
+    the key's use since `key_reading` (its `usage` the baseline) beyond the journal by more than 0.05 USD stops the
+    paid run, and a missing baseline refuses it
+    (`test_under_the_waiver_key_use_since_registration_beyond_the_journal_stops_the_paid_run`, which replaces C26's
+    `test_under_the_waiver_key_use_is_read_from_usage_and_stops_nothing`); a paid run under the waiver on another key
+    is a recorded deviation (`test_under_the_waiver_a_paid_run_on_another_key_is_a_recorded_deviation`); the waiver's
+    date is a real date, not in the future (`test_the_waivers_date_must_be_a_real_date_not_in_the_future`); the key
+    sentence never prints "None" (`test_the_key_sentence_never_prints_none_and_reports_each_guard`).
 
 ## E. Held-out, order, stops
 17. No held-out complaint can be sent: `test_an_injected_held_out_id_sends_journals_and_spends_nothing` passes, and
@@ -203,6 +224,13 @@ before publication and recorded in `docs/deviations.md`.
 ## G. Before publication: the author's decisions (Correction 2, C16; filled in and committed before the amendment is published and the secret gist is created)
 A "no" in item 26 or a "drop" in item 27 is made by a further correction of Amendment 3 before the gist, never after
 it; until then the branch is registered as §2 lists it. The reviewer checks that every blank below is filled.
+Who fills each blank (Correction 6, C28, after the sixth review's section 7), marked after it:
+- **[coordinator]**: copied by the coordinator from the read-only readings of the owner's OpenRouter dashboard taken on
+  2026-11-12 at about 17:54 UTC (Credits, Guardrails and Privacy pages; nothing was changed), before publication. A
+  time known only roughly is written as such ("about 17:54"), and a setting whose start is not known says so.
+- **[owner]**: the owner's own decision; nothing in those readings answers it.
+- **[registration]**: filled at registration from `python -m judge.cloud --status` (item 28), before any request.
+- **[operator, start day]**: read again by the operator on the start day and before each paid run (section H).
 24. The key and the guard of the paid arm (C1, C9, C15, C19; Correction 5, C26). One of:
     (a) a key created for this branch only, with a credit limit of **exactly 15 USD** and `limit_reset` null (it never
         resets), set in OpenRouter, preferably in a separate OpenRouter account or workspace; OpenRouter then refuses
@@ -212,27 +240,47 @@ it; until then the branch is registered as §2 lists it. The reviewer checks tha
         who gave them). Then **there is no stop outside the code**: the worst case is bounded by the code's caps only
         (15 USD for the branch, 5 USD per model, each request reserved at its worst case, the spend journal, the
         overrun room); a defect in the journal or the reservations could in principle exceed 15 USD, and a provider
-        billing one answer beyond its reservation and the overrun room takes the branch over 15 USD by that answer;
-        the account's credit balance (25 USD by the owner's words) is then the only outer bound.
+        billing one answer beyond its reservation and the overrun room takes the branch over 15 USD by that answer.
+        Outside the code only the account's credit balance bounds it, and only while the account's auto top-up is
+        off (Correction 6, C28, overriding C26's "the only outer bound"): with auto top-up on, OpenRouter buys
+        credits from the card when the balance falls below a threshold and nothing outside the code bounds the
+        spend. Even with it off the bound is the balance as read before each paid run, not a fixed 25 USD (it can be
+        topped up by hand), and OpenRouter may let it go below zero by about one request (the runner sends one
+        request at a time).
+        Auto top-up on the Credits page: **off** (read on 2026-11-12 at about 17:54 UTC with the 25.00 USD balance:
+        the "Auto Top-Up" block offers "Enable"; nothing was changed) [coordinator]. It is read again with every
+        balance reading of item 33, and the runner refuses a reading without `"auto_top_up": false`.
     The runner refuses a paid model on a limit other than exactly 15 USD (with or without the waiver), on a resetting
     limit, on a reading that leaves out `limit`, `limit_remaining`, `limit_reset` or `budgets`, on a key under a
     guardrail or workspace budget (C19, C25), and on a key without a limit unless the waiver is recorded completely
     (C26).
     Guard: (b), the owner's waiver, given on 2026-11-12 and recorded in `registration.json` and in C26 (his words
     there, verbatim). If a limit of exactly 15 USD that never resets is later set on the key, (a) applies by itself.
-    Key created for this branch only: ______ (yes / no); account or workspace: ______.
+    Key created for this branch only: ______ (yes / no) [owner]; account or workspace: ______ [coordinator].
     The account's credit balance before the first request, read on the OpenRouter dashboard (C24: the documentation
     says a negative balance can refuse free models too; C26: the code cannot read it, `GET /api/v1/credits` needs a
     management key): at least 17 USD, and at least 10 USD purchased in all (the 1,000 free requests a day):
-    balance ______ USD, purchased in all ______ USD, read at ______ UTC.
+    balance ______ USD, purchased in all ______ USD, read at ______ UTC [coordinator; read again on the start day,
+    item 32].
     No guardrail (content filter, prompt-injection detector, allowlist or budget) assigned to the account (the
-    workspace default), the member or the key (C25): ______ (yes / no).
+    workspace default), the member or the key (C25): ______ (yes / no) [coordinator; `budgets` of the item 28 reading
+    confirms it].
 25. The privacy setting for free and for paid models (C9), where it is set, and when:
-    free: ______ paid: ______ set in: ______ at ______ UTC.
+    free: ______ paid: ______ set in: ______ at ______ UTC [coordinator; if only the time it was read is known, write
+    "in effect at about ... UTC, set earlier"].
+    Decided in advance (Correction 6, C28, the sixth review's m-7), so that nothing is decided during the run: if a
+    free model fails with a data-policy error (OpenRouter finds no endpoint that matches the account's data policy),
+    the operator may turn on "Allow free endpoints that publish prompts" for free endpoints only (the prompts are
+    public CFPB complaint texts; the paid setting is not changed), and records a deviation first: a dated line under
+    item 30 (the setting, the UTC time, the model and its error), committed before the next request of that model;
+    the report's write-up lists it. `docs/deviations.md` is not edited during the run (its hash is recorded in
+    `results/post_run_changes.json` and checked by `make check`, and `preflight` refuses uncommitted changes outside
+    `results/models/cloud/`).
 26. The paid arm (P1–P3; estimate 2.90 USD, worst case 10.13 USD, never more than the code's 15 USD cap by the code's
-    own accounting; under the waiver of item 24 (b) there is no stop outside the code, see C26): ______ (yes / no).
+    own accounting; under the waiver of item 24 (b) there is no stop outside the code, see C26, and outside the code
+    only the balance as read with auto top-up off, see C28): ______ (yes / no) [owner].
 27. The reference row `google/gemma-4-31b-it:free` (600 free requests, about 0.6 of a day's quota; descriptive only,
-    not compared): ______ (keep / drop).
+    not compared): ______ (keep / drop) [owner].
     A "drop" must not block the paid arm (Correction 5, C27, the fifth review's m-4): the free queue must be closed
     before the first paid request (C24), and a row that is never run can neither run nor be closed. So "drop" is made
     only by a further Correction before the gist whose code also closes the row before any request ("not run: dropped
@@ -241,31 +289,44 @@ it; until then the branch is registered as §2 lists it. The reviewer checks tha
 28. One reading of `python -m judge.cloud --status` on the branch's key, copied into `registration.json` as
     `key_reading` and published with the registration (C10); the runner refuses while it is empty. It shows, under
     item 24 (a), `limit` 15 and `limit_reset` null; under (b), `limit` null and `limit_reset` null (C26); in both,
-    `budgets` with no scope other than `key_limit` and `free_model_daily_requests.limit`. Agreed: ______ (yes / no);
-    guard shown by the reading: ______ ((a) / (b)); reading taken at ______ UTC (filled at registration). If the free
-    daily limit is 50, not 1,000, the schedule of §10 does not hold.
+    `budgets` with no scope other than `key_limit` and `free_model_daily_requests.limit`; and, under (b), `usage` as a
+    finite number, the baseline from which the key's use is compared with the spend journal (Correction 6, C28; the
+    runner refuses a paid run under the waiver without it). Agreed: ______ (yes / no); guard shown by the reading:
+    ______ ((a) / (b)); reading taken at ______ UTC [registration]. If the free daily limit is 50, not 1,000, the
+    schedule of §10 does not hold. The dashboard readings of 2026-11-12 (limit none, `is_free_tier` false) do not
+    replace this reading: they hold no `budgets`, free daily limit or `usage`.
 
 ## H. The start day (the author and the operator, after publication and registration, before the first request)
 29. The key of item 24 saved in the key file (`--key-file`, `OPENROUTER_KEY_FILE`, or the default in the author's
     home directory), readable only by its owner (`stat -f '%Sp'` gives `-rw-------`). A free run whose key reading
     differs from `key_reading` records a deviation (C15).
-30. The privacy setting of item 25 is in effect on the account's settings page on the start day.
+30. The privacy setting of item 25 is in effect on the account's settings page on the start day: ______ (yes / no)
+    [operator, start day]. A change made under item 25's rule is recorded here first (setting, UTC time, model, its
+    error): ______.
 31. `python -m judge.cloud --check-listings` run on the start day, before the first request, to re-read the live
     listings of all seven models (C2); its records committed. A model whose check fails is not replaced; it waits, and
     `--watch-listing MODEL` decides whether it is ever closed.
 32. The order of the arms is fixed (Correction 4, C24, replacing the operator's choice of Correction 3, C21): the free
     queue runs to its end before the first paid request, and the runner refuses a paid model while a free model is
-    open. On the start day the balance of item 24 is still at least 17 USD and no guardrail has been assigned since.
+    open. On the start day the balance of item 24 is still at least 17 USD, auto top-up is still off, and no guardrail
+    has been assigned since: ______ (yes / no) [operator, start day].
 33. Under the waiver (item 24 (b), C26), before each paid run (each `--run` of a paid model, a resumed one included):
-    the operator reads the account's credit balance on the OpenRouter dashboard and appends
-    `{"balance_usd": ..., "read_at": "YYYY-MM-DDTHH:MM:SSZ", "read_by": "...", "source": "OpenRouter dashboard"}` to
-    `account_balance_readings` in `registration.json`, then commits it (before a model's first request it must also
-    be published: `preflight` refuses an uncommitted change and an unpublished HEAD). The runner refuses unless the
-    latest reading is later than the branch's last paid send, at most 24 hours old, not in the future, and at least
-    the branch's remaining room under 15 USD plus 2 USD; it records each paid run under the waiver as a deviation. The
-    code checks the reading's form, time and size, not its truth: a wrong figure typed in is not caught. The operator
-    also watches the spend journal (`results/models/cloud/spend.jsonl`) against the dashboard after each paid run and
-    stops on any difference. First paid run: balance ______ USD at ______ UTC (filled by the operator on the day).
+    the operator reads the account's credit balance and the auto top-up setting on the OpenRouter Credits page and
+    appends `{"balance_usd": ..., "read_at": "YYYY-MM-DDTHH:MM:SSZ", "read_by": "...", "source": "OpenRouter
+    dashboard", "auto_top_up": false}` to `account_balance_readings` in `registration.json`, then commits it (before a
+    model's first request it must also be published: `preflight` refuses an uncommitted change and an unpublished
+    HEAD). `read_at` is this machine's UTC time when the balance was read (`date -u +%Y-%m-%dT%H:%M:%SZ`); a reading
+    ahead of the runner's clock by any amount is refused (Correction 6, C28). `auto_top_up` must be the JSON value
+    `false`: `true`, a missing field, `"false"` or `0` is refused (C28); if auto top-up is on, turn it off first. The
+    runner refuses unless the latest reading is later than the branch's last paid send and than the reading of every
+    earlier paid run under the waiver (one reading serves one paid run, C28), at most 24 hours old, not in the future,
+    and at least the branch's remaining room under 15 USD plus 2 USD; it records each paid run under the waiver as a
+    deviation. Under the waiver the key's use since `key_reading` beyond the spend journal by more than 0.05 USD stops
+    the paid run with a recorded deviation (C28: a journal edited or lost cannot restart the spend); the model is then
+    closed with `--close-incomplete` or a further Correction decides. The code checks the reading's form, time and
+    size, not its truth: a wrong figure typed in is not caught. The operator also watches the spend journal
+    (`results/models/cloud/spend.jsonl`) against the dashboard after each paid run and stops on any difference. First
+    paid run: balance ______ USD at ______ UTC, auto top-up ______ (off) [operator, start day].
 
 ## I. What the reviewer reports
 A list of findings, each with severity (blocks publication / should fix / note), file and line, and evidence. Then a

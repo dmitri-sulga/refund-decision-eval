@@ -1667,3 +1667,87 @@ the paid arm runs only on a key limited to exactly 15 USD).**
   before any request, and one answer billed 6 USD that takes the branch over its cap by that answer, after which no paid
   request is sent); `make check` on a paid run without the waiver's record; the key's `usage` under the waiver; and m-1,
   m-2, m-3 and m-6.
+
+## Amendment 3, Correction 6 (2026-11-12, after a sixth independent review, before publication and before any request)
+
+**Where this note is and why.** A sixth independent review by a separate AI-agent session read only the change that
+added Correction 5 (`9001223..b05e4f9`, unpublished). It found one serious problem, that Correction 5 called the
+account's credit balance "the only outer bound" although OpenRouter can top the balance up automatically, and seven
+smaller points (m-1 to m-7). This Correction answers all eight (C28). Amendment 3 and its Corrections 1 to 5 are left
+exactly as that review read them (lines 1–1669 of this file equal `b05e4f9`); where this Correction 6 says otherwise,
+it holds over all of them. When this was written nothing of the branch had been published, no gist existed, the
+OpenRouter key had not been read by this project's code and no request of the branch had been sent. The OpenRouter
+documentation was not read again for this Correction: the sentence on auto top-up is the one the sixth review quotes
+from `docs/faq.md` (read 2026-11-12 18:33 UTC): "Users can top up their balance manually or set up auto top up so that
+the balance is replenished when it gets below the set threshold."; the negative balance is in the page that C24 quotes
+("If your account has a negative credit balance").
+
+**C28. Auto top-up, and the sixth review's smaller points (replaces, in C26, "the account's credit balance (25 USD by
+the author's words; at least 17 USD required) is the only outer bound").**
+- **The outer bound under the waiver (MAJOR-1).** With auto top-up on, OpenRouter buys credits from the card when the
+  balance falls below a threshold; the balance then bounds nothing, and under the waiver nothing outside the code would
+  bound the paid arm. So the waiver of C26 holds only while auto top-up is off. Each balance reading of C26 must also
+  record `"auto_top_up": false` (the JSON value false, read on the Credits page with the balance); the runner refuses
+  a paid run under the waiver on a reading that records `true`, leaves the field out or gives anything else (`"false"`,
+  `0`, null), sending and closing nothing, and `make check` fails on a waiver run whose reading does not record it.
+  With auto top-up off, the outer bound is the balance at the time it is read (the review's m-5): not a fixed 25 USD
+  (25 USD was the balance on 2026-11-12, and the owner can top up by hand; the code requires only a lower bound, 17 USD
+  and then the remaining room under the cap plus 2 USD), and OpenRouter may let the balance go below zero, by about one
+  request, since the runner sends one request at a time. Read on 2026-11-12 at about 17:54 UTC on the owner's
+  dashboard, read-only: auto top-up off (the "Auto Top-Up" block offered "Enable"), balance 25.00 USD; the
+  checklist's item 24 (b) records it. Every place that called the balance "the only outer bound" (the checklist's
+  items 14 and 24, `registration.json` (`what`, `what_it_weakens`), the docstrings and printed text of
+  `src/judge/cloud.py` and `src/judge/cloud_analysis.py`, and the report's words) now says this; C26's text above
+  stays as it was reviewed and is read with this correction.
+- **One reading, one paid run (m-1).** C26 accepted a reading up to 300 seconds ahead of this machine's clock (an
+  allowance for clock differences), and such a reading, still later than the sends of the run it opened, opened a
+  second paid run. Now `read_at` may not be ahead of the runner's clock at all (the operator writes the runner's own
+  UTC time when the balance was read), and a reading must be later than the reading named by every earlier paid run
+  under the waiver (by its `key_limit_waived` deviation), whether or not that run sent anything; `make check` fails on
+  one reading named by two paid runs.
+- **The key's use since registration (m-2).** Under the waiver the key has no limit, so a journal edited or lost would
+  let the code's caps start again from zero, and C26's comparison of the key's all-time `usage` with the journal only
+  recorded it. Now the `usage` of the registered `key_reading` is the baseline: the key's use since registration
+  (`usage` less the baseline) is compared with the branch's spend journal, and use beyond it by more than 0.05 USD
+  (C25's tolerance) refuses the paid run under the waiver with the `key_use_exceeds_journal` deviation (`stopped`,
+  `under_waiver`), sending and closing nothing. The key's use never goes down, so the stop does not clear by itself:
+  `--close-incomplete` may close the model as stopped by the budget with that deviation (as in C25), or a further
+  Correction decides. A paid run under the waiver is refused while `key_reading` has no `usage` as a finite number
+  (the checklist's item 28 says so). The journal charges each answer at the larger of the reported cost and the
+  registered prices (§7), so the branch's own requests do not make the key's use exceed the journal. A key limited to
+  exactly 15 USD (guard (a)) is compared as in C25, unchanged.
+- **The key under the waiver (m-3).** A paid run under the waiver now compares the key's reading with the registered
+  `key_reading`, as a free run does (C15), and records `key_differs`; the report counts runs on another key of either
+  arm. Whether the key was created for this branch only stays the owner's answer in the checklist's item 24.
+- **The key readings sentence (m-4).** The report's sentence on the key is built from the number of paid runs under
+  the waiver and from the readings with and without a limit, apart: it prints no "None" when no paid run ran under
+  the waiver, and a change from one guard to the other is reported for each. The refusal for a key limited to 15 USD
+  that does not report what is left of its limit says so in words, not "None USD".
+- **The waiver's date (m-6).** `key_limit_waiver.date` must be a real calendar date (`2026-99-99`, `0000-00-00`,
+  `2026-02-30` are refused), not before 2026-11-12 and not after the current date in the earliest time zone (UTC+14,
+  so that a date the owner gives in his own zone passes while the runner's clock in UTC is still on the day before).
+- **"Publish prompts", decided in advance (m-7).** The checklist's item 25 now holds the rule: if a free model fails
+  with a data-policy error (no endpoint matches the account's data policy), the operator may turn on "Allow free
+  endpoints that publish prompts" for free endpoints only (the prompts are public CFPB complaint texts; the paid
+  setting is not changed), and records it first as a deviation: a dated line under the checklist's item 30 (the
+  setting, the UTC time, the model and its error), committed before the next request of that model. C9's privacy
+  setting stays the owner's decision; this is that decision taken before the run, so that nothing is decided during
+  it.
+- **The checklist's section G** marks each blank with who fills it: the coordinator, from the read-only dashboard
+  readings of 2026-11-12 (account, balance, purchased in all, time read, guardrails, privacy); the owner (a key for
+  this branch only, the paid arm, the reference row); the registration (item 28); or the operator on the start day
+  (items 30, 32 and 33).
+- **Not changed.** The caps, the reservations, the overrun room, the 24-hour age and the floor of the balance reading,
+  C25 on a key limited to exactly 15 USD, and everything else the sixth review found holding. `make check` still does
+  not re-check a reading's size or age; the runner does, at the run.
+- **Tests.** `tests/test_cloud.py` tests each point: a reading with auto top-up true, missing, `"false"`, `0` or null
+  (refused, nothing sent or closed) and false (runs), and `make check` on a waiver run whose reading does not record
+  it; a reading 4 minutes or 1 second ahead of the clock (refused), at the clock's second (runs), one named by an
+  earlier waiver run that sent nothing (refused) and one named by two runs (`make check` fails); the key's use since
+  registration within the journal (runs) and 3 USD beyond it with the journal lost (refused and recorded, nothing
+  sent; closed by `--close-incomplete` as stopped by the budget, `make check` passes), and a missing or non-numeric
+  baseline (refused); a paid run under the waiver on a key whose reading differs (recorded, counted by the report);
+  the key sentence with no run under the waiver, with both changes of guard and with guard (a) alone (no "None"); the
+  waiver's dates; and the committed record and checklist. Correction 5's test that key use under the waiver "stops
+  nothing" is replaced by the test of the stop; Correction 5's tests now give each balance reading
+  `"auto_top_up": false` and the waiver's `key_reading` a `usage` of 0.

@@ -4,8 +4,9 @@ change, after two reviews; written after the results were seen).
 It shares no code with the registered analysis (models_analysis.py, hosted_analysis.py) or with extension_late.py:
 it reads the answer files, the records and the person's labels directly, with its own JSON reading of each answer,
 its own kappa and accuracy, and compares with results/models/analysis.json, results/models/hosted/analysis.json and
-the late figures in results/metrics.json. The two comparators are taken from the frozen study code, as the plan
-fixes them: the issuer lookup's DEV decisions and the TF-IDF model's DEV decisions. Point estimates and counts only;
+the late figures in results/metrics.json. The two comparators are taken from the frozen study code (baselines.py,
+analysis.Systems with the frozen TF-IDF settings), as the plan fixes them: the issuer lookup's DEV decisions and the
+TF-IDF model's DEV decisions, the latter checked against the confusion counts stored in results/metrics.json. Point estimates and counts only;
 the intervals come from the registered bootstrap and are not recomputed here. Offline; no model is called."""
 import gzip
 import json
@@ -57,14 +58,22 @@ def world():
     answers = {"local": {r["key"]: r for r in _rows(C.RESULTS / "models" / "responses.jsonl")},
                "hosted": {r["key"]: r for r in _rows(C.RESULTS / "models" / "hosted" / "responses.jsonl")},
                "study": {r["key"]: r for r in _rows(C.RESULTS / "cache" / "responses.jsonl")}}
-    from judge.baselines import issuer_rate                  # the comparators, from the frozen study code
+    from judge import freeze                                 # the comparators, from the frozen study code
+    from judge.analysis import Systems
+    from judge.baselines import issuer_rate
     from judge.data import load_records, load_splits
-    from judge.extension_late import tfidf_dev_decisions
+    from judge.llm import Cache
     R, S = load_records(), load_splits()
     f, base, _ = issuer_rate(S["train"], R)
     assert list(S["dev"]) == dev
+    tfidf = np.asarray(Systems(R, S, Cache(), lr_params=freeze.load()["tfidf_lr"]).predict("tfidf_lr", "dev")["pred"])
+    y = np.array([label[i] for i in dev])
+    stored = json.loads((C.RESULTS / "metrics.json").read_text())["dev"]["tfidf_lr"]["confusion"]
+    mine = {f"{'relief' if a else 'none'}_{'relief' if b else 'none'}": int(((y == a) & (tfidf == b)).sum())
+            for a in (0, 1) for b in (0, 1)}
+    assert mine == stored, (mine, stored)
     return {"label": label, "dev": dev, "lab": lab, "person": person, "answers": answers,
-            "lookup": np.array([int(f(R[i]) > base) for i in dev]), "tfidf": tfidf_dev_decisions(R, S)}
+            "lookup": np.array([int(f(R[i]) > base) for i in dev]), "tfidf": tfidf}
 
 
 def _cell(w, arm, model, version, split, reference):

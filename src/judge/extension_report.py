@@ -398,7 +398,7 @@ def b_hosted_arm(m):
         _quote(ho["summary"]),
         "",
         "*Not registered:* the \"Same vendor\" paragraph is quoted word for word from the plan as registered before "
-        "the run, which is why it speaks of the run in the future tense; the reviews it calls independent were "
+        "the run, which is why it speaks of the run as still to come; the reviews it calls independent were "
         "separate AI-agent sessions, not people. \"Adaptive thinking\" means that the model decides whether, and how "
         "much, to reason before it answers.",
         "",
@@ -445,7 +445,8 @@ def b_hosted_arm(m):
          "The two readings agree in sign and side of zero in every cell."),
         "",
         "**Limits.** Those of the local models apply. In addition, no temperature or seed could be sent, so each "
-        "figure is one sample of each model as the provider served it on that date. The two compared tiers differ "
+        "figure is one sample of each model as the provider served it on that date; the provider's format "
+        "instructions and tokenizer also differ from the local runs. The two compared tiers differ "
         "in more than size, and the vendor of these models also made the tools that built this arm (above).",
         "",
         "**Exploratory (not registered).** Looked at after the results were seen; descriptive counts only, with no "

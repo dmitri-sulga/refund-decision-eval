@@ -858,15 +858,16 @@ GEMMA = K.REFERENCE_ONLY[0]
 
 
 def test_403_and_402_are_sorted_by_what_they_report():
-    """Correction 2, C11 (the review's MAJOR-1): a 403 is never a rejection."""
+    """Correction 2, C11 (the review's MAJOR-1): a 403 is never a rejection; as corrected by Correction 3, C18-C19:
+    only the structured fields sort it into a key-limit stop or a content-filter refusal."""
     c = K.classify
     assert c(K.CloudError(403, SPENT, limit_source="openrouter_key_limit"), PAID1)[0] == "key_limit"
-    assert c(K.CloudError(403, SPENT), FREE1)[0] == "key_limit"                        # the message alone
-    assert c(K.CloudError(403, "x", limit_source="guardrail_budget"), PAID1)[0] == "key_limit"
+    assert c(K.CloudError(403, SPENT), FREE1)[0] == "forbidden"                # the message alone: never a stop (C19)
+    assert c(K.CloudError(403, "x", limit_source="openrouter_guardrail_budget"), PAID1)[0] == "account"
     assert c(K.CloudError(403, "Provider returned error (SAFETY)", etype="content_policy_violation"), GEMMA)[0] \
         == "filtered"
     assert c(K.CloudError(403, "refused", etype="refusal"), PAID1)[0] == "filtered"
-    assert c(K.CloudError(403, "Forbidden"), PAID1)[0] == "filtered"
+    assert c(K.CloudError(403, "Forbidden"), PAID1)[0] == "forbidden"
     assert c(K.CloudError(403, "flagged", moderation={"reasons": ["x"]}), PAID1)[0] == "moderated"
     assert c(K.CloudError(403, "No endpoints found matching your data policy"), FREE1)[0] == "account"
     assert c(K.CloudError(402, "Insufficient credits in flight", limit_source=K.IN_FLIGHT_SOURCE), PAID1)[0] \
@@ -913,14 +914,17 @@ def test_a_content_filter_403_fails_one_request_and_the_run_goes_on(sandbox):
     with pytest.raises(X.Refusal, match="cannot be closed"):
         K.close_incomplete(GEMMA)
     t = FakeTransport(fail_at=1, error=safety("Thu, 12 Nov 2026 13:00:00 GMT"))
-    run(GEMMA, sandbox, t)                                               # the refused request once more, refused again
+    run(GEMMA, sandbox, t)                                  # refused again one hour later: not final (Correction 3, C20)
+    assert len(t.calls) == 1 and not K.state()["status"]
+    t = FakeTransport(fail_at=1, error=safety("Fri, 13 Nov 2026 12:00:00 GMT"))
+    run(GEMMA, sandbox, t)                                  # refused again 24 hours after the first: final
     assert len(t.calls) == 1
     assert K.state()["status"][GEMMA] == ("incomplete (9 of 10 answered): 1 request(s) refused by the provider's "
-                                          "content filter on 2 runs")
+                                          "content filter on 2 runs at least 24 hours apart")
     assert K.verify(records=sandbox["records"]) == []
     from judge import cloud_analysis as CA
     d = CA.deviations(GEMMA, X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], X._jsonl(K.CACHE_FILE))
-    assert d["filtered"] == 2 and d["filtered_final"] == 1
+    assert d["filtered"] == 3 and d["filtered_final"] == 1
     k = [e["key"] for e in X._jsonl(K.JOURNAL) if e["kind"] == "filtered"][0]
     X._append(K.JOURNAL, {"at": X.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
     assert any("after its content-filter refusal" in p for p in K.verify(records=sandbox["records"]))
@@ -1017,7 +1021,8 @@ def test_the_report_lists_the_recorded_deviations(sandbox):
     left out, answers without a provider field and free runs on another key are counted and printed."""
     from judge import cloud_analysis as CA
     journal = [{"key": f"{PAID1}|v1|d1", "kind": "overrun"}, {"key": f"{PAID1}|v1|d2", "kind": "resend"},
-               {"key": f"{FREE1}|v1|d1", "kind": "filtered"}, {"key": f"{FREE1}|v1|d1", "kind": "filtered"}]
+               {"key": f"{FREE1}|v1|d1", "kind": "filtered", "server_date": "Thu, 12 Nov 2026 12:00:00 GMT"},
+               {"key": f"{FREE1}|v1|d1", "kind": "filtered", "server_date": "Fri, 13 Nov 2026 12:00:00 GMT"}]
     log = [{"event": "field_dropped", "model": PAID1, "field": "seed"},
            {"event": "deviation", "kind": "key_differs", "model": FREE1}]
     out = {"order": [FREE1, PAID1], "models": {
@@ -1026,6 +1031,283 @@ def test_the_report_lists_the_recorded_deviations(sandbox):
     s = CA.deviations_sentence(out)
     assert f"{PAID1}: 1 overrun, 1 answer kept in quarantine, 1 resend, 1 answer without a provider field, left out " \
            "seed" in s
-    assert f"{FREE1}: 2 content-filter refusals, 1 request refused on two runs" in s and "another key" in s
+    assert f"{FREE1}: 2 content-filter refusals, 1 request refused on two runs at least 24 hours apart" in s \
+        and "another key" in s
     empty = {"order": [FREE1], "models": {FREE1: {"deviations": CA.deviations(FREE1, [], [], [], [])}}}
     assert CA.deviations_sentence(empty).startswith("Recorded deviations: none")
+
+
+# ------------------------------------------------------------------ Correction 3, after the third independent review
+def _http(code, body, headers=None):
+    """A CloudError built exactly as OpenRouterTransport builds one from an HTTP error response."""
+    import io
+    import urllib.error
+    hdrs = {"date": "Thu, 12 Nov 2026 12:00:00 GMT", **(headers or {})}
+    return K._http_failure(urllib.error.HTTPError("https://x", code, "Forbidden", hdrs, io.BytesIO(body.encode())))
+
+
+def _err(code, message, **meta):
+    return json.dumps({"error": {"code": code, "message": message, "metadata": meta}})
+
+
+CF_HTML = "<html><title>Attention Required! | Cloudflare</title>Sorry, you have been blocked</html>"
+
+
+def test_documented_403_and_402_shapes_are_sorted_by_their_structured_fields_only():
+    """Correction 3, C18-C19 (the review's R1, MAJOR-1 to MAJOR-3 and m-4), on the shapes of api-reference/errors and
+    limits read on 2026-11-12: a 403 is a content-filter refusal only with error_type content_policy_violation or
+    refusal; a budget stop only with limit_source openrouter_key_limit, on a 403 or a 402; message text, and the
+    provider's raw payload above all, never sorts an error into either."""
+    cases = (
+        ("guardrail block (the documentation's example)", 403,
+         _err(403, "Request blocked: prompt injection patterns detected", patterns=["ignore all previous"]), "forbidden"),
+        ("permission_denied", 403, _err(403, "Forbidden", error_type="permission_denied"), "forbidden"),
+        ("a CDN's HTML page", 403, CF_HTML, "forbidden"),
+        ("budget text without limit_source", 403, _err(403, SPENT), "forbidden"),
+        ("filter whose raw text names a limit", 403, _err(403, "Provider returned error", error_type=
+         "content_policy_violation", provider_name="Google AI Studio", raw="safety limit exceeded"), "filtered"),
+        ("refusal", 403, _err(403, "Provider returned error", error_type="refusal", provider_name="X"), "filtered"),
+        ("permission_denied whose raw text names a rate limit", 403, _err(403, "Provider returned error",
+         error_type="permission_denied", raw="Rate limit exceeded for this project"), "forbidden"),
+        ("402 openrouter_key_limit (Handling 402 errors)", 402, _err(402, "Key limit exceeded",
+         limit_source="openrouter_key_limit"), "key_limit"),
+        ("403 openrouter_key_limit (Budget errors)", 403, _err(403, SPENT, limit_source="openrouter_key_limit"),
+         "key_limit"),
+        ("403 guardrail budget that resets", 403, _err(403, "Budget limit exceeded (weekly limit).", limit_source=
+         "openrouter_guardrail_budget", resets_at="2026-10-12T00:00:00.000Z"), "account"),
+        ("403 workspace budget", 403, _err(403, "x", limit_source="openrouter_workspace_budget"), "account"),
+        ("402 openrouter_credits", 402, _err(402, "x", limit_source="openrouter_credits"), "account"),
+        ("402 in-flight", 402, _err(402, "in flight", limit_source=K.IN_FLIGHT_SOURCE), "transient"),
+        ("400 token_limit_exceeded (m-4)", 400, _err(400, "token budget", error_type="token_limit_exceeded"),
+         "account"),
+        ("400 whose provider raw text names the data policy", 400, _err(400, "Provider returned error",
+         raw="violates our data policy"), "rejected"),
+        ("404 whose own message names the data policy", 404, _err(404, "No endpoints found matching your data "
+         "policy"), "account"),
+    )
+    for name, code, body, want in cases:
+        for tag in (FREE1, PAID1):
+            assert K.classify(_http(code, body), tag)[0] == want, name
+    e = _http(403, cases[4][2])
+    assert "safety limit exceeded" in e.message and "limit" not in e.own_message.replace("Provider", "")
+    # an error inside a 200 carries the code in the body: the same sorting applies
+    e = K._error_from_json({"code": 403, "message": "m", "metadata": {"error_type": "content_policy_violation"}}, 200,
+                           {}, in_200=True)
+    assert K.classify(e, GEMMA)[0] == "filtered"
+    e = K._error_from_json({"code": 403, "message": "m", "metadata": {"error_type": "permission_denied"}}, 200, {},
+                           in_200=True)
+    assert K.classify(e, GEMMA)[0] == "forbidden"
+
+
+def test_a_storm_of_other_403s_stops_each_run_and_never_closes_a_model(sandbox):
+    """Correction 3, C18 (the review's R2): a 403 that is not a content filter's (here a CDN's page) stops the run as
+    an infrastructure or permission condition, journaled as such; quick runs one after another close nothing."""
+    for date in ("Thu, 12 Nov 2026 12:00:00 GMT", "Thu, 12 Nov 2026 12:03:00 GMT", "Sat, 14 Nov 2026 12:00:00 GMT"):
+        t = FakeTransport(fail_at=range(1, 100), error=_http(403, CF_HTML, {"date": date}))
+        with pytest.raises(X.Refusal, match="infrastructure or permission condition"):
+            run(FREE1, sandbox, t)
+        assert len(t.calls) == 1                           # the run stops at the first: one request of the day's quota
+    kinds = [e["kind"] for e in X._jsonl(K.JOURNAL)]
+    assert kinds.count("forbidden") == 3 and "filtered" not in kinds and "rejected" not in kinds
+    assert not K.state()["status"] and K.error_count(X._jsonl(K.JOURNAL), FREE1) == 0
+    with pytest.raises(X.Refusal, match="cannot be closed"):
+        K.close_incomplete(FREE1)
+    assert K.verify(records=sandbox["records"]) == []
+    out = run(FREE1, sandbox, FakeTransport())                 # the condition is gone: the same requests are answered
+    assert out["missing"] == 0 and K.state()["status"][FREE1] == "complete"
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_content_filter_refusals_minutes_apart_do_not_close_a_model(sandbox):
+    """Correction 3, C20 (the review's R2): a second refusal counts only at least 24 hours after the first by the
+    server's dates, as the rejection rule; two runs minutes apart close nothing, a third a day later closes the model."""
+    def filt(date):
+        return _http(403, _err(403, "Provider returned error", error_type="content_policy_violation",
+                               provider_name="Nvidia", raw="SAFETY"), {"date": date})
+    out = run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=filt("Thu, 12 Nov 2026 12:00:00 GMT")))
+    assert out["filtered_to_send_again"] == 10 and not K.state()["status"]
+    out = run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=filt("Thu, 12 Nov 2026 12:03:00 GMT")))
+    assert out["filtered_to_send_again"] == 10 and not K.state()["status"]
+    with pytest.raises(X.Refusal, match="cannot be closed"):
+        K.close_incomplete(FREE1)
+    t = FakeTransport(fail_at=range(1, 100), error=filt("Fri, 13 Nov 2026 11:59:59 GMT"))
+    out = run(FREE1, sandbox, t)                                # 23:59:59 after the first: still not final
+    assert out["filtered_to_send_again"] == 10 and not K.state()["status"] and len(t.calls) == 10
+    t = FakeTransport(fail_at=range(1, 100), error=filt("Fri, 13 Nov 2026 12:00:00 GMT"))
+    run(FREE1, sandbox, t)
+    assert K.state()["status"][FREE1] == ("not run: 10 request(s) refused by the provider's content filter on 2 runs "
+                                          "at least 24 hours apart")
+    assert K.verify(records=sandbox["records"]) == []
+    k = f"{FREE1}|v1|d1"
+    X._append(K.JOURNAL, {"at": X.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
+    assert any("after its content-filter refusal became final" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_filter_refusal_recorded_without_a_filters_error_type_fails_the_check(sandbox):
+    """Correction 3, C18: `make check` fails on a content-filter refusal journaled for an error that is not one."""
+    run(FREE1, sandbox, FakeTransport(fail_at=2, error=K.CloudError(403, "x", etype="refusal")))
+    assert K.verify(records=sandbox["records"]) == []
+    k = [e["key"] for e in X._jsonl(K.JOURNAL) if e["kind"] == "filtered"][0]
+    X._append(K.JOURNAL, {"at": X.now(), "key": k, "kind": "filtered", "status": 403, "error_type": None})
+    assert any("are not a content filter's" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_content_filter_whose_raw_text_names_a_limit_stops_no_arm(sandbox):
+    """Correction 3, C19 (the review's R3): message text never stops an arm, and `--close-incomplete` closes no model
+    that never ran on a text match."""
+    body = _err(403, "Provider returned error", error_type="content_policy_violation", provider_name="X",
+                raw="Request blocked: safety limit exceeded")
+    out = run(FREE1, sandbox, FakeTransport(fail_at=2, error=_http(403, body)))
+    assert out["new_answers"] == 9 and out["filtered_to_send_again"] == 1
+    with pytest.raises(X.Refusal, match="infrastructure or permission"):
+        run(FREE1, sandbox, FakeTransport(fail_at=1, error=_http(403, _err(
+            403, "Provider returned error", error_type="permission_denied", raw="Rate limit exceeded"))))
+    log = X._jsonl(K.RUN_LOG)
+    assert "key_limit_stop" not in events() and not any(K.arm_stopped_by_key(t, log) for t in K.MODELS)
+    with pytest.raises(X.Refusal, match="has not started"):
+        K.close_incomplete(K.FREE_QUEUE[1])
+    with pytest.raises(X.Refusal, match="cannot be closed"):
+        K.close_incomplete(FREE1)
+    assert K.verify(records=sandbox["records"]) == []
+    X._append(K.RUN_LOG, {"at": X.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free"})
+    assert any("key_limit_stop of the free arm without limit_source" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_key_limit_spent_with_a_402_stops_the_arm_and_its_models_can_be_closed(sandbox):
+    """Correction 3, C19 (the review's R4, first half): 'Handling 402 errors' documents the spent key limit as a 402
+    with limit_source openrouter_key_limit; it is the same budget stop of the arm as the 403."""
+    err = _http(402, _err(402, "Key limit exceeded", limit_source="openrouter_key_limit"))
+    with pytest.raises(X.Refusal, match="no model is closed by it"):
+        run(PAID1, sandbox, FakeTransport(fail_at=3, error=err))
+    stop = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "key_limit_stop"]
+    assert len(stop) == 1 and stop[0]["arm"] == "paid" and stop[0]["status"] == 402
+    assert [e["limit_source"] for e in X._jsonl(K.JOURNAL) if e["kind"] == "key_limit"] == ["openrouter_key_limit"]
+    assert not K.state()["status"]
+    assert K.close_incomplete(PAID1).startswith("incomplete (2 of 10 answered): stopped by the budget")
+    assert K.close_incomplete(K.PAID_QUEUE[1]).startswith("not run: stopped by the budget")
+    assert K.close_incomplete(K.PAID_QUEUE[2]).startswith("not run: stopped by the budget")
+    assert not K.arm_stopped_by_key(FREE1, X._jsonl(K.RUN_LOG))
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_a_short_remaining_key_limit_closes_the_paid_model_so_the_queue_goes_on(sandbox):
+    """Correction 3, C19 (the review's R4, second half): the key's remaining limit cannot cover a paid model's remaining
+    worst case, and the limit cannot be raised (exactly 15 USD, never reset): the model is closed by the budget and
+    the next model of the queue may run; a key that is configured otherwise is a resumable refusal and closes
+    nothing."""
+    with pytest.raises(X.Refusal, match="account condition"):
+        run(PAID1, sandbox, FakeTransport(fail_at=3, error=K.CloudError(401, "No auth")))
+    for kw in ({"limit": 10.0, "limit_remaining": 10.0}, {"limit_reset": "monthly"}, {"omit": ("limit_remaining",)}):
+        with pytest.raises(X.Refusal, match="nothing was sent.$"):
+            run(PAID1, sandbox, FakeTransport(**kw))
+        assert not K.state()["status"]
+    t = FakeTransport(limit_remaining=0.01)
+    with pytest.raises(X.Refusal, match="it is closed"):
+        run(PAID1, sandbox, t)
+    assert t.calls == []
+    assert K.state()["status"][PAID1].startswith("incomplete (2 of 10 answered): stopped by the budget: the key's "
+                                                 "remaining limit in OpenRouter (0.01 USD)")
+    stop = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "budget_stop"]
+    assert len(stop) == 1 and stop[0]["scope"] == "key" and stop[0]["model"] == PAID1
+    with pytest.raises(X.Refusal, match="it is closed"):
+        run(K.PAID_QUEUE[1], sandbox, FakeTransport(limit_remaining=0.01))
+    assert K.state()["status"][K.PAID_QUEUE[1]].startswith("not run: stopped by the budget")
+    out = run(K.PAID_QUEUE[2], sandbox, FakeTransport(limit_remaining=14.0))
+    assert out["missing"] == 0 and K.state()["status"][K.PAID_QUEUE[2]] == "complete"
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_a_paid_model_refuses_a_key_under_a_guardrail_or_workspace_budget(sandbox):
+    """Correction 3, C19: the paid arm runs only under the key's own limit; another budget listed by GET /api/v1/key is
+    a resumable refusal (the owner removes it), never a budget stop."""
+    class Budgeted(FakeTransport):
+        def __init__(self, budgets, **kw):
+            super().__init__(**kw)
+            self.budgets = budgets
+
+        def get(self, url):
+            d = super().get(url)
+            d["data"]["budgets"] = self.budgets
+            d["data"]["effective_budget"] = self.budgets[0] if self.budgets else None
+            return d
+    t = Budgeted([{"scope": "member", "limit_usd": 50, "remaining_usd": 10}])
+    with pytest.raises(X.Refusal, match=r"budget other than the key's own limit \(member\)"):
+        run(PAID1, sandbox, t)
+    assert t.calls == [] and not K.state()["status"]
+    out = run(PAID1, sandbox, Budgeted([{"scope": "key_limit", "limit_usd": 15, "remaining_usd": 15}]))
+    assert out["missing"] == 0
+
+
+def test_an_overrun_line_written_twice_does_not_hide_overspend(sandbox, monkeypatch):
+    """Correction 3, C21 (the review's m-1, R5): each spend entry accounts for one overrun at most, and a paid model
+    has at most one overrun."""
+    monkeypatch.setattr(K, "SUB_CAP_USD", 0.5)
+    with pytest.raises(X.Refusal):
+        run(PAID1, sandbox, FakeTransport(usage={"prompt_tokens": 700, "completion_tokens": 300000}))
+    assert K.verify(records=sandbox["records"]) == []
+    X._append(K.SPEND, {"at": X.now(), "event": "charged", "model": PAID1, "key": f"{PAID1}|v1|d2", "cost_usd": 0.6,
+                        "running_total_usd": round(K.spend_state()["computed"] + 0.6, 6)})
+    ov = json.loads([ln for ln in K.JOURNAL.read_text().splitlines() if '"overrun"' in ln][0])
+    X._append(K.JOURNAL, {**ov, "at": X.now()})
+    problems = K.verify(records=sandbox["records"])
+    assert any("by more than its journaled overrun" in p for p in problems)
+    assert any("more than one overrun entry" in p for p in problems)
+    reserved = {e["id"]: e["cost_usd"] for e in X._jsonl(K.SPEND) if e["event"] == "reserved"}
+    once = K.overrun_excess(PAID1, [ov], X._jsonl(K.SPEND), reserved)
+    assert once > 0 and K.overrun_excess(PAID1, [ov, ov], X._jsonl(K.SPEND), reserved) == once
+
+
+def test_nan_and_infinity_are_not_key_readings():
+    """Correction 3, C21 (the review's m-2, R6): json.loads accepts NaN and Infinity; neither passes "exactly 15" nor
+    counts as a remaining limit."""
+    base = {"limit": 15.0, "limit_reset": None, "limit_remaining": 15.0, "fields_missing": []}
+    assert K.paid_key_refusal(PAID1, base, 4.8) is None
+    for f, v in (("limit", float("nan")), ("limit", float("inf")), ("limit_remaining", float("nan")),
+                 ("limit_remaining", float("inf")), ("limit", "15"), ("limit", True)):
+        assert K.paid_key_refusal(PAID1, {**base, f: v}, 4.8) is not None, (f, v)
+        assert not K.key_short({**base, f: v}, 4.8)
+    parsed = json.loads('{"limit": NaN, "limit_remaining": Infinity, "limit_reset": null}')
+    assert K.paid_key_refusal(PAID1, {**parsed, "fields_missing": []}, 4.8) is not None
+    assert not K._num(float("nan")) and not K._num(float("-inf")) and K._num(15) and K._num(0.1 * 150)
+
+
+def test_a_token_limit_exceeded_400_is_an_account_condition_not_a_rejection(sandbox):
+    """Correction 3, C18 (the review's m-4): "a token budget enforced by OpenRouter (e.g. credit-based cap)"."""
+    for date in ("Thu, 12 Nov 2026 12:00:00 GMT", "Sat, 14 Nov 2026 12:00:00 GMT"):
+        err = _http(400, _err(400, "token budget", error_type="token_limit_exceeded"), {"date": date})
+        with pytest.raises(X.Refusal, match="account condition"):
+            run(PAID1, sandbox, FakeTransport(fail_at=1, error=err))
+    assert [e["kind"] for e in X._jsonl(K.JOURNAL) if e["kind"] not in ("send",)] == ["account", "account"]
+    with pytest.raises(X.Refusal, match="cannot be closed"):
+        K.close_incomplete(PAID1)
+
+
+def test_the_in_flight_402_is_not_counted_among_the_error_answers(sandbox, monkeypatch):
+    """Correction 3, C21 (the review's m-5): the in-flight budget concerns the account's settling spend, not the model;
+    it is waited out with Retry-After and does not count toward the 150 error answers."""
+    monkeypatch.setattr(K, "MAX_ERRORS_PER_MODEL", 2)
+    flight = _http(402, _err(402, "in flight", limit_source=K.IN_FLIGHT_SOURCE,
+                             reason="in_flight_budget_exhausted"), {"retry-after": "7"})
+    out = run(PAID1, sandbox, FakeTransport(fail_at=(2, 3, 4), error=flight))
+    assert out["missing"] == 0 and K.error_count(X._jsonl(K.JOURNAL), PAID1) == 0
+    assert [e["seconds"] for e in X._jsonl(K.RUN_LOG) if e["event"] == "transient_wait"] == [30, 60, 120]
+    with pytest.raises(X.Refusal, match="rate limit, an overload or a server error"):
+        run(K.PAID_QUEUE[1], sandbox, FakeTransport(fail_at=(2, 3, 4), error=K.CloudError(503, "overloaded")))
+    assert K.error_count(X._jsonl(K.JOURNAL), K.PAID_QUEUE[1]) == 2
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_an_http_error_that_reports_usage_is_charged_by_it(sandbox):
+    """Correction 3, C21 (the review's m-6): C12 releases a failed request's reservation unless the error reports
+    usage; an HTTP error body with usage is now read, as an error inside a 200 already was."""
+    body = json.dumps({"error": {"code": 400, "message": "Invalid request: bad schema"},
+                       "usage": {"prompt_tokens": 700, "completion_tokens": 0}})
+    with pytest.raises(X.Refusal, match="rejected"):
+        run(PAID1, sandbox, FakeTransport(fail_at=1, error=_http(400, body)))
+    charged = [e for e in X._jsonl(K.SPEND) if e["event"] == "charged"]
+    assert len(charged) == 1 and np.isclose(charged[0]["cost_usd"], K.ENDPOINT[PAID1]["prompt"] * 700)
+    with pytest.raises(X.Refusal, match="infrastructure or permission"):
+        run(PAID1, sandbox, FakeTransport(fail_at=1, error=_http(403, CF_HTML)))
+    assert len([e for e in X._jsonl(K.SPEND) if e["event"] == "charged"]) == 1
+    assert X._jsonl(K.SPEND)[-1]["event"] == "released"
+    assert K.verify(records=sandbox["records"]) == []

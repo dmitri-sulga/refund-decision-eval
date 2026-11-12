@@ -1342,3 +1342,133 @@ is registered as §2 lists it.
 - **Tests.** `tests/test_cloud.py` also tests each point of C11–C17, including the review's probes: a paid model's key
   limit spent (stopped, not closed, never a rejection), Gemma's request refused by a provider's filter (the run goes
   on), and a model 0.8917 USD over a sub-cap of 0.5 USD by its overrun (accepted only with the overrun).
+
+## Amendment 3, Correction 3 (2026-11-12, after a third independent review, before publication and before any request)
+
+**Where this note is and why.** A third independent review by a separate AI-agent session read only the change that
+added Correction 2 (`c01188a..0287331`, unpublished) and found three serious problems in its sorting of errors and
+seven smaller ones. Amendment 3, its Correction and Correction 2 are left exactly as that review read them (lines
+1–1344 of this file equal `0287331`); where this Correction 3 says otherwise, it holds over all three. When this was
+written nothing of the branch had been published, no gist existed, the OpenRouter key had not been read by this
+project's code and no request of the branch had been sent. The author's decisions of C16 are unchanged and still open.
+
+**The documentation this Correction rests on.** Read again for this Correction on 2026-11-12 at 15:26 UTC, with public
+requests and no key: `https://openrouter.ai/docs/api-reference/errors.md` (served from
+`https://openrouter.ai/docs/api_reference/errors-and-debugging.md`, 33,943 bytes, SHA-256 `3b7c66409cb68f8d…`) and
+`https://openrouter.ai/docs/api-reference/limits.md` (served from `…/docs/api_reference/limits.md`, 19,661 bytes,
+SHA-256 `a6c7d364fa408153…`). The words that decide the rules below:
+- Error codes: "**403**: Forbidden (insufficient permissions, guardrail block, or moderation flag)".
+- Typed error codes: "`permission_denied` | 403 | The key is valid but lacks the required permission or the request
+  was blocked by a guardrail"; "`content_policy_violation` | 403 | The input or output was flagged by a content filter
+  that runs separately from the model (provider- or OpenRouter-level), such as Gemini's `SAFETY` block"; "`refusal` |
+  403 | The provider reported a model refusal as an error rather than as output"; "`token_limit_exceeded` | 400 | A
+  token budget enforced by OpenRouter (e.g. credit-based cap) was exceeded."
+- Guardrail errors: a request blocked by a guardrail gets "a `403` with a message describing the block reason"; the
+  example is "Request blocked: prompt injection patterns detected", with `metadata.patterns` and no `error_type`.
+- Budget errors: "When a guardrail budget, a workspace budget, or the key's own limit is spent, the request is rejected
+  with a `403` before it reaches a provider"; `limit_source` is "`openrouter_guardrail_budget`,
+  `openrouter_workspace_budget`, or `openrouter_key_limit`"; of `remedy_hint`: "branch on `limit_source`, not on this
+  text".
+- Handling 402 errors: "`openrouter_key_limit` means the API key's credit limit is exhausted. `openrouter_credits`
+  means your balance cannot cover the request, or the single request is too expensive for your in-flight budget."
+- The in-flight budget applies to "accounts whose balance is below a threshold, and, while the mechanism is being
+  rolled out, newer accounts without an established spending history"; "It does not apply to requests to free models".
+- Budget limits: OpenRouter "checks them in this order on every paid request"; "`limit` and `limit_remaining` keep
+  describing only the key's own limit."
+The two pages disagree on the status of a spent key limit (a 403 under "Budget errors", a 402 under "Handling 402
+errors"); the rules below accept either.
+
+**C18. Errors coded 403 (replaces, in C11, "a 403 with a `limit_source`, or whose message names a spent budget or
+limit, a budget stop" and "any other 403, a content-filter failure").**
+- An error is sorted in this order: `reasons` in its metadata, a moderation flag (§9, unchanged); a 402 or 403 whose
+  `metadata.limit_source` is `openrouter_key_limit`, a budget stop of the arm (C19); a 402 whose `limit_source` is
+  `openrouter_in_flight_budget`, waited out (C11); a 402 or 403 with any other `limit_source` (a guardrail or workspace
+  budget, the account's balance), an account condition; the free daily limit (§9, C10); a 403 whose
+  `metadata.error_type` is `content_policy_violation` or `refusal`, a content-filter refusal of that one request (C12,
+  C20); 401, any other 402, a 400 whose `error_type` is `token_limit_exceeded`, and a 4xx whose own message names the
+  data policy, a privacy setting or a guardrail, account conditions (§9); any other 403 (`permission_denied`, a
+  guardrail block, a body that is not the API's JSON such as a proxy's or a CDN's page), an infrastructure or
+  permission condition; 408, 429 and 5xx, waited out; any other 3xx or 4xx, a rejection.
+- An infrastructure or permission condition is handled as an account condition: it is journaled as such
+  (`kind: forbidden` in `sent.jsonl`, with the status, the error type and the message), the run stops, the request
+  keeps its sends and a later `--run` tries it again; it never closes a model, never counts toward the 24-hour rule
+  and is not one of the 150 errors. No 403 is a rejection, and no 403 other than the two filter types is a
+  content-filter refusal.
+- Message text never sorts an error into a budget stop or a content-filter refusal. The provider's raw payload
+  (`metadata.raw`) is kept in the record but no longer sorts an error: the account phrases of §9 and the per-minute
+  429 (C10) are read in OpenRouter's own message only. Only the first-request rule of §9, which leaves out a field the
+  error names, still reads the raw payload, since a provider names its unsupported parameter there.
+- `make check` fails on a content-filter refusal journaled with a status other than 403 or an error type other than
+  these two, and on a key-limit stop (in `sent.jsonl` or in the run log) without `limit_source`
+  `openrouter_key_limit`.
+
+**C19. Budget stops (replaces C13's first point where they differ; adds to C1 and C15).**
+- Only the branch key's own limit makes a budget stop of an arm: a 403 or a 402 whose `limit_source` is
+  `openrouter_key_limit` (the documentation names both statuses). That limit is the registered cap (exactly 15 USD,
+  never reset: C15) and cannot be raised. C13 then applies unchanged: the run and the arm stop, no request of that arm
+  is sent after it, no model is closed by it, and `--close-incomplete` may close a model of that arm as "stopped by
+  the budget".
+- A guardrail or workspace budget and the account's balance (`openrouter_credits`) are the account's configuration,
+  which the author can change (remove the budget, add credits), and a guardrail budget can reset; they are account
+  conditions, which stop the run and close no model. The review proposed counting them as budget stops too; a budget
+  stop is final for the whole arm, and this Correction keeps it for the one limit that cannot change.
+- The paid arm also refuses to start on a key reading whose `budgets` or `effective_budget` names a budget other than
+  the key's own limit (scope `key_limit`). This refusal closes nothing.
+- A paid model whose key reading is as registered but whose `limit_remaining` is less than the worst case of the
+  model's remaining requests plus 1 USD (C1) is closed by the budget before any request of that run ("stopped by the
+  budget: the key's remaining limit in OpenRouter (… USD) did not cover the worst case of the model's remaining
+  requests (… USD) plus 1.00", with "not run: " before it if it has no answer, and a `budget_stop` with scope `key` in
+  the run log), as the caps of §7 close a model before it starts. Before, the runner only refused, so that model could
+  neither start nor be closed and the paid models after it waited for ever. The next model of the queue is then tried
+  with its own worst case. Every other refusal of the key reading (no limit, a limit other than 15 USD, a resetting
+  limit, a missing field, a failed reading, another budget) stays a refusal that closes nothing: the author can
+  correct it.
+- `--close-incomplete` closes a model as stopped by the budget only after a key-limit stop of its arm recorded from
+  the structured field, or after the branch cap (C13); no model that never ran is closed on a text match.
+
+**C20. A provider's content filter: the 24-hour rule (replaces C12's second and third points where they differ).**
+- A request refused by a content filter is sent again by a later run of the model, once per run, until it is answered
+  or its refusal is final. The refusal is final when a second refusal comes at least 24 hours after the first by the
+  server's date headers, as §9's rule for a repeated rejection requires (Correction, B2), so that the moment of a run
+  cannot pick the result; a refusal without a server date does not count toward it. Runs minutes or hours apart close
+  nothing.
+- The model is closed, as C12 says, when the work list ends and every missing request has had its one resend served
+  or has a final refusal; the reason reads "… request(s) refused by the provider's content filter on 2 runs at least 24
+  hours apart". On a free model each later run spends one request of the day's quota per refused request.
+- `make check` fails if a request is sent after its refusal became final.
+- The review also proposed stopping a run as an account condition after five content-filter refusals in a row,
+  without counting them. This Correction does not: with the 24-hour rule, and with other 403s no longer read as a
+  filter, a quick series cannot close a model; refusals of the same requests that persist for a day are the filter's
+  behaviour, which C12 reports; and a series stopped and never counted could leave a model that can never be closed.
+
+**C21. Smaller points.**
+- **One overrun, one charge.** `make check` matches each journaled overrun with one spend entry only, so an overrun
+  line written twice cannot account for its excess twice, and it fails on a paid model with more than one overrun
+  entry (the first closes it).
+- **Finite numbers.** A key reading's `limit` and `limit_remaining`, and a listing's `max_completion_tokens`, count only
+  as finite numbers: NaN and infinity, which a JSON reader may accept, fail "exactly 15 USD" and the remaining-limit
+  check.
+- **`token_limit_exceeded`** (a 400) is an account condition (C18), not a rejection.
+- **The in-flight 402** is waited out as C11 says, journaled with its `limit_source`, and not counted among the 150
+  error answers of §9: it reports the account's settling spend, which the documentation applies to newer accounts with
+  a small balance, as the dedicated account of C9 may be. Its waits still count toward the four retries of one
+  request, after which the run stops and can be resumed.
+- **Usage on an HTTP error.** The body of an HTTP error is read for `usage`, as the body of an error inside a 200
+  already was; a failed request whose error reports usage is charged by it, as C12 says ("released unless the error
+  reports usage"); otherwise its reservation is released.
+- **One key for both arms.** The free and the paid arm use the one dedicated key (C15, C16). The documentation says
+  the budgets are checked "on every paid request" and that a spent key limit is refused "before it reaches a
+  provider"; it does not say whether a spent key limit also refuses free models. If it does, an overrun of the paid
+  arm that spends the key's 15 USD while free models are open stops the free arm too (C13), and its open models can
+  then only be closed as stopped by the budget. The room kept under the branch cap for one overrun (C3) means this
+  needs OpenRouter's accounting to exceed the code's own by more than that room. The schedule of §10 is not changed;
+  the checklist names the order of the arms as the operator's choice that removes the risk (the free queue closed
+  before the first paid request).
+- **Not changed.** C12's choice stands: a final content-filter refusal is a deviation of that request, not an answer,
+  and the report counts such refusals per model (C17). The review's suggestion of a sensitivity row that scores them
+  as no money back is not added.
+- **Tests.** `tests/test_cloud.py` tests each point of C18–C21, with the review's probes R1–R4 as tests: the documented
+  403 and 402 shapes sorted by their structured fields only (R1); a series of 403s that are not a filter's stopping
+  each run and closing nothing, and filter refusals minutes apart closing nothing (R2); a filter refusal whose raw text
+  names a limit stopping no arm (R3); a spent key limit reported as a 402 stopping the arm, and a short remaining limit
+  closing the paid model so that the queue goes on (R4); and each smaller point.

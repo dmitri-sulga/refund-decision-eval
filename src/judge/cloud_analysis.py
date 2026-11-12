@@ -16,7 +16,8 @@ need them computed after its results are seen; item 5 (tokens per second) is not
 summary also counts the "above" labels that hold at the corrected level (M6), and the key's limit is read from
 GET /api/v1/key (B1). Correction 2 (C17): each model's recorded deviations are counted and printed (overruns,
 quarantined answers, resends, content-filter refusals, fields left out, answers without a provider field, free runs on
-another key), and the key readings printed are those of the paid runs.
+another key), and the key readings printed are those of the paid runs. Correction 3 (C20): a request counts as refused
+on two runs only when the second refusal came at least 24 hours after the first by the server's dates.
 
 python -m judge.cloud_analysis            # writes results/models/cloud/analysis.json and prints table and text
 """
@@ -87,7 +88,8 @@ def account(run_log: list[dict]) -> dict:
 DEVIATION_WORDS = (("overruns", "overrun", "overruns"), ("quarantined", "answer kept in quarantine",
                                                              "answers kept in quarantine"),
                    ("resends", "resend", "resends"), ("filtered", "content-filter refusal", "content-filter refusals"),
-                   ("filtered_final", "request refused on two runs", "requests refused on two runs"),
+                   ("filtered_final", "request refused on two runs at least 24 hours apart",
+                    "requests refused on two runs at least 24 hours apart"),
                    ("provider_not_reported", "answer without a provider field", "answers without a provider field"),
                    ("key_differs", "free run on another key than the registered one",
                     "free runs on another key than the registered one"))
@@ -97,15 +99,16 @@ def deviations(model: str, journal: list[dict], run_log: list[dict], quarantine:
                answers: list[dict]) -> dict:
     """Correction 2, C17 (the review's m-g): the counts the plan says the report lists (C3, C4, section 9)."""
     mine = [e for e in journal if XM.split_key(e.get("key", "||"))[0] == model]
-    per_key: dict[str, int] = {}
+    per_key: dict[str, list[dict]] = {}
     for e in mine:
         if e.get("kind") == "filtered":
-            per_key[e["key"]] = per_key.get(e["key"], 0) + 1
+            per_key.setdefault(e["key"], []).append(e)
     return {"overruns": sum(e.get("kind") == "overrun" for e in mine),
             "quarantined": sum(r.get("model") == model for r in quarantine),
             "resends": sum(e.get("kind") == "resend" for e in mine),
-            "filtered": sum(per_key.values()),
-            "filtered_final": sum(n >= K.FILTER_TRIES for n in per_key.values()),
+            "filtered": sum(len(v) for v in per_key.values()),
+            # Correction 3, C20: final only at a second refusal at least 24 hours after the first (server dates)
+            "filtered_final": sum(K.filter_final(v) for v in per_key.values()),
             "provider_not_reported": sum(1 for r in answers if r.get("provider") is None and not r.get("moderated")),
             "key_differs": sum(1 for e in run_log if e.get("event") == "deviation" and e.get("kind") == "key_differs"
                                and e.get("model") == model),

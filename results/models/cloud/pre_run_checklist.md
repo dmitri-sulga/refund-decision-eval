@@ -3,18 +3,21 @@
 Written with the amendment, before any request of the branch; updated with the amendment's Correction after the first
 independent review (`a192234` reviewed; its findings B1, B2, M1–M7 and m1–m11 are answered by the Correction, C1–C10),
 and with Correction 2 after the second (`c01188a` reviewed; its findings MAJOR-1 to MAJOR-3 and m-a to m-m are answered
-by Correction 2, C11–C17).
+by Correction 2, C11–C17), and with Correction 3 after the third (`0287331` reviewed; its findings MAJOR-1 to MAJOR-3
+and m-1 to m-7 are answered by Correction 3, C18–C21, which also records the documentation it was checked against on
+2026-11-12).
 The reviewer is a separate session that did not write this code. Every item is checked against the files and the public documentation, not against this list's wording. A
 reviewer who finds a problem writes it down with the file and line; nothing is fixed silently, and any fix is made
 before publication and recorded in `docs/deviations.md`.
 
 ## A. The plan and the record
 1. `docs/analysis_plan_models.md`: lines 1–779 (lines 1–149, Amendment 1 and Amendment 2) are byte-identical to
-   `60dfe9b`, lines 780–1094 (Amendment 3 as first reviewed) to `a192234`, and lines 1095–1239 (the Correction as
-   reviewed the second time) to `c01188a`; each correction is only appended after them
+   `60dfe9b`, lines 780–1094 (Amendment 3 as first reviewed) to `a192234`, lines 1095–1239 (the Correction as
+   reviewed the second time) to `c01188a`, and lines 1240–1344 (Correction 2 as reviewed the third time) to
+   `0287331`; each correction is only appended after them
    (`cmp <(git show 60dfe9b:docs/analysis_plan_models.md) <(head -n 779 docs/analysis_plan_models.md)`, the same with
-   `a192234` and 1094 and with `c01188a` and 1239, and `git diff c01188a -- docs/analysis_plan_models.md` has no
-   removed line).
+   `a192234` and 1094, with `c01188a` and 1239 and with `0287331` and 1344, and
+   `git diff 0287331 -- docs/analysis_plan_models.md` has no removed line).
    `python -m judge.models --verify` passes (it checks lines 1–149 against `162909f`).
 2. Amendment 3 with its Correction says, and the code does, the same thing on every point (where they differ, the
    Correction holds): models and order (§2 table against
@@ -32,7 +35,14 @@ before publication and recorded in `docs/deviations.md`.
    `arm_stopped_by_key`, `preflight` and `close_incomplete`, C14 against `note_overrun`, `overrun_excess` and the
    spend checks of `verify`, C15 against `account_readings`, `paid_key_refusal` and `key_differs`, C17 against
    `streak_closes`, `only_pre_request_appends`, `listing_check` (`max_completion_tokens`), `KEY_PATTERN` and
-   `cloud_analysis` (`deviations`, `account`).
+   `cloud_analysis` (`deviations`, `account`); and Correction 3: C18 against `_http_failure`, `_error_from_json`
+   (`own_message` without the provider's raw text), `classify` (`FILTER_TYPES`, `ACCOUNT_TYPES`, the `forbidden`
+   verdict) and the checks of `verify` on journaled filter refusals and key-limit stops, C19 against `classify`
+   (`KEY_LIMIT_SOURCE`), `other_budgets`, `key_short`, `paid_key_refusal`, the key-short close in `_run` and
+   `close_incomplete`, C20 against `filter_final`, `filtered_by_key`, the end of `_run`, the content-filter check of
+   `verify` and `cloud_analysis.deviations`, C21 against `overrun_excess` and the overrun count in `verify`, `_num`,
+   `error_count` and the transient branch of `_run`, and `_http_failure` (usage). Correction 3 quotes the
+   documentation it rests on: re-read `api-reference/errors` and `api-reference/limits` on the day and compare.
 3. Nothing in the amendment or its Correction states a result: no answer of any model of the branch exists
    (`results/models/cloud/` holds only `registration.json`, `pre_run_checklist.md` and `snapshot/`).
 4. The twelfth-change entry in `docs/deviations.md`, the records in `results/post_run_changes.json` and the README's
@@ -82,8 +92,10 @@ before publication and recorded in `docs/deviations.md`.
     `test_an_output_overrun_on_a_free_model_is_journaled_and_the_run_goes_on`,
     `test_make_check_accepts_a_model_over_its_cap_only_by_its_journaled_overrun` (C14: a model over its 5 USD cap
     passes only by its matching overrun),
-    `test_a_quarantined_answer_above_its_reservation_is_an_overrun_and_closes_a_paid_model` and
-    `test_an_error_inside_a_200_without_usage_is_charged_on_a_paid_model_only`. A free model's reported cost is
+    `test_a_quarantined_answer_above_its_reservation_is_an_overrun_and_closes_a_paid_model`,
+    `test_an_error_inside_a_200_without_usage_is_charged_on_a_paid_model_only`,
+    `test_an_overrun_line_written_twice_does_not_hide_overspend` (C21: one spend entry per overrun, one overrun per
+    paid model) and `test_an_http_error_that_reports_usage_is_charged_by_it` (C21). A free model's reported cost is
     counted.
 15. The key: read only in `read_key` when a request is sent; sent only as `Authorization` with
     `add_unredirected_header`; redirects not followed; errors scrubbed; `main` prints no traceback; nothing under
@@ -91,9 +103,14 @@ before publication and recorded in `docs/deviations.md`.
     NOT open or print the real key file; at most `stat -f '%Sp' ~/.openrouter_key` (expect `-rw-------`).
 16. The key readings (`account_readings`) are `GET /api/v1/key` only (no `/credits`, which needs a management key),
     call no model and cost nothing; the paid arm refuses a key whose `limit` is null or not exactly 15 USD, whose
-    limit resets, whose reading leaves out `limit`, `limit_remaining` or `limit_reset`, or whose `limit_remaining` is
-    short (C1, C15); a free run on a key whose reading differs from `key_reading` is a recorded deviation (C15).
-    Confirm the field names against `api-reference/limits` on the day.
+    limit resets, whose reading leaves out `limit`, `limit_remaining` or `limit_reset`, or whose `budgets` or
+    `effective_budget` names a budget other than `key_limit` (C1, C15, C19), and NaN or infinity is no reading
+    (`test_nan_and_infinity_are_not_key_readings`, C21); a key configured as registered whose `limit_remaining` is
+    short closes the paid model by the budget, so the queue goes on
+    (`test_a_short_remaining_key_limit_closes_the_paid_model_so_the_queue_goes_on`,
+    `test_a_paid_model_refuses_a_key_under_a_guardrail_or_workspace_budget`, C19); a free run on a key whose reading
+    differs from `key_reading` is a recorded deviation (C15). Confirm the field names against `api-reference/limits`
+    on the day.
 
 ## E. Held-out, order, stops
 17. No held-out complaint can be sent: `test_an_injected_held_out_id_sends_journals_and_spends_nothing` passes, and
@@ -109,11 +126,23 @@ before publication and recorded in `docs/deviations.md`.
     `test_the_listing_check_compares_max_completion_tokens_on_paid_models`).
 19. Free-tier handling: the daily allowance stops a run before OpenRouter's limit; a 429 with
     `X-RateLimit-Remaining: 0` on a free model is a pause, not an error, unless it is the per-minute limit (C10); a
-    data-policy refusal is an account condition and cannot close a model. Errors coded 403 (C11–C13): a spent key limit
-    stops the arm and closes no model by itself (`test_a_spent_key_limit_stops_the_arm_and_never_closes_a_model_as_rejected`);
-    a 403 without moderation `reasons` (a provider's filter) fails that one request, the run goes on, and the request
-    is sent once more on a later run (`test_a_content_filter_403_fails_one_request_and_the_run_goes_on`); only a
-    moderation flag with `reasons` is scored as an answer (`test_403_and_402_are_sorted_by_what_they_report`).
+    data-policy refusal is an account condition and cannot close a model. Errors coded 403 and 402 (C11–C13 as
+    corrected by C18–C20), sorted by their structured fields only
+    (`test_documented_403_and_402_shapes_are_sorted_by_their_structured_fields_only`,
+    `test_403_and_402_are_sorted_by_what_they_report`): only `limit_source` `openrouter_key_limit`, on a 403 or a
+    402, stops the arm, and it closes no model by itself
+    (`test_a_spent_key_limit_stops_the_arm_and_never_closes_a_model_as_rejected`,
+    `test_a_key_limit_spent_with_a_402_stops_the_arm_and_its_models_can_be_closed`); message text and the provider's
+    raw text stop nothing (`test_a_content_filter_whose_raw_text_names_a_limit_stops_no_arm`); a 403 with
+    `error_type` `content_policy_violation` or `refusal` fails that one request, the run goes on, and the refusal is
+    final only at a second refusal at least 24 hours after the first by the server's dates
+    (`test_a_content_filter_403_fails_one_request_and_the_run_goes_on`,
+    `test_content_filter_refusals_minutes_apart_do_not_close_a_model`); any other 403 (`permission_denied`, a
+    guardrail block, a CDN's page) stops the run as an infrastructure or permission condition and closes nothing
+    (`test_a_storm_of_other_403s_stops_each_run_and_never_closes_a_model`); a 400 `token_limit_exceeded` is an account
+    condition (`test_a_token_limit_exceeded_400_is_an_account_condition_not_a_rejection`); the in-flight 402 is not one
+    of the 150 errors (`test_the_in_flight_402_is_not_counted_among_the_error_answers`); only a moderation flag with
+    `reasons` is scored as an answer.
 20. Closing: only the conditions of §9 as corrected; the 24-hour rules read the server's `date` headers and need no
     answer (and, for the listing, no passing check) in between and hourly checks (C2); `make check` fails if the
     journals' times go backwards.
@@ -130,8 +159,8 @@ A "no" in item 26 or a "drop" in item 27 is made by a further correction of Amen
 it; until then the branch is registered as §2 lists it. The reviewer checks that every blank below is filled.
 24. The key: a key created for this branch only, with a credit limit of **exactly 15 USD** and `limit_reset` null (it
     never resets), set in OpenRouter, preferably in a separate OpenRouter account or workspace (C1, C9, C15). The
-    runner refuses a paid model on any other limit, on a resetting limit, and on a reading that leaves out `limit`,
-    `limit_remaining` or `limit_reset`.
+    runner refuses a paid model on any other limit, on a resetting limit, on a reading that leaves out `limit`,
+    `limit_remaining` or `limit_reset`, and on a key under a guardrail or workspace budget (C19).
     Key created as stated: ______ (yes / no); account or workspace: ______.
 25. The privacy setting for free and for paid models (C9), where it is set, and when:
     free: ______ paid: ______ set in: ______ at ______ UTC.
@@ -140,7 +169,7 @@ it; until then the branch is registered as §2 lists it. The reviewer checks tha
 27. The reference row `google/gemma-4-31b-it:free` (600 free requests, about 0.6 of a day's quota; descriptive only,
     not compared): ______ (keep / drop).
 28. One reading of `python -m judge.cloud --status` on the dedicated key (`limit` 15, `limit_reset` null,
-    `free_model_daily_requests.limit`), copied into `registration.json` as `key_reading` and published with the
+    `budgets` with no scope other than `key_limit`, `free_model_daily_requests.limit`), copied into `registration.json` as `key_reading` and published with the
     registration (C10); the runner refuses while it is empty. Agreed: ______ (yes / no); reading taken at
     ______ UTC (filled at registration). If the free daily limit is 50, not 1,000, the schedule of §10 does not hold.
 
@@ -152,6 +181,10 @@ it; until then the branch is registered as §2 lists it. The reviewer checks tha
 31. `python -m judge.cloud --check-listings` run on the start day, before the first request, to re-read the live
     listings of all seven models (C2); its records committed. A model whose check fails is not replaced; it waits, and
     `--watch-listing MODEL` decides whether it is ever closed.
+32. The order of the arms (Correction 3, C21, "One key for both arms"): both arms use the one key, and if a spent key
+    limit also refuses free models, an overrun of the paid arm that spends the key's 15 USD while free models are open
+    stops the free arm. Running the free queue to its end before the first paid request removes that risk; §10 allows
+    either order, and the runs record the order used.
 
 ## I. What the reviewer reports
 A list of findings, each with severity (blocks publication / should fix / note), file and line, and evidence. Then a

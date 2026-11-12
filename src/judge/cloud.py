@@ -14,11 +14,18 @@ is never forwarded on a redirect (redirects are not followed), and it is never w
 error message: errors are rebuilt from the response body with the key (held in memory only after a request read it)
 and anything shaped like a key removed.
 
-Corrected twice before any request (Amendment 3, Correction and Correction 2). Correction 2: a 403 never closes a model
-by itself (a spent key limit stops the arm; any other 403 without moderation `reasons`, a provider's content filter, is
-a failure of that one request, recorded and sent again once on a later run); `make check` accepts a model over its
-5 USD cap only by its journaled overrun; the paid arm needs a key limited to exactly 15 USD whose reading reports every
-field it relies on; a free run on another key than the registered one is a recorded deviation.
+Corrected three times before any request (Amendment 3, Correction, Correction 2 and Correction 3). Correction 2: a 403
+never closes a model by itself (a spent key limit stops the arm; any other 403 without moderation `reasons`, a
+provider's content filter, is a failure of that one request, recorded and sent again once on a later run); `make check`
+accepts a model over its 5 USD cap only by its journaled overrun; the paid arm needs a key limited to exactly 15 USD
+whose reading reports every field it relies on; a free run on another key than the registered one is a recorded
+deviation. Correction 3 (C18-C21): errors are sorted by the structured fields the documentation says to branch on, never
+by message text: a 403 is a content-filter refusal only when `metadata.error_type` is `content_policy_violation` or
+`refusal`, and any other 403 (a permission, a guardrail block, a page that is not the API's JSON) stops the run as an
+infrastructure or permission condition that closes no model; a budget stop of the arm only when `metadata.limit_source`
+is `openrouter_key_limit` (a 403 or a 402); a second filter refusal of a request counts only at least 24 hours after the
+first by the server's dates; a paid model whose remaining worst case the key's remaining limit cannot cover is closed by
+the budget, so the queue behind it can go on.
 
 python -m judge.cloud --verify                          # the checks `make check` runs; no network
 python -m judge.cloud --estimate                        # projected and worst-case cost; no network
@@ -140,9 +147,18 @@ ACCOUNT_PHRASES = ("data policy", "guardrail", "privacy setting")
 # 403 "Budget limit exceeded" with metadata.limit_source; a 402 with limit_source openrouter_in_flight_budget is
 # temporary (Retry-After); a provider's content filter is a 403 with metadata.error_type and no `reasons`
 IN_FLIGHT_SOURCE = "openrouter_in_flight_budget"
-BUDGET_MESSAGE = re.compile(r"budget limit|key limit|credit limit|limit exceeded", re.I)
-FILTER_TRIES = 2                                      # a request refused by a content filter: sent on two runs at most
-NOT_SERVED = ("transient", "rejected", "account", "quota", "refused", "mismatch", "filtered", "key_limit")
+# Correction 3, C18-C19 (api-reference/errors and limits, read again 2026-11-12 15:26 UTC): the documentation says to
+# "branch on `limit_source`, not on this text"; a 402 or 403 with limit_source openrouter_key_limit is the branch key's
+# own limit spent (the registered cap: exactly 15 USD, never reset), the only budget stop of an arm. A provider's
+# content filter is a 403 whose metadata.error_type is one of FILTER_TYPES; `permission_denied`, a guardrail block or a
+# body that is not the API's JSON is not. `token_limit_exceeded` (400) is "a token budget enforced by OpenRouter (e.g.
+# credit-based cap)", an account condition, not a rejection.
+KEY_LIMIT_SOURCE = "openrouter_key_limit"
+FILTER_TYPES = ("content_policy_violation", "refusal")
+ACCOUNT_TYPES = ("token_limit_exceeded",)
+FILTER_TRIES = 2                                      # a request refused by a content filter: final after two refusals
+#                                                       at least REPEAT_GAP_S apart by the server's dates (C20)
+NOT_SERVED = ("transient", "rejected", "account", "quota", "refused", "mismatch", "filtered", "key_limit", "forbidden")
 # a key, or a key's label as GET /api/v1/key shows it (the key's first characters, three dots, its last ones:
 # Correction 2, C17)
 KEY_PATTERN = re.compile(r"sk-or-[A-Za-z0-9_\-]*\.{3}[A-Za-z0-9_\-]*|sk-or-[A-Za-z0-9_\-]{8,}|sk-[A-Za-z0-9_\-]{20,}")
@@ -154,7 +170,10 @@ VERDICT_WORDS = {"rejected": "the request was rejected",
                  "unavailable": "the model or its pinned endpoint is no longer listed as registered",
                  "mismatch": "an answer from another model or provider (kept in quarantine, not scored)",
                  "key_limit": "the branch key's limit in OpenRouter was spent (a budget stop of the arm)",
-                 "filtered": "the provider's content filter refused the request (a deviation of that request)"}
+                 "filtered": "the provider's content filter refused the request (a deviation of that request)",
+                 "forbidden": ("a 403 that is neither the branch key's spent limit nor a content filter (a permission, "
+                               "a guardrail block or a page that is not the API's JSON): an infrastructure or "
+                               "permission condition")}
 PROTECTED = ("docs/analysis_plan_models.md", "src/judge/cloud.py", "src/judge/cloud_select.py",
              "src/judge/cloud_analysis.py", "src/judge/hosted.py", "src/judge/models.py",
              "src/judge/models_analysis.py", "src/judge/prompts.py", "src/judge/llm.py", "src/judge/judgments.py",
@@ -216,8 +235,13 @@ class CloudError(Exception):
     """A failed request, rebuilt without the request (no headers, no key)."""
 
     def __init__(self, status, message, request_id=None, etype=None, maybe_billed=False, retry_after=None,
-                 usage=None, date=None, remaining=None, moderation=None, in_200=False, limit=None, limit_source=None):
-        self.status, self.message, self.request_id, self.etype = status, scrub(message)[:500], request_id, etype
+                 usage=None, date=None, remaining=None, moderation=None, in_200=False, limit=None, limit_source=None,
+                 raw=None):
+        # `own_message` is OpenRouter's own message; `message` adds the provider's raw payload for the record. Rules
+        # that read text read only `own_message` (Correction 3, C19: the provider's raw text never sorts an error)
+        self.own_message = scrub(message)[:500]
+        full = str(message) + (f" ({str(raw)[:200]})" if raw else "")
+        self.status, self.message, self.request_id, self.etype = status, scrub(full)[:500], request_id, etype
         self.maybe_billed, self.retry_after, self.usage, self.date = maybe_billed, retry_after, usage, date
         self.remaining, self.moderation, self.in_200, self.limit = remaining, moderation, in_200, limit
         self.limit_source = limit_source
@@ -320,7 +344,7 @@ def _error_from_json(err: dict, status, hdrs, in_200=False, usage=None) -> Cloud
     moderation = meta if "reasons" in meta else None
     code = err.get("code") if isinstance(err.get("code"), int) else status
     raw = meta.get("raw")
-    message = str(err.get("message") or "") + (f" ({str(raw)[:200]})" if raw else "")
+    message = str(err.get("message") or "")
     try:
         retry_after = float(hdrs.get("retry-after")) if hdrs and hdrs.get("retry-after") else None
     except ValueError:
@@ -333,7 +357,7 @@ def _error_from_json(err: dict, status, hdrs, in_200=False, usage=None) -> Cloud
                       retry_after=retry_after, usage=usage, date=hdrs.get("date") if hdrs else None,
                       remaining=hdrs.get("x-ratelimit-remaining") if hdrs else None, moderation=moderation,
                       in_200=in_200, limit=hdrs.get("x-ratelimit-limit") if hdrs else None,
-                      limit_source=str(limit_source) if limit_source is not None else None)
+                      limit_source=str(limit_source) if limit_source is not None else None, raw=raw)
 
 
 class OpenRouterTransport:
@@ -402,12 +426,16 @@ def _http_failure(exc: urllib.error.HTTPError) -> CloudError:
         raw = exc.read().decode("utf-8", "replace")
     except Exception:                            # noqa: BLE001
         raw = ""
+    usage = None
     try:
-        err = json.loads(raw)["error"]
+        doc = json.loads(raw)
+        err = doc["error"]
         assert isinstance(err, dict)
-    except Exception:                            # noqa: BLE001
+        # Correction 3, C21 (the review's m-6): an HTTP error that reports usage is charged by it, as C12 says
+        usage = _valid_usage(doc.get("usage"))
+    except Exception:                            # noqa: BLE001 - not the API's JSON (a proxy's or a CDN's page)
         err = {"message": raw[:300] or str(exc.reason)}
-    e = _error_from_json(err, exc.code, exc.headers)
+    e = _error_from_json(err, exc.code, exc.headers, usage=usage)
     e.status = exc.code                          # the HTTP status decides; error.code may repeat it
     return e
 
@@ -422,40 +450,45 @@ def per_minute(exc: CloudError) -> bool:
             return True
     except ValueError:
         pass
-    return bool(re.search(r"per[- ]?min|per minute|/min", exc.message, re.I))
-
-
-def budget_spent(exc: CloudError) -> bool:
-    """Correction 2, C11: a 403 that reports a spent budget (the key's own limit, a guardrail or a workspace budget):
-    metadata.limit_source is set, or the message says so ("Budget limit exceeded ... $X of $Y used")."""
-    return (exc.limit_source is not None and exc.limit_source != IN_FLIGHT_SOURCE) or bool(
-        BUDGET_MESSAGE.search(exc.message))
+    return bool(re.search(r"per[- ]?min|per minute|/min", exc.own_message, re.I))   # OpenRouter's own text (C18)
 
 
 def classify(exc: BaseException, tag: str) -> tuple[str, str]:
-    """Amendment 3, section 9, as corrected (Correction 2, C11). 'moderated': OpenRouter's moderation flag, an error
-    whose metadata gives `reasons` (an answer, malformed, scored no money back). 'key_limit': a 403 reporting a spent
-    budget (stops the arm; never closes a model by itself). 'quota': the free models' daily limit (stops; resumes after
-    the reset). 'account': 401, 402 (except the temporary in-flight budget), a 4xx naming the account's data policy,
-    privacy setting or a guardrail, or nothing sent. 'filtered': any other 403 (a provider's content filter: a failure
-    of that one request, recorded as a deviation; never a rejection). 'transient': 408, 429, 5xx and the in-flight 402,
-    waited out. 'rejected': any other 3xx or 4xx. 'lost': anything else."""
+    """Amendment 3, section 9, as corrected (Correction 2, C11, and Correction 3, C18-C21). Only structured fields
+    sort an error into a stop of the arm or a deviation; OpenRouter's own message (never the provider's raw payload)
+    is read only for the registered account phrases and the per-minute 429.
+    'moderated': OpenRouter's moderation flag, an error whose metadata gives `reasons` (an answer, malformed, scored no
+    money back). 'key_limit': a 402 or 403 whose metadata.limit_source is openrouter_key_limit, the branch key's own
+    limit spent (stops the arm; never closes a model by itself). 'transient': 408, 429, 5xx and the 402 whose
+    limit_source is openrouter_in_flight_budget, waited out. 'account': 401, any other 402, a 402 or 403 with any other
+    limit_source (a guardrail or workspace budget, the account's balance: the owner's to change), a 400
+    `token_limit_exceeded`, a 4xx whose own message names the data policy, a privacy setting or a guardrail, or nothing
+    sent. 'quota': the free models' daily limit (stops; resumes after the reset). 'filtered': a 403 whose
+    metadata.error_type is content_policy_violation or refusal (a provider's content filter: a failure of that one
+    request, recorded as a deviation; never a rejection). 'forbidden': any other 403 (`permission_denied`, a guardrail
+    block, a page that is not the API's JSON): stops the run like an account condition, closes no model, never a
+    rejection. 'rejected': any other 3xx or 4xx. 'lost': anything else."""
     if not isinstance(exc, CloudError):
         return "lost", scrub(f"{type(exc).__name__}: {exc}")[:500]
     s = exc.status
     if exc.moderation is not None:
         return "moderated", exc.message
-    if s == 403 and budget_spent(exc):
+    if s in (402, 403) and exc.limit_source == KEY_LIMIT_SOURCE:
         return "key_limit", exc.message
     if s == 402 and exc.limit_source == IN_FLIGHT_SOURCE:
         return "transient", exc.message
+    if s in (402, 403) and exc.limit_source is not None:
+        return "account", exc.message
     if s == 429 and tag in FREE and str(exc.remaining) == "0" and not per_minute(exc):
         return "quota", exc.message
+    if s == 403 and exc.etype in FILTER_TYPES:
+        return "filtered", exc.message
     if s in ACCOUNT_STATUSES or (s is not None and 400 <= s < 500
-                                 and any(p in exc.message.lower() for p in ACCOUNT_PHRASES)):
+                                 and any(p in exc.own_message.lower() for p in ACCOUNT_PHRASES)) \
+            or (s == 400 and exc.etype in ACCOUNT_TYPES):
         return "account", exc.message
     if s == 403:
-        return "filtered", exc.message
+        return "forbidden", exc.message
     if s is not None and (s in TRANSIENT_STATUSES or 500 <= s < 600):
         return "transient", exc.message
     if s is not None and 300 <= s < 500:
@@ -617,7 +650,10 @@ def resend_served(entries) -> bool:
 
 
 def error_count(journal, tag) -> int:
-    return sum(1 for e in journal if e.get("kind") == "transient" and split_key(e["key"])[0] == tag)
+    """The waited-out error answers that count toward MAX_ERRORS_PER_MODEL. The in-flight 402 is not one of them
+    (Correction 3, C21, the review's m-5): it reports the account's settling spend, not the model or its endpoint."""
+    return sum(1 for e in journal if e.get("kind") == "transient" and split_key(e["key"])[0] == tag
+               and e.get("limit_source") != IN_FLIGHT_SOURCE)
 
 
 def free_sends_today(journal) -> int:
@@ -736,7 +772,7 @@ def listing_check(tag: str, getter=public_get) -> tuple[str | None, str | None, 
         return f"the pinned endpoint {ep['tag']} of {tag} now costs more than registered", date, status
     # Correction 2, C17: the room kept for one overrun answer (C3) rests on the registered max_completion_tokens
     mct = e.get("max_completion_tokens")
-    if tag not in FREE and (not _num(mct) or mct > ep["max_completion_tokens"]):
+    if tag not in FREE and (not _num(mct) or mct > ep["max_completion_tokens"]):   # _num: finite (C21)
         return (f"the pinned endpoint {ep['tag']} of {tag} now lists max_completion_tokens {mct}, not at most the "
                 f"registered {ep['max_completion_tokens']} on which the overrun room rests"), date, status
     return None, date, status
@@ -928,13 +964,49 @@ def account_readings(transport) -> dict:
 
 
 def _num(x) -> bool:
-    return isinstance(x, (int, float)) and not isinstance(x, bool)
+    """A finite number, not a bool: NaN and infinity (which json.loads accepts) are not readings (Correction 3, C21,
+    the review's m-2)."""
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+
+
+def other_budgets(before: dict) -> list[str]:
+    """Correction 3, C19: the scopes of the budgets GET /api/v1/key lists for the key other than the key's own limit
+    (a guardrail or workspace budget). The paid arm runs only under the key's own limit."""
+    out = []
+    for b in (before.get("budgets") if isinstance(before.get("budgets"), list) else []) + (
+            [before["effective_budget"]] if isinstance(before.get("effective_budget"), dict) else []):
+        scope = b.get("scope") if isinstance(b, dict) else None
+        if scope != "key_limit" and str(scope) not in out:
+            out.append(str(scope))
+    return out
+
+
+def key_short(before: dict, worst: float) -> bool:
+    """Correction 3, C19 (the review's MAJOR-3, R4): the key is configured as registered but its remaining limit, a
+    finite number, does not cover the model's remaining worst case plus CREDIT_MARGIN_USD. The key's limit cannot be
+    raised (exactly 15 USD, never reset: C15), so this is a budget stop that closes the model, as the caps of section 7
+    close one before it starts; the next model of the queue may then start."""
+    rem = before.get("limit_remaining")
+    return paid_key_config_refusal(before) is None and _num(rem) and rem < worst + CREDIT_MARGIN_USD
 
 
 def paid_key_refusal(tag: str, before: dict, worst: float) -> str | None:
-    """Correction, B1, as corrected by Correction 2, C15: a paid model starts only on a key whose limit is set in
-    OpenRouter to exactly the branch cap (15 USD), that never resets (`limit_reset` present and null), with at least
-    the model's remaining worst case plus 1 USD left. None if it may."""
+    """Correction, B1, as corrected by Correction 2, C15, and Correction 3, C19: a paid model starts only on a key
+    whose limit is set in OpenRouter to exactly the branch cap (15 USD), that never resets (`limit_reset` present and
+    null), under no guardrail or workspace budget, with at least the model's remaining worst case plus 1 USD left.
+    None if it may. A refusal for the remaining limit alone (`key_short`) closes the model; any other is resumable."""
+    why = paid_key_config_refusal(before)
+    if why:
+        return why
+    rem = before.get("limit_remaining")
+    if not _num(rem) or rem < worst + CREDIT_MARGIN_USD:
+        return (f"the key reports {rem} USD of its limit left, less than the worst case of the remaining requests "
+                f"({worst:.4f} USD) plus {CREDIT_MARGIN_USD:.2f}")
+    return None
+
+
+def paid_key_config_refusal(before: dict) -> str | None:
+    """The key's configuration as C1, C15 and C19 require, without its remaining limit. None if it holds."""
     if before.get("key_error"):
         return f"GET /api/v1/key failed ({before['key_error']})"
     missing = [f for f in PAID_KEY_FIELDS if f in (before.get("fields_missing") or ())]
@@ -948,10 +1020,10 @@ def paid_key_refusal(tag: str, before: dict, worst: float) -> str | None:
         return f"the key's limit is {before['limit']} USD, not exactly the branch cap of {CAP_USD:.0f} USD"
     if before.get("limit_reset") is not None:
         return f"the key's limit resets ({before['limit_reset']}); it must never reset"
-    rem = before.get("limit_remaining")
-    if not _num(rem) or rem < worst + CREDIT_MARGIN_USD:
-        return (f"the key reports {rem} USD of its limit left, less than the worst case of the remaining requests "
-                f"({worst:.4f} USD) plus {CREDIT_MARGIN_USD:.2f}")
+    others = other_budgets(before)
+    if others:
+        return (f"GET /api/v1/key lists a budget other than the key's own limit ({', '.join(others)}); the paid arm "
+                "runs only under the key's own limit of exactly 15 USD (remove the guardrail or workspace budget)")
     return None
 
 
@@ -1095,13 +1167,26 @@ def note_overrun(k, es, r, c, reserve, body, quarantined=False) -> None:
                "cost_over_reservation": c > reserve + 1e-12, "quarantined": quarantined, "without_answer": r is None})
 
 
-def filtered_counts(journal: list[dict], tag: str) -> dict[str, int]:
-    """Correction 2, C12: content-filter refusals per request of the model."""
-    out: dict[str, int] = {}
+def filtered_by_key(journal: list[dict], tag: str) -> dict[str, list[dict]]:
+    """Correction 2, C12: the content-filter refusals of each request of the model, in order."""
+    out: dict[str, list[dict]] = {}
     for e in journal:
         if e.get("kind") == "filtered" and split_key(e["key"])[0] == tag:
-            out[e["key"]] = out.get(e["key"], 0) + 1
+            out.setdefault(e["key"], []).append(e)
     return out
+
+
+def filtered_counts(journal: list[dict], tag: str) -> dict[str, int]:
+    return {k: len(v) for k, v in filtered_by_key(journal, tag).items()}
+
+
+def filter_final(refusals: list[dict]) -> bool:
+    """Correction 3, C20 (the review's MAJOR-1, R2): a request's content-filter refusal is final only when a second
+    refusal comes at least REPEAT_GAP_S (24 hours) after the first by the server's date headers, as the rejection rule
+    of section 9 requires (Correction, B2), so that the moment of a run cannot pick the result. Refusals without a
+    server date do not count toward it."""
+    times = [t for t in (H._server_seconds(e.get("server_date")) for e in refusals) if t is not None]
+    return len(times) >= FILTER_TRIES and max(times) - min(times) >= REPEAT_GAP_S
 
 
 def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict:
@@ -1139,6 +1224,18 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
             raise Refusal(f"{tag}: the projection {est['projected_usd']:.4f} USD does not fit under the "
                           f"{'branch' if scope == 'branch' else 'model'} cap; nothing was sent, and it is closed.")
         why = paid_key_refusal(tag, before, est["worst_case_usd"])
+        if why and key_short(before, est["worst_case_usd"]):
+            # Correction 3, C19 (the review's MAJOR-3, R4): the key's remaining limit cannot cover this model, and the
+            # limit cannot be raised: a budget stop that closes the model, so the queue behind it is not stuck
+            log_event({"event": "budget_stop", "model": tag, "scope": "key", "when": "before the run",
+                       "limit_remaining_usd": before.get("limit_remaining"),
+                       "worst_case_usd": est["worst_case_usd"], "margin_usd": CREDIT_MARGIN_USD})
+            reason = close_model(tag, f"stopped by the budget: the key's remaining limit in OpenRouter "
+                                      f"({before.get('limit_remaining')} USD) did not cover the worst case of the "
+                                      f"model's remaining requests ({est['worst_case_usd']:.4f} USD) plus "
+                                      f"{CREDIT_MARGIN_USD:.2f}")
+            raise Refusal(f"{tag}: {why}; nothing was sent, and it is closed ({reason}). The next model of the paid "
+                          "queue may be tried.")
         if why:
             raise Refusal(f"{tag}: {why}; nothing was sent.")
     else:
@@ -1153,8 +1250,9 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                "free_sends_allowed": allowance})
     drop = dropped_fields(tag)
     done, sends, last = 0, 0, [0.0]
-    # Correction 2, C12: content-filter refusals of earlier runs; a request refused on FILTER_TRIES runs is not sent again
-    filtered_before = filtered_counts(st["journal"], tag)
+    # Correction 2, C12, and Correction 3, C20: content-filter refusals of earlier runs; a request whose refusal is
+    # final (two refusals at least 24 hours apart by the server's dates) is not sent again
+    filtered_before = filtered_by_key(st["journal"], tag)
 
     def record_spend(entry):
         _append(SPEND, {"at": now(), "model": tag, **entry,
@@ -1167,7 +1265,7 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
 
     for version, split, item_id, rec, narrative in work_list(tag, sets, records):
         k = key(tag, version, item_id)
-        if k in st["cache"] or filtered_before.get(k, 0) >= FILTER_TRIES:
+        if k in st["cache"] or filter_final(filtered_before.get(k, [])):
             continue
         es = journal.get(k, [])
         served = [a for a in attempts(es) if a["served"]]
@@ -1229,9 +1327,10 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                     done += 1
                     break
                 # an error inside a 200 on a paid model is charged at its worst case when it reports no usage: the
-                # provider may have billed it (Correction 2, C17)
+                # provider may have billed it (Correction 2, C17); any error that reports usage is charged by it, as
+                # C12 says (Correction 3, C21, the review's m-6)
                 amount = None
-                if verdict == "lost" or (he and he.in_200 and (he.usage or tag not in FREE)):
+                if verdict == "lost" or (he and (he.usage or (he.in_200 and tag not in FREE))):
                     amount = cost(tag, he.usage) if he and he.usage else reserve
                     record_spend({"event": "charged", "key": k, "request_id": he.request_id if he else None,
                                   "cost_usd": round(amount, 10), "reservation": rid_,
@@ -1268,11 +1367,12 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                 if verdict == "filtered":
                     # Correction 2, C12: a failure of this one request, recorded as a deviation; the run goes on, and
                     # the request is sent once more on a later run
-                    n_f = filtered_before.get(k, 0) + 1
+                    n_f = len(filtered_before.get(k, [])) + 1
                     log_event({"event": "filtered", "model": tag, "key": k, "attempt": n_f,
                                "status": he.status, "error_type": he.etype, "reason": message[:300]})
                     print(f"[{tag} {version} {split}] {item_id} refused by the provider's content filter "
-                          f"(HTTP {he.status} {he.etype}), attempt {n_f} of {FILTER_TRIES}; the run goes on.",
+                          f"(HTTP {he.status} {he.etype}), refusal {n_f}; it is final only at a second refusal "
+                          "at least 24 hours after the first. The run goes on.",
                           flush=True)
                     break
                 if verdict == "rejected" and he is not None:
@@ -1283,7 +1383,8 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                         kind, retries = "send", 0
                         continue
                 if verdict == "transient":
-                    errors += 1
+                    if he is None or he.limit_source != IN_FLIGHT_SOURCE:
+                        errors += 1                  # the in-flight 402 is not an error answer (C21)
                     if retries < len(RETRY_DELAYS_S) and errors < MAX_ERRORS_PER_MODEL:
                         delay = min(max(RETRY_DELAYS_S[retries], he.retry_after or 0), RETRY_AFTER_MAX_S)
                         retries += 1
@@ -1368,20 +1469,23 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
         print(f"{tag}: all {len(expected)} answers are in ({spend_state()['computed']:.4f} USD so far). Commit and "
               "publish results/models/cloud/ before the next model.")
     else:
-        filt = filtered_counts(_jsonl(JOURNAL), tag)
-        again = sorted(k for k in missing if 0 < filt.get(k, 0) < FILTER_TRIES)
+        filt = filtered_by_key(_jsonl(JOURNAL), tag)
+        final = {k for k in missing if filter_final(filt.get(k, []))}
+        again = sorted(k for k in missing if filt.get(k) and k not in final)
         if again:
-            # Correction 2, C12: each request refused by a content filter is sent once more, on a later run
-            print(f"{tag}: {len(again)} request(s) refused by the provider's content filter on one run: "
-                  + ", ".join(again[:10]) + f". Each is sent once more by the next --run {tag}; nothing was closed.",
+            # Correction 2, C12, and Correction 3, C20: each request refused by a content filter is sent again by a
+            # later run, once per run, until it is answered or refused again at least 24 hours after its first refusal
+            print(f"{tag}: {len(again)} request(s) refused by the provider's content filter and not yet refused again "
+                  "24 hours later: " + ", ".join(again[:10]) + f". Each is sent once more by a later --run {tag}; a "
+                  "refusal is final only at least 24 hours after the first by the server's dates; nothing was closed.",
                   flush=True)
             return {"model": tag, "new_answers": done, "missing": len(missing), "filtered_to_send_again": len(again),
                     "spent_usd": round(spend_state()["computed"], 6)}
-        final = {k for k in missing if filt.get(k, 0) >= FILTER_TRIES}
         if not all(resend_served(journal.get(k, [])) for k in missing - final):
             raise Refusal(f"{tag}: a missing request has not had its one resend; nothing was closed.")
         parts = ([f"{len(missing - final)} request(s) unanswered after their one resend"] if missing - final else []) + (
-            [f"{len(final)} request(s) refused by the provider's content filter on {FILTER_TRIES} runs"] if final else [])
+            [f"{len(final)} request(s) refused by the provider's content filter on 2 runs at least 24 hours apart"]
+            if final else [])
         close_model(tag, "; ".join(parts))
     return {"model": tag, "new_answers": done, "missing": len(missing),
             "spent_usd": round(spend_state()["computed"], 6)}
@@ -1480,14 +1584,32 @@ def verify(records=None) -> list[str]:
                 if streak > len(RETRY_DELAYS_S):
                     problems.append(f"journal: {k} was retried more often than the rules allow")
                     break
-        # Correction 2, C12: a request refused by a content filter is sent on FILTER_TRIES runs at most
-        n_f = [n for n, e in enumerate(entries) if e.get("kind") == "filtered"]
-        if len(n_f) >= FILTER_TRIES and any(e.get("kind") in ("send", "resend", "retry")
-                                            for e in entries[n_f[FILTER_TRIES - 1] + 1:]):
-            problems.append(f"journal: {k} was sent again after its content-filter refusal on {FILTER_TRIES} runs")
+        # Correction 2, C12, and Correction 3, C20: a request is not sent again once its content-filter refusal is
+        # final (a second refusal at least 24 hours after the first by the server's dates)
+        refusals, final_at = [], None
+        for n, e in enumerate(entries):
+            if e.get("kind") == "filtered":
+                refusals.append(e)
+                if filter_final(refusals):
+                    final_at = n
+                    break
+        if final_at is not None and any(e.get("kind") in ("send", "resend", "retry") for e in entries[final_at + 1:]):
+            problems.append(f"journal: {k} was sent again after its content-filter refusal became final (two "
+                            "refusals at least 24 hours apart)")
+        # Correction 3, C18-C19: only the structured fields sort an error into a filter refusal or a key-limit stop
+        for e in entries:
+            if e.get("kind") == "filtered" and (e.get("status") != 403 or e.get("error_type") not in FILTER_TYPES):
+                problems.append(f"journal: {k} records a content-filter refusal whose status and error type "
+                                f"({e.get('status')}, {e.get('error_type')}) are not a content filter's")
+            if e.get("kind") == "key_limit" and e.get("limit_source") != KEY_LIMIT_SOURCE:
+                problems.append(f"journal: {k} records a key-limit stop without limit_source {KEY_LIMIT_SOURCE}")
     for tag in MODELS:
         if error_count(journal, tag) > MAX_ERRORS_PER_MODEL:
             problems.append(f"journal: {tag} has more error answers than the rules allow")
+    for e in run_log:
+        if e.get("event") == "key_limit_stop" and e.get("limit_source") != KEY_LIMIT_SOURCE:
+            problems.append(f"run_log: a key_limit_stop of the {e.get('arm')} arm without limit_source "
+                            f"{KEY_LIMIT_SOURCE} (C19: a budget stop is read from the structured field only)")
     answers = {e["key"]: e for e in spend if e.get("event") == "answer"}
     overruns = {e["key"] for e in journal if e.get("kind") == "overrun"}
     reserved = {e["id"]: e["cost_usd"] for e in spend if e.get("event") == "reserved"}
@@ -1500,6 +1622,8 @@ def verify(records=None) -> list[str]:
         first = next((n for n, e in enumerate(mine) if e.get("kind") == "overrun"), None)
         if first is not None and any(e.get("kind") in ("send", "resend", "retry") for e in mine[first + 1:]):
             problems.append(f"journal: {tag} was sent a request after an overrun, which closes a paid model")
+        if sum(e.get("kind") == "overrun" for e in mine) > 1:           # C21, the review's m-1
+            problems.append(f"journal: {tag} has more than one overrun entry; its first overrun closes a paid model")
     seen = set()
     for r in cache:
         k = r["key"]
@@ -1559,14 +1683,18 @@ def overrun_excess(tag: str, journal: list[dict], spend: list[dict], reserved: d
     """Correction 2, C14: what the model's journaled overruns cost beyond their reservations, counting an overrun only
     if the spend journal holds the matching charge (same request, same cost) against a reservation of the amount the
     overrun records. A model over its 5 USD cap passes `make check` only if its spend less this is within the cap."""
-    total = 0.0
+    total, used = 0.0, set()
     for ov in journal:
         if ov.get("kind") != "overrun" or split_key(ov["key"])[0] != tag:
             continue
-        match = any(e.get("key") == ov["key"] and e.get("event") in ("answer", "charged")
-                    and abs(e["cost_usd"] - (ov.get("cost_usd") or 0)) <= 1e-9 and e.get("reservation") in reserved
-                    and abs(reserved[e["reservation"]] - (ov.get("reservation_usd") or 0)) <= 1e-9 for e in spend)
-        if match:
+        # Correction 3, C21 (the review's m-1): each spend entry accounts for one overrun at most, so an overrun line
+        # written twice cannot count its excess twice
+        match = next((n for n, e in enumerate(spend) if n not in used and e.get("key") == ov["key"]
+                      and e.get("event") in ("answer", "charged")
+                      and abs(e["cost_usd"] - (ov.get("cost_usd") or 0)) <= 1e-9 and e.get("reservation") in reserved
+                      and abs(reserved[e["reservation"]] - (ov.get("reservation_usd") or 0)) <= 1e-9), None)
+        if match is not None:
+            used.add(match)
             total += max(0.0, ov["cost_usd"] - ov["reservation_usd"])
     return total
 

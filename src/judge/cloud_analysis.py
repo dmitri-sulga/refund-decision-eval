@@ -21,7 +21,10 @@ on two runs only when the second refusal came at least 24 hours after the first 
 (C22-C25): a request is sent to a content filter exactly twice, and its refusal is final at the second refusal, by the
 server's dates or, failing them, by the journal's local times (counted as a deviation of its own); a model closed after
 the same 403 on 3 runs over 72 hours, and a key reading whose use exceeded the branch's journal, are counted and printed
-too. A model closed on any of these is closed, so the count is given, and it is listed as not counted.
+too. A model closed on any of these is closed, so the count is given, and it is listed as not counted. Correction 5
+(C26-C27): each paid run on a key without a credit limit, under the owner's waiver, is counted and printed, and the key
+readings sentence says that nothing outside the code stopped the paid arm; a refusal made final by the local times is
+printed with the server's gap.
 
 python -m judge.cloud_analysis            # writes results/models/cloud/analysis.json and prints table and text
 """
@@ -82,11 +85,21 @@ def account(run_log: list[dict]) -> dict:
     API's own figures): before the first paid run and after the last (Correction 2, C17: a free run on the same key is
     not "the first paid run")."""
     reads = [e for e in run_log if e.get("event") in ("account_before", "account_after")
-             and e.get("model") in K.PAID_QUEUE and isinstance(e.get("limit_remaining"), (int, float))]
+             and e.get("model") in K.PAID_QUEUE and (isinstance(e.get("limit_remaining"), (int, float))
+                                                     or (e.get("limit") is None
+                                                         and isinstance(e.get("usage"), (int, float))))]
     if not reads:
         return {}
-    return {"first": {k: reads[0].get(k) for k in ACCOUNT_FIELDS},
-            "last": {k: reads[-1].get(k) for k in ACCOUNT_FIELDS}}
+    out = {"first": {k: reads[0].get(k) for k in ACCOUNT_FIELDS},
+           "last": {k: reads[-1].get(k) for k in ACCOUNT_FIELDS}}
+    # Correction 5, C26: under the owner's waiver the key has no limit; the key's use and the balance readings recorded
+    # by hand are what there is
+    waived = [e for e in run_log if e.get("event") == "deviation" and e.get("kind") == "key_limit_waived"]
+    if waived:
+        out["waiver"] = {"runs": len(waived), "first_balance_usd": waived[0].get("balance_usd"),
+                         "first_balance_read_at": waived[0].get("balance_read_at"),
+                         "waiver_date": waived[0].get("waiver_date")}
+    return out
 
 
 DEVIATION_WORDS = (("overruns", "overrun", "overruns"), ("quarantined", "answer kept in quarantine",
@@ -101,8 +114,13 @@ DEVIATION_WORDS = (("overruns", "overrun", "overruns"), ("quarantined", "answer 
                     "over at least 72 hours", "closings after the same 403, neither a content filter nor a budget, on 3 "
                     "runs over at least 72 hours"),
                    ("key_use_exceeds_journal", "key reading whose use exceeded the branch's spend journal by more than "
-                    "0.05 USD (spend outside the branch)", "key readings whose use exceeded the branch's spend journal "
-                    "by more than 0.05 USD (spend outside the branch)"),
+                    "0.05 USD (spend outside the branch, or charges the journal does not hold)", "key readings whose "
+                    "use exceeded the branch's spend journal by more than 0.05 USD (spend outside the branch, or "
+                    "charges the journal does not hold)"),
+                   ("key_limit_waived", "paid run on a key without a credit limit, under the owner's waiver (Correction "
+                    "5, C26: no stop outside the code; bounded by the code's caps and the account's balance only)",
+                    "paid runs on a key without a credit limit, under the owner's waiver (Correction 5, C26: no stop "
+                    "outside the code; bounded by the code's caps and the account's balance only)"),
                    ("provider_not_reported", "answer without a provider field", "answers without a provider field"),
                    ("key_differs", "free run on another key than the registered one",
                     "free runs on another key than the registered one"))
@@ -128,6 +146,14 @@ def deviations(model: str, journal: list[dict], run_log: list[dict], quarantine:
                                     and e.get("kind") == "forbidden_closed" and e.get("model") == model),
             "key_use_exceeds_journal": sum(1 for e in run_log if e.get("event") == "deviation"
                                            and e.get("kind") == "key_use_exceeds_journal" and e.get("model") == model),
+            # Correction 5, C26: each paid run on a key without a limit, under the owner's waiver
+            "key_limit_waived": sum(1 for e in run_log if e.get("event") == "deviation"
+                                    and e.get("kind") == "key_limit_waived" and e.get("model") == model),
+            # Correction 5, C27 (the fifth review's m-3): how far short of 24 hours the server's dates of the refusals
+            # made final by the local times were (None where neither refusal has a date)
+            "filtered_final_local_server_gaps_h": sorted(
+                round(K.filter_state(v)["server_gap_s"] / 3600, 2) for v in per_key.values()
+                if K.filter_state(v)["basis"] == "local clock" and K.filter_state(v)["server_gap_s"] is not None),
             "provider_not_reported": sum(1 for r in answers if r.get("provider") is None and not r.get("moderated")),
             "key_differs": sum(1 for e in run_log if e.get("event") == "deviation" and e.get("kind") == "key_differs"
                                and e.get("model") == model),
@@ -139,15 +165,27 @@ def deviations_sentence(out: dict) -> str:
     parts = []
     for t in out["order"]:
         d = out["models"][t].get("deviations") or {}
-        bits = [f"{d[f]} {one if d[f] == 1 else many}" for f, one, many in DEVIATION_WORDS if d.get(f)]
+        bits = []
+        for f, one, many in DEVIATION_WORDS:
+            if not d.get(f):
+                continue
+            bits.append(f"{d[f]} {one if d[f] == 1 else many}")
+            if f == "filtered_final_local":
+                # Correction 5, C27 (the fifth review's m-3): the server's gap of each, so 23 hours 59 minutes and one
+                # hour do not read alike
+                gaps = d.get("filtered_final_local_server_gaps_h") or []
+                undated = d[f] - len(gaps)
+                bits[-1] += " (" + "; ".join(
+                    ([f"the server's dates {', '.join(f'{g:g}' for g in gaps)} hours apart"] if gaps else [])
+                    + ([f"{undated} without a server date"] if undated else [])) + ")"
         if d.get("fields_dropped"):
             bits.append("left out " + " and ".join(d["fields_dropped"]))
         if bits:
             parts.append(f"{t}: " + ", ".join(bits))
     return ("Recorded deviations: " + "; ".join(parts) + ".") if parts else (
         "Recorded deviations: none (no overrun, quarantined answer, resend, content-filter refusal, field left out, "
-        "answer without a provider field, free run on another key, closing after a persistent 403 or key use outside "
-        "the branch's journal).")
+        "answer without a provider field, free run on another key, closing after a persistent 403, key use outside "
+        "the branch's journal or paid run without a key limit).")
 
 
 def model_status(model, closed, answered, n, run_log) -> tuple[str, bool]:
@@ -325,7 +363,15 @@ def summary(out: dict) -> str:
               + f"; {c['total_usd']:.4f} USD in all, under a cap of {c['cap_usd']:.0f} USD"
               + (" (free models cost nothing)." if any(c[t]["answers"] for t in K.FREE_QUEUE) else "."))
     acc = out.get("account") or {}
-    if acc:
+    if acc and acc["first"].get("limit") is None:
+        w = acc.get("waiver") or {}
+        s += (f" The branch's key had no credit limit in OpenRouter, by the owner's waiver of {w.get('waiver_date')} "
+              f"(Amendment 3, Correction 5, C26), on {w.get('runs', 0)} paid run(s): nothing outside the code stopped "
+              f"the paid arm at {K.CAP_USD:.0f} USD; the code's caps did, with the account's balance "
+              f"({w.get('first_balance_usd')} USD read by hand at {w.get('first_balance_read_at')}) as the only "
+              f"outer bound. The API reported the key's use as {acc['first']['usage']} USD before the first paid run "
+              f"and {acc['last']['usage']} USD after the last.")
+    elif acc:
         s += (f" The branch's key, limited to {acc['first']['limit']} USD in OpenRouter, had "
               f"{acc['first']['limit_remaining']} USD of its limit left by the API before the first paid run and "
               f"{acc['last']['limit_remaining']} USD after the last.")

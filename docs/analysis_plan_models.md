@@ -1575,3 +1575,95 @@ C21's last sentence of "One key for both arms").**
   key use outside the branch, a 400-digit integer, a reading without `budgets`, a stop without `limit_source`, and the
   order of the arms. The review's probes R4b and N3, which expected a key with 0.01 or 1 USD left and almost nothing
   journaled to close the paid model, now stop it with a deviation instead (m-1).
+
+## Amendment 3, Correction 5 (2026-11-12, after the owner's decision on the key limit and a fifth independent review, before publication and before any request)
+
+**Where this note is and why.** A fifth independent review by a separate AI-agent session read only the change that
+added Correction 4 (`959a2db..9001223`, unpublished), found nothing serious and six smaller points, and recommended
+publication once the author's decisions of the checklist's section G were filled in. One of those decisions was the
+branch key's credit limit of exactly 15 USD (C1, C15, C19), and the author declined it. This Correction registers that
+decision and what it changes (C26), and answers the six smaller points (C27). Amendment 3 and its Corrections 1 to 4 are
+left exactly as that review read them (lines 1–1577 of this file equal `9001223`); where this Correction 5 says
+otherwise, it holds over all of them. When this was written nothing of the branch had been published, no gist existed,
+the OpenRouter key had not been read by this project's code and no request of the branch had been sent. The OpenRouter
+documentation was not read again for this Correction; the facts it uses are those that the Correction (B1), Correction 3
+and Correction 4 quote.
+
+**C26. The owner's waiver of the key limit (replaces, for a key without a limit, the requirement of C1, C15 and C19 that
+the paid arm runs only on a key limited to exactly 15 USD).**
+- The decision, in the author's words on 2026-11-12 (a chat message to his AI coding assistant), in the original
+  Russian: «это лимит никакой, там и так 25 долларов, просто работаю аккуратно и все нормально делают». In English (the
+  assistant's translation): "this limit is pointless; there are only 25 dollars there anyway; I just work carefully, and
+  everyone does it normally". Its meaning: the account holds a 25 USD balance; the author declines a credit limit on the
+  key and accepts working carefully without one. It is recorded in `results/models/cloud/registration.json` as
+  `key_limit_waived: true` with `key_limit_waiver` (the words in both languages, their meaning, the date and who gave
+  them).
+- What the code does. With that record complete, the paid arm may start on a key whose reading reports `limit` as null.
+  Everything else of C1, C15, C19 and C25 stays: a key that has a limit must have exactly 15 USD and `limit_reset` null,
+  whatever the waiver (a key limited to 10 USD is refused with the waiver as without it); the reading must report
+  `limit`, `limit_remaining`, `limit_reset` and `budgets` (a missing field is not read as null); a reset, a guardrail or
+  workspace budget, or a failed reading is refused. A key without a limit and without a complete waiver (not exactly
+  `true`, or without the words in both languages, the date or who gave them) is refused as before. The free arm, which
+  already ran without a limit, is unchanged.
+- The guard under the waiver. The bound is the caps in code, as §7 and C3 set them and the five reviews checked them: 15
+  USD for the branch, 5 USD per model, each request reserved at its worst case before it is sent, room kept under the
+  branch cap for one overrun answer, and the spend journal. In addition, before each paid run, the operator reads the
+  account's credit balance by hand from the OpenRouter dashboard and appends it to `account_balance_readings` in
+  `registration.json` (`balance_usd`, `read_at` in UTC with its offset, `read_by`, `source`). The runner refuses a paid
+  run under the waiver, sending and closing nothing, unless the latest reading is a finite number, not in the future, at
+  most 24 hours old, later than the branch's last paid send, and at least the branch's remaining room under its 15 USD
+  cap plus 2 USD (17 USD before the first paid request, as C24 asks). The code cannot read the balance itself: `GET
+  /api/v1/credits` needs a management key (Correction, B1), which this branch does not use; it checks the reading's
+  form, time and size, not its truth. Before a model's first request the change to `registration.json` must be committed
+  and published, as any change under `results/models/cloud/` (§12, preflight).
+- What it no longer guarantees. With a key limit, OpenRouter itself refuses every request once the key's 15 USD are
+  used, whatever this code does: a stop outside the code. Under the waiver there is no such stop, and the worst-case
+  bound of the paid arm is the cap in code (15 USD, as the five reviews checked it), not an external hard stop. A defect
+  in the journal or the reservations that the reviews did not find, a journal edited or lost, a second process on the
+  same key, or a run of changed code could in principle spend beyond 15 USD; and a provider billing one answer far above
+  its reservation (beyond the overrun room of C3) takes the branch over its cap by that answer before the code stops it
+  (the model is then closed, and no paid request is sent once the branch is over its cap). In every such case the
+  account's credit balance (25 USD by the author's words; at least 17 USD required) is the only outer bound: when it is
+  spent, OpenRouter refuses with a 402 (`openrouter_credits`), an account condition (C19). Other keys or other use of
+  the same account draw on that balance, and the code does not see them.
+- Recorded. Each paid run under the waiver is a recorded deviation (`key_limit_waived` in the run log, with the balance
+  reading, the balance it required, the branch's spend so far and the key's `usage`), counted per model and printed by
+  the report, whose sentence on the key's readings then says that the key had no limit and that nothing outside the code
+  stopped the paid arm. C25's comparison of the key's use with the journal reads the key's all-time `usage` instead of
+  `limit` − `limit_remaining`, which a key without a limit does not have; use beyond the journal is recorded as C25 says
+  (on a key that is not dedicated to the branch it includes that other use), and C19's closing of a paid model by a
+  short key does not apply. `make check` fails on a paid run whose key reading shows no limit of exactly 15 USD without
+  that deviation after the reading, on such a deviation without the complete waiver in `registration.json`, and on one
+  whose balance reading `registration.json` does not hold.
+- If the author later sets on the key a limit of exactly 15 USD that never resets, the paid arm runs under C1, C15 and
+  C19 as before, with no balance reading and no deviation; the waiver is then unused. C24 is unchanged: the free queue
+  runs to its end before the first paid request, and the checklist still asks for the balance before the first request
+  (at least 17 USD, at least 10 USD purchased in all).
+
+**C27. Smaller points (the fifth review's m-1 to m-6).**
+- **A 403 series with one undated refusal (m-1).** C23's span is taken over the server's dates of the refusals that have
+  one whenever at least 3 do; the journal's local times are used only when fewer than 3 have a server date (replaces
+  C23's "where one of them has no server date, the journal's local times"). Three dated runs over 48 hours and a fourth
+  without a date 80 hours after the first by the local clock no longer close the model.
+- **What a closing on a 403 says it checked (m-2).** `make check` fails on a closing under C23 whose `forbidden_closed`
+  deviation has no `checked` text, or names another request, status or error type than the series.
+- **The server's gap (m-3).** With the count of filter refusals made final by the journal's local times (C22), the
+  report prints the server's gap of each, or that it had no server date, so that 23 hours 59 minutes and one hour do not
+  read alike.
+- **The order of the arms and a dropped reference row (m-4).** A "drop" of `google/gemma-4-31b-it:free` in the
+  checklist's item 27 would leave that free model never started, and C24 would then refuse the paid arm for ever (the
+  model can neither run nor be closed). A "drop" is therefore made only by a further Correction before the gist that
+  also closes the row in code before any request ("not run: dropped by Correction N", checked by `make check`) or takes
+  it out of C24's check; until such a Correction is committed and reviewed, the row is kept. The checklist says so.
+- **The checklist's item 2 (m-5)** no longer names `budget_spent`, which Correction 3 removed; C11 is checked against
+  `_error_from_json` and `classify` (`KEY_LIMIT_SOURCE`).
+- **Both causes (m-6).** The report's words for key use beyond the journal name both causes: spend outside the branch,
+  or charges the journal does not hold.
+- **Tests.** `tests/test_cloud.py` tests each point: the waiver present (the run, its deviation, `make check`, the
+  report) and absent or incomplete (refused); a key limited to exactly 15 USD (as before, no reading needed), to 10 or
+  50 USD with the waiver (refused), a resetting limit or a missing field with the waiver (refused); each failure of the
+  balance reading, the field itself missing included (refused, nothing sent or closed), a reading of exactly 17 USD
+  (runs) that is not accepted again after a paid send; the caps under the waiver (a probe that the branch cap stops
+  before any request, and one answer billed 6 USD that takes the branch over its cap by that answer, after which no paid
+  request is sent); `make check` on a paid run without the waiver's record; the key's `usage` under the waiver; and m-1,
+  m-2, m-3 and m-6.

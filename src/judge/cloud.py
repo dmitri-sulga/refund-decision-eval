@@ -32,6 +32,16 @@ then skip it), and that second outcome is final, by the server's dates or, faili
 the operator's record of what was checked and a deviation; the paid arm starts only after every free model is closed;
 key use beyond the branch's journal is a recorded deviation and never closes a paid model on its own.
 
+Correction 5 (C26-C27), the owner's decision of 2026-11-12: the paid arm may also run on a key WITHOUT a credit limit
+when registration.json records the owner's waiver (`key_limit_waived: true`, with his words and the date). Then nothing
+outside this file stops the paid arm at 15 USD: the bound is the caps in this file (15 USD for the branch, 5 USD per
+model, each request reserved at its worst case before it is sent, the spend journal), and the only outer bound is the
+account's credit balance, which the operator reads by hand from the dashboard before each paid run and records in
+registration.json (this code cannot read it: GET /api/v1/credits needs a management key). A defect in the journal or
+the reservations could in principle exceed the cap, up to that balance. Each paid run under the waiver is a recorded
+deviation. A key that has a limit must still have exactly 15 USD that never resets; a key without a limit and without
+the waiver is still refused.
+
 python -m judge.cloud --verify                         # the checks `make check` runs; no network
 python -m judge.cloud --estimate                        # projected and worst-case cost; no network
 python -m judge.cloud --status                          # the key's limit and the free-model daily count (no model)
@@ -170,6 +180,14 @@ FORBIDDEN_RUNS = 3                                    # Correction 4, C23: the s
 FORBIDDEN_SPAN_S = 72 * 3600                          # budget, on this many runs over at least this span, may close
 KEY_JOURNAL_TOLERANCE_USD = 0.05                      # Correction 4, C25: key use beyond the branch's journal by more
 #                                                       than this is spend outside the branch (a recorded deviation)
+# Correction 5, C26: the owner's waiver of the key limit. Under it the paid arm runs on a key without a limit only with a
+# reading of the account's credit balance, taken by hand from the dashboard and recorded in registration.json, that is
+# later than the branch's last paid send, at most BALANCE_MAX_AGE_S old, and at least the branch's remaining room under
+# CAP_USD plus BALANCE_MARGIN_USD (C24's 17 USD = 15 + 2 at the start). The code cannot read the balance itself:
+# GET /api/v1/credits needs a management key (Correction, B1), which this branch does not use.
+BALANCE_MARGIN_USD = 2.00
+BALANCE_MAX_AGE_S = 24 * 3600
+WAIVER_FIELDS = ("quote_ru", "quote_en", "date", "given_by")
 NOT_SERVED = ("transient", "rejected", "account", "quota", "refused", "mismatch", "filtered", "key_limit", "forbidden")
 # a key, or a key's label as GET /api/v1/key shows it (the key's first characters, three dots, its last ones:
 # Correction 2, C17)
@@ -734,8 +752,9 @@ def forbidden_series(tag: str, run_log: list[dict], journal: list[dict], cache=N
     """Correction 4, C23 (the fourth review's MAJOR-2): the exit for a 403 that is neither a content filter nor a
     budget (C18's `forbidden`) and that the author cannot remove. The model's last run stopped on it, and with no
     answer of the model in between, the same request got the same status and error type on at least FORBIDDEN_RUNS
-    runs (the run stops at it, so one per run) whose server dates span at least FORBIDDEN_SPAN_S (72 hours); where a
-    refusal has no server date, the journal's local times are used, and the basis is recorded. Returns that last stop
+    runs (the run stops at it, so one per run) whose server dates span at least FORBIDDEN_SPAN_S (72 hours); only where
+    fewer than FORBIDDEN_RUNS of them have a server date are the journal's local times used (Correction 5, C27), and
+    the basis is recorded. Returns that last stop
     with the series' figures, or None. Runs minutes or hours apart never qualify."""
     runs = [e for e in run_log if e.get("model") == tag and e.get("event") in ("run_started", "run_stopped")]
     last = runs[-1] if runs and runs[-1]["event"] == "run_stopped" else None
@@ -747,8 +766,10 @@ def forbidden_series(tag: str, run_log: list[dict], journal: list[dict], cache=N
             and (after is None or H._seconds(e["at"]) > after)]
     if len(same) < FORBIDDEN_RUNS:
         return None
-    server = [H._server_seconds(e.get("server_date")) for e in same]
-    if all(t is not None for t in server):
+    # Correction 5, C27 (the fifth review's m-1): the server's dates of the dated refusals decide whenever at least
+    # FORBIDDEN_RUNS of them carry one; one refusal without a date no longer moves the whole series to the local clock
+    server = [t for t in (H._server_seconds(e.get("server_date")) for e in same) if t is not None]
+    if len(server) >= FORBIDDEN_RUNS:
         span, basis = max(server) - min(server), "server"
     else:
         local = [H._seconds(e["at"]) for e in same]
@@ -1047,25 +1068,98 @@ def key_short(before: dict, worst: float) -> bool:
     return paid_key_config_refusal(before) is None and _num(rem) and rem < worst + CREDIT_MARGIN_USD
 
 
-def key_use(before: dict, journaled: float) -> dict:
+def key_use(before: dict, journaled: float, waived: bool = False) -> dict:
     """Correction 4, C25 (the fourth review's m-1): the key's use against its limit (`limit` - `limit_remaining`), the
     branch's journaled spend, and how far the first exceeds the second (None where the reading does not give both as
     finite numbers). Use beyond the journal is spend outside the branch, or OpenRouter's accounting ahead of the
-    code's; it is recorded, and it never closes a paid model by itself."""
-    lim, rem = before.get("limit"), before.get("limit_remaining")
-    used = lim - rem if _num(lim) and _num(rem) else None
+    code's; it is recorded, and it never closes a paid model by itself. Under the owner's waiver (Correction 5, C26) a
+    key without a limit has no `limit_remaining`; its all-time `usage` is compared instead (it also counts any use of
+    the key outside this branch)."""
+    lim, rem, usage = before.get("limit"), before.get("limit_remaining"), before.get("usage")
+    used = lim - rem if _num(lim) and _num(rem) else usage if waived and lim is None and _num(usage) else None
     return {"key_used_usd": None if used is None else round(used, 6), "journaled_usd": round(journaled, 6),
             "beyond_journal_usd": None if used is None else round(used - journaled, 6)}
 
 
-def paid_key_refusal(tag: str, before: dict, worst: float) -> str | None:
+def key_limit_waiver(reg) -> tuple[bool, str | None]:
+    """Correction 5, C26: the owner's waiver of the key limit, as registration.json records it: `key_limit_waived`
+    exactly true and `key_limit_waiver` with his words in Russian and in English, the date (YYYY-MM-DD) and who gave
+    it. (True, None) if it is recorded completely; (False, None) if it is not claimed; (False, why) if it is claimed
+    but incomplete, which is no waiver."""
+    if not isinstance(reg, dict) or reg.get("key_limit_waived") is not True:
+        return False, None
+    w = reg.get("key_limit_waiver")
+    if not isinstance(w, dict):
+        return False, "registration.json sets key_limit_waived but records no key_limit_waiver (Correction 5, C26)"
+    missing = [f for f in WAIVER_FIELDS if not isinstance(w.get(f), str) or not w[f].strip()]
+    if not missing and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", w["date"]):
+        missing = ["date (YYYY-MM-DD)"]
+    if missing:
+        return False, f"the owner's waiver in registration.json lacks {', '.join(missing)} (Correction 5, C26)"
+    return True, None
+
+
+def _utc_seconds(at) -> float | None:
+    """An ISO time with its offset (Z or +hh:mm) in seconds, or None; a time without an offset is no reading."""
+    from datetime import datetime
+    if not isinstance(at, str):
+        return None
+    try:
+        d = datetime.fromisoformat(at.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return d.timestamp() if d.tzinfo is not None else None
+
+
+def balance_refusal(reg: dict, journal: list[dict], now_s: float, committed: float) -> tuple[str | None, dict | None]:
+    """Correction 5, C26: under the owner's waiver the paid arm runs only on a reading of the account's credit balance
+    that the operator took by hand from the dashboard and recorded as the last entry of `account_balance_readings` in
+    registration.json: `balance_usd` a finite number, `read_at` an ISO time with its offset, not in the future, at most
+    BALANCE_MAX_AGE_S old and later than the branch's last paid send, and the balance at least the branch's remaining
+    room under CAP_USD plus BALANCE_MARGIN_USD. The code checks the reading's form, time and size, not its truth: it
+    cannot read the balance (GET /api/v1/credits needs a management key). (why, None) or (None, the reading)."""
+    readings = reg.get("account_balance_readings") if isinstance(reg, dict) else None
+    if not isinstance(readings, list) or not readings:
+        return ("no reading of the account's credit balance is recorded in registration.json "
+                "(account_balance_readings); under the owner's waiver the operator reads it from the dashboard before "
+                "each paid run and records it (Correction 5, C26)"), None
+    r = readings[-1]
+    bal = r.get("balance_usd") if isinstance(r, dict) else None
+    if not _num(bal):
+        return f"the latest balance reading in registration.json has no balance_usd as a finite number ({bal!r})", None
+    at = _utc_seconds(r.get("read_at"))
+    if at is None:
+        return (f"the latest balance reading has no read_at as an ISO time with its offset ({r.get('read_at')!r})"), None
+    if at > now_s + 300:
+        return f"the latest balance reading ({r['read_at']}) is later than this machine's clock", None
+    if now_s - at > BALANCE_MAX_AGE_S:
+        return (f"the latest balance reading ({r['read_at']}) is more than {BALANCE_MAX_AGE_S // 3600} hours old; read "
+                "the balance again before this paid run"), None
+    paid_sends = [H._seconds(e["at"]) for e in journal if e.get("at") and e.get("kind") in ("send", "resend", "retry")
+                  and split_key(e["key"])[0] in PAID_QUEUE]
+    if paid_sends and at <= max(paid_sends):
+        return (f"the latest balance reading ({r['read_at']}) is not later than the branch's last paid send; read the "
+                "balance again before this paid run"), None
+    need = max(0.0, CAP_USD - committed) + BALANCE_MARGIN_USD
+    if bal < need - 1e-9:
+        return (f"the account's balance read at {r['read_at']} ({bal} USD) is less than the branch's remaining room "
+                f"under its {CAP_USD:.0f} USD cap plus {BALANCE_MARGIN_USD:.2f} ({need:.4f} USD); add credits or close "
+                "the paid arm"), None
+    return None, r
+
+
+def paid_key_refusal(tag: str, before: dict, worst: float, waived: bool = False) -> str | None:
     """Correction, B1, as corrected by Correction 2, C15, and Correction 3, C19: a paid model starts only on a key
     whose limit is set in OpenRouter to exactly the branch cap (15 USD), that never resets (`limit_reset` present and
     null), under no guardrail or workspace budget, with at least the model's remaining worst case plus 1 USD left.
-    None if it may. A refusal for the remaining limit alone (`key_short`) closes the model; any other is resumable."""
-    why = paid_key_config_refusal(before)
+    None if it may. A refusal for the remaining limit alone (`key_short`) closes the model; any other is resumable.
+    Correction 5, C26: with the owner's waiver (`waived`), a key whose `limit` is reported and null may start too; it
+    has no remaining limit to check, and the caller then requires the balance reading (`balance_refusal`)."""
+    why = paid_key_config_refusal(before, waived)
     if why:
         return why
+    if waived and before.get("limit") is None:
+        return None
     rem = before.get("limit_remaining")
     if not _num(rem) or rem < worst + CREDIT_MARGIN_USD:
         return (f"the key reports {rem} USD of its limit left, less than the worst case of the remaining requests "
@@ -1073,8 +1167,10 @@ def paid_key_refusal(tag: str, before: dict, worst: float) -> str | None:
     return None
 
 
-def paid_key_config_refusal(before: dict) -> str | None:
-    """The key's configuration as C1, C15 and C19 require, without its remaining limit. None if it holds."""
+def paid_key_config_refusal(before: dict, waived: bool = False) -> str | None:
+    """The key's configuration as C1, C15 and C19 require, without its remaining limit. None if it holds. Correction 5,
+    C26: with the owner's waiver a reported null `limit` is accepted; every other condition is unchanged (a key that
+    has a limit must have exactly 15 USD that never resets, whatever the waiver)."""
     if before.get("key_error"):
         return f"GET /api/v1/key failed ({before['key_error']})"
     missing = [f for f in PAID_KEY_FIELDS if f in (before.get("fields_missing") or ())]
@@ -1082,9 +1178,11 @@ def paid_key_config_refusal(before: dict) -> str | None:
         return (f"GET /api/v1/key did not report {', '.join(missing)}; a missing field is not read as null "
                 "(\"unlimited\" or \"never resets\")")
     if before.get("limit") is None:
-        return ("the key has no credit limit (GET /api/v1/key reports limit null): the paid arm needs a key dedicated "
-                f"to this branch with a limit of exactly {CAP_USD:.0f} USD set in OpenRouter")
-    if not _num(before["limit"]) or abs(before["limit"] - CAP_USD) > 1e-9:
+        if not waived:
+            return ("the key has no credit limit (GET /api/v1/key reports limit null): the paid arm needs a key "
+                    f"dedicated to this branch with a limit of exactly {CAP_USD:.0f} USD set in OpenRouter, or the "
+                    "owner's waiver recorded in registration.json (Correction 5, C26)")
+    elif not _num(before["limit"]) or abs(before["limit"] - CAP_USD) > 1e-9:
         return f"the key's limit is {before['limit']} USD, not exactly the branch cap of {CAP_USD:.0f} USD"
     if before.get("limit_reset") is not None:
         return f"the key's limit resets ({before['limit_reset']}); it must never reset"
@@ -1337,9 +1435,13 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                 split_key(k)[0] == tag for k in st["cache"]) else "stopped by the cap: the projection did not fit")
             raise Refusal(f"{tag}: the projection {est['projected_usd']:.4f} USD does not fit under the "
                           f"{'branch' if scope == 'branch' else 'model'} cap; nothing was sent, and it is closed.")
-        why = paid_key_refusal(tag, before, est["worst_case_usd"])
+        reg = pre.get("registration") or {}
+        waived, waiver_why = key_limit_waiver(reg)          # Correction 5, C26: the owner's waiver of the key limit
+        why = paid_key_refusal(tag, before, est["worst_case_usd"], waived)
+        if why and waiver_why and before.get("limit") is None:
+            why = f"{why}; {waiver_why}"
         short = bool(why) and key_short(before, est["worst_case_usd"])
-        use = key_use(before, spend_state()["computed"])
+        use = key_use(before, spend_state()["computed"], waived)
         if use["beyond_journal_usd"] is not None and use["beyond_journal_usd"] > KEY_JOURNAL_TOLERANCE_USD:
             # Correction 4, C25 (the fourth review's m-1): the key was used beyond the branch's own journal; recorded
             # as a deviation, and a short key does not close the model on its own in that case
@@ -1369,6 +1471,26 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                           "queue may be tried.")
         if why:
             raise Refusal(f"{tag}: {why}; nothing was sent.")
+        if waived and before.get("limit") is None:
+            # Correction 5, C26: no key limit, by the owner's waiver. Nothing outside this code stops the paid arm at
+            # 15 USD; the caps below (branch, model, each request's reservation) are the bound, and the account's
+            # balance, read by hand and recorded in registration.json, is the only outer one. Recorded per run.
+            committed = spend_state()["committed"]
+            bwhy, reading = balance_refusal(reg, st["journal"], H._seconds(now()), committed)
+            if bwhy:
+                raise Refusal(f"{tag}: the key has no limit (the owner's waiver, Correction 5, C26), and {bwhy}. "
+                              "Nothing was sent and nothing is closed.")
+            log_event({"event": "deviation", "kind": "key_limit_waived", "model": tag,
+                       "balance_usd": reading["balance_usd"], "balance_read_at": reading["read_at"],
+                       "required_balance_usd": round(max(0.0, CAP_USD - committed) + BALANCE_MARGIN_USD, 6),
+                       "branch_committed_usd": round(committed, 6), "key_usage_usd": before.get("usage"),
+                       "waiver_date": (reg.get("key_limit_waiver") or {}).get("date")})
+            print(f"{tag}: the key has no credit limit in OpenRouter (the owner's waiver of "
+                  f"{reg['key_limit_waiver']['date']}, Correction 5, C26). Nothing outside this code stops the paid "
+                  f"arm: the bound is the code's caps ({CAP_USD:.0f} USD for the branch, {SUB_CAP_USD:.0f} USD per "
+                  f"model, each request reserved at its worst case), and the only outer bound is the account's "
+                  f"balance, {reading['balance_usd']} USD as read by hand at {reading['read_at']}. Recorded as a "
+                  "deviation.", flush=True)
     else:
         # Correction 2, C15: a free run checks that it runs on the registered key; if not, it is a recorded deviation
         differs = key_differs(before, (pre.get("registration") or {}).get("key_reading"))
@@ -1746,6 +1868,7 @@ def verify(records=None) -> list[str]:
     records = records if records is not None else load_records()
     sets, test = X.item_sets()
     allowed = set(sets["dev"]) | set(sets["labelled"])
+    reg = None
     try:
         reg = load_registration()
         if min(H._seconds(e["at"]) for e in journal) <= H._seconds(reg["code_published_at"]):
@@ -1812,12 +1935,44 @@ def verify(records=None) -> list[str]:
     cache_by_key = {r["key"]: r for r in cache}
     for n, e in enumerate(run_log):
         if e.get("event") == "closed_incomplete" and e.get("rule") == "forbidden":
-            ok = forbidden_series(e["model"], run_log[:n], journal, cache_by_key) is not None and any(
+            # Correction 5, C27 (the fifth review's m-2): the deviation must state what was checked and name the
+            # series' request, status and error type
+            fb = forbidden_series(e["model"], run_log[:n], journal, cache_by_key)
+            ok = fb is not None and any(
                 d.get("event") == "deviation" and d.get("kind") == "forbidden_closed" and d.get("model") == e["model"]
-                for d in run_log[:n])
+                and str(d.get("checked") or "").strip() and (d.get("key"), d.get("status"), d.get("error_type"))
+                == (fb.get("key"), fb.get("status"), fb.get("error_type")) for d in run_log[:n])
             if not ok:
                 problems.append(f"run_log: {e['model']} was closed on a persistent 403 without {FORBIDDEN_RUNS} runs "
-                                f"over {FORBIDDEN_SPAN_S // 3600} hours of the same 403 and its recorded deviation")
+                                f"over {FORBIDDEN_SPAN_S // 3600} hours of the same 403 and its recorded deviation "
+                                "(what was checked, and the same request, status and error type)")
+    # Correction 5, C26: a paid run starts on a key limited to exactly 15 USD, or under the owner's waiver with its
+    # record (a `key_limit_waived` deviation after the run's key reading), the waiver in registration.json and the
+    # balance reading it names recorded there
+    waived = key_limit_waiver(reg)[0] if reg is not None else False
+    readings = (reg or {}).get("account_balance_readings")
+    read_at = {r.get("read_at") for r in readings if isinstance(r, dict)} if isinstance(readings, list) else set()
+    last_before: dict[str, dict] = {}
+    waiver_seen: dict[str, bool] = {}
+    for e in run_log:
+        m, ev = e.get("model"), e.get("event")
+        if m not in PAID_QUEUE:
+            continue
+        if ev == "account_before":
+            last_before[m], waiver_seen[m] = e, False
+        elif ev == "deviation" and e.get("kind") == "key_limit_waived":
+            waiver_seen[m] = True
+            if not waived:
+                problems.append(f"run_log: {m} ran under the owner's waiver of the key limit, which registration.json "
+                                "does not record completely (Correction 5, C26)")
+            if e.get("balance_read_at") not in read_at:
+                problems.append(f"run_log: {m} ran under the waiver on a balance reading ({e.get('balance_read_at')}) "
+                                "that registration.json does not hold (Correction 5, C26)")
+        elif ev == "run_started" and m in last_before:
+            lim = last_before[m].get("limit")
+            if not (_num(lim) and abs(lim - CAP_USD) <= 1e-9) and not waiver_seen.get(m):
+                problems.append(f"run_log: a run of {m} started on a key whose limit is {lim}, not {CAP_USD:.0f} USD, "
+                                "without the owner's waiver recorded for it (Correction 5, C26)")
     answers = {e["key"]: e for e in spend if e.get("event") == "answer"}
     overruns = {e["key"] for e in journal if e.get("kind") == "overrun"}
     reserved = {e["id"]: e["cost_usd"] for e in spend if e.get("event") == "reserved"}

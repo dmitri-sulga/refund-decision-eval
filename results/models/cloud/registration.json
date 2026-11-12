@@ -1,5 +1,5 @@
 {
- "what": "The public record of the cloud branch (docs/analysis_plan_models.md, Amendment 3, section 12). code_commit, code_published_at, code_published_source and the gist fields are filled after the branch's code commit is published, and key_reading (the output of `python -m judge.cloud --status`: the branch key's limit, its reset and the free daily limit) when the branch is registered, all before any request (Amendment 3, Correction, C1 and C10); the runner refuses while any is null. Times are GitHub's, not the author's clock.",
+ "what": "The public record of the cloud branch (docs/analysis_plan_models.md, Amendment 3, section 12). code_commit, code_published_at, code_published_source and the gist fields are filled after the branch's code commit is published, and key_reading (the output of `python -m judge.cloud --status`: the branch key's limit, its reset and the free daily limit) when the branch is registered, all before any request (Amendment 3, Correction, C1 and C10); the runner refuses while any is null. Times are GitHub's, not the author's clock. Amendment 3, Correction 5, C26: the owner waived a credit limit on the branch key on 2026-11-12 (key_limit_waived, key_limit_waiver: his words in Russian and in English). A key that has a limit must still have exactly 15 USD that never resets; on a key without a limit the paid arm runs only under this waiver and only on a reading of the account's credit balance that the operator takes by hand from the OpenRouter dashboard before each paid run and appends to account_balance_readings ({\"balance_usd\", \"read_at\" in UTC with its offset, \"read_by\", \"source\"}); the code cannot read the balance (GET /api/v1/credits needs a management key) and checks only the reading's form, time and size. Under the waiver the only bound is the code's caps, and the only outer bound the account's balance.",
  "repository": "dmitri-sulga/refund-decision-eval",
  "models": [
   "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -53,6 +53,17 @@
  "gist_created_at": null,
  "gist_file_sha256": null,
  "key_reading": null,
+ "key_limit_waived": true,
+ "key_limit_waiver": {
+  "quote_ru": "это лимит никакой, там и так 25 долларов, просто работаю аккуратно и все нормально делают",
+  "quote_en": "this limit is pointless; there are only 25 dollars there anyway; I just work carefully, and everyone does it normally",
+  "meaning": "the account holds a 25 USD balance; he declines a credit limit on the key and accepts working carefully without one",
+  "date": "2026-11-12",
+  "given_by": "the author, owner of the OpenRouter account, in a chat message to his AI coding assistant",
+  "recorded_in": "docs/analysis_plan_models.md, Amendment 3, Correction 5, C26",
+  "what_it_weakens": "no stop outside the code at 15 USD: the code's caps (15 USD branch, 5 USD per model, each request reserved at its worst case, the spend journal) are the bound; a defect in them could in principle exceed 15 USD, and the account's balance is then the only outer bound"
+ },
+ "account_balance_readings": [],
  "earlier_gists_not_edited": [
   "dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)",
   "f17036e715dc7ae227fba1b7b4845abf (the local-models extension's record)"

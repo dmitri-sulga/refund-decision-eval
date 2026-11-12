@@ -45,14 +45,38 @@
  "sub_cap_usd": 5.0,
  "snapshot_taken": "2026-11-12T11:50:17Z to 2026-11-12T11:52:11Z (results/models/cloud/snapshot/fetch_log.json)",
  "snapshot_sha256": "261ccaefc149b5c34029df1dfd783b0f79fb119d0b5e3fe3937cc287ecc603b5",
- "code_commit": null,
- "code_published_at": null,
- "code_published_source": null,
- "gist_id": null,
- "gist_url": null,
- "gist_created_at": null,
- "gist_file_sha256": null,
- "key_reading": null,
+ "code_commit": "ffcc1e5525243b5510727b3f70ee32977c59f509",
+ "code_published_at": "2026-11-12T20:09:14Z",
+ "code_published_source": "GitHub repository activity API (repos/dmitri-sulga/refund-decision-eval/activity): push of main from 60dfe9b to ffcc1e5 (nine commits, a192234..ffcc1e5, published through the git-data API with their local SHAs, non-forced update of main)",
+ "gist_id": "97af07f48c15b44536c47dcd893a3323",
+ "gist_url": "https://gist.github.com/dmitri-sulga/97af07f48c15b44536c47dcd893a3323",
+ "gist_created_at": "2026-11-12T20:09:41Z",
+ "gist_file_sha256": "51a2943b764a04b6246d1fc1e4761f607fde2f9ae8e2ecce8462d5f142c97d0f",
+ "gist_visibility": "secret (unlisted: anyone with the link can read it)",
+ "gist_first_revision": "05835e3a874cf0fd96f485b21ee5422f2cae5aea",
+ "gist_file": "cloud-branch-hashes.txt",
+ "gist_content": "the commit id above and the SHA-256 of 140 files at that commit: the 18 protected files of src/judge/cloud.py (PROTECTED: the plan with Amendment 3 and its Corrections, the branch's runner, selection, analysis and tests, the earlier runners, the frozen prompt, request, parsing, metric, data and label code, and the Makefile), pre_run_checklist.md, this file as committed with the publication fields empty, and each of the 120 snapshot files, then the snapshot's combined hash (snapshot_sha256 above)",
+ "key_reading": {
+  "limit": null,
+  "limit_remaining": null,
+  "limit_reset": null,
+  "include_byok_in_limit": false,
+  "usage": 0,
+  "usage_daily": 0,
+  "is_free_tier": false,
+  "free_model_daily_requests": {
+   "used": 0,
+   "limit": 1000,
+   "remaining": 1000
+  },
+  "budgets": [],
+  "effective_budget": null,
+  "fields_missing": [],
+  "read_at": "2026-11-12T20:14:33Z",
+  "read_with": "python -m judge.cloud --status (GET /api/v1/key with the branch key; no model called, nothing billed; the key's label is not kept)",
+  "auto_top_up": false,
+  "auto_top_up_source": "not part of GET /api/v1/key: read on the OpenRouter dashboard's Credits page by the coordinator on 2026-11-12 at about 17:54 UTC (the Auto Top-Up block offers \"Enable\"; nothing was changed)"
+ },
  "key_limit_waived": true,
  "key_limit_waiver": {
   "quote_ru": "это лимит никакой, там и так 25 долларов, просто работаю аккуратно и все нормально делают",
@@ -63,7 +87,15 @@
   "recorded_in": "docs/analysis_plan_models.md, Amendment 3, Correction 5, C26",
   "what_it_weakens": "no stop outside the code at 15 USD: the code's caps (15 USD branch, 5 USD per model, each request reserved at its worst case, the spend journal) are the bound; a defect in them could in principle exceed 15 USD; outside the code only the account's balance bounds it, and only while auto top-up is off (Amendment 3, Correction 6, C28, overriding \"the only outer bound\"): the balance as read before each paid run, not a fixed 25 USD, which OpenRouter may let go below zero by about one request"
  },
- "account_balance_readings": [],
+ "account_balance_readings": [
+  {
+   "balance_usd": 25.0,
+   "read_at": "2026-11-12T17:50:00Z",
+   "read_by": "coordinator",
+   "source": "OpenRouter dashboard",
+   "auto_top_up": false
+  }
+ ],
  "earlier_gists_not_edited": [
   "dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)",
   "f17036e715dc7ae227fba1b7b4845abf (the local-models extension's record)"

@@ -1751,3 +1751,85 @@ the author's words; at least 17 USD required) is the only outer bound").**
   waiver's dates; and the committed record and checklist. Correction 5's test that key use under the waiver "stops
   nothing" is replaced by the test of the stop; Correction 5's tests now give each balance reading
   `"auto_top_up": false` and the waiver's `key_reading` a `usage` of 0.
+
+## Amendment 3, Correction 7 (2026-11-12, after a seventh independent review, before publication and before any request)
+
+**Where this note is and why.** A seventh independent review by a separate AI-agent session read only the change that
+added Correction 6 (`b05e4f9..65c3888`, unpublished). It found nothing serious and five smaller points (m-1 to m-5), and
+it judged publication acceptable once section G of the checklist is filled and m-1 to m-3 are either fixed in code
+before publication or recorded as known limits of the waiver. This Correction records them as known limits and changes
+no code (C29): `src/judge/cloud.py`, `src/judge/cloud_analysis.py`, `src/judge/cloud_select.py`, `tests/test_cloud.py`
+and `results/models/cloud/registration.json` are as the seventh review read them. Amendment 3 and its Corrections 1 to 6
+are left exactly as that review read them (lines 1–1753 of this file equal `65c3888`); where this Correction 7 says
+otherwise, it holds over all of them. When this was written nothing of the branch had been published, no gist existed,
+the OpenRouter key had not been read by this project's code and no request of the branch had been sent. The OpenRouter
+documentation was not read again for this Correction.
+
+**C29. Known limits of the owner's waiver, and the seventh review's other points.**
+- **Known limits of the waiver (the seventh review's m-1, m-2 and m-3, and two it describes in its sections 3 and 5).**
+  Under the waiver of C26, as corrected by C28, five things stay possible. Each is written here in plain words, with
+  what the operator does about it; the checklist's item 34 lists the same checks.
+  1. *The key-use check turns off if the live key reading has no numeric `usage` (m-1).* C28 compares the key's use
+     since registration with the spend journal from the `usage` that `GET /api/v1/key` reports before each paid run. If
+     that reading leaves `usage` out or gives it as anything but a finite number, the code makes no comparison and
+     records no key-use deviation, and the paid run goes on. C28's "a journal edited or lost cannot restart the spend"
+     therefore holds only while the live reading reports `usage` as a number. The operator: before each paid run,
+     `python -m judge.cloud --status` must print `usage` as a number; if it does not, the paid run is not started and a
+     further Correction decides.
+  2. *Two keys without a limit on one account cannot be told apart (m-2).* `key_differs` compares `limit`,
+     `limit_reset`, `is_free_tier` and the free daily limit, and two keys of one account without a limit agree on all of
+     them; the code keeps no label of the key. So a paid run under the waiver on another key is a recorded deviation
+     only when that key's reading differs in one of those fields (C28's sentence on another key is narrowed to this),
+     and on another key whose `usage` is lower than the registered baseline, use outside the journal is hidden by the
+     difference. The operator: the key file holds only the registered key, and before each paid run the `usage` that
+     `--status` prints must not be lower than `key_reading.usage` in `registration.json` (one key's use never goes
+     down); if it is lower, the key is another one and the paid run is not started.
+  3. *A false all-time deviation (m-3).* If a paid run under the waiver, on a key without a limit, is refused for
+     another reason (for example a `budgets` entry with another scope), the code compares the key's all-time `usage`,
+     not its use since registration, with the journal and records a `key_use_exceeds_journal` deviation (`stopped`
+     false) for the whole of it; the report then counts it among the key readings whose use exceeded the journal. It
+     does not occur in the normal flow, and it sends nothing and stops nothing. The operator: removes the other cause of
+     the refusal, and the report's write-up names every such deviation, recorded with a refusal for another reason, as
+     this false record.
+  4. *Two clones at the same moment.* Two copies of the repository run at the same moment on the same key both pass the
+     checks at their start, and each is held only by its own caps, together up to 2 × 15 USD; the bound outside the code
+     is then the balance as read, with auto top-up off (C28). Run one after the other, the second is stopped by C28's
+     key-use check once the first has spent more than 0.05 USD. This is C26's "a second process on the same key",
+     restated. The operator: runs the branch from one clone on one machine, one `--run` at a time.
+  5. *Use of the key outside the branch closes the paid arm.* Under the waiver, use of the key outside the branch after
+     the item 28 reading, beyond the journal by more than 0.05 USD in all, refuses every later paid run; the key's use
+     never goes down, so the paid models can then only be closed by `--close-incomplete` as stopped by the budget, or a
+     further Correction decides. The whole paid arm is lost, though nothing is overspent. The operator: uses the key for
+     nothing else from the item 28 reading to the end of the paid arm.
+  Why they are accepted rather than fixed in code before publication: each is narrow; each needs an unusual act of the
+  operator (another key in the key file, a second process at the same time, other use of the key) or a key reading
+  without `usage`, which, as the seventh review notes, OpenRouter's documentation says is always reported; none lets the
+  branch spend beyond the code's caps without a fault that C26 already discloses (a journal edited or lost, a second
+  process on the same key), and the bound outside the code stays the balance as read with auto top-up off (C28); and
+  each is disclosed here, before publication, with the operator's check. Removing them would need a further change of
+  `src/judge/cloud.py`, a protected file, reviewed before publication; the author publishes with them recorded instead.
+- **What a "no" in item 24 costs (m-5).** The checklist's item 24 now says, next to "Key created for this branch only",
+  what a "no" costs: with no key of its own and no limit on it, the paid arm runs on the waiver path with the known
+  limits above, and any use of the key outside the branch after the item 28 reading, beyond 0.05 USD in all, stops every
+  later paid run and so loses the whole paid arm (point 5). The owner answers knowing this.
+- **Section G, the coordinator's blanks.** Filled from the coordinator's read-only readings of the owner's OpenRouter
+  dashboard on 2026-11-12 (nothing was changed): account Personal; balance 25.00 USD, 25.00 USD purchased in all (one
+  transaction, 2026-11-12), read at about 17:50 UTC; no guardrail: yes (the Guardrails page: "No workspace guardrails
+  yet"; no account, member or key guardrail seen); auto top-up off; privacy, on
+  `https://openrouter.ai/settings/privacy`: free "Allow free endpoints that train on request data" on and "Allow free
+  endpoints that publish prompts" off, paid "Allow paid endpoints that train on request data" off, Zero Data Retention
+  off and the 1% data discount off, in effect when read at about 17:50 UTC and set earlier, at a time that is not known.
+  A dated line under item 30 records this reading. Left blank: the owner's three answers (a key for this branch only,
+  the paid arm, the reference row), the registration's three (item 28), and the operator's on the start day (items 30,
+  32 and 33).
+- **The time of the readings (m-4).** The readings file gives the time of one sitting as about 17:50 UTC (the balance)
+  and about 17:54 UTC; C28 and item 24 (b) wrote about 17:54 UTC, and section G now writes about 17:50 UTC. Both are
+  approximate, and nothing in the code depends on them: each paid run needs its own reading with `"auto_top_up": false`.
+  The record of auto top-up off was added to the readings file at about 18:40 UTC (its heading says so), from the
+  Credits page as read in that sitting with the balance.
+- **The checklist.** Its heading paragraph and items 1 and 2 name this Correction and `65c3888` (lines 1–1753); item 24
+  gains the line on what a "no" costs; section G's coordinator blanks are filled; item 30 gains the dated line of the
+  coordinator's reading; a new item 34 lists the operator's checks of the known limits. The checklist is not among the
+  files whose hashes are recorded.
+- **Not changed.** The code, the tests, `registration.json`, the caps, the reservations, the overrun room, the balance
+  reading's rules and everything else the seventh review found holding. `make test` runs 320 tests, as at `65c3888`.

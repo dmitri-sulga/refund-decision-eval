@@ -31,7 +31,7 @@ ENDPOINTS_URL = "https://openrouter.ai/api/v1/models/{id}/endpoints"
 HF_URL = "https://huggingface.co/api/models/{repo}?expand[]=safetensors&expand[]=cardData"
 
 # ------------------------------------------------------------------ the rules (Amendment 3, section 2)
-MIN_PARAMETERS = 32e9            # larger than every model run so far (gemma4:31b, 31.7B; qwen3.8:27b, 27.8B)
+MIN_PARAMETERS = 32e9            # larger than every open-weights model run so far (gemma4:31b, 31.7B; Correction, C7)
 EXCLUDED_DEVELOPERS = ("anthropic", "openai", "openrouter")
 # not a general chat model, a third-party derivative, or abliterated / uncensored (matched on the id, lower case)
 EXCLUDED_ID_WORDS = ("code", "coder", "devstral", "guard", "safety", "-mt", "translat", "ocr", "schematron",

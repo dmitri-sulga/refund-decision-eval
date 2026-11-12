@@ -1237,3 +1237,108 @@ of third-party models, which affects any future re-run of this study; no held-ou
   `tests/test_cloud.py` also tests the refusals of the runner's preflight, the key limit, the status flips, the
   24-hour streak, the overrun, the quarantine, reasoning in the text, the 429 kinds and that no key file is read without
   a request.
+
+## Amendment 3, Correction 2 (2026-11-12, after a second independent review, before publication and before any request)
+
+**Where this note is and why.** A second independent review by a separate AI-agent session read the unpublished commit
+that added the Correction (`c01188a`) and asked for the changes below before publication: three serious problems
+(errors coded 403, the 5 USD check after an overrun, the author's decisions before the gist) and thirteen smaller
+ones. Amendment 3 and its Correction above are left exactly as that review read them (lines 1–1239 of this file equal
+`c01188a`); where this Correction 2 says otherwise, it holds over both. When this was written nothing of the branch
+had been published, no gist existed, the OpenRouter key had not been read by this project's code and no request of the
+branch had been sent. What it says of OpenRouter's errors is the review's reading of the documentation on 2026-11-12.
+
+**C11. Errors coded 403 and 402 (replaces §9's "Account conditions" and "Any other 3xx or 4xx is a rejection" where
+they differ).**
+- From that reading: a spent budget (the key's own limit, a guardrail budget or a workspace budget) is refused with a
+  403 "Budget limit exceeded (…)" and `metadata.limit_source`; a provider's content filter is a 403 with
+  `metadata.error_type` `content_policy_violation` or `refusal`, the provider's name and its raw message, and no
+  `reasons`; only OpenRouter's own moderation gives `reasons`; a 402 with `limit_source`
+  `openrouter_in_flight_budget` is temporary and comes with `Retry-After`.
+- An error is sorted in this order: `reasons` in its metadata, a moderation flag (§9, unchanged: an answer, cached,
+  malformed, scored no money back, counted among the model's answers); a 403 with a `limit_source`, or whose message
+  names a spent budget or limit, a budget stop (C13); a 402 with `limit_source` `openrouter_in_flight_budget`, waited
+  out like a server error; the free daily limit (§9, C10); the account conditions of §9 (401, any other 402, a 4xx
+  naming the data policy, a privacy setting or a guardrail, the key file); any other 403, a content-filter failure of
+  that one request (C12); 408, 429 and 5xx, waited out; any other 3xx or 4xx, a rejection. **No 403 is a rejection, and
+  no 403 closes a model by itself.**
+- The error type that §9's 24-hour rule compares (the same request, status and error type) is `metadata.error_type`,
+  as documented; `error.type` only where that is missing.
+
+**C12. A provider's content filter (adds to §9).**
+- A 403 sorted as a content-filter failure is a failure of that one request and a deviation type of its own
+  (`kind: filtered` in `sent.jsonl`, with the status, the error type and the message, and a `filtered` event in the run
+  log). It is not an answer, not a rejection and not one of the 150 errors; its reservation is released unless the
+  error reports usage. The run goes on with the next request.
+- The request is sent once more by a later run of the model (`--run`), not by the same run. Refused on two runs, it is
+  not sent again; answered on the second, its answer counts as any answer does.
+- When the work list ends and every missing request has either had its one resend served or been refused on two runs,
+  the model is closed as "incomplete (k of 600 answered): … request(s) refused by the provider's content filter on 2
+  runs". Under §11 an incomplete model of the comparison set is not counted, and a reference row stays descriptive. One
+  complaint that a filter refuses on both runs therefore keeps a compared model out of the count. The review proposed
+  scoring such a refusal as no money back, like a moderation flag; this Correction does not, so that a provider's
+  filter is not scored as the model's decision.
+- `make check` fails if a request is sent again after its second refusal.
+
+**C13. A spent key limit is a budget stop of the arm (replaces, for this case, the account and rejection rules of §9).**
+- A 403 reporting a spent budget stops the run and the arm in which it happened (free or paid): it is recorded
+  (`key_limit_stop` in the run log, with the arm), and the runner sends no request of that arm after it. It closes no
+  model by itself and never counts toward the 24-hour rule.
+- A model of that arm not yet closed may then be closed with `--close-incomplete`, as "stopped by the budget: the
+  branch key's limit in OpenRouter was spent" ("not run: " before it if it has no answer), as the caps of §7 close a
+  model. The same now holds for a paid model that had not started when the branch reached its 15 USD cap, which the
+  runner already refused to start and could not close. Neither is a rejection.
+
+**C14. A model over its cap by an overrun (corrects §13 and the check of C3).**
+- C3 allows a model's 5 USD cap to be exceeded by one overrun answer, while `make check` failed every model over
+  5 USD, so the published check could not have passed after such an answer. `make check` now accepts a model over its
+  5 USD cap only if a journaled overrun accounts for the excess: the overrun entry matches a charge in the spend
+  journal (the same request, the same cost) against a reservation of the amount it records, and the model's spend less
+  the overrun's cost beyond its reservation is at most 5 USD. Otherwise it fails.
+- A charge above its reservation without an answer (an unreadable answer, or an error that reports usage) and an
+  answer kept in quarantine that cost more than its reservation are overruns too: C3 applies (journaled, marked
+  `without_answer` or `quarantined`; a paid model is closed). `make check` fails on any answer or charge above its
+  reservation without its overrun entry.
+
+**C15. The key (replaces "at most 15 USD" in C1).**
+- The branch key's limit is set in OpenRouter to exactly 15 USD, with `limit_reset` null. The runner refuses a paid
+  model on a key whose limit is not exactly 15 USD: a lower limit could refuse P3 near the worst case.
+- A reading of `GET /api/v1/key` that leaves out `limit`, `limit_remaining` or `limit_reset` is refused for a paid
+  model: a missing field is not read as null ("unlimited" or "never resets"). Every reading records which fields were
+  missing, and also `budgets` and `effective_budget` (the guardrail and workspace budgets) where given.
+- Before each free run the reading is compared with the registered `key_reading` (`limit`, `limit_reset`,
+  `is_free_tier` where registered, and the free daily limit). If they differ, the free model still runs, and the
+  difference is recorded as a deviation (`deviation`, `key_differs`, in the run log) and reported. The key's label is
+  still not kept, so two keys with the same readings cannot be told apart.
+
+**C16. The author's decisions before publication (adds to §12 and C9).** Before this amendment is published and the
+secret gist is created, the author decides, and records in `results/models/cloud/pre_run_checklist.md` (its section
+"Before publication"): the dedicated key with a limit of exactly 15 USD and `limit_reset` null (C1, C15); the privacy
+setting for free and for paid models, where it is set and when (C9); the paid arm, yes or no; the reference row
+`google/gemma-4-31b-it:free`, keep or drop; and that one reading of `python -m judge.cloud --status` will be copied
+into `results/models/cloud/registration.json` as `key_reading` (C10). A "no" to the paid arm or a "drop" of the
+reference row is made by a further correction of this amendment before the gist, never after it; until then the branch
+is registered as §2 lists it.
+
+**C17. Smaller points.**
+- **The listing streak.** A listing check without a server date breaks a failing streak as a gap does; the latest
+  unbroken run of dated checks decides (C2), so one undated check no longer blocks closing for ever.
+- **Records written before any request.** A run log grown only by listing checks, key readings, a run started and
+  paused or refused before its first send and a recorded key deviation, and a spend journal grown only by the
+  estimate, need no commit and publication before a model that has not started can be tried again (extends C10's
+  "Listing checks and the clean tree").
+- **An error inside an HTTP 200 that reports no usage** is charged at the request's worst case on a paid model, since
+  the provider may have billed it; on a free model it is released, as §9 says.
+- **The listing check before each paid run** also requires the pinned endpoint's `max_completion_tokens` to be listed
+  and no larger than registered: the room C3 keeps rests on it.
+- **The report lists** each model's overruns, answers kept in quarantine, resends, content-filter refusals (and
+  requests refused on two runs), fields left out, answers without a provider field and free runs on another key, as
+  C3, C4 and §9 promise; `src/judge/cloud_analysis.py` prints them after the comparison sentence.
+- **The key readings printed with the results** are those around the paid runs, before the first and after the last; a
+  free run on the same key is not "the first paid run".
+- **A key's label** (its first characters, three dots, its last ones) is treated as a key by the scrubbing of errors
+  and by `make check`.
+- **Wording.** The comment on the size threshold in `src/judge/cloud_select.py` now says "open-weights model" (C7).
+- **Tests.** `tests/test_cloud.py` also tests each point of C11–C17, including the review's probes: a paid model's key
+  limit spent (stopped, not closed, never a rejection), Gemma's request refused by a provider's filter (the run goes
+  on), and a model 0.8917 USD over a sub-cap of 0.5 USD by its overrun (accepted only with the overrun).

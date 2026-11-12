@@ -1,16 +1,20 @@
 # Cloud branch (Amendment 3): what the independent reviewer must verify before any request
 
 Written with the amendment, before any request of the branch; updated with the amendment's Correction after the first
-independent review (`a192234` reviewed; its findings B1, B2, M1–M7 and m1–m11 are answered by the Correction, C1–C10).
+independent review (`a192234` reviewed; its findings B1, B2, M1–M7 and m1–m11 are answered by the Correction, C1–C10),
+and with Correction 2 after the second (`c01188a` reviewed; its findings MAJOR-1 to MAJOR-3 and m-a to m-m are answered
+by Correction 2, C11–C17).
 The reviewer is a separate session that did not write this code. Every item is checked against the files and the public documentation, not against this list's wording. A
 reviewer who finds a problem writes it down with the file and line; nothing is fixed silently, and any fix is made
 before publication and recorded in `docs/deviations.md`.
 
 ## A. The plan and the record
 1. `docs/analysis_plan_models.md`: lines 1–779 (lines 1–149, Amendment 1 and Amendment 2) are byte-identical to
-   `60dfe9b`, and lines 780–1094 (Amendment 3 as first reviewed) to `a192234`; the Correction is only appended after
-   them (`cmp <(git show 60dfe9b:docs/analysis_plan_models.md) <(head -n 779 docs/analysis_plan_models.md)`, the same
-   with `a192234` and 1094, and `git diff a192234 -- docs/analysis_plan_models.md` has no removed line).
+   `60dfe9b`, lines 780–1094 (Amendment 3 as first reviewed) to `a192234`, and lines 1095–1239 (the Correction as
+   reviewed the second time) to `c01188a`; each correction is only appended after them
+   (`cmp <(git show 60dfe9b:docs/analysis_plan_models.md) <(head -n 779 docs/analysis_plan_models.md)`, the same with
+   `a192234` and 1094 and with `c01188a` and 1239, and `git diff c01188a -- docs/analysis_plan_models.md` has no
+   removed line).
    `python -m judge.models --verify` passes (it checks lines 1–149 against `162909f`).
 2. Amendment 3 with its Correction says, and the code does, the same thing on every point (where they differ, the
    Correction holds): models and order (§2 table against
@@ -22,7 +26,13 @@ before publication and recorded in `docs/deviations.md`.
    and the Correction: C1 against `account_readings` and `paid_key_refusal`, C2 against `listing_check`,
    `record_listing`, `unavailable_streak`, `streak_closes`, `repeated` and `watch_listing`, C3 against
    `overrun_headroom` and the overrun branch of `_run`, C4 against `provider_matches` and the quarantine, C5 against
-   `reasoning_in_content`, C6 against `cloud_analysis` (`registered_outputs`), C8 against the summary sentence.
+   `reasoning_in_content`, C6 against `cloud_analysis` (`registered_outputs`), C8 against the summary sentence; and
+   Correction 2: C11 against `_error_from_json`, `budget_spent` and `classify`, C12 against `filtered_counts`, the
+   `filtered` branch and the end of `_run`, and the content-filter check of `verify`, C13 against `key_limit_stop`,
+   `arm_stopped_by_key`, `preflight` and `close_incomplete`, C14 against `note_overrun`, `overrun_excess` and the
+   spend checks of `verify`, C15 against `account_readings`, `paid_key_refusal` and `key_differs`, C17 against
+   `streak_closes`, `only_pre_request_appends`, `listing_check` (`max_completion_tokens`), `KEY_PATTERN` and
+   `cloud_analysis` (`deviations`, `account`).
 3. Nothing in the amendment or its Correction states a result: no answer of any model of the branch exists
    (`results/models/cloud/` holds only `registration.json`, `pre_run_checklist.md` and `snapshot/`).
 4. The twelfth-change entry in `docs/deviations.md`, the records in `results/post_run_changes.json` and the README's
@@ -30,7 +40,7 @@ before publication and recorded in `docs/deviations.md`.
    records (compare leaf by leaf).
 
 ## B. The model selection
-5. `python -m judge.cloud_select --check` passes, and `--resolve` prints the registered list, the rejected free
+5. `PYTHONPATH=src .venv/bin/python -m judge.cloud_select --check` passes, and `--resolve` prints the registered list, the rejected free
    models with the reasons the amendment gives, and the next paid models.
 6. The snapshot is what OpenRouter and Hugging Face returned: spot-check at least the 7 selected models and 3 rejected
    ones against the live listings (`curl https://openrouter.ai/api/v1/models`, the `/endpoints` URL of each, the
@@ -64,28 +74,46 @@ before publication and recorded in `docs/deviations.md`.
 13. `python -m judge.cloud --estimate` prints projected 4.6343, worst case 10.1305 and basis 2.9022 USD; recompute the
     amendment's estimate table by hand from the prices and the token basis.
 14. The caps cannot be exceeded by the code's own accounting: every request is reserved at its worst case before it
-    is journaled, and the branch cap keeps room for one overrun answer (C3); tests `test_the_model_sub_cap_stops...`,
-    `test_the_branch_cap_stops...`, `test_the_branch_cap_keeps_room...` and the three overrun tests pass; a free
-    model's reported cost is counted; an overrun is journaled and `make check` still passes after one.
+    is journaled, and the branch cap keeps room for one overrun answer (C3). These tests pass:
+    `test_the_model_sub_cap_stops_before_a_request_whose_worst_case_would_exceed_it`,
+    `test_the_branch_cap_stops_and_no_paid_model_starts_after_it`, `test_the_branch_cap_keeps_room_for_one_overrun_answer`,
+    `test_an_output_overrun_on_a_paid_model_is_journaled_closes_it_and_check_still_passes`,
+    `test_a_cost_above_the_reservation_closes_a_paid_model`,
+    `test_an_output_overrun_on_a_free_model_is_journaled_and_the_run_goes_on`,
+    `test_make_check_accepts_a_model_over_its_cap_only_by_its_journaled_overrun` (C14: a model over its 5 USD cap
+    passes only by its matching overrun),
+    `test_a_quarantined_answer_above_its_reservation_is_an_overrun_and_closes_a_paid_model` and
+    `test_an_error_inside_a_200_without_usage_is_charged_on_a_paid_model_only`. A free model's reported cost is
+    counted.
 15. The key: read only in `read_key` when a request is sent; sent only as `Authorization` with
     `add_unredirected_header`; redirects not followed; errors scrubbed; `main` prints no traceback; nothing under
     `results/models/cloud/` matches `KEY_PATTERN`; the Makefile names neither the key nor its file. The reviewer does
     NOT open or print the real key file; at most `stat -f '%Sp' ~/.openrouter_key` (expect `-rw-------`).
 16. The key readings (`account_readings`) are `GET /api/v1/key` only (no `/credits`, which needs a management key),
-    call no model and cost nothing; the paid arm refuses a key whose `limit` is null, above 15 USD or resetting, or
-    whose `limit_remaining` is short (C1). Confirm the field names against `api-reference/limits` on the day.
+    call no model and cost nothing; the paid arm refuses a key whose `limit` is null or not exactly 15 USD, whose
+    limit resets, whose reading leaves out `limit`, `limit_remaining` or `limit_reset`, or whose `limit_remaining` is
+    short (C1, C15); a free run on a key whose reading differs from `key_reading` is a recorded deviation (C15).
+    Confirm the field names against `api-reference/limits` on the day.
 
 ## E. Held-out, order, stops
 17. No held-out complaint can be sent: `test_an_injected_held_out_id_sends_journals_and_spends_nothing` passes, and
     `X.guard` is called before every journal entry in `cloud._run`.
-18. The runner refuses (read `preflight`; `test_preflight_refuses_each_registered_condition`): an unclosed model of
-    Amendment 1 or 2, an incomplete registration, a changed protected file, a dirty tree outside
-    `results/models/cloud/`, an unpublished HEAD, an earlier model of the queue not closed, a closed model, a paid model
-    after the branch cap, unlocked labels, a missing or group-readable key file, and a failed listing check (not the
-    endpoint's status, which is recorded: C2).
+18. The runner refuses (read `preflight`). `test_preflight_refuses_each_registered_condition` covers an unclosed model
+    of Amendment 1 or 2, a changed protected file, a dirty tree outside `results/models/cloud/`, uncommitted results of
+    an earlier model, an unpublished HEAD, an earlier model of the queue not closed, a closed model, a paid model after
+    the branch cap, an arm after its key limit was spent (C13) and unlocked labels. The other refusals are tested
+    directly, not through `preflight`: an incomplete registration
+    (`test_the_registration_refuses_while_empty_and_is_read_once_filled`), a missing or group-readable key file
+    (`test_the_key_file_must_be_private_and_nothing_is_sent_without_it`), and a failed listing check, not the
+    endpoint's status, which is recorded (C2; `test_the_listing_check_refuses_a_missing_model_a_changed_endpoint_or_a_higher_price`,
+    `test_the_listing_check_compares_max_completion_tokens_on_paid_models`).
 19. Free-tier handling: the daily allowance stops a run before OpenRouter's limit; a 429 with
     `X-RateLimit-Remaining: 0` on a free model is a pause, not an error, unless it is the per-minute limit (C10); a
-    data-policy refusal is an account condition and cannot close a model.
+    data-policy refusal is an account condition and cannot close a model. Errors coded 403 (C11–C13): a spent key limit
+    stops the arm and closes no model by itself (`test_a_spent_key_limit_stops_the_arm_and_never_closes_a_model_as_rejected`);
+    a 403 without moderation `reasons` (a provider's filter) fails that one request, the run goes on, and the request
+    is sent once more on a later run (`test_a_content_filter_403_fails_one_request_and_the_run_goes_on`); only a
+    moderation flag with `reasons` is scored as an answer (`test_403_and_402_are_sorted_by_what_they_report`).
 20. Closing: only the conditions of §9 as corrected; the 24-hour rules read the server's `date` headers and need no
     answer (and, for the listing, no passing check) in between and hourly checks (C2); `make check` fails if the
     journals' times go backwards.
@@ -97,20 +125,35 @@ before publication and recorded in `docs/deviations.md`.
     `results/models/cloud/`, `results/post_run_changes.json`, `results/metrics.json`, `results/report.md`, `README.md`
     changed.
 
-## G. The start day (the author and the operator, after publication and registration, before the first request)
-24. A key created for this branch only, with a credit limit of at most 15 USD that never resets, set in OpenRouter
-    and saved in the key file (`--key-file`, `OPENROUTER_KEY_FILE`, or the default in the author's home directory),
-    readable only by its owner (C1). Preferably in a separate OpenRouter account or workspace (C9).
-25. The privacy setting for free and for paid models decided by the author (C9), and written here with its time:
-    free: ______ paid: ______ at ______ UTC; account or workspace: ______.
-26. `python -m judge.cloud --status` run once; its output (`limit`, `limit_reset`, `free_model_daily_requests.limit`)
-    copied into `registration.json` as `key_reading` and published with the registration (C10). If the free daily
-    limit is 50, not 1,000, the schedule of §10 does not hold (C10).
-27. `python -m judge.cloud --check-listings` run on the start day, before the first request, to re-read the live
+## G. Before publication: the author's decisions (Correction 2, C16; filled in and committed before the amendment is published and the secret gist is created)
+A "no" in item 26 or a "drop" in item 27 is made by a further correction of Amendment 3 before the gist, never after
+it; until then the branch is registered as §2 lists it. The reviewer checks that every blank below is filled.
+24. The key: a key created for this branch only, with a credit limit of **exactly 15 USD** and `limit_reset` null (it
+    never resets), set in OpenRouter, preferably in a separate OpenRouter account or workspace (C1, C9, C15). The
+    runner refuses a paid model on any other limit, on a resetting limit, and on a reading that leaves out `limit`,
+    `limit_remaining` or `limit_reset`.
+    Key created as stated: ______ (yes / no); account or workspace: ______.
+25. The privacy setting for free and for paid models (C9), where it is set, and when:
+    free: ______ paid: ______ set in: ______ at ______ UTC.
+26. The paid arm (P1–P3; estimate 2.90 USD, worst case 10.13 USD, never more than the key's 15 USD):
+    ______ (yes / no).
+27. The reference row `google/gemma-4-31b-it:free` (600 free requests, about 0.6 of a day's quota; descriptive only,
+    not compared): ______ (keep / drop).
+28. One reading of `python -m judge.cloud --status` on the dedicated key (`limit` 15, `limit_reset` null,
+    `free_model_daily_requests.limit`), copied into `registration.json` as `key_reading` and published with the
+    registration (C10); the runner refuses while it is empty. Agreed: ______ (yes / no); reading taken at
+    ______ UTC (filled at registration). If the free daily limit is 50, not 1,000, the schedule of §10 does not hold.
+
+## H. The start day (the author and the operator, after publication and registration, before the first request)
+29. The dedicated key of item 24 saved in the key file (`--key-file`, `OPENROUTER_KEY_FILE`, or the default in the
+    author's home directory), readable only by its owner (`stat -f '%Sp'` gives `-rw-------`). A free run whose key
+    reading differs from `key_reading` records a deviation (C15).
+30. The privacy setting of item 25 is in effect on the account's settings page on the start day.
+31. `python -m judge.cloud --check-listings` run on the start day, before the first request, to re-read the live
     listings of all seven models (C2); its records committed. A model whose check fails is not replaced; it waits, and
     `--watch-listing MODEL` decides whether it is ever closed.
 
-## H. What the reviewer reports
+## I. What the reviewer reports
 A list of findings, each with severity (blocks publication / should fix / note), file and line, and evidence. Then a
 single line: "publish" or "do not publish". The owner decides; nothing is pushed, no gist is created and no request is
 sent before that.

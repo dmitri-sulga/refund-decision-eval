@@ -162,11 +162,11 @@ class FakeTransport:
     and the free-model daily count; /api/v1/credits needs a management key and is never called."""
 
     def __init__(self, fail_at=(), error=None, usage=None, model=None, provider="registered", remaining=1000,
-                 limit=15.0, limit_remaining=15.0, limit_reset=None, reasoning=None, content=None):
+                 limit=15.0, limit_remaining=15.0, limit_reset=None, reasoning=None, content=None, omit=()):
         self.calls, self.error, self.usage, self.model, self.provider = [], error, usage, model, provider
         self.fail_at = {fail_at} if isinstance(fail_at, int) else set(fail_at)
         self.remaining, self.reasoning, self.gets, self.content = remaining, reasoning, [], content
-        self.limit, self.limit_remaining, self.limit_reset = limit, limit_remaining, limit_reset
+        self.limit, self.limit_remaining, self.limit_reset, self.omit = limit, limit_remaining, limit_reset, omit
 
     def send(self, body):
         self.calls.append(body)
@@ -183,11 +183,12 @@ class FakeTransport:
     def get(self, url):
         self.gets.append(url)
         assert url == K.KEY_URL
-        return {"data": {"label": "sk-or-v1-abc...xyz", "limit": self.limit, "limit_remaining": self.limit_remaining,
-                         "limit_reset": self.limit_reset, "usage": 0.0, "usage_daily": 0.0,
-                         "include_byok_in_limit": False, "is_free_tier": False,
-                         "free_model_daily_requests": {"used": 1000 - self.remaining, "limit": 1000,
-                                                       "remaining": self.remaining}}}
+        data = {"label": "sk-or-v1-abc...xyz", "limit": self.limit, "limit_remaining": self.limit_remaining,
+                "limit_reset": self.limit_reset, "usage": 0.0, "usage_daily": 0.0,
+                "include_byok_in_limit": False, "is_free_tier": False,
+                "free_model_daily_requests": {"used": 1000 - self.remaining, "limit": 1000,
+                                              "remaining": self.remaining}}
+        return {"data": {f: v for f, v in data.items() if f not in self.omit}}
 
 
 @pytest.fixture
@@ -199,7 +200,7 @@ def sandbox(tmp_path, monkeypatch):
     records = {i: {"product": "P", "sub_product": "S", "issue": "I", "sub_issue": "J", "narrative": f"text {i}",
                    "label": 0} for i in ["d1", "d2", "d3", "l1", "l2", "h1"]}
     monkeypatch.setattr(K, "preflight", lambda tag, published_head=None, getter=None: {
-        "sets": sets, "test": {"h1"}, "registration": {}})
+        "sets": sets, "test": {"h1"}, "registration": FILLED})
     monkeypatch.setattr(X, "item_sets", lambda: (sets, {"h1"}))
     K.REGISTRATION.write_text(json.dumps(FILLED))
     return {"tmp": tmp_path, "records": records, "sets": sets}
@@ -285,16 +286,30 @@ def test_a_paid_model_needs_enough_of_the_keys_limit_before_it_starts(sandbox):
 
 
 def test_a_paid_model_refuses_a_key_without_a_limit_and_a_free_model_does_not(sandbox):
-    """Correction, B1: the paid arm needs a key limited in OpenRouter (never resetting, at most the branch cap)."""
+    """Correction, B1, and Correction 2, C15: the paid arm needs a key limited in OpenRouter to exactly 15 USD, never
+    resetting, and a reading that reports every field it relies on (the review's m-a: a missing limit_reset is not
+    "never resets"); a free run on another key is recorded as a deviation (m-j)."""
     for kw, why in (({"limit": None, "limit_remaining": None}, "no credit limit"),
-                    ({"limit": 50.0, "limit_remaining": 50.0}, "above the branch cap"),
-                    ({"limit_reset": "monthly"}, "resets")):
+                    ({"limit": 50.0, "limit_remaining": 50.0}, "not exactly the branch cap"),
+                    ({"limit": 10.0, "limit_remaining": 10.0}, "not exactly the branch cap"),
+                    ({"limit_reset": "monthly"}, "resets"),
+                    ({"omit": ("limit_reset",)}, "did not report limit_reset"),
+                    ({"omit": ("limit", "limit_remaining")}, "did not report limit, limit_remaining")):
         t = FakeTransport(**kw)
         with pytest.raises(X.Refusal, match=why):
             run(PAID1, sandbox, t)
         assert t.calls == [] and X._jsonl(K.JOURNAL) == []
+    before = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "account_before"]
+    assert before[-1]["fields_missing"] == ["limit", "limit_remaining", "budgets", "effective_budget"]
+    assert "budgets" in before[-1] and "effective_budget" in before[-1]           # m-i: recorded (null if absent)
+    assert not [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]   # the registered key: no deviation
+    run(FREE1, sandbox, FakeTransport(remaining=K.FREE_DAILY_MARGIN + 1))
+    assert not [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
     t = FakeTransport(limit=None, limit_remaining=None)
-    assert run(FREE1, sandbox, t)["missing"] == 0 and len(t.calls) == 10
+    assert run(FREE1, sandbox, t)["missing"] == 0 and len(t.calls) == 9
+    dev = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    assert len(dev) == 1 and dev[0]["kind"] == "key_differs" and dev[0]["fields"] == ["limit"]
+    assert K.verify(records=sandbox["records"]) == []
 
 
 def test_a_failed_key_reading_stops_a_paid_model(sandbox):
@@ -749,19 +764,24 @@ def test_a_per_minute_429_is_not_the_daily_limit():
                       FREE1)[0] == "quota"
 
 
-def test_listing_checks_alone_do_not_block_the_next_start(sandbox, monkeypatch):
-    """Correction, m10."""
+def test_records_written_before_any_request_do_not_block_the_next_start(sandbox, monkeypatch):
+    """Correction, m10, and Correction 2, C17 (the review's m-d, PROBE_G): listing checks, the key's readings, the
+    estimate and a refusal before the first send need no commit; a journaled request does."""
     monkeypatch.setattr(C, "ROOT", sandbox["tmp"])
-    rel = K.RUN_LOG.relative_to(C.ROOT).as_posix()
+    rel, srel = K.RUN_LOG.relative_to(C.ROOT).as_posix(), K.SPEND.relative_to(C.ROOT).as_posix()
     X._append(K.RUN_LOG, {"at": X.now(), "event": "run_started", "model": PAID1})
-    committed = K.RUN_LOG.read_text()
-    monkeypatch.setattr(X, "git", lambda *a: committed if a[0] == "show" else "")
+    committed = {rel: K.RUN_LOG.read_text(), srel: ""}
+    monkeypatch.setattr(X, "git", lambda *a: committed[a[1].split(":", 1)[1]] if a[0] == "show" else "")
     X._append(K.RUN_LOG, {"at": X.now(), "event": "listing", "model": FREE1, "ok": False})
     X._append(K.RUN_LOG, {"at": X.now(), "event": "run_stopped", "model": FREE1, "verdict": "unavailable"})
-    assert K.only_listing_appends([rel])
-    assert not K.only_listing_appends([rel, "sent.jsonl"])
-    X._append(K.RUN_LOG, {"at": X.now(), "event": "run_started", "model": FREE1})
-    assert not K.only_listing_appends([rel])
+    assert K.only_pre_request_appends([rel])
+    assert not K.only_pre_request_appends([rel, "sent.jsonl"])
+    with pytest.raises(X.Refusal, match="did not report limit_reset"):     # a paid model refused before any send
+        run(PAID1, sandbox, FakeTransport(omit=("limit_reset",)))
+    run(FREE1, sandbox, FakeTransport(remaining=K.FREE_DAILY_MARGIN))     # a free run with no allowance left today
+    assert X._jsonl(K.JOURNAL) == [] and K.only_pre_request_appends([rel, srel])
+    X._append(K.RUN_LOG, {"at": X.now(), "event": "closed_incomplete", "model": FREE1, "reason": "x"})
+    assert not K.only_pre_request_appends([rel, srel])
 
 
 # ------------------------------------------------------------------ preflight (Correction, m7)
@@ -826,3 +846,186 @@ def test_preflight_refuses_each_registered_condition(pre_env, monkeypatch):
     monkeypatch.setattr(X, "state", lambda: {"status": {}})
     with pytest.raises(X.Refusal, match="Amendment 1 or 2 is not closed"):
         pre(FREE1)
+    monkeypatch.setattr(X, "state", lambda: {"status": {t: "complete" for t, _ in X.MODELS}})
+    X._append(K.RUN_LOG, {"at": X.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free"})  # Correction 2
+    with pytest.raises(X.Refusal, match="key's limit in OpenRouter was spent during the free arm"):
+        pre(FREE1)
+
+
+# ------------------------------------------------------------------ Correction 2, after the second independent review
+SPENT = "Budget limit exceeded (key limit). $15.00 of $15.00 used; resets never."
+GEMMA = K.REFERENCE_ONLY[0]
+
+
+def test_403_and_402_are_sorted_by_what_they_report():
+    """Correction 2, C11 (the review's MAJOR-1): a 403 is never a rejection."""
+    c = K.classify
+    assert c(K.CloudError(403, SPENT, limit_source="openrouter_key_limit"), PAID1)[0] == "key_limit"
+    assert c(K.CloudError(403, SPENT), FREE1)[0] == "key_limit"                        # the message alone
+    assert c(K.CloudError(403, "x", limit_source="guardrail_budget"), PAID1)[0] == "key_limit"
+    assert c(K.CloudError(403, "Provider returned error (SAFETY)", etype="content_policy_violation"), GEMMA)[0] \
+        == "filtered"
+    assert c(K.CloudError(403, "refused", etype="refusal"), PAID1)[0] == "filtered"
+    assert c(K.CloudError(403, "Forbidden"), PAID1)[0] == "filtered"
+    assert c(K.CloudError(403, "flagged", moderation={"reasons": ["x"]}), PAID1)[0] == "moderated"
+    assert c(K.CloudError(403, "No endpoints found matching your data policy"), FREE1)[0] == "account"
+    assert c(K.CloudError(402, "Insufficient credits in flight", limit_source=K.IN_FLIGHT_SOURCE), PAID1)[0] \
+        == "transient"
+    assert c(K.CloudError(402, "Insufficient credits"), PAID1)[0] == "account"
+    assert c(K.CloudError(404, "No endpoints found"), PAID1)[0] == "rejected"
+    # the error type is read from metadata.error_type, as documented; `reasons` only from OpenRouter's moderation
+    e = K._error_from_json({"code": 403, "message": "Provider returned error", "metadata": {
+        "error_type": "content_policy_violation", "provider_name": "Google AI Studio", "raw": "SAFETY"}}, 403, {})
+    assert e.etype == "content_policy_violation" and e.moderation is None and c(e, GEMMA)[0] == "filtered"
+    e = K._error_from_json({"code": 403, "message": SPENT, "metadata": {"limit_source": "openrouter_key_limit"}},
+                           403, {})
+    assert e.limit_source == "openrouter_key_limit" and c(e, PAID1)[0] == "key_limit"
+    assert K._error_from_json({"code": 400, "message": "m", "type": "bad"}, 400, {}).etype == "bad"
+
+
+def test_a_spent_key_limit_stops_the_arm_and_never_closes_a_model_as_rejected(sandbox):
+    """Correction 2, C13 (the review's PROBE_A: a paid model closed as 'rejected' on the key's spent limit)."""
+    for i, date in enumerate(("Thu, 12 Nov 2026 12:00:00 GMT", "Fri, 13 Nov 2026 12:00:01 GMT")):
+        err = K.CloudError(403, SPENT, limit_source="openrouter_key_limit", date=date)
+        with pytest.raises(X.Refusal, match="no model is closed by it"):
+            run(PAID1, sandbox, FakeTransport(fail_at=2, error=err))
+    assert not K.state()["status"]                                       # no model closed by the 403
+    assert K.repeated(PAID1, X._jsonl(K.RUN_LOG), X._jsonl(K.JOURNAL)) is None
+    assert [e["arm"] for e in X._jsonl(K.RUN_LOG) if e["event"] == "key_limit_stop"] == ["paid", "paid"]
+    assert K.arm_stopped_by_key(K.PAID_QUEUE[2], X._jsonl(K.RUN_LOG)) and not K.arm_stopped_by_key(
+        FREE1, X._jsonl(K.RUN_LOG))
+    assert all(e["kind"] != "rejected" for e in X._jsonl(K.JOURNAL))
+    why = K.close_incomplete(PAID1)                                      # only by the operator, as a budget stop
+    assert why.startswith("incomplete (2 of 10 answered): stopped by the budget") and "rejected" not in why
+    assert K.close_incomplete(K.PAID_QUEUE[2]).startswith("not run: stopped by the budget")
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_a_content_filter_403_fails_one_request_and_the_run_goes_on(sandbox):
+    """Correction 2, C12 (the review's PROBE_B: Gemma closed at 2 of 10 answers by Google AI Studio's filter)."""
+    def safety(date):
+        return K.CloudError(403, "Provider returned error (SAFETY)", etype="content_policy_violation", date=date)
+    out = run(GEMMA, sandbox, FakeTransport(fail_at=3, error=safety("Thu, 12 Nov 2026 12:00:00 GMT")))
+    assert out["new_answers"] == 9 and out["filtered_to_send_again"] == 1 and not K.state()["status"]
+    kinds = [e["kind"] for e in X._jsonl(K.JOURNAL)]
+    assert kinds.count("filtered") == 1 and "rejected" not in kinds
+    assert [e["event"] for e in X._jsonl(K.RUN_LOG)].count("filtered") == 1
+    with pytest.raises(X.Refusal, match="cannot be closed"):
+        K.close_incomplete(GEMMA)
+    t = FakeTransport(fail_at=1, error=safety("Thu, 12 Nov 2026 13:00:00 GMT"))
+    run(GEMMA, sandbox, t)                                               # the refused request once more, refused again
+    assert len(t.calls) == 1
+    assert K.state()["status"][GEMMA] == ("incomplete (9 of 10 answered): 1 request(s) refused by the provider's "
+                                          "content filter on 2 runs")
+    assert K.verify(records=sandbox["records"]) == []
+    from judge import cloud_analysis as CA
+    d = CA.deviations(GEMMA, X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], X._jsonl(K.CACHE_FILE))
+    assert d["filtered"] == 2 and d["filtered_final"] == 1
+    k = [e["key"] for e in X._jsonl(K.JOURNAL) if e["kind"] == "filtered"][0]
+    X._append(K.JOURNAL, {"at": X.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
+    assert any("after its content-filter refusal" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_filtered_request_answered_on_its_second_run_is_an_answer(sandbox):
+    err = K.CloudError(403, "Provider returned error", etype="refusal")
+    run(PAID1, sandbox, FakeTransport(fail_at=5, error=err))
+    out = run(PAID1, sandbox, FakeTransport())
+    assert out["missing"] == 0 and K.state()["status"][PAID1] == "complete"
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_make_check_accepts_a_model_over_its_cap_only_by_its_journaled_overrun(sandbox, monkeypatch):
+    """Correction 2, C14 (the review's MAJOR-2, PROBE_D: 0.8917 USD spent against a sub-cap of 0.5)."""
+    monkeypatch.setattr(K, "SUB_CAP_USD", 0.5)
+    with pytest.raises(X.Refusal, match="output above max_tokens"):
+        run(PAID1, sandbox, FakeTransport(usage={"prompt_tokens": 700, "completion_tokens": 300000}))
+    assert np.isclose(K.committed_for(PAID1), 0.8917, atol=1e-4)
+    assert K.state()["status"][PAID1].startswith("incomplete (1 of 10 answered)")
+    assert K.verify(records=sandbox["records"]) == []
+    good = K.SPEND.read_text()
+    extra = 0.6                                                         # spend the overrun does not account for
+    X._append(K.SPEND, {"at": X.now(), "event": "charged", "model": PAID1, "key": f"{PAID1}|v1|d2",
+                        "cost_usd": extra, "running_total_usd": round(K.spend_state()["computed"] + extra, 6)})
+    assert any("by more than its journaled overrun" in p for p in K.verify(records=sandbox["records"]))
+    K.SPEND.write_text(good)
+    K.JOURNAL.write_text("".join(ln + "\n" for ln in K.JOURNAL.read_text().splitlines() if '"overrun"' not in ln))
+    assert any("no journaled overrun accounts for it" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_quarantined_answer_above_its_reservation_is_an_overrun_and_closes_a_paid_model(sandbox):
+    """Correction 2, C14 (the review's m-c, PROBE_F)."""
+    t = FakeTransport(provider="SomeoneElse", usage={"prompt_tokens": 700, "completion_tokens": 40, "cost": 0.89})
+    with pytest.raises(X.Refusal, match="quarantined answer cost"):
+        run(PAID1, sandbox, t)
+    ov = [e for e in X._jsonl(K.JOURNAL) if e["kind"] == "overrun"]
+    assert len(ov) == 1 and ov[0]["quarantined"] and K.state()["status"][PAID1].startswith("not run:")
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_an_error_inside_a_200_without_usage_is_charged_on_a_paid_model_only(sandbox):
+    """Correction 2, C17 (the review's m-e, PROBE_H)."""
+    err = K.CloudError(502, "upstream error", in_200=True)
+    assert run(PAID1, sandbox, FakeTransport(fail_at=2, error=err))["missing"] == 0
+    charged = [e for e in X._jsonl(K.SPEND) if e["event"] == "charged"]
+    assert len(charged) == 1 and charged[0]["note"].startswith("worst case")
+    assert run(FREE1, sandbox, FakeTransport(fail_at=2, error=err))["missing"] == 0
+    assert len([e for e in X._jsonl(K.SPEND) if e["event"] == "charged"]) == 1
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_an_undated_listing_check_does_not_block_a_later_full_day_of_failures():
+    """Correction 2, C17 (the review's m-b, PROBE_E)."""
+    undated = [{"at": "2026-11-12T00:00:00Z", "event": "listing", "model": FREE1, "ok": False, "server_date": None}]
+    hourly = [{"at": "2026-11-12T01:00:00Z", "event": "listing", "model": FREE1, "ok": False, "server_date": d}
+              for d in _hourly(1, 40)[::2]]
+    assert K.streak_closes(K.unavailable_streak(FREE1, undated + hourly, cache={}))
+    assert not K.streak_closes(K.unavailable_streak(FREE1, hourly + undated, cache={}))   # the latest is undated
+    assert not K.streak_closes(K.unavailable_streak(FREE1, undated + hourly[:20], cache={}))
+
+
+def test_the_listing_check_compares_max_completion_tokens_on_paid_models():
+    """Correction 2, C17 (the review's m-f): the overrun room of C3 rests on the registered value."""
+    models, _, eps = S.load_snapshot()
+    for tag, extra, bad in ((PAID1, 1, True), (PAID1, None, True), (PAID1, -1000, False), (FREE1, 1, False)):
+        reg = K.ENDPOINT[tag]["max_completion_tokens"]
+        changed = {**eps, tag: [{**e, "max_completion_tokens": None if extra is None else reg + extra}
+                                if e["tag"] == K.ENDPOINT[tag]["tag"] else e for e in eps[tag]]}
+        why = K.listing_check(tag, _getter(models, changed))[0]
+        assert (why is not None and "max_completion_tokens" in why) if bad else why is None
+
+
+def test_a_keys_label_is_shaped_like_a_key():
+    """Correction 2, C17 (the review's m-h, PROBE_I)."""
+    assert K.scrub("label sk-or-v1-au7...890 here") == "label [redacted] here"
+    assert K.KEY_PATTERN.search("sk-or-v1-abc...xyz")
+
+
+def test_the_key_readings_reported_are_those_of_the_paid_runs():
+    """Correction 2, C17 (the review's m-m)."""
+    from judge import cloud_analysis as CA
+    log = [{"at": "a", "event": "account_before", "model": FREE1, "limit": 15.0, "limit_remaining": 15.0},
+           {"at": "b", "event": "account_before", "model": PAID1, "limit": 15.0, "limit_remaining": 14.5},
+           {"at": "c", "event": "account_after", "model": PAID1, "limit": 15.0, "limit_remaining": 12.0},
+           {"at": "d", "event": "account_after", "model": FREE1, "limit": 15.0, "limit_remaining": 12.0}]
+    acc = CA.account(log)
+    assert acc["first"]["at"] == "b" and acc["last"]["at"] == "c"
+    assert CA.account(log[:1] + log[3:]) == {}
+
+
+def test_the_report_lists_the_recorded_deviations(sandbox):
+    """Correction 2, C17 (the review's m-g): overruns, quarantined answers, resends, content-filter refusals, fields
+    left out, answers without a provider field and free runs on another key are counted and printed."""
+    from judge import cloud_analysis as CA
+    journal = [{"key": f"{PAID1}|v1|d1", "kind": "overrun"}, {"key": f"{PAID1}|v1|d2", "kind": "resend"},
+               {"key": f"{FREE1}|v1|d1", "kind": "filtered"}, {"key": f"{FREE1}|v1|d1", "kind": "filtered"}]
+    log = [{"event": "field_dropped", "model": PAID1, "field": "seed"},
+           {"event": "deviation", "kind": "key_differs", "model": FREE1}]
+    out = {"order": [FREE1, PAID1], "models": {
+        t: {"deviations": CA.deviations(t, journal, log, [{"model": PAID1}], [{"provider": None}])}
+        for t in (FREE1, PAID1)}}
+    s = CA.deviations_sentence(out)
+    assert f"{PAID1}: 1 overrun, 1 answer kept in quarantine, 1 resend, 1 answer without a provider field, left out " \
+           "seed" in s
+    assert f"{FREE1}: 2 content-filter refusals, 1 request refused on two runs" in s and "another key" in s
+    empty = {"order": [FREE1], "models": {FREE1: {"deviations": CA.deviations(FREE1, [], [], [], [])}}}
+    assert CA.deviations_sentence(empty).startswith("Recorded deviations: none")

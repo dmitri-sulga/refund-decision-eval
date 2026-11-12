@@ -5,3 +5,4 @@
 {"at": "2026-11-12T20:19:31.954697+00:00", "context": "check-listings", "endpoint_status": 0, "event": "listing", "model": "deepseek/deepseek-v4-pro-0813", "ok": true, "reason": null, "server_date": "Thu, 12 Nov 2026 20:19:31 GMT"}
 {"at": "2026-11-12T20:19:32.161885+00:00", "context": "check-listings", "endpoint_status": 0, "event": "listing", "model": "moonshotai/kimi-k2.6", "ok": true, "reason": null, "server_date": "Thu, 12 Nov 2026 20:19:32 GMT"}
 {"at": "2026-11-12T20:19:32.360166+00:00", "context": "check-listings", "endpoint_status": 0, "event": "listing", "model": "xiaomi/mimo-v2.6-pro", "ok": true, "reason": null, "server_date": "Thu, 12 Nov 2026 20:19:32 GMT"}
+{"at": "2026-11-12T20:30:11.371453+00:00", "context": "run", "endpoint_status": 0, "event": "listing", "model": "nvidia/nemotron-3-ultra-550b-a55b:free", "ok": true, "reason": null, "server_date": "Thu, 12 Nov 2026 20:30:11 GMT"}

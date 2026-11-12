@@ -7,3 +7,4 @@ results/tmp/
 .download/
 data/mirror_subset.jsonl.gz
 results/models/hosted/run.lock
+results/models/cloud/run.lock

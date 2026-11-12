@@ -7,9 +7,9 @@
  "api_version": "2026-10-21",
  "inference_geo": "global",
  "cap_usd": 15.0,
- "code_commit": null,
- "code_published_at": null,
- "code_published_source": null,
+ "code_commit": "fb56b4f28fe8e1540445aa8017e93207d78415ed",
+ "code_published_at": "2026-11-12T06:03:39Z",
+ "code_published_source": "GitHub repository activity API (repos/dmitri-sulga/refund-decision-eval/activity): push of main from 1f5e6b2 to fb56b4f",
  "earlier_gists_not_edited": ["dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)", "f17036e715dc7ae227fba1b7b4845abf (the local-models extension's record)"],
  "requests_before_this_file": 0
 }

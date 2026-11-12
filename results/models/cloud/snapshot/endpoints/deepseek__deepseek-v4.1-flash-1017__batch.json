@@ -1,0 +1,126 @@
+{
+ "data": {
+  "id": "deepseek/deepseek-v4.1-flash-1017:batch",
+  "name": "DeepSeek: DeepSeek V4.1 Flash 1017 (batch)",
+  "created": 1792225624,
+  "description": "DeepSeek V4.1 Flash 1017 is the October 17, 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek under the `deepseek-flash` API model name. V4.1 Flash is a sparse mixture-of-experts model...",
+  "architecture": {
+   "tokenizer": "DeepSeek",
+   "instruct_type": null,
+   "modality": "text+image->text",
+   "input_modalities": [
+    "text",
+    "image"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Morph | deepseek/deepseek-v4.1-flash-20261017:batch",
+    "model_id": "deepseek/deepseek-v4.1-flash-1017:batch",
+    "model_name": "DeepSeek: DeepSeek V4.1 Flash 1017",
+    "context_length": 1048576,
+    "pricing": {
+     "prompt": "0.000000011",
+     "completion": "0.0000002",
+     "input_cache_read": "0.000000002",
+     "discount": 0
+    },
+    "provider_name": "Morph",
+    "tag": "morph/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 943718,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "max_tokens",
+     "temperature",
+     "stop",
+     "top_p",
+     "top_k",
+     "min_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "logit_bias",
+     "tools",
+     "tool_choice",
+     "structured_outputs",
+     "reasoning_effort"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": null,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "Sail Research | deepseek/deepseek-v4.1-flash-20261017:batch",
+    "model_id": "deepseek/deepseek-v4.1-flash-1017:batch",
+    "model_name": "DeepSeek: DeepSeek V4.1 Flash 1017",
+    "context_length": 1048576,
+    "pricing": {
+     "prompt": "0.00000005",
+     "completion": "0.00000015",
+     "input_cache_read": "0.000000004",
+     "discount": 0
+    },
+    "provider_name": "Sail Research",
+    "tag": "sail-research/fp4",
+    "service_tier": null,
+    "quantization": "fp4",
+    "max_completion_tokens": 384000,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "frequency_penalty",
+     "max_tokens",
+     "presence_penalty",
+     "seed",
+     "stop",
+     "temperature",
+     "top_k",
+     "top_p",
+     "reasoning_effort"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": null,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

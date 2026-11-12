@@ -1,0 +1,60 @@
+{
+ "what": "The public record of the cloud branch (docs/analysis_plan_models.md, Amendment 3, section 12). code_commit, code_published_at and the gist fields are filled after the branch's code commit is published and before any request; the runner refuses while any is null. Times are GitHub's, not the author's clock.",
+ "repository": "dmitri-sulga/refund-decision-eval",
+ "models": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "dots-studio/dots-3-note-preview:free",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "google/gemma-4-31b-it:free",
+  "deepseek/deepseek-v4-pro-0813",
+  "moonshotai/kimi-k2.6",
+  "xiaomi/mimo-v2.6-pro"
+ ],
+ "free_queue": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "dots-studio/dots-3-note-preview:free",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "google/gemma-4-31b-it:free"
+ ],
+ "paid_queue": [
+  "deepseek/deepseek-v4-pro-0813",
+  "moonshotai/kimi-k2.6",
+  "xiaomi/mimo-v2.6-pro"
+ ],
+ "compared": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "dots-studio/dots-3-note-preview:free",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "deepseek/deepseek-v4-pro-0813",
+  "moonshotai/kimi-k2.6",
+  "xiaomi/mimo-v2.6-pro"
+ ],
+ "reference_only": [
+  "google/gemma-4-31b-it:free"
+ ],
+ "endpoints": {
+  "nvidia/nemotron-3-ultra-550b-a55b:free": "nvidia",
+  "dots-studio/dots-3-note-preview:free": "atlas-cloud/fp8",
+  "nvidia/nemotron-3.5-super-vl:free": "nvidia",
+  "google/gemma-4-31b-it:free": "google-ai-studio",
+  "deepseek/deepseek-v4-pro-0813": "novita/fp8",
+  "moonshotai/kimi-k2.6": "crusoe/bf16",
+  "xiaomi/mimo-v2.6-pro": "gmicloud/bf16"
+ },
+ "cap_usd": 15.0,
+ "sub_cap_usd": 5.0,
+ "snapshot_taken": "2026-11-12T11:50:17Z to 2026-11-12T11:52:11Z (results/models/cloud/snapshot/fetch_log.json)",
+ "snapshot_sha256": "261ccaefc149b5c34029df1dfd783b0f79fb119d0b5e3fe3937cc287ecc603b5",
+ "code_commit": null,
+ "code_published_at": null,
+ "code_published_source": null,
+ "gist_id": null,
+ "gist_url": null,
+ "gist_created_at": null,
+ "gist_file_sha256": null,
+ "earlier_gists_not_edited": [
+  "dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)",
+  "f17036e715dc7ae227fba1b7b4845abf (the local-models extension's record)"
+ ],
+ "requests_before_this_file": 0
+}

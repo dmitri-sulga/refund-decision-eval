@@ -1,0 +1,173 @@
+{
+ "data": {
+  "id": "ricursiveai/ripple-65b-preview",
+  "name": "Ricursive: Ripple 65B Preview",
+  "created": 1793818990,
+  "description": "Ripple-65B-Preview by ricursiveAI, a 65B model with native tool calling, served in BF16.",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "PrimeIntellect | ricursiveai/ripple-65b-preview-20261104",
+    "model_id": "ricursiveai/ripple-65b-preview",
+    "model_name": "Ricursive: Ripple 65B Preview",
+    "context_length": 1048576,
+    "pricing": {
+     "prompt": "0.0000001",
+     "completion": "0.0000003",
+     "input_cache_read": "0.000000025",
+     "discount": 0
+    },
+    "provider_name": "PrimeIntellect",
+    "tag": "primeintellect/bf16",
+    "service_tier": null,
+    "quantization": "bf16",
+    "max_completion_tokens": 131072,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "top_k",
+     "stop",
+     "seed",
+     "response_format",
+     "structured_outputs",
+     "tools",
+     "tool_choice",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": null,
+    "uptime_last_1d": 99.63099630996311,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "Together | ricursiveai/ripple-65b-preview-20261104",
+    "model_id": "ricursiveai/ripple-65b-preview",
+    "model_name": "Ricursive: Ripple 65B Preview",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.0000002",
+     "completion": "0.0000006",
+     "input_cache_read": "0.00000002",
+     "discount": 0
+    },
+    "provider_name": "Together",
+    "tag": "together",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 117964,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "top_k",
+     "repetition_penalty",
+     "logit_bias",
+     "min_p",
+     "logprobs",
+     "top_logprobs",
+     "response_format"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "GMICloud | ricursiveai/ripple-65b-preview-20261104",
+    "model_id": "ricursiveai/ripple-65b-preview",
+    "model_name": "Ricursive: Ripple 65B Preview",
+    "context_length": 1048576,
+    "pricing": {
+     "prompt": "0.0000002",
+     "completion": "0.0000006",
+     "input_cache_read": "0.00000005",
+     "discount": 0
+    },
+    "provider_name": "GMICloud",
+    "tag": "gmicloud/bf16",
+    "service_tier": null,
+    "quantization": "bf16",
+    "max_completion_tokens": 131072,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "seed",
+     "response_format",
+     "tools",
+     "tool_choice",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": false,
+     "function": false
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

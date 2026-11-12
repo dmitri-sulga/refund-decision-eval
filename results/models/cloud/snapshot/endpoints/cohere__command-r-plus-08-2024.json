@@ -1,0 +1,70 @@
+{
+ "data": {
+  "id": "cohere/command-r-plus-08-2024",
+  "name": "Cohere: Command R+ (08-2024)",
+  "created": 1724976000,
+  "description": "command-r-plus-08-2024 is an update of the [Command R+](/models/cohere/command-r-plus) with roughly 50% higher throughput and 25% lower latencies as compared to the previous Command R+ version, while keeping the hardware footprint...",
+  "architecture": {
+   "tokenizer": "Cohere",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Cohere | cohere/command-r-plus-08-2024",
+    "model_id": "cohere/command-r-plus-08-2024",
+    "model_name": "Cohere: Command R+ (08-2024)",
+    "context_length": 128000,
+    "pricing": {
+     "prompt": "0.0000025",
+     "completion": "0.00001",
+     "discount": 0
+    },
+    "provider_name": "Cohere",
+    "tag": "cohere",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 4000,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "top_k",
+     "seed",
+     "structured_outputs",
+     "response_format",
+     "tools",
+     "tool_choice"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

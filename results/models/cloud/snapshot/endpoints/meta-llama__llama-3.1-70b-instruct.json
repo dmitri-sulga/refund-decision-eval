@@ -1,0 +1,63 @@
+{
+ "data": {
+  "id": "meta-llama/llama-3.1-70b-instruct",
+  "name": "Meta: Llama 3.1 70B Instruct",
+  "created": 1721692800,
+  "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 70B instruct-tuned version is optimized for high quality dialogue usecases. It has demonstrated strong...",
+  "architecture": {
+   "tokenizer": "Llama3",
+   "instruct_type": "llama3",
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Amazon Bedrock | meta-llama/llama-3.1-70b-instruct",
+    "model_id": "meta-llama/llama-3.1-70b-instruct",
+    "model_name": "Meta: Llama 3.1 70B Instruct",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.00000072",
+     "completion": "0.00000072",
+     "discount": 0
+    },
+    "provider_name": "Amazon Bedrock",
+    "tag": "amazon-bedrock",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 8192,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "top_k",
+     "stop"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

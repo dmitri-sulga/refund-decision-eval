@@ -1,0 +1,72 @@
+{
+ "data": {
+  "id": "motif-technologies/motif-3",
+  "name": "Motif Technologies: Motif 3",
+  "created": 1793655334,
+  "description": "Motif 3 is a Mixture-of-Experts language model from Motif Technologies, with 314B total and 13.2B active parameters. It is a general-purpose multilingual model for English and Korean, particularly strong at...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "KT | motif-technologies/motif-3",
+    "model_id": "motif-technologies/motif-3",
+    "model_name": "Motif Technologies: Motif 3",
+    "context_length": 262144,
+    "pricing": {
+     "prompt": "0.0000003",
+     "completion": "0.0000012",
+     "input_cache_read": "0.00000006",
+     "discount": 0
+    },
+    "provider_name": "KT",
+    "tag": "kt",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 235929,
+    "max_prompt_tokens": 262144,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "temperature",
+     "top_k",
+     "top_p",
+     "max_tokens",
+     "response_format",
+     "structured_outputs",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,73 @@
+{
+ "data": {
+  "id": "rekaai/reka-edge",
+  "name": "Reka Edge",
+  "created": 1774026965,
+  "description": "Reka Edge is an extremely efficient 7B multimodal vision-language model that accepts image/video+text inputs and generates text outputs. This model is optimized specifically to deliver industry-leading performance in image understanding,...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text+image+video->text",
+   "input_modalities": [
+    "image",
+    "text",
+    "video"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Reka | rekaai/reka-edge-2603",
+    "model_id": "rekaai/reka-edge",
+    "model_name": "Reka Edge",
+    "context_length": 16384,
+    "pricing": {
+     "prompt": "0.0000001",
+     "completion": "0.0000001",
+     "discount": 0
+    },
+    "provider_name": "Reka",
+    "tag": "reka",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 14745,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "tool_choice",
+     "tools",
+     "top_k",
+     "top_p",
+     "stop",
+     "seed",
+     "temperature",
+     "frequency_penalty",
+     "presence_penalty",
+     "max_tokens",
+     "structured_outputs",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

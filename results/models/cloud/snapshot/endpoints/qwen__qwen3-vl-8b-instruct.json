@@ -1,0 +1,76 @@
+{
+ "data": {
+  "id": "qwen/qwen3-vl-8b-instruct",
+  "name": "Qwen: Qwen3 VL 8B Instruct",
+  "created": 1760463308,
+  "description": "Qwen3-VL-8B-Instruct is a multimodal vision-language model from the Qwen3-VL series, built for high-fidelity understanding and reasoning across text, images, and video. It features improved multimodal fusion with Interleaved-MRoPE for long-horizon...",
+  "architecture": {
+   "tokenizer": "Qwen3",
+   "instruct_type": null,
+   "modality": "text+image->text",
+   "input_modalities": [
+    "image",
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Parasail | qwen/qwen3-vl-8b-instruct",
+    "model_id": "qwen/qwen3-vl-8b-instruct",
+    "model_name": "Qwen: Qwen3 VL 8B Instruct",
+    "context_length": 262144,
+    "pricing": {
+     "prompt": "0.00000025",
+     "completion": "0.00000075",
+     "input_cache_read": "0.00000012",
+     "discount": 0
+    },
+    "provider_name": "Parasail",
+    "tag": "parasail/bf16",
+    "service_tier": null,
+    "quantization": "bf16",
+    "max_completion_tokens": 235929,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "stop",
+     "top_k",
+     "logit_bias",
+     "tools",
+     "tool_choice",
+     "response_format",
+     "structured_outputs",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": false,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 97.2396486825596,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

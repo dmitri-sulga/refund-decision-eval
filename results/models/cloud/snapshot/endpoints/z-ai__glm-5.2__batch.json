@@ -1,0 +1,79 @@
+{
+ "data": {
+  "id": "z-ai/glm-5.2:batch",
+  "name": "Z.ai: GLM 5.2 (batch)",
+  "created": 1781631930,
+  "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workflows, project-level software engineering,...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Morph | z-ai/glm-5.2-20260616:batch",
+    "model_id": "z-ai/glm-5.2:batch",
+    "model_name": "Z.ai: GLM 5.2",
+    "context_length": 1048576,
+    "pricing": {
+     "prompt": "0.000000322",
+     "completion": "0.000000989",
+     "input_cache_read": "0.000000109",
+     "discount": 0
+    },
+    "provider_name": "Morph",
+    "tag": "morph/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 943718,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "max_tokens",
+     "temperature",
+     "stop",
+     "top_p",
+     "top_k",
+     "min_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "logit_bias",
+     "response_format",
+     "structured_outputs",
+     "tools",
+     "tool_choice",
+     "logprobs",
+     "top_logprobs",
+     "reasoning_effort"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": null,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,67 @@
+{
+ "data": {
+  "id": "tencent/hunyuan-a13b-instruct",
+  "name": "Tencent: Hunyuan A13B Instruct",
+  "created": 1751987664,
+  "description": "Hunyuan-A13B is a 13B active parameter Mixture-of-Experts (MoE) language model developed by Tencent, with a total parameter count of 80B and support for reasoning via Chain-of-Thought. It offers competitive benchmark...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "SiliconFlow | tencent/hunyuan-a13b-instruct",
+    "model_id": "tencent/hunyuan-a13b-instruct",
+    "model_name": "Tencent: Hunyuan A13B Instruct",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.00000014",
+     "completion": "0.00000057",
+     "discount": 0
+    },
+    "provider_name": "SiliconFlow",
+    "tag": "siliconflow/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 117964,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "structured_outputs",
+     "response_format",
+     "temperature",
+     "top_p",
+     "top_k",
+     "frequency_penalty",
+     "max_tokens"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

@@ -777,3 +777,318 @@ training. This is not measured.
   average, the cap stops it before its 600th request, depending on where in those ranges the other figures fall. Its
   remaining cells are then reported as incomplete. Lost answers (timeouts, lost connections) are charged at their
   worst case, about 0.12 USD each on `claude-opus-5-5`, and so lower that figure.
+
+## Amendment 3 (2026-11-12, a cloud branch through OpenRouter, registered before any request to it)
+
+**Where this note is.** Below Amendment 2, which is unchanged, as are Amendment 1 and lines 1–149. This amendment adds
+a separately registered branch. It replaces no passage of the plan or of the earlier amendments, and nothing in them
+depends on it.
+
+**Status and who did what.** No model below had been sent any request by this project's code, and the OpenRouter key
+had not been read by it. Unlike Amendments 1 and 2, this one was written after both earlier arms had run and their
+results had been reported (eleventh change); the question below is asked because of what they left open, and its
+answer is reported whatever it is. The author asked for a cloud branch through OpenRouter, with the free models as the
+main arm and at most three paid models, a 15 USD ceiling, and only work that is useful. The AI coding assistant that
+wrote this repository wrote the selection rules, applied them in code to a snapshot of public listings, and wrote this
+amendment, the runner, the analysis and their tests.
+
+**§1 The question, and why.**
+- **The question.** Amendment 1 ran seven local models of 9.7B to 31.7B parameters and Amendment 2 three closed-weights
+  hosted models. Amendment 1, §10 says: "Nothing is said about larger or hosted models". This branch asks, for
+  open-weights models larger than every model run so far (124.5B to 1,650.5B parameters), the same two questions: on
+  DEV, is judge v1 or v2 above, below or not distinguishable from the issuer lookup (A), and does judge v1 pay more or
+  less often than the companies did (B)?
+- **Why it is worth asking.** If no model of any size or family beats a lookup that never reads the complaint, that is
+  a statement about the task and the record more than about one model; if one does, that is the first such result of
+  the study. The design detects the same effect sizes as Amendment 1 (its §2), so "not distinguishable" again does not
+  mean "no better than the lookup".
+- **Relation to the earlier amendments.** Amendment 1, §13 foresaw "A hosted arm (large open-weights models through a
+  hosted service)"; Amendment 2 registered a different one. This is that open-weights arm, registered as Amendment 3.
+  Its models are not added to the local set of Amendment 1 (§5 there) or to the hosted arm of Amendment 2: they do not
+  enter those arms' counts, comparisons, corrected levels or summary sentences. This branch has its own (§3, §11).
+
+**§2 Models: the rules, the snapshot, the list.**
+- **The snapshot.** On 2026-11-12 between 11:50:17 and 11:52:11 UTC, `python -m judge.cloud_select --fetch` saved,
+  without a key: OpenRouter's model list (`GET /api/v1/models`, 468 models, 13 of them free), the provider endpoints of
+  every model that passed the model-level rules (`GET /api/v1/models/{id}/endpoints`, 117 files), and for each listed
+  open-weights model the parameter count Hugging Face reports for its stored weights (`safetensors.total` from
+  `https://huggingface.co/api/models/{repo}`; four repositories answered 401 and so have no count). The raw responses
+  are committed in `results/models/cloud/snapshot/` with `fetch_log.json`; their SHA-256 (over the sorted files) is in
+  `results/models/cloud/registration.json`.
+- **The rules,** in `src/judge/cloud_select.py`; `python -m judge.cloud_select --check`, part of `make check`, fails
+  unless they select from the committed snapshot exactly the list below. Common to both arms, a model must:
+  1. not be Anthropic's, OpenAI's or a router (`openrouter/free`);
+  2. list a Hugging Face id (open weights) for which Hugging Face reports a parameter count;
+  3. take text and return only text;
+  4. not have reasoning that cannot be switched off (`reasoning.mandatory` in the listing), as the plan's exclusion
+     rule requires (line 48; Amendment 1, §10);
+  5. not be a coding, safety, translation, OCR, extraction or role-play model, a "thinking" or "reasoning" variant, or
+     abliterated or uncensored (words in the id, listed in `EXCLUDED_ID_WORDS`);
+  6. not be a derivative of another model: a listing that says "built on" or "based on" followed by a linked model, or
+     "fine-tune of", "fine-tuned from" or "merge of", or a Hugging Face `base_model` of another organisation;
+  7. have more than 32B parameters: larger than every model already run (`gemma4:31b`, 31.7B; `qwen3.8:27b`, 27.8B).
+- **Free arm** (the main arm): every free model (`:free`, prompt and completion price 0) that passes rules 1–7, at
+  most five, by parameters; its endpoint is the one listed with status 0.
+- **Serving-contrast row:** a free model whose weights were already run in Amendment 1 (rule 7 aside) is run as a
+  descriptive reference row. One exists: `google/gemma-4-31b-it:free`, the weights of `gemma4:31b`.
+- **Paid arm:** priced models without a variant suffix that pass rules 1–7, whose weights are not in the free arm or
+  already run, with at least one endpoint that has status 0, supports `structured_outputs`, `temperature` and
+  `max_tokens`, states a precision of fp8 or wider (fp8, bf16, fp16, fp32: not fp4, int4 or "unknown"), and costs at
+  most 1.00 USD per million input tokens and 4.00 USD per million output tokens with no per-request fee. Per developer,
+  the largest such model (ties: the newest); then the three largest of these. Had the estimate of §7 been above the
+  cap, models would have been dropped from the smallest up; it is not. The chosen endpoint is the one with the lowest
+  estimated cost of 600 requests (§7), then the wider precision, then the tag.
+- **One correction before registration.** The first version of rule 6 matched the words "built on" anywhere, and so
+  excluded `nvidia/nemotron-3-ultra-550b-a55b:free`, whose listing says "Built on a hybrid Transformer-Mamba
+  mixture-of-experts architecture". The rule was narrowed to a linked model name before anything was registered or
+  sent; no answer of any model of this branch existed.
+
+| Order | Model (OpenRouter id) | Arm | Parameters (Hugging Face) | Licence (Hugging Face) | Pinned endpoint (provider, precision) | USD per million input / output | `seed` sent | Format field |
+|---|---|---|---|---|---|---|---|---|
+| F1 | `nvidia/nemotron-3-ultra-550b-a55b:free` | free | 560.5B (55B active) | other (NVIDIA) | `nvidia` (Nvidia, not stated) | 0 / 0 | yes | none: the endpoint supports neither |
+| F2 | `dots-studio/dots-3-note-preview:free` | free | 288.4B (16B active) | Apache 2.0 | `atlas-cloud/fp8` (AtlasCloud, fp8) | 0 / 0 | no: not supported | `json_schema`, strict |
+| F3 | `nvidia/nemotron-3.5-super-vl:free` | free | 124.5B (12B active) | other (NVIDIA) | `nvidia` (Nvidia, not stated) | 0 / 0 | yes | `json_schema`, strict |
+| F4 | `google/gemma-4-31b-it:free` | free, reference row | 31.3B | Apache 2.0 | `google-ai-studio` (Google AI Studio, not stated) | 0 / 0 | yes | `json_object` |
+| P1 | `deepseek/deepseek-v4-pro-0813` | paid | 1,650.5B | MIT | `novita/fp8` (Novita, fp8) | 0.99 / 2.97 | yes | `json_schema`, strict |
+| P2 | `moonshotai/kimi-k2.6` | paid | 1,026.9B | other (Moonshot) | `crusoe/bf16` (Crusoe, bf16) | 0.70 / 3.50 | yes | `json_schema`, strict |
+| P3 | `xiaomi/mimo-v2.6-pro` | paid | 1,024.2B | MIT | `gmicloud/bf16` (GMICloud, bf16) | 0.32625 / 0.6525 | yes | `json_schema`, strict |
+
+- **Parameters** are Hugging Face's count of the stored weights (active parameters from the OpenRouter listing, where
+  it gives them). For weights stored packed (Kimi K2.6 stores most of its weights as int32-packed int4) the count is of
+  stored elements; the 32B threshold is far below every model of the comparison set, so this changes no choice.
+- **Rejected free models,** with the first rule each fails: `baidu/ernie-5.5-flash-preview:free` (no parameter count:
+  Hugging Face answered 401; its reasoning is also mandatory); `thinkingmachines/inkling-2-small:free` (no open weights
+  listed); `liquid/lfm-3-1.7b:free`, `liquid/lfm-2.5-2.6b:free` and `recursive/flint-v1.0:free` (reasoning mandatory);
+  `cohere/north-mini-code:free` (a coding model); `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (a reasoning
+  variant); `nvidia/nemotron-3.5-lightning:free` (31.6B) and `google/gemma-4-26b-a4b-it:free` (25.8B), not larger than
+  the models already run; `google/lyria-3-pro-preview` and `google/lyria-3-clip-preview` (audio output, no open
+  weights); `openrouter/free` (a router).
+- **The next paid models by the rule,** not run: `tencent/hy4-preview`, `z-ai/glm-5.1`, `minimax/minimax-m3`.
+- **Fixed now.** No model is added, replaced or dropped after this registration. If a model or its pinned endpoint
+  disappears or changes (§9), it is closed as the rules say and reported; no substitute is chosen.
+
+**§3 The comparison set and the reference rows.**
+- **The comparison set** is F1–F3 and P1–P3: **12 comparisons** with the issuer lookup (6 models x 2 prompts) and **6
+  payout comparisons**. **Corrected levels**, fixed now for those counts: **99.583%** for A (1 − 0.05/12) and
+  **99.167%** for B (1 − 0.05/6), printed as in Amendment 1, §3.
+- **Reasoning, checked on every answer.** Every request asks for reasoning to be switched off (§5). A model of the set
+  leaves it and becomes a reference row, labelled "reported reasoning (see Amendment 3, section 3); not part of the
+  comparisons", if any of its answers reports a reasoning token (`usage.completion_tokens_details.reasoning_tokens`
+  above 0) or returns reasoning text (`message.reasoning` or `message.reasoning_details`). The rule is mechanical: one
+  token is enough. The corrected levels stay those fixed above.
+- **F4, the serving-contrast row,** gets no label and is not counted. Printed for it: the figures every model gets, the
+  95% paired intervals against the issuer lookup and the record (descriptive), and, per cell, the kappa and the number
+  of identical decisions between its answers and the answers of `gemma4:31b` in Amendment 1 to the same complaints.
+  This is the one measure in the study of how much serving (provider, precision, runtime, format mechanism) changes the
+  answers of the same weights; it is one contrast, not a test-retest.
+
+**§4 What is held fixed.** As Amendment 2, §4: DEV (200 complaints, unmodified text) and the labelled sample (100),
+with `prompts.visible_narrative`; v1 and v2 as the frozen `src/judge/prompts.py` builds them, the system and user
+messages sent byte for byte as the request's `messages` (a test rebuilds the frozen Ollama request from them and gets
+the frozen template hash); `judgments.parse`, `models_analysis.malformed` (a `finish_reason` other than `stop` is
+malformed) and the functions of `src/judge/models_analysis.py`, unchanged. Within a model: (v1, DEV), (v1, labelled),
+(v2, DEV), (v2, labelled), 600 requests; 4,200 in all.
+
+**§5 The request.** Every request is `POST https://openrouter.ai/api/v1/chat/completions` with an `Authorization`
+header carrying the key and `content-type: application/json`, and this body:
+
+| Field | Value |
+|---|---|
+| `model` | the OpenRouter id of §2 |
+| `messages` | the frozen system message, then the frozen user message |
+| `temperature` | 0 (the local runs' value) |
+| `seed` | 42 (the local runs' value), only where the pinned endpoint supports it (not F2) |
+| `max_tokens` | 512 (the local runs' `num_predict`) |
+| `reasoning` | `{"effort": "none"}` |
+| `response_format` | `{"type": "json_schema", "json_schema": {"name": "judge_v1" or "judge_v2", "strict": true, "schema": S}}` where the endpoint supports structured outputs; `{"type": "json_object"}` where it supports only JSON mode (F4); not sent where it supports neither (F1) |
+| `provider` | `{"order": [the pinned endpoint's tag], "allow_fallbacks": false, "require_parameters": true}` |
+| `stream` | `false` |
+
+S is the frozen schema with `"additionalProperties": false` added, as in Amendment 2. Nothing else is sent: no
+`top_p`, `top_k`, penalties, tools, `transforms`, `models` fallback list or `usage` flag (usage, with its cost, is
+always returned). No setting changes after a model's first request, with the one exception of §9.
+
+Why each (pages under `https://openrouter.ai/docs/`, read on 2026-11-12):
+- **Temperature 0 and seed 42** are the local runs' settings; the hosted arm could not send them, this one can. A
+  hosted stack may still not be deterministic at temperature 0 (§6).
+- **`reasoning: {"effort": "none"}`**: `use-cases/reasoning-tokens`: "`"effort": "none"` - Disables reasoning
+  entirely"; models whose reasoning is mandatory reject it, and rule 4 excluded them.
+- **Structured output** as the local runs' `format` and the hosted arm's `output_config.format`:
+  `features/structured-outputs` (the request shape, `strict: true`, support "determined per endpoint", and the advice
+  to set `require_parameters`). Where the pinned endpoint cannot constrain the output, the frozen prompt's own "Reply
+  with JSON only" is all the model gets, and its malformed answers are counted as the frozen rule says (§6).
+- **The provider is pinned** (`features/provider-routing`: `order` accepts a full endpoint tag such as
+  `deepinfra/fp8`; `allow_fallbacks: false` keeps the request off any other provider; `require_parameters: true` skips
+  an endpoint that would ignore a parameter instead of failing). Every answer must report the pinned provider (§9).
+- **One request at a time**, each journaled before it is sent, as in the earlier arms. Transport: Python's `urllib`,
+  no client library, no retry inside it, no redirect followed.
+
+**§6 Differences that cannot be removed (limits).**
+- **Hosted, not local.** The weights run on the pinned provider's stack, at its precision (fp8 or bf16 where stated;
+  F1, F3 and F4 do not state it), behind OpenRouter. Each answer records the returned model name, the provider, the
+  generation id, the server's date and the time.
+- **No test-retest on the cloud.** No answered request is sent twice. Temperature 0 does not guarantee identical
+  answers on a hosted stack (batching, kernels); the study already saw changed answers on DEV re-asks of a local model.
+  F4 against `gemma4:31b` is the only serving contrast, and it mixes provider, precision and format mechanism.
+- **Free-tier instability.** Free endpoints are rate-limited by OpenRouter (20 requests per minute; 1,000 a day for
+  accounts that bought at least 10 credits; `api-reference/limits`, read 2026-11-12, which does not say when the daily
+  count resets or whether failed requests count) and by the provider, and can be withdrawn without notice (F2 lists an
+  expiry date of 2026-12-31). The schedule (§10) and the rules of §9 handle this; a model that disappears is closed
+  and reported, never replaced.
+- **Provider routing.** Each model is pinned to one endpoint with fallbacks off, so a provider outage stops the run
+  (§9) instead of moving it to another provider, precision or price. The endpoint chosen for a paid model is the
+  cheapest that qualifies, not the developer's own (DeepSeek's model has no endpoint run by DeepSeek in the snapshot).
+- **The format mechanism differs between models:** strict JSON schema (F2, F3, P1–P3), JSON mode (F4), or none (F1).
+  `judgments.parse` is unchanged and strict: an answer wrapped in a code fence is malformed and scored as no money
+  back. F1 may therefore have more malformed answers for a reason that is not about deciding; the three readings of
+  Amendment 1, §7 and the format thresholds (20 of 200, 10 of 100) apply as registered.
+- **Tokens** are counted by each provider's tokenizer; the 7,680-token rule of Amendment 1, §7 is applied to them.
+- **Data.** The complaints are public CFPB narratives. Free endpoints may log or train on prompts; the account's privacy
+  setting must allow the pinned free endpoints, or they refuse (an account condition, §9).
+- **Training data.** As Amendment 1, §10: these models may have seen the complaints and their outcomes in training.
+  Not measured.
+
+**§7 Budget.** A hard cap of **15 USD for the branch** and **5 USD for each model**, enforced in code
+(`src/judge/cloud.py`). The author reported 25 USD of credit with 0 used on the account before this amendment.
+- **Cost of an answer:** the larger of the cost the API reports (`usage.cost`) and the registered endpoint prices of §2
+  applied to the reported tokens (`prompt_tokens`, `completion_tokens`; reasoning tokens are output tokens). Both are
+  recorded. A free model's answer costs 0 unless the API reports otherwise, and then it is counted.
+- **Before each request,** its worst case: input as the request's UTF-8 bytes plus 2,000 tokens, output as
+  `max_tokens`, at the registered prices; 0 on a free model. If the committed spend (computed spend plus open
+  reservations) plus that worst case would exceed either cap, the request is not sent and the model is closed as
+  "incomplete (k of 600 answered): stopped by the cap"; after a stop at the branch cap no paid request is sent.
+- **Before each paid model:** its projection (bytes over 3 plus 500 tokens of input, 512 tokens of output per request)
+  must fit under both caps, and the account's remaining credit, read from `GET /api/v1/credits`, must be at least the
+  worst case of the model's remaining requests plus 1 USD; otherwise nothing is sent.
+- **Write-ahead reservation, losses, crashes:** as Amendment 2, §7. A lost answer is charged at its reported usage if
+  that can be read, otherwise at its worst case.
+- **Credits before and after.** Every run records `GET /api/v1/credits` (total credits, total usage, remaining) and
+  `GET /api/v1/key` (the free-model daily count) before its first request and after its last. These two requests use
+  the key, call no model and cost nothing; their numbers are printed with the results.
+- **The spend journal,** `results/models/cloud/spend.jsonl`: every estimate, reservation, settlement, answer (model,
+  key, generation id, time, tokens, reported and charged cost, running total) and charge, and each model's totals.
+- **The estimate** (no request was sent to measure it). Basis: the 600 requests of `claude-haiku-5-5` in Amendment 2
+  held 964,520 input tokens (with that API's format instructions; the local models' prompts held 476,098 to 501,654) and
+  40,400 output tokens (local: 30,383 to 33,885); with a 30% margin, 1,253,876 input and 52,520 output tokens per model.
+
+| Model | Input: 1,253,876 tokens x price | Output: 52,520 tokens x price | Estimate | Code's projection | Worst case (every request at its bound) |
+|---|---|---|---|---|---|
+| F1–F4 (free) | 0 | 0 | 0 | 0 | 0 |
+| P1 `deepseek/deepseek-v4-pro-0813` | x 0.99 = 1.2413 | x 2.97 = 0.1560 | 1.3973 USD | 2.1143 USD | 4.8145 USD |
+| P2 `moonshotai/kimi-k2.6` | x 0.70 = 0.8777 | x 3.50 = 0.1838 | 1.0615 USD | 1.9239 USD | 3.8309 USD |
+| P3 `xiaomi/mimo-v2.6-pro` | x 0.32625 = 0.4091 | x 0.6525 = 0.0343 | 0.4433 USD | 0.5961 USD | 1.4852 USD |
+| **Total** |  |  | **2.90 USD** | 4.63 USD | 10.13 USD |
+
+Prices are in USD per million tokens; `python -m judge.cloud --estimate` prints the last three columns from the
+inputs. Each model's worst case is under its 5 USD cap and the three together under 15 USD, so no model was dropped
+for cost; the caps can bind only through lost answers charged at their worst case, or if a provider bills more than
+the registered price, which the listing check of §9 refuses before each run.
+
+**§8 Held-out complaints are never sent.** The local runner's item sets and guard, unchanged (Amendment 2, §8); a test
+puts a held-out ID at the head of the work list and checks that nothing is sent, journaled or spent; `make check`
+fails on any journal entry or answer for a held-out complaint.
+
+**§9 Answers, interruptions, retries, closing.** This replaces, for this branch, Amendment 1, §5. No model is ever
+dropped at the operator's choice; no registered setting changes after the first request, except as stated here.
+- **An answer** is an HTTP 200 with `choices[0].message`, `usage.prompt_tokens` and `usage.completion_tokens`, from
+  the registered model (its id, its id without `:free`, or its canonical slug, with or without a date suffix) at the
+  pinned provider. It is cached and never resent. It is malformed when its text does not parse or its `finish_reason`
+  is not `stop` (`length`, `content_filter`, `error` or any other).
+- **A moderation flag** (an error whose metadata gives `reasons`) is an answer with no text: cached, malformed, scored
+  as no money back, its reasons kept; the run goes on.
+- **The free daily limit** (a 429 on a free model with `X-RateLimit-Remaining: 0`) stops the run without counting as an
+  error; the model resumes after the reset. A free run also stops itself, before any 429, after the day's remaining
+  count reported by `GET /api/v1/key` less 25 (or, if that count is not reported, at 950 free sends in the UTC day by
+  the journal).
+- **Rate limits, overloads, timeouts reported by the server and server errors** (408, 429 otherwise, 5xx), including
+  an error object inside an HTTP 200 with such a code: waited out, up to four retries of the same request after 30, 60,
+  120 and 240 seconds (or a longer `retry-after`, at most 300); not charged unless the error reports usage; never using
+  up the one resend. After the fourth the run stops; the next run sends the request again. At most 150 such errors per
+  model; then the model may be closed.
+- **Account conditions** stop the run at once and never close a model: 401, 402, a 4xx whose message names the data
+  policy, a privacy setting or a guardrail, and a missing or group-readable key file.
+- **Any other 3xx or 4xx is a rejection:** the run stops, nothing is dropped. **The one exception fixed now:** a 400 to
+  a model's very first request whose message names `reasoning` or `seed` leaves that field out for that model only,
+  from then on; every answer records the fields left out, and the report states them.
+- **Lost answers** (a timeout or lost connection after sending, an unreadable 200): charged (§7), sent again once with
+  `--resend-unanswered`; every resend is reported.
+- **Listing check before each run** (public requests, no key): the model must still be listed with the same Hugging
+  Face id, and its pinned endpoint with status 0, the same provider and precision, and a price no higher than
+  registered (zero for a free model). If not, nothing is sent and the event is recorded with the server's date.
+- **Closing a model** happens only on a condition the code checks in the files: all 600 answers ("complete"); an answer
+  from another model or provider (charged, not cached); billed input above the bound the cap relies on (paid models);
+  a cap; the end of the work list with every missing request's one resend served; or, with `--close-incomplete`, the
+  error bound, or the same rejection of the same request, or the listing check failing, observed at least 24 hours
+  apart by the server's date headers. A closed model is never run again; it is reported as "not run: " or "incomplete
+  (k of 600 answered): " with its reason.
+
+**§10 Schedule.** Two queues, each in the order of §2: free (F1, F2, F3, F4) and paid (P1, P2, P3). A model starts only
+when the models before it in its queue are closed; the queues may alternate (paid models run while the free queue
+waits for its daily reset), but never at the same time (one run lock).
+- **Pace:** one request every 4 seconds on free models (15 a minute, under the 20 allowed), every second on paid ones.
+- **Free arm:** 2,400 requests; at 975 a day: day 1, F1 (600) and 375 of F2; day 2, the rest of F2, F3 (600) and 150
+  of F4; day 3, the rest of F4. At least three days of quota; provider rate limits and withdrawals can lengthen it.
+- **Paid arm:** 1,800 requests, about two to four hours in all, in one day.
+- **Start:** not before this amendment, the code and the snapshot are published, the secret gist is created and
+  `results/models/cloud/registration.json` is completed and published (§12). After each model, `results/models/cloud/`
+  is committed and published before the next model of either queue starts.
+
+**§11 What is computed and reported, whatever the result.**
+- **Per model, prompt and split,** what Amendment 1 computes (kappa against the record with its interval; on DEV, the
+  paired difference with the issuer lookup and the A label; for v1 on DEV, the payout difference and the B label; on
+  the labelled sample, the person's figures, descriptive; malformed answers and seconds per call; kappa with
+  `qwen3.8:27b`'s answers, descriptive), with the corrected levels of §3. Added for this branch, per cell: reasoning
+  tokens (median and maximum), finish reasons other than `stop`, moderation flags, the providers that answered; for F4,
+  the serving contrast of §3. Each model's status in plain words.
+- **The summary sentence,** built by `src/judge/cloud_analysis.py` from Amendment 1's template for the comparison set
+  only, starting "Cloud branch, on DEV:"; while any model is not closed it gives no count and names the models not
+  closed. Then: a sentence on one run of each model as served on the dates of the run, if any A label is "above"; "The
+  design compares each model with the issuer lookup and with the record, not models with one another; it does not show
+  that the results are independent of the model."; any model of the set not counted, with its reason; the reference
+  rows; the person's framing sentence of Amendment 2, §10 (one source in the code); the cost per model and in total
+  against the cap; the credit remaining by the API before the first run and after the last.
+- **What will not be concluded** (adds to Amendment 1, §10 and Amendment 2, §11): no ranking and no "best model";
+  these models are not compared with the local or the Anthropic models; size and family are not isolated (provider,
+  precision and format mechanism go with each model); "not distinguishable" is not "no better"; each figure is one run
+  of each model as served on the dates of the run.
+- **Where it is printed.** A README section headed "Cloud branch (Amendment 3; added later, exploratory)", after the
+  hosted section, with its detail in `results/report.md`; on the first screen at most: "Added later, exploratory: the
+  same two prompts were also run on six larger open-weights models through OpenRouter, on DEV and the labelled sample
+  only; see [the section]." The presentation code is written after the run, as in the eleventh change, and prints the
+  registered analysis's output.
+
+**§12 Public before the first call.** As Amendment 1, §6 and Amendment 2, §12.
+- **Published first:** this amendment, `src/judge/cloud.py`, `src/judge/cloud_select.py`,
+  `src/judge/cloud_analysis.py`, `tests/test_cloud.py`, the `Makefile`, the snapshot and
+  `results/models/cloud/pre_run_checklist.md`, committed and published to the public repository through GitHub's
+  git-data API, each object checked against the local hash, with `main` moved by a non-forced update.
+- **A new secret gist** holds the code commit id and the SHA-256 of the published files and of the snapshot; the
+  earlier gists are not edited. `results/models/cloud/registration.json` is committed now with the commit, publication
+  and gist fields empty; they are filled from GitHub's records in a second commit, also published. The runner refuses
+  while any is empty.
+- **The runner refuses to start unless** lines 1–149 of this file are the registered text; every model of Amendments 1
+  and 2 is closed; the registration is complete; the protected files (`PROTECTED` in `src/judge/cloud.py`: this plan,
+  the branch's code and tests, the earlier runners, the frozen prompt, request, parsing, metric, data and label code,
+  and the `Makefile`) equal the published commit; the tree is clean outside `results/models/cloud/`; HEAD is the commit
+  GitHub shows as `main`; the earlier models of the queue are closed; the blind labels are locked; the key file exists
+  and only its owner can read it; and the listing check passes.
+- **The key** is read from the file named by `OPENROUTER_KEY_FILE` (by default a file in the author's home directory)
+  only when a request is sent, sent only in the `Authorization` header (never forwarded on a redirect), and never
+  written to a file, log line or error message; errors are rebuilt from the response body with the key and anything
+  shaped like a key removed, and no traceback is printed. The `Makefile` does not name the key or its file. `make
+check` fails if a file under `results/models/cloud/` holds anything shaped like a key.
+- **The run lock** and its recovery are those of Amendment 2, §12 (`python -m judge.cloud --break-stale-lock`).
+
+**§13 Checks.** `make check` also runs `python -m judge.cloud --verify` (files only: the model list, queues and
+endpoints; no key in the branch's files; the time order of its journals; and, once there are requests, the
+registration complete and the first request after publication; no held-out complaint; sends, retries and resends
+within the rules; every answer sent as registered, from the registered model and provider, within `max_tokens`,
+journaled before its request, with a spend entry equal to its recomputed cost; the running totals; both caps) and
+`python -m judge.cloud_select --check`. `tests/test_cloud.py` tests each rule offline, with a fake transport, a mock
+server on 127.0.0.1 and a fake key file.
+
+**§14 Stop rules, in one place.** A request is not sent when it could take the spend over a cap. A run stops at the
+free daily limit, at an account condition, at a rejection, after the fourth retry of a waited-out error, at a lost
+answer, or when the listing check fails; none of these drops a model or changes a setting. A model is closed only as
+§9 lists. No model is added or replaced, no cap is raised, and no request of this branch is sent outside the 4,200 of
+§4: no warm-up, no test call, no probe of a model.

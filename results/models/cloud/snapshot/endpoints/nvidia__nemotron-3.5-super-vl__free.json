@@ -1,0 +1,70 @@
+{
+ "data": {
+  "id": "nvidia/nemotron-3.5-super-vl:free",
+  "name": "NVIDIA: Nemotron 3.5 Super VL (free)",
+  "created": 1792076662,
+  "description": "NVIDIA Nemotron 3.5 Super VL is an open multimodal mixture-of-experts model from NVIDIA, with 12B active parameters out of 120B total. It takes text, images, documents, GUI screenshots, and video...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text+image+video->text",
+   "input_modalities": [
+    "text",
+    "image",
+    "video"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Nvidia | nvidia/nemotron-3.5-super-vl-20261015:free",
+    "model_id": "nvidia/nemotron-3.5-super-vl:free",
+    "model_name": "NVIDIA: Nemotron 3.5 Super VL",
+    "context_length": 1000000,
+    "pricing": {
+     "prompt": "0",
+     "completion": "0",
+     "discount": 0
+    },
+    "provider_name": "Nvidia",
+    "tag": "nvidia",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 131072,
+    "max_prompt_tokens": 868928,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "temperature",
+     "max_tokens",
+     "seed",
+     "top_p",
+     "tools",
+     "tool_choice",
+     "response_format",
+     "structured_outputs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 84.375,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

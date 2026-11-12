@@ -1,0 +1,121 @@
+{
+ "data": {
+  "id": "microsoft/phi-4",
+  "name": "Microsoft: Phi 4",
+  "created": 1736489872,
+  "description": "[Microsoft Research](/microsoft) Phi-4 is designed to perform well in complex reasoning tasks and can operate efficiently in situations with limited memory or where quick responses are needed. At 14 billion...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "DeepInfra | microsoft/phi-4",
+    "model_id": "microsoft/phi-4",
+    "model_name": "Microsoft: Phi 4",
+    "context_length": 16384,
+    "pricing": {
+     "prompt": "0.000000056",
+     "completion": "0.000000112",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/bf16/flex",
+    "service_tier": "flex",
+    "quantization": "bf16",
+    "max_completion_tokens": 14745,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "logit_bias",
+     "response_format",
+     "structured_outputs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": null,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "DeepInfra | microsoft/phi-4",
+    "model_id": "microsoft/phi-4",
+    "model_name": "Microsoft: Phi 4",
+    "context_length": 16384,
+    "pricing": {
+     "prompt": "0.00000007",
+     "completion": "0.00000014",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/bf16",
+    "service_tier": null,
+    "quantization": "bf16",
+    "max_completion_tokens": 14745,
+    "max_prompt_tokens": 4096,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "logit_bias",
+     "structured_outputs",
+     "response_format"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,74 @@
+{
+ "data": {
+  "id": "qwen/qwen2.5-vl-72b-instruct",
+  "name": "Qwen: Qwen2.5 VL 72B Instruct",
+  "created": 1738410311,
+  "description": "Qwen2.5-VL is proficient in recognizing common objects such as flowers, birds, fish, and insects. It is also highly capable of analyzing texts, charts, icons, graphics, and layouts within images.",
+  "architecture": {
+   "tokenizer": "Qwen",
+   "instruct_type": null,
+   "modality": "text+image->text",
+   "input_modalities": [
+    "text",
+    "image"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Parasail | qwen/qwen2.5-vl-72b-instruct",
+    "model_id": "qwen/qwen2.5-vl-72b-instruct",
+    "model_name": "Qwen: Qwen2.5 VL 72B Instruct",
+    "context_length": 128000,
+    "pricing": {
+     "prompt": "0.0000008",
+     "completion": "0.000001",
+     "input_cache_read": "0.0000004",
+     "discount": 0
+    },
+    "provider_name": "Parasail",
+    "tag": "parasail/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 115200,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "stop",
+     "top_k",
+     "logit_bias",
+     "structured_outputs",
+     "response_format",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 97.63888888888889,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

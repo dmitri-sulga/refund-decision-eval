@@ -1,0 +1,1521 @@
+{
+ "models": {
+  "baidu/ERNIE-5.5-Flash-Preview": {
+   "error": "HTTPError: HTTP Error 401: Unauthorized"
+  },
+  "nex-agi/Nex-N2.6": {
+   "total": 321323031390,
+   "parameters": {
+    "F32": 3637854,
+    "BF16": 6922754304,
+    "F8_E4M3": 314396639232
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "LiquidAI/LFM3-1.7B": {
+   "total": 1728801536,
+   "parameters": {
+    "BF16": 1728801536
+   },
+   "license": "other",
+   "base_model": "LiquidAI/LFM3-1.7B-Base"
+  },
+  "ricursiveAI/Ripple-65B-Preview": {
+   "total": 64782689360,
+   "parameters": {
+    "BF16": 64782689360
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "tencent/Hy4": {
+   "error": "HTTPError: HTTP Error 401: Unauthorized"
+  },
+  "Motif-Technologies/Motif-3": {
+   "total": 314841775750,
+   "parameters": {
+    "BF16": 314841775750
+   },
+   "license": "mit",
+   "base_model": [
+    "Motif-Technologies/Motif-3-Base"
+   ]
+  },
+  "moonshotai/Kimi-K3.1-Pro": {
+   "total": 2780110363392,
+   "parameters": {
+    "F32": 11122432,
+    "BF16": 57358410752,
+    "U8": 2722740830208
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "RecursiveSI/flint": {
+   "total": 39785287456,
+   "parameters": {
+    "BF16": 39785287456
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "MiniMaxAI/MiniMax-M3.1-Flash": {
+   "total": 220490854016,
+   "parameters": {
+    "F32": 46339200,
+    "BF16": 3323222528,
+    "F8_E4M3": 10560208896,
+    "U8": 206561083392
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4.1-Flash-1017": {
+   "total": 763205315794,
+   "parameters": {
+    "BF16": 1976441856,
+    "F32": 42307282,
+    "F8_E4M3": 204015223296,
+    "I8": 557171343360
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "reflection/Beam-1.0-501B-A23B": {
+   "total": 501267612352,
+   "parameters": {
+    "BF16": 501203374528,
+    "F32": 64237824
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "prism-ml/Ternary-Bonsai-2-9B-gguf": {
+   "total": null,
+   "parameters": null,
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen3.5-9B"
+   ]
+  },
+  "moondream/moondream3-preview": {
+   "total": 9268626928,
+   "parameters": {
+    "BF16": 9268626928
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "moondream/moondream3.1-9B-A2B": {
+   "total": 9273869808,
+   "parameters": {
+    "F32": 5242880,
+    "BF16": 1215563248,
+    "F8_E4M3": 8053063680
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "meta-models/Muse-Spark-Open-816B-A42B": {
+   "total": 822036529664,
+   "parameters": {
+    "BF16": 821906490368,
+    "F32": 130039296
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16": {
+   "total": 124453395976,
+   "parameters": {
+    "BF16": 124453374976,
+    "F32": 20998,
+    "I64": 2
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "LiquidAI/LFM2.5-24B-A2B": {
+   "total": 23971585280,
+   "parameters": {
+    "F32": 2432,
+    "BF16": 23971585280
+   },
+   "license": "other",
+   "base_model": "LiquidAI/LFM2.5-24B-A2B-Base"
+  },
+  "stepfun-ai/Step-5-Preview": {
+   "total": 604339504832,
+   "parameters": {
+    "F32": 2433984,
+    "BF16": 39615980288,
+    "F8_E4M3": 564721090560
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "mistralai/Mistral-Large-4-1T-A52B": {
+   "total": null,
+   "parameters": null,
+   "license": "other",
+   "base_model": null
+  },
+  "inclusionAI/Ling-3.1-flash": {
+   "total": 572120680768,
+   "parameters": {
+    "BF16": 1491619712,
+    "F8_E4M3": 570628505600,
+    "F32": 555456
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "CohereLabs/command-a-plus-05-2026-bf16": {
+   "total": 218750277872,
+   "parameters": {
+    "BF16": 218750277872
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "XiaomiMiMo/MiMo-V2.6-Flash-RL": {
+   "total": 310756322688,
+   "parameters": {
+    "F32": 12032,
+    "BF16": 4101308032,
+    "F8_E4M3": 3859808256,
+    "U8": 302795194368
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "XiaomiMiMo/MiMo-V2.6-Pro-RL": {
+   "total": 1024216603392,
+   "parameters": {
+    "BF16": 10647286656,
+    "F32": 26496,
+    "F8_E4M3": 13378781184,
+    "U8": 1000190509056
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "prism-ml/Ternary-Bonsai-2-27B-gguf": {
+   "total": null,
+   "parameters": null,
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen3.8-27B"
+   ]
+  },
+  "inference-net/schematron-v2-granite-4.0-h-micro": {
+   "error": "HTTPError: HTTP Error 401: Unauthorized"
+  },
+  "inference-net/schematron-v2-llama-3.2-3b": {
+   "error": "HTTPError: HTTP Error 401: Unauthorized"
+  },
+  "inclusionAI/Ling-3.0-flash-VL": {
+   "total": 124848460496,
+   "parameters": {
+    "F32": 164960,
+    "BF16": 124848295536
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4.1-Flash": {
+   "total": 763205315794,
+   "parameters": {
+    "BF16": 1976441856,
+    "F32": 42307282,
+    "F8_E4M3": 204015223296,
+    "I8": 557171343360
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "nex-agi/Nex-N2.5-mini": {
+   "total": 35107181936,
+   "parameters": {
+    "BF16": 35107181936
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "nex-agi/Nex-N2.5-Pro": {
+   "total": 396802360816,
+   "parameters": {
+    "BF16": 10255304176,
+    "F8_E4M3": 386547056640
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "ibm-granite/granite-4.2-8b": {
+   "total": 8791592960,
+   "parameters": {
+    "BF16": 8791592960
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "ibm-granite/granite-4.1-8b-base"
+   ]
+  },
+  "tencent/Hy4-preview": {
+   "total": 779960992733,
+   "parameters": {
+    "BF16": 779930197312,
+    "F32": 30795421
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3.8-Flash-Next": {
+   "total": 179999981459,
+   "parameters": {
+    "BF16": 179999981424,
+    "I64": 35
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "zai-org/GLM-5.3-Flash": {
+   "total": 321323031390,
+   "parameters": {
+    "BF16": 6926096640,
+    "F8_E4M3": 314396639232,
+    "F32": 295518
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp": {
+   "total": 304646824126,
+   "parameters": {
+    "BF16": 1949960576,
+    "F32": 37754174,
+    "F8_E4M3": 6304038912,
+    "I8": 296352743424,
+    "I64": 2327040
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "tencent/Hy-MT2-1.8B": {
+   "total": 2038515712,
+   "parameters": {
+    "BF16": 2038515712
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "tencent/Hy-MT2-30B-A3B": {
+   "total": 30064725888,
+   "parameters": {
+    "BF16": 30064719872,
+    "F32": 6016
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "tencent/Hy-MT2-7B": {
+   "total": 8029540352,
+   "parameters": {
+    "BF16": 8029540352
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "zai-org/GLM-5.3": {
+   "total": 753329940480,
+   "parameters": {
+    "BF16": 2103729152,
+    "F8_E4M3": 751226191872,
+    "F32": 19456
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "Qwen/Qwen3.8-27B": {
+   "total": 27781427952,
+   "parameters": {
+    "BF16": 27781427952
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "dots-studio/dots3-note-prev": {
+   "total": 288443400864,
+   "parameters": {
+    "BF16": 288443388736,
+    "F32": 12128
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3.8-2.4T-A95B": {
+   "total": 2446182725504,
+   "parameters": {
+    "BF16": 2446182725504
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4-Pro-0813": {
+   "total": 1650497936906,
+   "parameters": {
+    "BF16": 2954820352,
+    "I64": 2327040,
+    "F32": 90530058,
+    "F8_E4M3": 23952621568,
+    "I8": 1623497637888
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "LiquidAI/LFM2.5-2.6B": {
+   "total": 2697198592,
+   "parameters": {
+    "BF16": 2697198592
+   },
+   "license": "other",
+   "base_model": "LiquidAI/LFM2.5-2.6B-Base"
+  },
+  "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16": {
+   "total": 31577937344,
+   "parameters": {
+    "F32": 3072,
+    "BF16": 32913263168
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "meta-models/Muse-Glimmer-30B": {
+   "total": 29776626688,
+   "parameters": {
+    "BF16": 29776626688
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "inclusionAI/Ling-3.0-tiny": {
+   "total": 7893392800,
+   "parameters": {
+    "F32": 40096,
+    "BF16": 7893352704
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4-Flash-0731": {
+   "total": 304180418494,
+   "parameters": {
+    "BF16": 1483567488,
+    "I64": 2327040,
+    "F32": 37741630,
+    "F8_E4M3": 6304038912,
+    "I8": 296352743424
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "thinkingmachines/Inkling-Small": {
+   "total": 265956439090,
+   "parameters": {
+    "F32": 10280,
+    "BF16": 265956428810
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "inclusionAI/Ling-3.0-flash": {
+   "total": 127486405600,
+   "parameters": {
+    "F32": 165472,
+    "BF16": 127486240128
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "meituan-longcat/LongCat-2.0": {
+   "total": 1775560491136,
+   "parameters": {
+    "BF16": 1775271312256,
+    "F32": 289178880
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "thinkingmachines/Inkling": {
+   "total": 952377623626,
+   "parameters": {
+    "BF16": 952377607178,
+    "F32": 16448
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "moonshotai/Kimi-K3": {
+   "total": 2779931837184,
+   "parameters": {
+    "F32": 11122432,
+    "BF16": 57179884544,
+    "U8": 2722740830208
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "tencent/Hy3": {
+   "total": 298786155776,
+   "parameters": {
+    "BF16": 298786140416,
+    "F32": 15360
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "CohereLabs/North-Mini-Code-1.0": {
+   "total": 30484303872,
+   "parameters": {
+    "BF16": 30484303872
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "zai-org/GLM-5.2": {
+   "total": 753329940480,
+   "parameters": {
+    "BF16": 753329921024,
+    "F32": 19456
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "moonshotai/Kimi-K2.7-Code": {
+   "total": 1026879376368,
+   "parameters": {
+    "BF16": 12193329648,
+    "F32": 23040,
+    "I32": 1014686023680
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "nvidia/Nemotron-3.5-Content-Safety": {
+   "total": 4300079472,
+   "parameters": {
+    "BF16": 4300079472
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16": {
+   "total": 560524578816,
+   "parameters": {
+    "BF16": 560524578816,
+    "F32": 25088
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "MiniMaxAI/Minimax-M3": {
+   "total": 427040140160,
+   "parameters": {
+    "BF16": 426993800960,
+    "F32": 46339200
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "stepfun-ai/Step-3.7-Flash": {
+   "total": 201365316160,
+   "parameters": {
+    "BF16": 201365304064,
+    "F32": 12096
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "mistralai/Mistral-Medium-3.5-128B": {
+   "total": 127704210176,
+   "parameters": {
+    "BF16": 5901622016,
+    "F8_E4M3": 121802588160
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16": {
+   "total": 33015632214,
+   "parameters": {
+    "F32": 2950,
+    "BF16": 33015629264
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "Qwen/Qwen3.6-35B-A3B": {
+   "total": 35951822704,
+   "parameters": {
+    "BF16": 35951822704
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3.6-27B": {
+   "total": 27781427952,
+   "parameters": {
+    "BF16": 27781427952
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4-Pro": {
+   "total": 1598839674782,
+   "parameters": {
+    "BF16": 2816899328,
+    "I64": 2327040,
+    "F32": 87776414,
+    "F8_E4M3": 23169335296,
+    "I8": 1572763336704
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V4-Flash": {
+   "total": 290944616402,
+   "parameters": {
+    "BF16": 1415259264,
+    "I64": 2327040,
+    "F32": 36168018,
+    "F8_E4M3": 6023020544,
+    "I8": 283467841536
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "tencent/Hy3-preview": {
+   "total": 298786155776,
+   "parameters": {
+    "BF16": 298786140416,
+    "F32": 15360
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "XiaomiMiMo/MiMo-V2.5-Pro": {
+   "total": 1023182841600,
+   "parameters": {
+    "F32": 162817920,
+    "BF16": 9450733440,
+    "F8_E4M3": 1013569290240
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "XiaomiMiMo/MiMo-V2.5": {
+   "total": 310756322688,
+   "parameters": {
+    "F32": 49295104,
+    "BF16": 4052024960,
+    "F8_E4M3": 306655002624
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "moonshotai/Kimi-K2.6": {
+   "total": 1026879376368,
+   "parameters": {
+    "F32": 23040,
+    "I32": 1014686023680,
+    "BF16": 12193329648
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "zai-org/GLM-5.1": {
+   "total": 753864139008,
+   "parameters": {
+    "BF16": 753864119552,
+    "F32": 19456
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "google/gemma-4-26B-A4B-it": {
+   "total": 25805936206,
+   "parameters": {
+    "BF16": 25805936206
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "google/gemma-4-26B-A4B"
+   ]
+  },
+  "google/gemma-4-31B-it": {
+   "total": 31273088876,
+   "parameters": {
+    "BF16": 31273088876
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "google/gemma-4-31B"
+   ]
+  },
+  "RekaAI/reka-edge-2603": {
+   "total": 7128509568,
+   "parameters": {
+    "BF16": 7128509568
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "MiniMaxAI/MiniMax-M2.7": {
+   "total": 228689764864,
+   "parameters": {
+    "F32": 48774656,
+    "BF16": 1230021632,
+    "F8_E4M3": 227410968576
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "mistralai/Mistral-Small-4-119B-2603": {
+   "total": 119401317376,
+   "parameters": {
+    "BF16": 1521452032,
+    "F8_E4M3": 117879865344
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8": {
+   "total": 123611012096,
+   "parameters": {
+    "F32": 20992,
+    "BF16": 4723465216,
+    "F8_E4M3": 118887546880
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "Qwen/Qwen3.5-9B": {
+   "total": 9653104368,
+   "parameters": {
+    "BF16": 9653100528,
+    "F32": 3840
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen3.5-9B-Base"
+   ]
+  },
+  "Qwen/Qwen3.5-35B-A3B": {
+   "total": 35951822704,
+   "parameters": {
+    "BF16": 35951817904,
+    "F32": 4800
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen3.5-35B-A3B-Base"
+   ]
+  },
+  "Qwen/Qwen3.5-27B": {
+   "total": 27781427952,
+   "parameters": {
+    "BF16": 27781419504,
+    "F32": 8448
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3.5-122B-A10B": {
+   "total": 125086497008,
+   "parameters": {
+    "BF16": 125086490096,
+    "F32": 6912
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3.5-397B-A17B": {
+   "total": 403397928944,
+   "parameters": {
+    "BF16": 403397920304,
+    "F32": 8640
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "MiniMaxAI/MiniMax-M2.5": {
+   "total": 228689764864,
+   "parameters": {
+    "F32": 48774656,
+    "BF16": 1230021632,
+    "F8_E4M3": 227410968576
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "zai-org/GLM-5": {
+   "total": 753864139008,
+   "parameters": {
+    "BF16": 753864119552,
+    "F32": 19456
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "Qwen/Qwen3-Coder-Next": {
+   "total": 79674391296,
+   "parameters": {
+    "BF16": 79674391296
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "stepfun-ai/Step-3.5-Flash": {
+   "total": 199384301376,
+   "parameters": {
+    "BF16": 199384289280,
+    "F32": 12096
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "stepfun-ai/step-3.5-flash"
+   ]
+  },
+  "moonshotai/Kimi-K2.5": {
+   "total": 1026879376368,
+   "parameters": {
+    "F32": 23040,
+    "I32": 1014686023680,
+    "BF16": 12193329648
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "zai-org/GLM-4.7-Flash": {
+   "total": 31221488576,
+   "parameters": {
+    "BF16": 31221485568,
+    "F32": 3008
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "zai-org/GLM-4.7": {
+   "total": 358337791296,
+   "parameters": {
+    "BF16": 358337776896,
+    "F32": 14400
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16": {
+   "total": 31577937344,
+   "parameters": {
+    "F32": 5888,
+    "BF16": 31577934400
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "mistralai/Devstral-2-123B-Instruct-2512": {
+   "total": 125025988608,
+   "parameters": {
+    "BF16": 3223400448,
+    "F8_E4M3": 121802588160
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "zai-org/GLM-4.6V": {
+   "total": 107710933120,
+   "parameters": {
+    "BF16": 107710927360,
+    "F32": 5760
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "mistralai/Ministral-3-14B-Instruct-2512": {
+   "total": 13945031680,
+   "parameters": {
+    "BF16": 1781550080,
+    "F8_E4M3": 12163481600
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Ministral-3-14B-Base-2512"
+   ]
+  },
+  "mistralai/Ministral-3-8B-Instruct-2512": {
+   "total": 8918026240,
+   "parameters": {
+    "BF16": 1502496768,
+    "F8_E4M3": 7415529472
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Ministral-3-8B-Base-2512"
+   ]
+  },
+  "mistralai/Ministral-3-3B-Instruct-2512": {
+   "total": 3849090048,
+   "parameters": {
+    "BF16": 822899712,
+    "F8_E4M3": 3026190336
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Ministral-3-3B-Base-2512"
+   ]
+  },
+  "mistralai/Mistral-Large-3-675B-Instruct-2512": {
+   "total": null,
+   "parameters": null,
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Mistral-Large-3-675B-Base-2512"
+   ]
+  },
+  "deepseek-ai/DeepSeek-V3.2": {
+   "total": 685355329792,
+   "parameters": {
+    "BF16": 3946184704,
+    "F8_E4M3": 681408069632,
+    "F32": 1075456
+   },
+   "license": "mit",
+   "base_model": [
+    "deepseek-ai/DeepSeek-V3.2-Exp-Base"
+   ]
+  },
+  "moonshotai/Kimi-K2-Thinking": {
+   "total": 1026408240256,
+   "parameters": {
+    "F32": 23040,
+    "I32": 1014686023680,
+    "BF16": 11722193536
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "mistralai/Voxtral-Small-24B-2507": {
+   "total": 24261800960,
+   "parameters": {
+    "F32": 1920000,
+    "BF16": 24259880960
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Mistral-Small-24B-Base-2501"
+   ]
+  },
+  "openai/gpt-oss-safeguard-20b": {
+   "total": 21511953984,
+   "parameters": {
+    "BF16": 1804459584,
+    "U8": 19707494400
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "openai/gpt-oss-20b"
+   ]
+  },
+  "Qwen/Qwen3-VL-8B-Instruct": {
+   "total": 8767123696,
+   "parameters": {
+    "BF16": 8767123696
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3-VL-30B-A3B-Thinking": {
+   "total": 31070754032,
+   "parameters": {
+    "BF16": 31070754032
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3-VL-30B-A3B-Instruct": {
+   "total": 31070754032,
+   "parameters": {
+    "BF16": 31070754032
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "zai-org/GLM-4.6": {
+   "total": 356785898816,
+   "parameters": {
+    "BF16": 356785884416,
+    "F32": 14400
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V3.2-Exp": {
+   "total": 685396921376,
+   "parameters": {
+    "BF16": 3946184704,
+    "F8_E4M3": 681408069632,
+    "F32": 42667040
+   },
+   "license": "mit",
+   "base_model": [
+    "deepseek-ai/DeepSeek-V3.2-Exp-Base"
+   ]
+  },
+  "thedrummer/cydonia-24b-v4.1": {
+   "total": 23572403200,
+   "parameters": {
+    "BF16": 23572403200
+   },
+   "license": null,
+   "base_model": [
+    "mistralai/Mistral-Small-3.2-24B-Instruct-2507"
+   ]
+  },
+  "Qwen/Qwen3-VL-235B-A22B-Instruct": {
+   "total": 235670022896,
+   "parameters": {
+    "BF16": 235670022896
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V3.1-Terminus": {
+   "total": 684531386000,
+   "parameters": {
+    "BF16": 3917742080,
+    "F8_E4M3": 680571043840,
+    "F32": 42600080
+   },
+   "license": "mit",
+   "base_model": [
+    "deepseek-ai/DeepSeek-V3.1-Base"
+   ]
+  },
+  "Qwen/Qwen3-Next-80B-A3B-Instruct": {
+   "total": 81324862720,
+   "parameters": {
+    "BF16": 81324862720
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "moonshotai/Kimi-K2-Instruct-0905": {
+   "total": 1026408240256,
+   "parameters": {
+    "F32": 23040,
+    "BF16": 2514975360,
+    "F8_E4M3": 1023893241856
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "NousResearch/Hermes-4-405B": {
+   "total": 405853388800,
+   "parameters": {
+    "BF16": 405853388800
+   },
+   "license": "llama3",
+   "base_model": "meta-llama/Meta-Llama-3.1-405B"
+  },
+  "deepseek-ai/DeepSeek-V3.1": {
+   "total": 684531386000,
+   "parameters": {
+    "BF16": 3918786560,
+    "F8_E4M3": 680571043840,
+    "F32": 41555600
+   },
+   "license": "mit",
+   "base_model": [
+    "deepseek-ai/DeepSeek-V3.1-Base"
+   ]
+  },
+  "zai-org/GLM-4.5V": {
+   "total": 107710933120,
+   "parameters": {
+    "F32": 5760,
+    "BF16": 107710927360
+   },
+   "license": "mit",
+   "base_model": [
+    "zai-org/GLM-4.5-Air-Base"
+   ]
+  },
+  "openai/gpt-oss-120b": {
+   "total": 116829156672,
+   "parameters": {
+    "BF16": 2167371072,
+    "U8": 114661785600
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "openai/gpt-oss-20b": {
+   "total": 20914757184,
+   "parameters": {
+    "BF16": 1804459584,
+    "U8": 19110297600
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3-Coder-30B-A3B-Instruct": {
+   "total": 30532122624,
+   "parameters": {
+    "BF16": 30532122624
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3-30B-A3B-Instruct-2507": {
+   "total": 30532122624,
+   "parameters": {
+    "BF16": 30532122624
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "zai-org/GLM-4.5": {
+   "total": 358337791296,
+   "parameters": {
+    "BF16": 358337776896,
+    "F32": 14400
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "zai-org/GLM-4.5-Air": {
+   "total": 110468824832,
+   "parameters": {
+    "BF16": 110468818944,
+    "F32": 5888
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "Qwen/Qwen3-235B-A22B-Thinking-2507": {
+   "total": 235093634560,
+   "parameters": {
+    "BF16": 235093634560
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3-Coder-480B-A35B-Instruct": {
+   "total": 480154875392,
+   "parameters": {
+    "BF16": 480154875392
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "ByteDance-Seed/UI-TARS-1.5-7B": {
+   "total": 8292166656,
+   "parameters": {
+    "F32": 8292166656
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "Qwen/Qwen3-235B-A22B-Instruct-2507": {
+   "total": 235093634560,
+   "parameters": {
+    "BF16": 235093634560
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "moonshotai/Kimi-K2-Instruct": {
+   "total": 1026408235864,
+   "parameters": {
+    "F32": 23040,
+    "BF16": 2514970968,
+    "F8_E4M3": 1023893241856
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "cognitivecomputations/Dolphin-Mistral-24B-Venice-Edition": {
+   "total": 24011361280,
+   "parameters": {
+    "BF16": 24011361280
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Mistral-Small-24B-Instruct-2501"
+   ]
+  },
+  "tencent/Hunyuan-A13B-Instruct": {
+   "total": 80393183232,
+   "parameters": {
+    "F32": 8388608,
+    "BF16": 80384794624
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "mistralai/Mistral-Small-3.2-24B-Instruct-2506": {
+   "total": 24011361280,
+   "parameters": {
+    "BF16": 24011361280
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Mistral-Small-3.1-24B-Base-2503"
+   ]
+  },
+  "deepseek-ai/DeepSeek-R1-0528": {
+   "total": 684531386000,
+   "parameters": {
+    "BF16": 3918786560,
+    "F8_E4M3": 680571043840,
+    "F32": 41555600
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "meta-llama/Llama-Guard-4-12B": {
+   "total": 12001097216,
+   "parameters": {
+    "BF16": 12001097216
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "Qwen/Qwen3-30B-A3B": {
+   "total": 30532122624,
+   "parameters": {
+    "BF16": 30532122624
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen3-30B-A3B-Base"
+   ]
+  },
+  "Qwen/Qwen3-14B": {
+   "total": 14768307200,
+   "parameters": {
+    "BF16": 14768307200
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen3-14B-Base"
+   ]
+  },
+  "Qwen/Qwen3-32B": {
+   "total": 32762123264,
+   "parameters": {
+    "BF16": 32762123264
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "meta-llama/Llama-4-Maverick-17B-128E-Instruct": {
+   "total": 401583781376,
+   "parameters": {
+    "BF16": 401583781376
+   },
+   "license": "other",
+   "base_model": [
+    "meta-llama/Llama-4-Maverick-17B-128E"
+   ]
+  },
+  "meta-llama/Llama-4-Scout-17B-16E-Instruct": {
+   "total": 108641793536,
+   "parameters": {
+    "BF16": 108641793536
+   },
+   "license": "other",
+   "base_model": [
+    "meta-llama/Llama-4-Scout-17B-16E"
+   ]
+  },
+  "deepseek-ai/DeepSeek-V3-0324": {
+   "total": 684531386000,
+   "parameters": {
+    "BF16": 3918786560,
+    "F8_E4M3": 680571043840,
+    "F32": 41555600
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "mistralai/Mistral-Small-3.1-24B-Instruct-2503": {
+   "total": 24011361280,
+   "parameters": {
+    "BF16": 24011361280
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Mistral-Small-3.1-24B-Base-2503"
+   ]
+  },
+  "google/gemma-3-4b-it": {
+   "total": 4300079472,
+   "parameters": {
+    "BF16": 4300079472
+   },
+   "license": "gemma",
+   "base_model": "google/gemma-3-4b-pt"
+  },
+  "google/gemma-3-12b-it": {
+   "total": 12187325040,
+   "parameters": {
+    "BF16": 12187325040
+   },
+   "license": "gemma",
+   "base_model": "google/gemma-3-12b-pt"
+  },
+  "CohereForAI/c4ai-command-a-03-2025": {
+   "total": 111057580032,
+   "parameters": {
+    "BF16": 111057580032
+   },
+   "license": "cc-by-nc-4.0",
+   "base_model": null
+  },
+  "RekaAI/reka-flash-3": {
+   "total": 20905482240,
+   "parameters": {
+    "BF16": 20905482240
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "google/gemma-3-27b-it": {
+   "total": 27432406640,
+   "parameters": {
+    "BF16": 27432406640
+   },
+   "license": "gemma",
+   "base_model": "google/gemma-3-27b-pt"
+  },
+  "TheDrummer/Skyfall-36B-v2": {
+   "total": 36910535680,
+   "parameters": {
+    "BF16": 36910535680
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "aion-labs/Aion-RP-Llama-3.1-8B": {
+   "total": 8030261248,
+   "parameters": {
+    "F32": 8030261248
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "meta-llama/Llama-3.1-8B"
+   ]
+  },
+  "Qwen/Qwen2.5-VL-72B-Instruct": {
+   "total": 73410777344,
+   "parameters": {
+    "BF16": 73410777344
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "mistralai/Mistral-Small-24B-Instruct-2501": {
+   "total": 23572403200,
+   "parameters": {
+    "BF16": 23572403200
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "mistralai/Mistral-Small-24B-Base-2501"
+   ]
+  },
+  "microsoft/phi-4": {
+   "total": 14659507200,
+   "parameters": {
+    "BF16": 14659507200
+   },
+   "license": "mit",
+   "base_model": null
+  },
+  "deepseek-ai/DeepSeek-V3": {
+   "total": 684489845504,
+   "parameters": {
+    "BF16": 3918786560,
+    "F8_E4M3": 680571043840,
+    "F32": 15104
+   },
+   "license": null,
+   "base_model": null
+  },
+  "CohereLabs/c4ai-command-r7b-12-2024": {
+   "total": 8028033024,
+   "parameters": {
+    "BF16": 8028033024
+   },
+   "license": "cc-by-nc-4.0",
+   "base_model": null
+  },
+  "meta-llama/Llama-3.3-70B-Instruct": {
+   "total": 70553706496,
+   "parameters": {
+    "BF16": 70553706496
+   },
+   "license": "llama3.3",
+   "base_model": [
+    "meta-llama/Llama-3.1-70B"
+   ]
+  },
+  "mistralai/Mistral-Large-Instruct-2407": {
+   "total": 122610069504,
+   "parameters": {
+    "BF16": 122610069504
+   },
+   "license": "other",
+   "base_model": null
+  },
+  "Qwen/Qwen2.5-Coder-32B-Instruct": {
+   "total": 32763876352,
+   "parameters": {
+    "BF16": 32763876352
+   },
+   "license": "apache-2.0",
+   "base_model": [
+    "Qwen/Qwen2.5-Coder-32B"
+   ]
+  },
+  "TheDrummer/UnslopNemo-12B-v4.1": {
+   "total": 12247782400,
+   "parameters": {
+    "BF16": 12247782400
+   },
+   "license": null,
+   "base_model": null
+  },
+  "anthracite-org/magnum-v4-72b": {
+   "total": 72706203648,
+   "parameters": {
+    "BF16": 72706203648
+   },
+   "license": "apache-2.0",
+   "base_model": null
+  },
+  "meta-llama/Llama-3.2-1B-Instruct": {
+   "total": 1235814400,
+   "parameters": {
+    "BF16": 1235814400
+   },
+   "license": "llama3.2",
+   "base_model": null
+  },
+  "meta-llama/Llama-3.2-3B-Instruct": {
+   "total": 3212749824,
+   "parameters": {
+    "BF16": 3212749824
+   },
+   "license": "llama3.2",
+   "base_model": null
+  },
+  "Qwen/Qwen2.5-72B-Instruct": {
+   "total": 72706203648,
+   "parameters": {
+    "BF16": 72706203648
+   },
+   "license": "other",
+   "base_model": "Qwen/Qwen2.5-72B"
+  },
+  "CohereLabs/c4ai-command-r-08-2024": {
+   "total": 32296476672,
+   "parameters": {
+    "F16": 32296476672
+   },
+   "license": "cc-by-nc-4.0",
+   "base_model": null
+  },
+  "CohereLabs/c4ai-command-r-plus-08-2024": {
+   "total": 103810674688,
+   "parameters": {
+    "F16": 103810674688
+   },
+   "license": "cc-by-nc-4.0",
+   "base_model": null
+  },
+  "Sao10K/L3.1-70B-Euryale-v2.2": {
+   "total": null,
+   "parameters": null,
+   "license": "cc-by-nc-4.0",
+   "base_model": null
+  },
+  "Sao10K/L3-8B-Lunaris-v1": {
+   "total": 8030261248,
+   "parameters": {
+    "BF16": 8030261248
+   },
+   "license": "llama3",
+   "base_model": null
+  },
+  "meta-llama/Meta-Llama-3.1-70B-Instruct": {
+   "total": 70553706496,
+   "parameters": {
+    "BF16": 70553706496
+   },
+   "license": "llama3.1",
+   "base_model": "meta-llama/Meta-Llama-3.1-70B"
+  },
+  "meta-llama/Meta-Llama-3.1-8B-Instruct": {
+   "total": 8030261248,
+   "parameters": {
+    "BF16": 8030261248
+   },
+   "license": "llama3.1",
+   "base_model": "meta-llama/Meta-Llama-3.1-8B"
+  },
+  "mistralai/Mistral-Nemo-Instruct-2407": {
+   "total": 12247782400,
+   "parameters": {
+    "BF16": 12247782400
+   },
+   "license": "apache-2.0",
+   "base_model": "mistralai/Mistral-Nemo-Base-2407"
+  },
+  "google/gemma-2-27b-it": {
+   "total": 27227128320,
+   "parameters": {
+    "BF16": 27227128320
+   },
+   "license": "gemma",
+   "base_model": "google/gemma-2-27b"
+  },
+  "mistralai/Mixtral-8x22B-Instruct-v0.1": {
+   "total": 140630071296,
+   "parameters": {
+    "BF16": 140630071296
+   },
+   "license": "apache-2.0",
+   "base_model": "mistralai/Mixtral-8x22B-v0.1"
+  },
+  "Undi95/ReMM-SLERP-L2-13B": {
+   "total": null,
+   "parameters": null,
+   "license": "cc-by-nc-4.0",
+   "base_model": [
+    "TheBloke/Llama-2-13B-fp16",
+    "jondurbin/airoboros-l2-13b-2.1",
+    "NousResearch/Nous-Hermes-Llama2-13b",
+    "Undi95/ReML-L2-13B"
+   ]
+  },
+  "Gryphe/MythoMax-L2-13b": {
+   "total": null,
+   "parameters": null,
+   "license": "other",
+   "base_model": null
+  }
+ }
+}

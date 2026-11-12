@@ -2,7 +2,7 @@ PY := .venv/bin/python
 export PYTHONPATH := src
 MIRROR := https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints/resolve/main/complaints.csv.zip
 
-.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data sql models models-hosted
+.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data sql models models-hosted models-cloud
 
 PYTHON ?= python3
 
@@ -26,6 +26,8 @@ check: venv
 	$(PY) -m judge.report --check
 	$(PY) -m judge.models --verify
 	$(PY) -m judge.hosted --verify
+	$(PY) -m judge.cloud --verify
+	$(PY) -m judge.cloud_select --check
 
 reproduce: test check
 
@@ -46,6 +48,15 @@ models: venv
 # `python -m judge.hosted --break-stale-lock` removes run.lock if the process that held it is gone.
 models-hosted: venv
 	caffeinate -i $(PY) -m judge.hosted --run $(MODEL) $(RESEND)
+
+# the cloud branch (docs/analysis_plan_models.md, Amendment 3; added after both earlier arms had run and been reported):
+# one model's four cells through OpenRouter, DEV and the labelled sample only; refuses unless the branch's published
+# commit and its gist are recorded, every earlier model is closed, the model and its pinned endpoint are still listed
+# as registered, and the spend stays under the caps. The key is read from a file when a request is sent and is never
+# written; this file does not name it. MODEL=<id> in the registered order of its queue; add
+# RESEND=--resend-unanswered after an interruption.
+models-cloud: venv
+	caffeinate -i $(PY) -m judge.cloud --run $(MODEL) $(RESEND)
 
 # model calls that are missing from the cache (DEV side only)
 run: venv

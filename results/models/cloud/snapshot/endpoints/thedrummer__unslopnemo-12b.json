@@ -1,0 +1,71 @@
+{
+ "data": {
+  "id": "thedrummer/unslopnemo-12b",
+  "name": "TheDrummer: UnslopNemo 12B",
+  "created": 1731103448,
+  "description": "UnslopNemo v4.1 is the latest addition from the creator of Rocinante, designed for adventure writing and role-play scenarios.",
+  "architecture": {
+   "tokenizer": "Mistral",
+   "instruct_type": "mistral",
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Parasail | thedrummer/unslopnemo-12b",
+    "model_id": "thedrummer/unslopnemo-12b",
+    "model_name": "TheDrummer: UnslopNemo 12B",
+    "context_length": 1024000,
+    "pricing": {
+     "prompt": "0.0000004",
+     "completion": "0.0000004",
+     "discount": 0
+    },
+    "provider_name": "Parasail",
+    "tag": "parasail/bf16",
+    "service_tier": null,
+    "quantization": "bf16",
+    "max_completion_tokens": 819200,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "stop",
+     "top_k",
+     "logit_bias",
+     "structured_outputs",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": null,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

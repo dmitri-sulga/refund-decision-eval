@@ -1,0 +1,226 @@
+{
+ "data": {
+  "id": "google/gemma-3-27b-it",
+  "name": "Google: Gemma 3 27B",
+  "created": 1741756359,
+  "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities,...",
+  "architecture": {
+   "tokenizer": "Gemini",
+   "instruct_type": "gemma",
+   "modality": "text+image->text",
+   "input_modalities": [
+    "text",
+    "image"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "DeepInfra | google/gemma-3-27b-it",
+    "model_id": "google/gemma-3-27b-it",
+    "model_name": "Google: Gemma 3 27B",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.00000008",
+     "completion": "0.00000016",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 16384,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "logit_bias",
+     "structured_outputs",
+     "tools",
+     "tool_choice",
+     "response_format"
+    ],
+    "supports_tool_choice": {
+     "none": false,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 99.0559186637618,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "NextBit | google/gemma-3-27b-it",
+    "model_id": "google/gemma-3-27b-it",
+    "model_name": "Google: Gemma 3 27B",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.00000008",
+     "completion": "0.00000035",
+     "input_cache_read": "0.00000004",
+     "discount": 0
+    },
+    "provider_name": "NextBit",
+    "tag": "nextbit/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 117964,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "response_format",
+     "structured_outputs",
+     "repetition_penalty",
+     "seed",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 99.7872340425532,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "Parasail | google/gemma-3-27b-it",
+    "model_id": "google/gemma-3-27b-it",
+    "model_name": "Google: Gemma 3 27B",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.00000008",
+     "completion": "0.00000045",
+     "input_cache_read": "0.00000004",
+     "discount": 0
+    },
+    "provider_name": "Parasail",
+    "tag": "parasail/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 117964,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "stop",
+     "top_k",
+     "logit_bias",
+     "response_format",
+     "structured_outputs",
+     "logprobs",
+     "top_logprobs"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 99.79166666666667,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "Nebius | google/gemma-3-27b-it",
+    "model_id": "google/gemma-3-27b-it",
+    "model_name": "Google: Gemma 3 27B",
+    "context_length": 110000,
+    "pricing": {
+     "prompt": "0.0000001",
+     "completion": "0.0000003",
+     "input_cache_read": "0.00000004",
+     "discount": 0
+    },
+    "provider_name": "Nebius",
+    "tag": "nebius/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 99000,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "seed",
+     "top_k",
+     "logit_bias",
+     "structured_outputs",
+     "response_format",
+     "repetition_penalty"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": false,
+     "required": true,
+     "function": true
+    },
+    "status": -2,
+    "uptime_last_30m": 90,
+    "uptime_last_5m": 40,
+    "uptime_last_1d": 94.93487698986975,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

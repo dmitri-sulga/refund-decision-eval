@@ -1,0 +1,171 @@
+{
+ "data": {
+  "id": "deepseek/deepseek-chat",
+  "name": "DeepSeek: DeepSeek V3",
+  "created": 1735241320,
+  "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on nearly 15 trillion tokens, the reported evaluations...",
+  "architecture": {
+   "tokenizer": "DeepSeek",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "DeepInfra | deepseek/deepseek-chat-v3",
+    "model_id": "deepseek/deepseek-chat",
+    "model_name": "DeepSeek: DeepSeek V3",
+    "context_length": 163840,
+    "pricing": {
+     "prompt": "0.000000256",
+     "completion": "0.000000712",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/fp4/flex",
+    "service_tier": "flex",
+    "quantization": "fp4",
+    "max_completion_tokens": 147456,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "logit_bias",
+     "response_format",
+     "structured_outputs",
+     "tools",
+     "tool_choice"
+    ],
+    "supports_tool_choice": {
+     "none": false,
+     "auto": true,
+     "required": false,
+     "function": false
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": 98.57142857142858,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "StreamLake | deepseek/deepseek-chat-v3",
+    "model_id": "deepseek/deepseek-chat",
+    "model_name": "DeepSeek: DeepSeek V3",
+    "context_length": 128000,
+    "pricing": {
+     "prompt": "0.0000002574",
+     "completion": "0.0000010287",
+     "discount": 0.1
+    },
+    "provider_name": "StreamLake",
+    "tag": "streamlake",
+    "service_tier": null,
+    "quantization": "unknown",
+    "max_completion_tokens": 16000,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "response_format",
+     "structured_outputs",
+     "tools",
+     "tool_choice",
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "presence_penalty"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": false,
+     "function": false
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "DeepInfra | deepseek/deepseek-chat-v3",
+    "model_id": "deepseek/deepseek-chat",
+    "model_name": "DeepSeek: DeepSeek V3",
+    "context_length": 163840,
+    "pricing": {
+     "prompt": "0.00000032",
+     "completion": "0.00000089",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/fp4",
+    "service_tier": null,
+    "quantization": "fp4",
+    "max_completion_tokens": 16384,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "logit_bias",
+     "structured_outputs",
+     "tools",
+     "tool_choice",
+     "response_format"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": false,
+     "function": false
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 97.98611111111111,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

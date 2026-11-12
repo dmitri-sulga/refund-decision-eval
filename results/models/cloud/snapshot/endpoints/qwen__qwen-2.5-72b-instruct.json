@@ -1,0 +1,73 @@
+{
+ "data": {
+  "id": "qwen/qwen-2.5-72b-instruct",
+  "name": "Qwen2.5 72B Instruct",
+  "created": 1726704000,
+  "description": "Qwen2.5 72B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has greatly improved capabilities in coding and...",
+  "architecture": {
+   "tokenizer": "Qwen",
+   "instruct_type": "chatml",
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "DeepInfra | qwen/qwen-2.5-72b-instruct",
+    "model_id": "qwen/qwen-2.5-72b-instruct",
+    "model_name": "Qwen2.5 72B Instruct",
+    "context_length": 32768,
+    "pricing": {
+     "prompt": "0.00000036",
+     "completion": "0.0000004",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 16384,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "tools",
+     "tool_choice",
+     "logit_bias",
+     "structured_outputs",
+     "response_format"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": false,
+     "function": false
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 97.87535410764873,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

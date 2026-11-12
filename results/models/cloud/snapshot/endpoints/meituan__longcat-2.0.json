@@ -1,0 +1,74 @@
+{
+ "data": {
+  "id": "meituan/longcat-2.0",
+  "name": "Meituan: LongCat 2.0",
+  "created": 1784554658,
+  "description": "LongCat 2.0 is a sparse mixture-of-experts language model from Meituan, with 48B active parameters out of 1.6T total. It is suited for coding, repository-level changes, long-horizon problem solving, and agentic...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "AtlasCloud | meituan/longcat-2.0-20260720",
+    "model_id": "meituan/longcat-2.0",
+    "model_name": "Meituan: LongCat 2.0",
+    "context_length": 1048756,
+    "pricing": {
+     "prompt": "0.0000003",
+     "completion": "0.0000012",
+     "input_cache_read": "0.000000006",
+     "discount": 0.6
+    },
+    "provider_name": "AtlasCloud",
+    "tag": "atlas-cloud/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 262144,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "top_k",
+     "min_p",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "seed",
+     "logit_bias",
+     "stop",
+     "tools",
+     "tool_choice"
+    ],
+    "supports_tool_choice": {
+     "none": false,
+     "auto": true,
+     "required": false,
+     "function": false
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

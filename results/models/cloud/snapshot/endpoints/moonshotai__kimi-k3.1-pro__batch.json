@@ -1,0 +1,71 @@
+{
+ "data": {
+  "id": "moonshotai/kimi-k3.1-pro:batch",
+  "name": "MoonshotAI: Kimi K3.1 Pro (batch)",
+  "created": 1792778188,
+  "description": "Kimi K3.1 Pro is Moonshot AI's flagship open-weight multimodal reasoning model and a post-trained successor to Kimi K3, with a 1M-token context window. It is built for long-horizon coding, 3D...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text+image+video->text",
+   "input_modalities": [
+    "text",
+    "image",
+    "video"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Sail Research | moonshotai/kimi-k3.1-pro-20261023:batch",
+    "model_id": "moonshotai/kimi-k3.1-pro:batch",
+    "model_name": "MoonshotAI: Kimi K3.1 Pro",
+    "context_length": 1048576,
+    "pricing": {
+     "prompt": "0.0000007",
+     "completion": "0.000006",
+     "input_cache_read": "0.0000001",
+     "discount": 0
+    },
+    "provider_name": "Sail Research",
+    "tag": "sail-research/fp4",
+    "service_tier": null,
+    "quantization": "fp4",
+    "max_completion_tokens": 943718,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "frequency_penalty",
+     "max_tokens",
+     "presence_penalty",
+     "seed",
+     "stop",
+     "temperature",
+     "top_k",
+     "reasoning_effort"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": null,
+    "uptime_last_5m": null,
+    "uptime_last_1d": null,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

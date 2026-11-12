@@ -1,0 +1,69 @@
+{
+ "data": {
+  "id": "moonshotai/kimi-k2",
+  "name": "MoonshotAI: Kimi K2 0711",
+  "created": 1752263252,
+  "description": "Kimi K2 Instruct is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active per forward pass. It is optimized for...",
+  "architecture": {
+   "tokenizer": "Other",
+   "instruct_type": null,
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "Novita | moonshotai/kimi-k2",
+    "model_id": "moonshotai/kimi-k2",
+    "model_name": "MoonshotAI: Kimi K2 0711",
+    "context_length": 131072,
+    "pricing": {
+     "prompt": "0.00000057",
+     "completion": "0.0000023",
+     "discount": 0
+    },
+    "provider_name": "Novita",
+    "tag": "novita/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 98304,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "seed",
+     "top_k",
+     "repetition_penalty",
+     "tools",
+     "tool_choice"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 100,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 100,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

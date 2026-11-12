@@ -6,3 +6,4 @@ __pycache__/
 results/tmp/
 .download/
 data/mirror_subset.jsonl.gz
+results/models/hosted/run.lock

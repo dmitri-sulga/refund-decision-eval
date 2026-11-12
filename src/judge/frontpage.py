@@ -1073,9 +1073,10 @@ def b_sql_queries(m):
 
 
 # ------------------------------------------------------------------ deviations, in short
-ORDINALS = ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
+ORDINALS = ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth",
+            "eleventh", "twelfth")
 TIMES = ("no times", "once", "twice", "three times", "four times", "five times", "six times", "seven times",
-         "eight times", "nine times", "ten times")
+         "eight times", "nine times", "ten times", "eleven times", "twelve times")
 # one line per post-run change, as recorded in docs/deviations.md; the count comes from the records
 CHANGES_IN_SHORT = {
     1: "reorganising the README so that the held-out result comes first",
@@ -1100,6 +1101,9 @@ CHANGES_IN_SHORT = {
     9: "amending that plan after an AI-agent review, before any of those models was sent a request: labels instead "
        "of verdicts, neutral sampling penalties in every request, no replacement of a model, three more models at "
        "the author's request, and the run and analysis code, published before the first request",
+    10: "registering a separate hosted arm (Amendment 2 of that plan) on three models of one vendor, two compared "
+        "and one, whose reasoning cannot be switched off, shown as a reference row, with its own table, a 15 USD "
+        "spending cap enforced in code and the run and analysis code, before any request to them",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 

@@ -423,3 +423,357 @@ comparisons for A and 7 for B.
 
 **§13 A hosted arm.** A hosted arm (large open-weights models through a hosted service) may be registered later
 as Amendment 2, before its own first call. Nothing in this amendment depends on it.
+
+## Amendment 2 (2026-11-12, a hosted arm, registered before any request to it)
+
+**Where this note is.** Below Amendment 1, which is unchanged, as are lines 1–149. This amendment adds a separately
+registered arm. It replaces no passage of the plan or of Amendment 1, and nothing in them depends on it.
+
+**Status.** No model below had been sent any request by this project's code, and no API key had been read by it, so
+no hosted result could have shaped this amendment; the result is reported whatever it is. First drafted after the
+first local model's 600 answers were committed, it was revised after four independent reviews by separate AI-agent
+sessions while the local models were being run and published, and uses no result of Amendment 1. The author asked for
+Anthropic's models to be compared; the AI coding assistant that wrote this amendment proposed the vendor's three
+current tiers and the request settings below. The next paragraph is printed, word for word, with the results (§10).
+
+**Same vendor.** The three models under test are Anthropic's. So is the AI coding assistant that wrote this
+repository, drafted both judge prompts, proposed these three models and their settings, and wrote this amendment and
+this arm's code; the model behind the earlier drafting of the prompts is not recorded here. The agent that wrote this
+arm's code ran on `claude-opus-5-5`, one of the three models evaluated here, and so did every independent review of
+this amendment; the coordinating assistant ran on `claude-fable-5-2`. The translation the annotator read beside each
+labelled complaint was made by `claude-fable-5-2`, also Anthropic's, though not one of the three. This amendment is
+published, and the hosted run starts, only after all seven local models are closed. This arm does not measure
+whether any of this favours the vendor's models.
+
+**§1 How this arm relates to Amendment 1.**
+- **§13 of Amendment 1** foresaw "A hosted arm (large open-weights models through a hosted service)". This is a
+  different one, three closed-weights models of one vendor through its API; no open-weights arm is registered.
+- **§5 of Amendment 1** ("no local model is replaced or added at any time") concerns the local set. The hosted models
+  are not added to it and do not enter m of its §3, its 14 A- or 7 B-comparisons, its summary or its levels.
+- **§10 of Amendment 1** ("Nothing is said about larger or hosted models") stays true of every figure of Amendment 1;
+  this arm has its own table, summary sentence and corrected levels (§10).
+- **The exclusion rule.** The registered plan rejected `gpt-oss:20b` because "its reasoning cannot be switched off"
+  (line 48). §10 of Amendment 1 reads: "Models whose reasoning cannot be switched off, such as `gpt-oss:20b`, and
+  default tags that are reasoning variants, such as `olmo-3.1:32b`, are excluded." `claude-opus-5-5` is such a model:
+  it rejects every setting that turns thinking off (§5). The rule is applied to the comparisons: `claude-opus-5-5` is
+  not part of this arm's comparison set (§3), gets no label and is not counted in any sentence that counts models. It
+  is still run, because the tier cannot be run any other way and the author asked for the vendor's models, and is
+  shown as a separate, descriptive reference row labelled "reasoning on, cannot be disabled; 4096 max_tokens; not
+  part of the comparisons" wherever it is printed.
+
+**§2 Models.**
+- **Rule.** One vendor's current small, medium and large tiers, chosen before any call. No model is added,
+  replaced or dropped afterwards. They are run in this order, which is also the only order of every table of this
+  arm, and each starts only if its projection fits what is left of the 15 USD (§7).
+
+| Model | API ID sent | Tier | Input, USD per million tokens | Output, USD per million tokens | In the comparisons |
+|---|---|---|---|---|---|
+| Claude Haiku 5.5 | `claude-haiku-5-5` | small | 0.10 (prompts up to 100,000 tokens) | 0.50 | yes |
+| Claude Sonnet 5.5 | `claude-sonnet-5-5` | medium | 2.00 | 10.00 | yes |
+| Claude Opus 5.5 | `claude-opus-5-5` | large | 4.00 | 20.00 | no: reference row (§1, §3) |
+
+- **Where the IDs come from.** `https://platform.claude.com/docs/en/models/overview`, read on 2026-11-11 and
+  2026-11-12. For these three models the API ID and its alias are the same string, with no date suffix; the page says
+  that every Claude model ID, the dateless ones included, is a pinned snapshot.
+- **Where the prices come from.** `https://platform.claude.com/docs/en/about-claude/pricing`: the standard prices on
+  the Claude API. Cache writes are 0.125, 2.50 and 5.00 USD per million tokens, and cache reads 0.01, 0.10 and 0.20.
+  No prompt of this study comes near 100,000 tokens, and the code refuses one that could.
+- **Routing.** These prices are for global routing; a workspace may default to US-only inference, priced at 1.1 times
+  (`https://platform.claude.com/docs/en/manage-claude/data-residency`). Every request therefore sends
+  `inference_geo: "global"`, and the code records each answer's `usage.inference_geo` (the docs say that it reports
+  where inference ran, but not what it reports for a request sent with `"global"`). Every answer is kept, whatever
+  routing it reports; one that reports `"us"` is priced at 1.1 times, which the reserve of §7 covers. The number of
+  answers that report a routing other than `"global"` is given per model and per cell (§10). Routing never closes a
+  model.
+- **Within a model:** (v1, DEV), (v1, labelled), (v2, DEV), (v2, labelled), as in Amendment 1, §9: 600 requests per
+  model, 1,800 in all.
+
+**§3 The comparison set and the reference row.**
+- **The comparison set** is `claude-haiku-5-5` and `claude-sonnet-5-5`, the two models that run without reasoning,
+  as the local models did. That gives **4 comparisons** with the issuer lookup (2 models x 2 prompts) and 2 payout
+  comparisons. **Corrected levels**, fixed now for those counts: **98.75%** for A and **97.5%** for B.
+- **Does Sonnet run without reasoning?** `claude-sonnet-5-5` does not accept `{"type": "disabled"}`. Its lowest
+  setting, `{"type": "between_tools"}`, "turns off up-front thinking"; the model still writes progress updates
+  between tool calls, and "Without tools, the response contains only text, as with `disabled` on Claude Sonnet 5"
+  (`https://platform.claude.com/docs/en/build-with-claude/thinking`, "Turning thinking off"). This arm sends no
+  tools, so by the documentation Sonnet runs without reasoning here. That is checked on every answer, not assumed: a
+  model of the comparison set leaves the set and becomes a reference row, labelled "reasoning on (see Amendment 2,
+  section 3); not part of the comparisons", if any of its answers reports `thinking_tokens` above 0
+  (`usage.output_tokens_details.thinking_tokens`) or a `thinking` or `redacted_thinking` block. The rule is mechanical
+  and fixed now; the docs say `thinking_tokens` may differ from the exact count by a few tokens, so even a count of 1
+  moves the model. The corrected levels stay those fixed above.
+- **The reference row,** `claude-opus-5-5`: its kappa against the record and against the person, its payout count,
+  and the 95% paired intervals against the issuer lookup and the record are printed. It gets no A or B label, no
+  corrected interval, and no place in the summary sentence's counts.
+
+**§4 What is held fixed.**
+- **Inputs.** The same complaints as Amendment 1: DEV (200, unmodified text) and the labelled sample (100), with the
+  narrative every model sees (`prompts.visible_narrative`).
+- **Prompts.** v1 and v2 as the frozen `src/judge/prompts.py` builds them: the system message as the request's
+  `system` field and the user message as its one `messages` entry, byte for byte. A test puts the frozen Ollama
+  request back together from what is sent and gets the frozen template hash in `results/frozen.json`. The model also
+  sees format instructions that the API adds for structured output, which this project cannot read (§6).
+- **Parsing, scoring and analysis,** unchanged: `judgments.parse` and `models_analysis.malformed` on the text blocks
+  of the answer joined in order (an answer that is not valid JSON or has no boolean decision is counted, scored as no
+  money back and never automated), and the functions of `src/judge/models_analysis.py`: the paired intervals, the
+  three readings of malformed answers, the format thresholds (20 of 200, 10 of 100), the labels of Amendment 1 §1 and
+  the person's figures. Only the comparison set and its corrected levels are this arm's own (§3).
+
+**§5 The request.** Every request is `POST https://api.anthropic.com/v1/messages`, with the headers `x-api-key`,
+`anthropic-version: 2026-10-21` and `content-type: application/json`, and this body:
+
+| Field | `claude-haiku-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
+|---|---|---|---|
+| `model` | `claude-haiku-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
+| `max_tokens` | 512 | 512 | 4096 |
+| `system` | the frozen system message | the same | the same |
+| `messages` | one user message, the frozen user text | the same | the same |
+| `output_config.effort` | `"low"` | `"low"` | `"low"` |
+| `output_config.format` | `{"type": "json_schema", "schema": S}` | the same | the same |
+| `inference_geo` | `"global"` | `"global"` | `"global"` |
+| `thinking` | `{"type": "disabled"}` | `{"type": "between_tools"}` | not sent |
+
+S is the frozen JSON schema of the prompt version with `"additionalProperties": false` added to its object. Nothing
+else is sent: no `temperature`, `top_p` or `top_k`, no `stop_sequences`, no tools, no `fallbacks`, no `speed`, no
+`service_tier`, no `cache_control` and no streaming. No setting is changed after the first request (§9).
+
+Why each (pages under `https://platform.claude.com/docs/en/`, read on 2026-11-11 and 2026-11-12):
+- **No sampling parameters.** `api/versioning`: under API version `2026-10-21`, a request that sends `temperature`,
+  `top_p` or `top_k` returns a 400 error on every model; `build-with-claude/thinking`: on these three models a
+  non-default value does so under earlier versions too. Temperature 0, used for the local models, cannot be sent.
+- **Thinking: the least each model accepts.** The local models were sent `think: false`. `build-with-claude/thinking`
+  (the per-model table and "Turning thinking off"): Claude Haiku 5.5 accepts `{"type": "disabled"}` at effort `high`
+  or below; Claude Sonnet 5.5 rejects `"disabled"` with a 400 error, and `{"type": "between_tools"}` is its lowest
+  setting (§3); Claude Opus 5.5 rejects `"disabled"`, `"between_tools"` and a token budget at every effort level, so
+  the field is left out and the model runs adaptive thinking (it decides whether and how much to think). Its thinking
+  tokens (`usage.output_tokens_details.thinking_tokens`) are recorded per answer and printed per cell.
+- **Effort `low` for all three.** `build-with-claude/effort`: effort controls how much a model thinks and spends;
+  `low` is the lowest level (the defaults are `medium` for Haiku 5.5 and Opus 5.5, `high` for Sonnet 5.5). It is the
+  closest to the local runs, which had no reasoning step, and one setting for the whole arm.
+- **`max_tokens`.** The local models had `num_predict` 512 for the answer; with thinking off, 512 bounds the same
+  thing (the study model's longest answer to these 600 requests was 71 tokens). With thinking on, thinking counts
+  toward `max_tokens` ("a hard limit on total output (thinking plus response text)", `build-with-claude/effort`), so
+  the limit is 4096. If `claude-opus-5-5`'s thinking uses most of it, the answer stops with `max_tokens`, is malformed
+  and is scored as no money back; such answers are counted per cell.
+- **The rest.** Structured output replaces Ollama's `format` (`build-with-claude/structured-outputs`: available on
+  all three models; objects must set `additionalProperties` to `false`; a refusal or a `max_tokens` stop can return
+  text that does not match the schema). `inference_geo` is sent because a request that omits it follows the
+  workspace's default (§2). No `fallbacks`: a refusal is a result (§9), never answered by another model. No batch:
+  requests go one at a time, as for the local models, each journaled before it is sent. API version `2026-10-21` is
+  the latest in `api/versioning`. The transport is Python's `urllib`, as for Ollama: no new dependency, no retry
+  inside a client, no redirect followed.
+
+**§6 Differences that cannot be removed (limitations).**
+- **Hosted, not local.** The models run under the provider's weights, serving stack and safety systems. Its model IDs
+  are documented as pinned snapshots, which this project cannot verify, and the serving stack and safety systems may
+  change between requests. Each answer records the returned `model` string, its `request-id`, the routing and the time.
+- **No seed and no temperature** (§5): the answers are samples at the provider's default sampling, so asking again
+  can give another answer. This is not measured: no answered request is sent twice.
+- **Thinking differs:** `claude-opus-5-5` may think first; the other two do not (§3, §5).
+- **The format mechanism differs:** the provider adds its own format instructions (counted in `input_tokens`) and
+  needs `additionalProperties: false`; Ollama needed neither. Compiling a schema on its first use adds latency, so the
+  first call per prompt version makes the seconds-per-call figures larger.
+- **Tokens differ.** Counts come from the provider's tokenizer. The malformed rule that compares the prompt with
+  7,680 tokens (Amendment 1, §7) is applied to the provider's count; no prompt of this study comes near it.
+- **No logprobs:** the token-probability confidence is missing for every answer of this arm. No label uses it.
+- **Refusals.** The provider's safety systems may decline a request (`stop_reason: "refusal"`). v1 asks for a
+  one-sentence `reason` field, and a request read as asking for the model's reasoning can be declined in the category
+  `reasoning_extraction`. Refusals are counted with their category and scored as malformed answers (§9).
+- **Data retention.** The complaints are public CFPB narratives; sending them to the provider is covered by its
+  retention terms, which this project does not control.
+
+**§7 Budget.** The whole arm has a hard cap of 15 USD, enforced in code (`src/judge/hosted.py`).
+- **What the cap bounds and guarantees.** The computed spend: the usage-based cost of every answer, plus the worst
+  case of every request that may have been billed without a usable answer, plus the reservation of any request whose
+  outcome is not yet known. No request is sent that could take that total over 15 USD, and every charge is at most the
+  worst case reserved before its request unless the answer's billed input exceeds the bound, which closes the model
+  (§9); so the computed spend can exceed 15 USD only by the excess of such an answer over its reservation. The amount
+  billed can exceed it only if the provider bills more than the documented prices applied to the returned usage, or
+  bills error answers. This project does not rely on a spend limit set in the provider's Console. If one is reached,
+  the API's answer is an account condition (§9).
+- **Error answers are not charged:** 3xx and 4xx answers, 429 (rate limit), 529 (overload) and every other 5xx. This
+  is an assumption: the docs do not say that error answers are billed. If the invoice shows otherwise, that is
+  reported.
+- **Possibly billed losses are charged at their worst case:** an answer that arrived but cannot be read or has an
+  unexpected shape (at the price of its `usage` if that can be read); an answer from another model (at the price of
+  its `usage`, not cached); a timeout or a lost connection after the request was sent, and an interrupt while waiting.
+- **Cost of an answer:** from the returned `usage` and the prices of §2, for input, output (thinking included), cache
+  writes and cache reads (nothing is cached on purpose), at 1.1 times if `usage.inference_geo` is `"us"`.
+- **Write-ahead reservation.** Before each request is sent, its worst case is written to the spend journal as a
+  reservation. The answer's cost or the charge that settles it names the reservation, an error answer releases it,
+  and an answer's spend entry is written before the answer is cached. After a hard crash, an unsettled reservation
+  counts against the cap, the next run or close charges it before anything else, and the report's cost counts any
+  that is still open. No send is charged twice.
+- **Before each model: does it fit?** The code starts a model only if the computed spend so far plus the projection
+  of its remaining requests is at most 15 USD. The projection takes input as the request's UTF-8 bytes over 3, plus
+  500 tokens for the format instructions (an assumption: their size is neither documented nor measured), and output
+  as 512 tokens per request, far above the 71 of the study model's longest answer. The projections are 0.27 USD for
+  `claude-haiku-5-5`, 5.43 USD for `claude-sonnet-5-5` and 10.84 USD for `claude-opus-5-5`, 16.54 USD in all. So
+  `claude-sonnet-5-5` starts only if `claude-haiku-5-5` cost at most 15 − 5.43 = 9.57 USD, and `claude-opus-5-5`
+  only if the first two together cost at most 15 − 10.84 = 4.16 USD; the estimates at the end give 1.41 to 2.40 USD.
+  A model that does not fit is not started, is reported as "not run: projection exceeded remaining budget", and no
+  request of this arm is sent after it.
+- **Before each request,** its worst case: input as the request's UTF-8 bytes plus 2,000 tokens (no token covers less
+  than a byte; the 2,000 cover the format instructions), output as `max_tokens`, all at the 1.1 times rate. If the
+  committed spend plus that worst case exceeds the cap, the request is not sent and the budget stop applies.
+- **The cap is not raised.** After a budget stop, no request of this arm is sent, under this amendment or any later
+  one. The model stopped is closed as "incomplete (k of 600 answered): stopped by the 15 USD cap", never dropped, and
+  its missing requests are never sent. The run order is fixed (§2), so a budget stop removes the last requests in
+  that order (v2, then the labelled sample, of the last model), not a random subset.
+- **The spend journal**, `results/models/hosted/spend.jsonl`, holds the projection before each model, every
+  reservation and what settled it, every answer's `request-id`, routing, tokens (thinking included) and cost with the
+  running total, every charge with its reason, and each model's totals when it closes. `make check` recomputes every
+  cost from the stored usage and fails if the computed spend plus the open reservations is over the cap.
+- **No other request:** no warm-up, no token counting, no Models API call and no batch.
+
+**§8 Held-out complaints are never sent.** The arm uses the local runner's item sets and guard unchanged (Amendment
+1, "How the code refuses held-out complaints"): the allowed IDs come only from `splits["dev"]` and
+`data/label_sample.json`; they are checked to be disjoint from `splits["test"]`, whose ID hash must equal the frozen
+one; each ID is checked again just before its request is journaled, and the command line offers no split. A test puts
+a held-out ID at the head of the work list and checks that the run stops with no request sent, nothing journaled and
+nothing spent. `make check` fails on any journal entry or answer for a held-out complaint.
+
+**§9 Answers, interruptions, retries, closing.** This replaces, for this arm, the rules of Amendment 1, §5. No model
+is ever dropped, and no registered parameter is changed after the first request.
+- **An answer** is an HTTP 200 response that can be read, has the expected shape, and was served by the requested
+  model. It is cached and never resent, whatever routing it reports (§2). It is malformed (Amendment 1, §7) when its
+  text is not valid JSON or has no boolean decision, or when its `stop_reason` is not `end_turn`: `refusal` (its
+  `stop_details` category is recorded), `max_tokens`, `model_context_window_exceeded` or any other value. Malformed
+  answers are scored as no money back, as frozen, with the three readings of Amendment 1, §7.
+- **Rate limits, overloads and server errors** (429 other than the spend cap below, and every 5xx, 529 included) are
+  waited out: up to three retries of the same request within a run, after 30, 60 and 120 seconds, or the
+  `retry-after` the answer gives if longer (at most 300 seconds). They are journaled, not charged (§7), not counted
+  as a send, and never use up the one resend. After the third retry the run stops; the next run sends the request
+  again as a first send.
+- **Account conditions** stop the run at once: 401, 402, a 429 whose `error.details.error_code` is
+  `enforced_spend_limit_reached` (a monthly spend cap), and a 400 whose message says that the credit balance is too
+  low or that the API usage limits were reached. They are reported as account conditions, not as a rejection of the
+  request, are not counted in the error bound, and never justify a close: the run resumes once the account is fixed.
+- **Any other 3xx or 4xx answer is a rejection:** every other 400, whatever its wording and whichever request it
+  answers, and 403, 404 and 413; redirects are not followed. The run stops and nothing is dropped. The status, the
+  error type and the message, with anything shaped like a key removed, are journaled; the request was not served and
+  keeps its sends.
+- **Lost answers:** a timeout or a lost connection after sending, an interrupt while waiting, and an HTTP 200 whose
+  body cannot be read or has an unexpected shape. The request may have been served and billed, so it is charged (§7),
+  and it is sent again once, with `--resend-unanswered`; every resend is listed in the report. A request is served at
+  most twice: its first send and one resend.
+- **Error bound.** At most 60 error answers per model, counting only the waited-out ones (429 other than the spend
+  cap, 529 and every other 5xx). Rejections and account conditions never count toward it.
+- **Closing a model is never the operator's choice.** It happens only on a condition the code checks in the journal:
+  - in the run itself: all 600 answers are in ("complete"); an answer from another model (charged, not cached); an
+    answer whose billed input is above the bound the cap relies on (cached); the budget stop (§7); or the end of the
+    work list with every missing request's one resend served;
+  - with `--close-incomplete`, which takes the run lock and charges any reservation a crash left open, only when (a) a
+    budget stop of the model is journaled, (b) the error bound was reached, or (c) the model's last run stopped on a
+    rejection and the same request received the same HTTP status and error type on runs at least 24 hours apart.
+    Otherwise it refuses; an account condition never satisfies (c). The 24 hours are measured by the server's `date`
+    header, which the journal records for every answer and error answer. `make check` fails if the times of the
+    journal, the run log or the spend journal go backwards; deliberate falsification of these files is outside what
+    the checks can exclude.
+  A closed model is never run again. A model closed without an answer is reported as "not run: " and its reason, one
+  with answers as "incomplete (k of 600 answered): " and its reason.
+- **Incomplete cells.** A cell still missing answers after a close is labelled "incomplete (k of n answered)". It gets
+  no A or B label, and its answered cases are reported.
+
+**§10 What is computed and reported.**
+- **Per model, prompt and split,** exactly what Amendment 1 computes, for the comparison set: kappa against the record
+  with its interval; on DEV, the paired difference with the issuer lookup and the A label; for v1 on DEV, the payout
+  difference and the B label; on the labelled sample, the person's figures; malformed answers and seconds per call;
+  kappa with `qwen3.8:27b`'s answers, as a descriptive figure. For a reference row, the same without labels (§3).
+  Added for this arm, per cell and printed in the table: the thinking tokens (median and maximum), the number of
+  answers that reported a routing other than `"global"`, and the stop reasons other than `end_turn` with the refusal
+  categories. Each model's status is printed in plain words: "complete", "incomplete (k of 600 answered): " or "not
+  run: " with the reason (§7, §9).
+- **Corrected levels.** 98.75% for A and 97.5% for B, printed as in Amendment 1, §3.
+- **The summary sentence**, built by `src/judge/hosted_analysis.py`, counts the comparison set only. While any model
+  is not closed it gives no count: its first part then reads "Hosted arm, on DEV: not finished, so no count is given;
+  not closed:" with each such model and its status. Its parts, in this order:
+  1. A sentence built with Amendment 1's template, starting "Hosted arm, on DEV:".
+  2. If any A label is "above", this sentence: "This is one run of each model as the provider served it on the
+     dates of the run; the models may have seen these complaints and their outcomes in training (see Amendment 2,
+     section 14)."
+  3. "The design compares each model with the issuer lookup and with the record, not models with one another; it does
+     not show that the results are independent of the model."
+  4. Any model of the set not counted, with its status.
+  5. The reference rows with their label and status.
+  6. Only if `claude-opus-5-5` has answers, this sentence: "claude-opus-5-5 ran with adaptive thinking, which it does
+     not allow to be turned off, at effort low and max_tokens 4096. Its thinking tokens are given per cell in the
+     table. It is a reference row, not part of the comparisons." It is followed by "[models] ran without up-front
+     thinking and max_tokens 512, as the local models did", naming only the models of the comparison set that have
+     answers and are still in it.
+  7. This framing sentence: "The one person who labelled the sample agreed with the record at kappa 0.202 [-0.054,
+     0.456] on his 56 decided labels, so neither the record nor this person is a gold standard. Each model's
+     closeness to the record and to this person is given with its interval; the models are not ranked, and no model
+     is called the best."
+  8. The "Same vendor" paragraph above the §1 heading, word for word: the code reads it from this file.
+  9. The cost, from the spend journal: per model (answers, charges without an answer, tokens, USD, with any open
+     reservation at its worst case) and in total, against the cap; then every resend and every charge without an
+     answer, per model, with its key and recorded cause.
+- **Where it is printed.** The README shows hosted figures only in one section, headed "Hosted arm (Amendment 2;
+  added later, exploratory)" and placed directly after the local-models section: the table that
+  `hosted_analysis.table_markdown` prints, with each reference row labelled in its row, then the summary sentence,
+  which carries the Opus sentence (when it applies), the "Same vendor" paragraph and the cost, each once. The first
+  screen gets at most this one sentence, and no hosted figure: "Added later, exploratory: the same two prompts were
+  also run on three hosted Anthropic models, on DEV and the labelled sample only; see [the section]." The local table
+  never includes hosted rows.
+
+**§11 What will not be concluded** (adds to Amendment 1, §10, which applies to this arm too).
+- **No ranking.** The hosted models are not ranked or tested against one another, and neither are hosted and local
+  models. Agreement with the record is agreement with what the companies recorded. The record and the one labeller
+  agree only weakly with each other, so a higher kappa against either is not "better at the task".
+- **Size is not isolated.** The two compared tiers differ in more than size (their training is not disclosed), and
+  the largest tier is a reference row with reasoning on.
+- **One run, one date.** Each figure is one run of each model as the provider served it on the dates of the run.
+- **Not comparable with the local runs as an experiment.** Sampling, the format mechanism and the tokenizer differ
+  (§6). The hosted table is printed in its own section (§10), not merged into the local one.
+
+**§12 Public before the first call.** As Amendment 1, §6, for this arm.
+- **What is published first.** This amendment, `src/judge/hosted.py`, `src/judge/hosted_analysis.py`,
+  `tests/test_hosted.py` and the `Makefile` are committed and published to the public repository before the first
+  request. The existing gists are not edited.
+- **The registration.** `results/models/hosted/registration.json` records the arm's code commit and the time GitHub
+  gives for its publication. It is committed now with those fields empty, and the runner refuses while either is
+  empty. The tests pass in both states, so no protected file needs editing after publication.
+- **The runner refuses to start unless** every local model of Amendment 1 is closed; the registration is complete;
+  the protected files (`PROTECTED` in `src/judge/hosted.py`, which includes the frozen prompt, request, parsing,
+  metric, data and label code) equal the published commit; the tree is clean outside `results/models/hosted/`; HEAD
+  is the commit GitHub shows as `main`; the earlier hosted models are closed and no budget stop has occurred; the
+  blind labels are locked; and `ANTHROPIC_API_KEY` is set. With the key unset, `make models-hosted MODEL=<id>` is the
+  operator's dry run: every other check runs, and nothing is sent or recorded. `python -m judge.hosted --estimate`
+  prints the projections of §7 without any request.
+- **After each model's requests,** `results/models/hosted/` is committed and published before the next model starts.
+- **The run lock.** A run and `--close-incomplete` take `results/models/hosted/run.lock`, created exclusively, before
+  they read any state, and hold it to the end, so on one machine two of them can neither send at the same time nor
+  work from stale state. After a crash the lock stays: `python -m judge.hosted --break-stale-lock` removes it only
+  when the process that wrote it no longer exists, and logs the removal. If that process number now belongs to
+  another program, the operator removes `run.lock` by hand after checking that no run is going on.
+- **The key** is read from `ANTHROPIC_API_KEY` only when a request is sent, sent only in the `x-api-key` header (never
+  forwarded on a redirect), and never written to any file, log line or error message: errors are rebuilt from the
+  response body with anything shaped like a key removed, and no traceback is printed. The `Makefile` names neither the
+  key nor a file holding it. `tests/test_hosted.py` checks this against a mock server that echoes a fake key, and
+  `make check` fails if a file under `results/models/hosted/` holds anything shaped like a key.
+
+**§13 Checks.** `make check` also runs `python -m judge.hosted --verify`, which reads files only. It fails if the
+model list, its order or the comparison set differs from §2 and §3, if a hosted model is a local one, or if a file of
+the arm holds anything shaped like a key; and, once there are requests, if the registration is incomplete, if the
+first request was journaled before the code was published, or if the journal, the cache or the spend journal breaks
+§2, §5, §7, §8 or §9 (each check is listed in `verify` in `src/judge/hosted.py` and tested in
+`tests/test_hosted.py`).
+
+**§14 Training data.** As Amendment 1, §10: these models may have seen the complaints and their outcomes in
+training. This is not measured.
+
+**Projected cost** (no request was sent to measure it).
+- **The measured basis.** The 600 requests of each model hold 496,310 prompt tokens by the study model's tokenizer
+  (`prompt_eval_count` in the study's own runs of `qwen3.8:27b`); its answers to them hold 34,618 output tokens.
+- **The assumptions.** The provider's count is 1.0 to 1.35 times that. Its format instructions add 0 to 500 tokens
+  per request; their size is not documented, so the true figure may be higher. The output is the same.
+- **The estimates,** at the prices of §2: `claude-haiku-5-5` 0.07–0.11 USD; `claude-sonnet-5-5` 1.34–2.29 USD;
+  `claude-opus-5-5` 2.68–4.57 USD before its thinking, and each 100 thinking tokens per answer add 1.20 USD.
+- **The code's own projection** before each model (bytes over 3, plus 500, with 512 output tokens): 0.27, 5.43 and
+  10.84 USD. These sum to 16.54 USD, above the cap, so `claude-opus-5-5` starts only if the first two models together
+  cost at most 4.16 USD (§7); the estimates above give 1.41 to 2.40 USD.
+- **When the cap would stop Opus.** If `claude-opus-5-5` thinks for more than about 670 to 910 tokens per answer on
+  average, the cap stops it before its 600th request, depending on where in those ranges the other figures fall. Its
+  remaining cells are then reported as incomplete. Lost answers (timeouts, lost connections) are charged at their
+  worst case, about 0.12 USD each on `claude-opus-5-5`, and so lower that figure.

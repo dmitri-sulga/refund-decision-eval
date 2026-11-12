@@ -1129,10 +1129,13 @@ POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
 # loader and its walk-through (both new, frozen hash null; they feed no report number), and the Makefile's `sql`
 # target. Eighth change: the plan for running the same task on other local models (new, frozen hash null; not run,
 # feeds no report number). Ninth change: Amendment 1 of that plan, the extension's runner and analysis (new, frozen
-# hash null; no model was called and they feed no report number), and the Makefile's `models` target and check
+# hash null; no model was called and they feed no report number), and the Makefile's `models` target and check.
+# Tenth change: Amendment 2 of that plan, a separately registered hosted arm, its runner and analysis (new, frozen
+# hash null; no request was sent and they feed no report number), and the Makefile's `models-hosted` target and check
 PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md",
                       "Makefile", "src/judge/sql.py", "docs/sql.md", "docs/analysis_plan_models.md",
-                      "src/judge/models.py", "src/judge/models_analysis.py")
+                      "src/judge/models.py", "src/judge/models_analysis.py", "src/judge/hosted.py",
+                      "src/judge/hosted_analysis.py")
 
 
 def accept_post_run_changes(m: dict) -> dict:

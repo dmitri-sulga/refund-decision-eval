@@ -2,7 +2,7 @@ PY := .venv/bin/python
 export PYTHONPATH := src
 MIRROR := https://huggingface.co/datasets/vivekkopthsd/cfpb-consumer-complaints/resolve/main/complaints.csv.zip
 
-.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data sql models
+.PHONY: venv test report check reproduce run replay freeze heldout label label-terminal judge-labelled data sql models models-hosted
 
 PYTHON ?= python3
 
@@ -25,6 +25,7 @@ report: venv
 check: venv
 	$(PY) -m judge.report --check
 	$(PY) -m judge.models --verify
+	$(PY) -m judge.hosted --verify
 
 reproduce: test check
 
@@ -37,6 +38,14 @@ sql: venv
 # digest match. MODEL=<tag> in the registered order; add RESEND=--resend-unanswered after an interruption.
 models: venv
 	caffeinate -i $(PY) -m judge.models --run $(MODEL) $(RESEND)
+
+# the hosted arm (docs/analysis_plan_models.md, Amendment 2; added after the local models): one hosted model's four
+# cells, DEV and the labelled sample only; refuses unless the arm's published commit matches, every local model is
+# closed and the spend stays under the cap. The key is read from the environment when a request is sent and is never
+# written. MODEL=<id> in the registered order; add RESEND=--resend-unanswered after an interruption. After a crash,
+# `python -m judge.hosted --break-stale-lock` removes run.lock if the process that held it is gone.
+models-hosted: venv
+	caffeinate -i $(PY) -m judge.hosted --run $(MODEL) $(RESEND)
 
 # model calls that are missing from the cache (DEV side only)
 run: venv

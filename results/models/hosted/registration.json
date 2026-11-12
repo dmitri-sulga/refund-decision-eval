@@ -1,0 +1,15 @@
+{
+ "what": "The public record of the hosted arm (docs/analysis_plan_models.md, Amendment 2, section 12). code_commit and code_published_at are filled after the arm's code commit is published and before any request; the runner refuses while either is null. Times are GitHub's, not the author's clock.",
+ "repository": "dmitri-sulga/refund-decision-eval",
+ "models": ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"],
+ "compared": ["claude-haiku-5-5", "claude-sonnet-5-5"],
+ "reference_only": ["claude-opus-5-5"],
+ "api_version": "2026-10-21",
+ "inference_geo": "global",
+ "cap_usd": 15.0,
+ "code_commit": null,
+ "code_published_at": null,
+ "code_published_source": null,
+ "earlier_gists_not_edited": ["dc5fd5e1dd67532a64698ce11b0d3ea5 (the held-out run's record)", "f17036e715dc7ae227fba1b7b4845abf (the local-models extension's record)"],
+ "requests_before_this_file": 0
+}

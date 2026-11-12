@@ -8,3 +8,5 @@
 {"answers": 600, "at": "2026-11-12T00:41:00.840763+00:00", "event": "model_finished", "model": "mistral-small3.2:24b"}
 {"at": "2026-11-12T00:45:53.313386+00:00", "event": "run_started", "model": "granite4.1:30b", "resend_unanswered": false}
 {"answers": 600, "at": "2026-11-12T03:03:41.765330+00:00", "event": "model_finished", "model": "granite4.1:30b"}
+{"at": "2026-11-12T03:07:18.111773+00:00", "event": "run_started", "model": "glm-4.7-flash:latest", "resend_unanswered": false}
+{"answers": 600, "at": "2026-11-12T03:34:13.834486+00:00", "event": "model_finished", "model": "glm-4.7-flash:latest"}

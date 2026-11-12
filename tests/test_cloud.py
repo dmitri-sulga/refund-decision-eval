@@ -185,7 +185,7 @@ class FakeTransport:
         assert url == K.KEY_URL
         data = {"label": "sk-or-v1-abc...xyz", "limit": self.limit, "limit_remaining": self.limit_remaining,
                 "limit_reset": self.limit_reset, "usage": 0.0, "usage_daily": 0.0,
-                "include_byok_in_limit": False, "is_free_tier": False,
+                "include_byok_in_limit": False, "is_free_tier": False, "budgets": [], "effective_budget": None,
                 "free_model_daily_requests": {"used": 1000 - self.remaining, "limit": 1000,
                                               "remaining": self.remaining}}
         return {"data": {f: v for f, v in data.items() if f not in self.omit}}
@@ -212,6 +212,29 @@ def run(tag, sandbox, transport, **kw):
 
 def events():
     return [e["event"] for e in X._jsonl(K.RUN_LOG)]
+
+
+class Clock:
+    """This machine's clock as the runner reads it (K.now), set by the tests to the server dates they simulate; each
+    reading moves on by a millisecond, so the journals' times stay in order."""
+
+    def __init__(self):
+        self.t, self.n = H._server_seconds("Thu, 12 Nov 2026 12:00:00 GMT"), 0
+
+    def set(self, date: str, plus_s: float = 0.0):
+        self.t = H._server_seconds(date) + plus_s
+
+    def __call__(self) -> str:
+        from datetime import datetime, timezone
+        self.n += 1
+        return datetime.fromtimestamp(self.t + self.n / 1000, timezone.utc).isoformat(timespec="microseconds")
+
+
+@pytest.fixture
+def clock(monkeypatch):
+    c = Clock()
+    monkeypatch.setattr(K, "now", c)
+    return c
 
 
 def test_a_full_paid_model_journals_records_spend_reads_credits_and_verifies(sandbox):
@@ -300,7 +323,7 @@ def test_a_paid_model_refuses_a_key_without_a_limit_and_a_free_model_does_not(sa
             run(PAID1, sandbox, t)
         assert t.calls == [] and X._jsonl(K.JOURNAL) == []
     before = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "account_before"]
-    assert before[-1]["fields_missing"] == ["limit", "limit_remaining", "budgets", "effective_budget"]
+    assert before[-1]["fields_missing"] == ["limit", "limit_remaining"]
     assert "budgets" in before[-1] and "effective_budget" in before[-1]           # m-i: recorded (null if absent)
     assert not [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]   # the registered key: no deviation
     run(FREE1, sandbox, FakeTransport(remaining=K.FREE_DAILY_MARGIN + 1))
@@ -816,7 +839,9 @@ PREFLIGHT = K.preflight
 def test_preflight_refuses_each_registered_condition(pre_env, monkeypatch):
     def pre(tag=PAID1, **kw):
         return K.preflight(tag, published_head=kw.get("published", pre_env["published"]), getter=pre_env["getter"])
-    assert pre()["sets"]
+    assert pre(FREE1)["sets"]
+    with pytest.raises(X.Refusal, match="the free queue is not closed"):       # Correction 4, C24
+        pre()
     pre_env["porcelain"] = " M src/judge/cloud.py\n"
     with pytest.raises(X.Refusal, match="outside results/models/cloud/"):
         pre()
@@ -847,9 +872,27 @@ def test_preflight_refuses_each_registered_condition(pre_env, monkeypatch):
     with pytest.raises(X.Refusal, match="Amendment 1 or 2 is not closed"):
         pre(FREE1)
     monkeypatch.setattr(X, "state", lambda: {"status": {t: "complete" for t, _ in X.MODELS}})
-    X._append(K.RUN_LOG, {"at": X.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free"})  # Correction 2
+    X._append(K.RUN_LOG, {"at": X.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free"})
+    assert pre(FREE1)["sets"]              # Correction 4, C25 (m-5): a stop without limit_source stops nothing
+    X._append(K.RUN_LOG, {"at": X.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free",
+                          "limit_source": K.KEY_LIMIT_SOURCE})                       # Correction 2
     with pytest.raises(X.Refusal, match="key's limit in OpenRouter was spent during the free arm"):
         pre(FREE1)
+
+
+def test_the_paid_arm_starts_only_after_every_free_model_is_closed(pre_env):
+    """Correction 4, C24 (the fourth review's m-6): one key serves both arms, and the documentation says a negative
+    credit balance can refuse free models too; the free queue therefore runs to its end before the first paid
+    request, whichever way each free model was closed."""
+    def pre(tag):
+        return K.preflight(tag, published_head=pre_env["published"], getter=pre_env["getter"])
+    for n, t in enumerate(K.FREE_QUEUE):
+        with pytest.raises(X.Refusal, match=r"the free queue is not closed \(" + ", ".join(K.FREE_QUEUE[n:])
+                           .replace(".", r"\.")):
+            pre(PAID1)
+        X._append(K.RUN_LOG, {"at": X.now(), "event": "model_finished", "model": t, "answers": 600} if n % 2 else
+                  {"at": X.now(), "event": "closed_incomplete", "model": t, "reason": "not run: x"})
+    assert pre(PAID1)["sets"]
 
 
 # ------------------------------------------------------------------ Correction 2, after the second independent review
@@ -902,10 +945,12 @@ def test_a_spent_key_limit_stops_the_arm_and_never_closes_a_model_as_rejected(sa
     assert K.verify(records=sandbox["records"]) == []
 
 
-def test_a_content_filter_403_fails_one_request_and_the_run_goes_on(sandbox):
-    """Correction 2, C12 (the review's PROBE_B: Gemma closed at 2 of 10 answers by Google AI Studio's filter)."""
+def test_a_content_filter_403_fails_one_request_and_the_run_goes_on(sandbox, clock):
+    """Correction 2, C12 (the review's PROBE_B: Gemma closed at 2 of 10 answers by Google AI Studio's filter), as
+    corrected by Correction 4, C22: the refused request is sent to the filter exactly once more, 24 hours later."""
     def safety(date):
         return K.CloudError(403, "Provider returned error (SAFETY)", etype="content_policy_violation", date=date)
+    clock.set("Thu, 12 Nov 2026 12:00:00 GMT")
     out = run(GEMMA, sandbox, FakeTransport(fail_at=3, error=safety("Thu, 12 Nov 2026 12:00:00 GMT")))
     assert out["new_answers"] == 9 and out["filtered_to_send_again"] == 1 and not K.state()["status"]
     kinds = [e["kind"] for e in X._jsonl(K.JOURNAL)]
@@ -913,26 +958,32 @@ def test_a_content_filter_403_fails_one_request_and_the_run_goes_on(sandbox):
     assert [e["event"] for e in X._jsonl(K.RUN_LOG)].count("filtered") == 1
     with pytest.raises(X.Refusal, match="cannot be closed"):
         K.close_incomplete(GEMMA)
+    clock.set("Thu, 12 Nov 2026 13:00:00 GMT")
     t = FakeTransport(fail_at=1, error=safety("Thu, 12 Nov 2026 13:00:00 GMT"))
-    run(GEMMA, sandbox, t)                                  # refused again one hour later: not final (Correction 3, C20)
-    assert len(t.calls) == 1 and not K.state()["status"]
-    t = FakeTransport(fail_at=1, error=safety("Fri, 13 Nov 2026 12:00:00 GMT"))
-    run(GEMMA, sandbox, t)                                  # refused again 24 hours after the first: final
+    out = run(GEMMA, sandbox, t)                            # one hour later: the request is not due, nothing is sent
+    assert t.calls == [] and out["filtered_to_send_again"] == 1 and not K.state()["status"]
+    clock.set("Fri, 13 Nov 2026 12:10:00 GMT")
+    t = FakeTransport(fail_at=1, error=safety("Fri, 13 Nov 2026 12:10:00 GMT"))
+    run(GEMMA, sandbox, t)                                  # its second send, 24 hours 10 minutes later: final
     assert len(t.calls) == 1
     assert K.state()["status"][GEMMA] == ("incomplete (9 of 10 answered): 1 request(s) refused by the provider's "
-                                          "content filter on 2 runs at least 24 hours apart")
+                                          "content filter on both of their 2 sends, at least 24 hours apart")
     assert K.verify(records=sandbox["records"]) == []
     from judge import cloud_analysis as CA
     d = CA.deviations(GEMMA, X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], X._jsonl(K.CACHE_FILE))
-    assert d["filtered"] == 3 and d["filtered_final"] == 1
+    assert d["filtered"] == 2 and d["filtered_final"] == 1 and d["filtered_final_local"] == 0
     k = [e["key"] for e in X._jsonl(K.JOURNAL) if e["kind"] == "filtered"][0]
-    X._append(K.JOURNAL, {"at": X.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
+    X._append(K.JOURNAL, {"at": K.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
     assert any("after its content-filter refusal" in p for p in K.verify(records=sandbox["records"]))
 
 
-def test_a_filtered_request_answered_on_its_second_run_is_an_answer(sandbox):
-    err = K.CloudError(403, "Provider returned error", etype="refusal")
+def test_a_filtered_request_answered_on_its_second_run_is_an_answer(sandbox, clock):
+    err = K.CloudError(403, "Provider returned error", etype="refusal")              # no server date: local times
     run(PAID1, sandbox, FakeTransport(fail_at=5, error=err))
+    t = FakeTransport()
+    out = run(PAID1, sandbox, t)                                 # the same minute: not due (Correction 4, C22)
+    assert t.calls == [] and out["filtered_to_send_again"] == 1
+    clock.set("Fri, 13 Nov 2026 12:10:01 GMT")
     out = run(PAID1, sandbox, FakeTransport())
     assert out["missing"] == 0 and K.state()["status"][PAID1] == "complete"
     assert K.verify(records=sandbox["records"]) == []
@@ -1031,7 +1082,8 @@ def test_the_report_lists_the_recorded_deviations(sandbox):
     s = CA.deviations_sentence(out)
     assert f"{PAID1}: 1 overrun, 1 answer kept in quarantine, 1 resend, 1 answer without a provider field, left out " \
            "seed" in s
-    assert f"{FREE1}: 2 content-filter refusals, 1 request refused on two runs at least 24 hours apart" in s \
+    assert f"{FREE1}: 2 content-filter refusals, 1 request refused on both of its 2 sends at least 24 hours apart" \
+        in s \
         and "another key" in s
     empty = {"order": [FREE1], "models": {FREE1: {"deviations": CA.deviations(FREE1, [], [], [], [])}}}
     assert CA.deviations_sentence(empty).startswith("Recorded deviations: none")
@@ -1118,28 +1170,33 @@ def test_a_storm_of_other_403s_stops_each_run_and_never_closes_a_model(sandbox):
     assert K.verify(records=sandbox["records"]) == []
 
 
-def test_content_filter_refusals_minutes_apart_do_not_close_a_model(sandbox):
-    """Correction 3, C20 (the review's R2): a second refusal counts only at least 24 hours after the first by the
-    server's dates, as the rejection rule; two runs minutes apart close nothing, a third a day later closes the model."""
+def test_content_filter_refusals_minutes_apart_do_not_close_a_model(sandbox, clock):
+    """Correction 3, C20 (the review's R2), as corrected by Correction 4, C22: a refused request is sent to the filter
+    once more only 24 hours and 10 minutes after its first refusal; runs before then send nothing and close nothing."""
     def filt(date):
         return _http(403, _err(403, "Provider returned error", error_type="content_policy_violation",
                                provider_name="Nvidia", raw="SAFETY"), {"date": date})
     out = run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=filt("Thu, 12 Nov 2026 12:00:00 GMT")))
     assert out["filtered_to_send_again"] == 10 and not K.state()["status"]
-    out = run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=filt("Thu, 12 Nov 2026 12:03:00 GMT")))
-    assert out["filtered_to_send_again"] == 10 and not K.state()["status"]
+    clock.set("Thu, 12 Nov 2026 12:03:00 GMT")
+    t = FakeTransport(fail_at=range(1, 100), error=filt("Thu, 12 Nov 2026 12:03:00 GMT"))
+    out = run(FREE1, sandbox, t)
+    assert out["filtered_to_send_again"] == 10 and not K.state()["status"] and t.calls == []
     with pytest.raises(X.Refusal, match="cannot be closed"):
         K.close_incomplete(FREE1)
-    t = FakeTransport(fail_at=range(1, 100), error=filt("Fri, 13 Nov 2026 11:59:59 GMT"))
-    out = run(FREE1, sandbox, t)                                # 23:59:59 after the first: still not final
-    assert out["filtered_to_send_again"] == 10 and not K.state()["status"] and len(t.calls) == 10
-    t = FakeTransport(fail_at=range(1, 100), error=filt("Fri, 13 Nov 2026 12:00:00 GMT"))
+    clock.set("Fri, 13 Nov 2026 12:09:59 GMT")
+    t = FakeTransport(fail_at=range(1, 100), error=filt("Fri, 13 Nov 2026 12:09:59 GMT"))
+    out = run(FREE1, sandbox, t)                                # 24 h 9 min 59 s after the first: not due yet
+    assert out["filtered_to_send_again"] == 10 and not K.state()["status"] and t.calls == []
+    clock.set("Fri, 13 Nov 2026 12:10:01 GMT")
+    t = FakeTransport(fail_at=range(1, 100), error=filt("Fri, 13 Nov 2026 12:10:01 GMT"))
     run(FREE1, sandbox, t)
-    assert K.state()["status"][FREE1] == ("not run: 10 request(s) refused by the provider's content filter on 2 runs "
-                                          "at least 24 hours apart")
+    assert len(t.calls) == 10
+    assert K.state()["status"][FREE1] == ("not run: 10 request(s) refused by the provider's content filter on both of "
+                                          "their 2 sends, at least 24 hours apart")
     assert K.verify(records=sandbox["records"]) == []
     k = f"{FREE1}|v1|d1"
-    X._append(K.JOURNAL, {"at": X.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
+    X._append(K.JOURNAL, {"at": K.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
     assert any("after its content-filter refusal became final" in p for p in K.verify(records=sandbox["records"]))
 
 
@@ -1152,13 +1209,14 @@ def test_a_filter_refusal_recorded_without_a_filters_error_type_fails_the_check(
     assert any("are not a content filter's" in p for p in K.verify(records=sandbox["records"]))
 
 
-def test_a_content_filter_whose_raw_text_names_a_limit_stops_no_arm(sandbox):
+def test_a_content_filter_whose_raw_text_names_a_limit_stops_no_arm(sandbox, clock):
     """Correction 3, C19 (the review's R3): message text never stops an arm, and `--close-incomplete` closes no model
     that never ran on a text match."""
     body = _err(403, "Provider returned error", error_type="content_policy_violation", provider_name="X",
                 raw="Request blocked: safety limit exceeded")
     out = run(FREE1, sandbox, FakeTransport(fail_at=2, error=_http(403, body)))
     assert out["new_answers"] == 9 and out["filtered_to_send_again"] == 1
+    clock.set("Fri, 13 Nov 2026 12:30:00 GMT")                 # its second send is due (Correction 4, C22)
     with pytest.raises(X.Refusal, match="infrastructure or permission"):
         run(FREE1, sandbox, FakeTransport(fail_at=1, error=_http(403, _err(
             403, "Provider returned error", error_type="permission_denied", raw="Rate limit exceeded"))))
@@ -1169,8 +1227,12 @@ def test_a_content_filter_whose_raw_text_names_a_limit_stops_no_arm(sandbox):
     with pytest.raises(X.Refusal, match="cannot be closed"):
         K.close_incomplete(FREE1)
     assert K.verify(records=sandbox["records"]) == []
-    X._append(K.RUN_LOG, {"at": X.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free"})
+    X._append(K.RUN_LOG, {"at": K.now(), "event": "key_limit_stop", "model": FREE1, "arm": "free"})
     assert any("key_limit_stop of the free arm without limit_source" in p for p in K.verify(records=sandbox["records"]))
+    # Correction 4, C25 (the fourth review's m-5): such a record stops no arm and lets no model of it be closed
+    assert not K.arm_stopped_by_key(K.FREE_QUEUE[1], X._jsonl(K.RUN_LOG))
+    with pytest.raises(X.Refusal, match="has not started"):
+        K.close_incomplete(K.FREE_QUEUE[1])
 
 
 def test_a_key_limit_spent_with_a_402_stops_the_arm_and_its_models_can_be_closed(sandbox):
@@ -1190,30 +1252,54 @@ def test_a_key_limit_spent_with_a_402_stops_the_arm_and_its_models_can_be_closed
     assert K.verify(records=sandbox["records"]) == []
 
 
-def test_a_short_remaining_key_limit_closes_the_paid_model_so_the_queue_goes_on(sandbox):
+def test_a_short_remaining_key_limit_closes_the_paid_model_so_the_queue_goes_on(sandbox, monkeypatch):
     """Correction 3, C19 (the review's R4, second half): the key's remaining limit cannot cover a paid model's remaining
     worst case, and the limit cannot be raised (exactly 15 USD, never reset): the model is closed by the budget and
     the next model of the queue may run; a key that is configured otherwise is a resumable refusal and closes
-    nothing."""
+    nothing. As corrected by Correction 4, C25 (the fourth review's m-1, N3): this closing happens on its own only when
+    the key's use agrees with the branch's spend journal; key use outside the branch is a recorded deviation, stops the
+    run without closing the model, and the operator may then close it with that deviation in its reason."""
     with pytest.raises(X.Refusal, match="account condition"):
         run(PAID1, sandbox, FakeTransport(fail_at=3, error=K.CloudError(401, "No auth")))
     for kw in ({"limit": 10.0, "limit_remaining": 10.0}, {"limit_reset": "monthly"}, {"omit": ("limit_remaining",)}):
         with pytest.raises(X.Refusal, match="nothing was sent.$"):
             run(PAID1, sandbox, FakeTransport(**kw))
         assert not K.state()["status"]
-    t = FakeTransport(limit_remaining=0.01)
+    journaled = K.spend_state()["computed"]
+    assert 0 < journaled < 0.01
+    # the legitimate path: OpenRouter's use equals the journal, and the model's worst case plus the margin does not fit
+    monkeypatch.setattr(K, "CREDIT_MARGIN_USD", 14.999)
+    t = FakeTransport(limit_remaining=15.0 - journaled)
     with pytest.raises(X.Refusal, match="it is closed"):
         run(PAID1, sandbox, t)
     assert t.calls == []
     assert K.state()["status"][PAID1].startswith("incomplete (2 of 10 answered): stopped by the budget: the key's "
-                                                 "remaining limit in OpenRouter (0.01 USD)")
+                                                 "remaining limit in OpenRouter (14.99")
     stop = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "budget_stop"]
     assert len(stop) == 1 and stop[0]["scope"] == "key" and stop[0]["model"] == PAID1
-    with pytest.raises(X.Refusal, match="it is closed"):
-        run(K.PAID_QUEUE[1], sandbox, FakeTransport(limit_remaining=0.01))
-    assert K.state()["status"][K.PAID_QUEUE[1]].startswith("not run: stopped by the budget")
-    out = run(K.PAID_QUEUE[2], sandbox, FakeTransport(limit_remaining=14.0))
+    assert np.isclose(stop[0]["key_used_usd"], journaled, atol=1e-6) and abs(stop[0]["beyond_journal_usd"]) < 1e-6
+    assert not [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    # N3: 14.99 USD of the key used outside the branch: recorded, the run stops, the model is not closed by itself
+    monkeypatch.setattr(K, "CREDIT_MARGIN_USD", 1.0)
+    t = FakeTransport(limit_remaining=0.01)
+    with pytest.raises(X.Refusal, match="not closed by the budget on its own"):
+        run(K.PAID_QUEUE[1], sandbox, t)
+    assert t.calls == [] and not K.state()["status"].get(K.PAID_QUEUE[1])
+    dev = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    assert len(dev) == 1 and dev[0]["kind"] == "key_use_exceeds_journal" and dev[0]["stopped"] is True
+    assert np.isclose(dev[0]["beyond_journal_usd"], 14.99 - journaled, atol=1e-6)
+    why = K.close_incomplete(K.PAID_QUEUE[1])
+    assert why.startswith("not run: stopped by the budget: the key's remaining limit in OpenRouter (0.01 USD)")
+    assert "outside the branch's spend journal (a recorded deviation)" in why
+    # the key's use agrees with the journal again: the last model runs; a small difference is not a deviation
+    out = run(K.PAID_QUEUE[2], sandbox, FakeTransport(limit_remaining=15.0 - journaled - 0.04))
     assert out["missing"] == 0 and K.state()["status"][K.PAID_QUEUE[2]] == "complete"
+    assert len([e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]) == 1
+    from judge import cloud_analysis as CA
+    d = CA.deviations(K.PAID_QUEUE[1], X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], [])
+    assert d["key_use_exceeds_journal"] == 1
+    assert "1 key reading whose use exceeded the branch's spend journal" in CA.deviations_sentence(
+        {"order": [K.PAID_QUEUE[1]], "models": {K.PAID_QUEUE[1]: {"deviations": d}}})
     assert K.verify(records=sandbox["records"]) == []
 
 
@@ -1260,13 +1346,14 @@ def test_an_overrun_line_written_twice_does_not_hide_overspend(sandbox, monkeypa
 def test_nan_and_infinity_are_not_key_readings():
     """Correction 3, C21 (the review's m-2, R6): json.loads accepts NaN and Infinity; neither passes "exactly 15" nor
     counts as a remaining limit."""
-    base = {"limit": 15.0, "limit_reset": None, "limit_remaining": 15.0, "fields_missing": []}
+    base = {"limit": 15.0, "limit_reset": None, "limit_remaining": 15.0, "fields_missing": [], "budgets": [],
+            "effective_budget": None}
     assert K.paid_key_refusal(PAID1, base, 4.8) is None
     for f, v in (("limit", float("nan")), ("limit", float("inf")), ("limit_remaining", float("nan")),
                  ("limit_remaining", float("inf")), ("limit", "15"), ("limit", True)):
         assert K.paid_key_refusal(PAID1, {**base, f: v}, 4.8) is not None, (f, v)
         assert not K.key_short({**base, f: v}, 4.8)
-    parsed = json.loads('{"limit": NaN, "limit_remaining": Infinity, "limit_reset": null}')
+    parsed = json.loads('{"limit": NaN, "limit_remaining": Infinity, "limit_reset": null, "budgets": []}')
     assert K.paid_key_refusal(PAID1, {**parsed, "fields_missing": []}, 4.8) is not None
     assert not K._num(float("nan")) and not K._num(float("-inf")) and K._num(15) and K._num(0.1 * 150)
 
@@ -1311,3 +1398,236 @@ def test_an_http_error_that_reports_usage_is_charged_by_it(sandbox):
     assert len([e for e in X._jsonl(K.SPEND) if e["event"] == "charged"]) == 1
     assert X._jsonl(K.SPEND)[-1]["event"] == "released"
     assert K.verify(records=sandbox["records"]) == []
+
+
+# ------------------------------------------------------------------ Correction 4, after the fourth independent review
+class Flaky(FakeTransport):
+    """A provider's filter that refuses each request on its first `refuse` sends and answers after that (the fourth
+    review's N2: a filter that is not deterministic, modelled deterministically). `seen` is shared between runs."""
+
+    def __init__(self, seen, refuse, date, **kw):
+        super().__init__(**kw)
+        self.seen, self.refuse, self.date = seen, refuse, date
+
+    def send(self, body):
+        h = json.dumps(body["messages"], sort_keys=True)
+        self.seen[h] = self.seen.get(h, 0) + 1
+        if self.seen[h] <= self.refuse:
+            self.calls.append(body)
+            raise _http(403, _err(403, "Provider returned error", error_type="content_policy_violation",
+                                  provider_name="Nvidia"), {"date": self.date})
+        return super().send(body)
+
+
+def _schedule(sandbox, clock, dates, refuse):
+    seen, calls, out = {}, [], None
+    for d in dates:
+        clock.set(d)
+        t = Flaky(seen, refuse, d)
+        out = run(FREE1, sandbox, t)
+        calls.append(len(t.calls))
+    return K.state()["status"].get(FREE1), calls, out
+
+
+D0 = "Thu, 12 Nov 2026 12:00:00 GMT"
+LATER = "Fri, 13 Nov 2026 12:15:00 GMT"             # 24 hours 15 minutes after D0
+
+
+@pytest.mark.parametrize("refuse", (1, 2))
+def test_a_filtered_request_is_sent_exactly_twice_whatever_the_number_of_runs(tmp_path, monkeypatch, refuse):
+    """Correction 4, C22 (the fourth review's MAJOR-1, N2a against N2b): whether a compared model is counted must not
+    depend on how many runs happen in the first 24 hours. The same filter gives the same status to an operator who
+    runs twice, 24 hours apart, and to one who runs three times within two hours and then once after 24 hours: the
+    request is sent exactly twice, the second time after the wait, and runs before then send nothing."""
+    results = []
+    for schedule in ((D0, LATER), (D0, "Thu, 12 Nov 2026 13:00:00 GMT", "Thu, 12 Nov 2026 14:00:00 GMT", LATER)):
+        with monkeypatch.context() as m:
+            sub = tmp_path / str(len(schedule))
+            sub.mkdir()
+            m.setattr(K, "DIR", sub)
+            for name in ("CACHE_FILE", "JOURNAL", "RUN_LOG", "SPEND", "REGISTRATION", "LOCK", "QUARANTINE"):
+                m.setattr(K, name, sub / getattr(K, name).name)
+            sets = {"dev": ["d1", "d2", "d3"], "labelled": ["l1", "l2"]}
+            records = {i: {"product": "P", "sub_product": "S", "issue": "I", "sub_issue": "J",
+                           "narrative": f"text {i}", "label": 0} for i in ["d1", "d2", "d3", "l1", "l2", "h1"]}
+            m.setattr(K, "preflight", lambda tag, published_head=None, getter=None: {
+                "sets": sets, "test": {"h1"}, "registration": FILLED})
+            m.setattr(X, "item_sets", lambda: (sets, {"h1"}))
+            K.REGISTRATION.write_text(json.dumps(FILLED))
+            c = Clock()
+            m.setattr(K, "now", c)
+            status, calls, out = _schedule({"records": records}, c, schedule, refuse)
+            sends = [e for e in X._jsonl(K.JOURNAL) if e["kind"] in ("send", "resend", "retry")]
+            assert K.verify(records=records) == []
+            results.append((status, calls, len(sends)))
+    (status_a, calls_a, sends_a), (status_b, calls_b, sends_b) = results
+    assert status_a == status_b and sends_a == sends_b == 20
+    assert calls_a == [10, 10] and calls_b == [10, 0, 0, 10]
+    if refuse == 2:
+        assert status_a == ("not run: 10 request(s) refused by the provider's content filter on both of their 2 sends, "
+                            "at least 24 hours apart")
+    else:
+        assert status_a == "complete"
+
+
+def test_the_fourth_reviews_n2_schedules_without_a_later_run_close_nothing_alike(sandbox, clock):
+    """The fourth review's N2 as it was written (two runs exactly 24 hours apart; three runs within two hours): with
+    the wait of 24 hours and 10 minutes, neither sends the request a second time and neither closes the model."""
+    status, calls, out = _schedule(sandbox, clock, (D0, "Thu, 12 Nov 2026 13:00:00 GMT",
+                                                    "Thu, 12 Nov 2026 14:00:00 GMT"), 2)
+    assert status is None and calls == [10, 0, 0] and out["filtered_to_send_again"] == 10
+
+
+def test_a_filter_refusal_without_a_server_date_becomes_final_by_the_local_clock(sandbox, clock):
+    """Correction 4, C22 (the fourth review's m-4, N8): a refusal without a server date is final at the second send by
+    the journal's local times, and that is recorded as a deviation; it can no longer stay open for ever."""
+    e = _http(403, _err(403, "e", error_type="content_policy_violation"), {"date": ""})
+    assert e.date == ""
+    for when, calls in ((D0, 10), ("Thu, 12 Nov 2026 18:00:00 GMT", 0), (LATER, 1)):
+        clock.set(when)
+        t = FakeTransport(fail_at=1, error=e)
+        run(FREE1, sandbox, t)
+        assert len(t.calls) == calls
+    assert K.state()["status"][FREE1] == ("incomplete (9 of 10 answered): 1 request(s) refused by the provider's "
+                                          "content filter on both of their 2 sends, at least 24 hours apart")
+    dev = [x for x in X._jsonl(K.RUN_LOG) if x["event"] == "deviation"]
+    assert [x["kind"] for x in dev] == ["filter_final_local_clock"] and dev[0]["server_gap_hours"] is None
+    from judge import cloud_analysis as CA
+    d = CA.deviations(FREE1, X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], X._jsonl(K.CACHE_FILE))
+    assert d["filtered_final"] == 1 and d["filtered_final_local"] == 1
+    assert K.verify(records=sandbox["records"]) == []
+    # the server's dates less than 24 hours apart although the wait was kept on this machine: final by local times
+    fs = K.filter_state([{"kind": "filtered", "at": "2026-11-12T12:00:00+00:00", "server_date": D0},
+                         {"kind": "filtered", "at": "2026-11-13T12:15:00+00:00",
+                          "server_date": "Fri, 13 Nov 2026 11:00:00 GMT"}])
+    assert fs["final"] and fs["basis"] == "local clock" and fs["server_gap_s"] == 23 * 3600
+
+
+def test_make_check_fails_on_a_send_before_the_filter_wait_and_on_a_third_refusal(sandbox, clock):
+    """Correction 4, C22: `make check` fails if a request is sent again before the wait after its first content-filter
+    refusal, or is refused by a filter more than twice."""
+    err = _http(403, _err(403, "e", error_type="refusal"), {"date": D0})
+    run(FREE1, sandbox, FakeTransport(fail_at=1, error=err))
+    assert K.verify(records=sandbox["records"]) == []
+    k = [e["key"] for e in X._jsonl(K.JOURNAL) if e["kind"] == "filtered"][0]
+    good_journal = K.JOURNAL.read_text()
+    clock.set("Fri, 13 Nov 2026 12:00:00 GMT")                              # 24 hours: not yet 24 h 10 min
+    X._append(K.JOURNAL, {"at": K.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
+    assert any("less than 24 hours and 10 minutes after its first" in p for p in K.verify(records=sandbox["records"]))
+    K.JOURNAL.write_text(good_journal)
+    clock.set(LATER)
+    for d in (LATER, "Sat, 14 Nov 2026 13:00:00 GMT"):
+        X._append(K.JOURNAL, {"at": K.now(), "key": k, "kind": "send", "request_sha256": "x", "fields_dropped": []})
+        X._append(K.JOURNAL, {"at": K.now(), "key": k, "kind": "filtered", "status": 403, "error_type": "refusal",
+                              "server_date": d})
+    problems = K.verify(records=sandbox["records"])
+    assert any("refused by a content filter 3 times" in p for p in problems)
+    assert any("after its content-filter refusal became final" in p for p in problems)
+
+
+D1, D2, D3 = "Fri, 13 Nov 2026 12:00:00 GMT", "Sat, 14 Nov 2026 12:00:00 GMT", "Sun, 15 Nov 2026 12:00:00 GMT"
+
+
+def _denied(date):
+    return _http(403, _err(403, "Provider returned error", error_type="permission_denied", provider_name="Nvidia",
+                           raw="User location is not supported"), {"date": date})
+
+
+def test_a_persistent_forbidden_closes_the_model_only_after_3_runs_over_72_hours(sandbox, clock):
+    """Correction 4, C23 (the fourth review's MAJOR-2, N1): the same 403 that is neither a content filter nor a budget,
+    on the same request, on 3 runs whose server dates span at least 72 hours with no answer in between, lets
+    `--close-incomplete` close the model, with the operator's record of what was checked and a recorded deviation;
+    48 hours are not enough; `make check` accepts the closing and the analysis gives its count."""
+    for d in (D0, D1, D2):
+        clock.set(d)
+        with pytest.raises(X.Refusal, match="infrastructure or permission"):
+            run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=_denied(d)))
+    with pytest.raises(X.Refusal, match="cannot be closed"):                 # three runs over 48 hours
+        K.close_incomplete(FREE1, checked="key permissions, guardrails, network")
+    clock.set(D3)
+    with pytest.raises(X.Refusal, match="infrastructure or permission"):
+        run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=_denied(D3)))
+    with pytest.raises(X.Refusal, match="first record what was checked"):
+        K.close_incomplete(FREE1)
+    assert not K.state()["status"]
+    why = K.close_incomplete(FREE1, checked="key permissions, no guardrail, network reaches openrouter.ai")
+    assert why == ("not run: forbidden on 4 runs over 72 hours by the server's dates "
+                   f"({FREE1}|v1|d1: HTTP 403 permission_denied): " + K.VERDICT_WORDS["forbidden"])
+    dev = [e for e in X._jsonl(K.RUN_LOG) if e["event"] == "deviation"]
+    assert len(dev) == 1 and dev[0]["kind"] == "forbidden_closed" and dev[0]["checked"].startswith("key permissions")
+    assert K.verify(records=sandbox["records"]) == []
+    # the analysis: the model is closed, so a count is given, and it is listed as not counted with its reason
+    from judge import cloud_analysis as CA
+    closed = {e["model"]: e for e in X._jsonl(K.RUN_LOG) if e["event"] == "closed_incomplete"}
+    status, legit = CA.model_status(FREE1, closed, 0, 600, X._jsonl(K.RUN_LOG))
+    assert legit and status == why
+    d = CA.deviations(FREE1, X._jsonl(K.JOURNAL), X._jsonl(K.RUN_LOG), [], [])
+    out = {"order": [FREE1], "models": {FREE1: {"status": status, "closed": True, "compared": True, "cells": {},
+                                                "row_note": None, "deviations": d}}}
+    s = CA.summary(out)
+    assert "not finished" not in s and f"Not counted: {FREE1} ({why})" in s
+    assert "1 closing after the same 403, neither a content filter nor a budget, on 3 runs over at least 72 hours" in s
+    # a closing on a persistent 403 that the files do not back fails `make check`
+    log = X._jsonl(K.RUN_LOG)
+    K.RUN_LOG.write_text("".join(json.dumps(e) + "\n" for e in log if e["event"] != "deviation"))
+    assert any("closed on a persistent 403" in p for p in K.verify(records=sandbox["records"]))
+
+
+def test_a_persistent_forbidden_series_needs_the_span_and_no_answer_between(sandbox, clock):
+    """Correction 4, C23: three runs minutes apart, or an answer of the model in between, close nothing; exactly three
+    runs over 72 hours suffice."""
+    for d in (D0, "Thu, 12 Nov 2026 12:03:00 GMT", "Thu, 12 Nov 2026 12:06:00 GMT"):
+        clock.set(d)
+        with pytest.raises(X.Refusal, match="infrastructure or permission"):
+            run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=_http(403, CF_HTML, {"date": d})))
+    with pytest.raises(X.Refusal, match="cannot be closed"):
+        K.close_incomplete(FREE1, checked="x")
+    clock.set(D1)
+    with pytest.raises(X.Refusal, match="infrastructure or permission"):          # one answer, then the 403 again
+        run(FREE1, sandbox, FakeTransport(fail_at=range(2, 100), error=_denied(D1)))
+    clock.set(D3)
+    with pytest.raises(X.Refusal, match="infrastructure or permission"):
+        run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=_denied(D3)))
+    with pytest.raises(X.Refusal, match="cannot be closed"):                       # 2 runs, 48 hours, since the answer
+        K.close_incomplete(FREE1, checked="x")
+    clock.set("Mon, 16 Nov 2026 12:00:00 GMT")
+    with pytest.raises(X.Refusal, match="infrastructure or permission"):
+        run(FREE1, sandbox, FakeTransport(fail_at=range(1, 100), error=_denied("Mon, 16 Nov 2026 12:00:00 GMT")))
+    assert K.close_incomplete(FREE1, checked="x").startswith(
+        "incomplete (1 of 10 answered): forbidden on 3 runs over 72 hours by the server's dates")
+    assert K.verify(records=sandbox["records"]) == []
+
+
+def test_huge_integers_are_not_key_readings():
+    """Correction 4, C25 (the fourth review's m-2, N4): json.loads keeps a 400-digit number as an int, on which
+    math.isfinite raises OverflowError; it is no reading, and nothing raises."""
+    huge = json.loads("1" + "0" * 400)
+    assert isinstance(huge, int) and not K._num(huge) and not K._num(-huge)
+    base = {"limit": 15.0, "limit_reset": None, "limit_remaining": 15.0, "fields_missing": [], "budgets": [],
+            "effective_budget": None}
+    for f in ("limit", "limit_remaining"):
+        assert K.paid_key_refusal(PAID1, {**base, f: huge}, 4.8) is not None
+        assert not K.key_short({**base, f: huge}, 4.8)
+    models, _, eps = S.load_snapshot()
+    changed = {**eps, PAID1: [{**e, "max_completion_tokens": huge} if e["tag"] == K.ENDPOINT[PAID1]["tag"] else e
+                              for e in eps[PAID1]]}
+    assert "max_completion_tokens" in K.listing_check(PAID1, _getter(models, changed))[0]
+
+
+def test_a_paid_model_refuses_a_reading_without_budgets(sandbox):
+    """Correction 4, C25 (the fourth review's m-3, N5): without `budgets` (or with it not a list) a guardrail or
+    workspace budget cannot be ruled out, so the paid arm refuses; an empty list or only `key_limit` passes."""
+    base = {"limit": 15.0, "limit_reset": None, "limit_remaining": 15.0, "fields_missing": [], "budgets": [],
+            "effective_budget": None}
+    assert K.paid_key_refusal(PAID1, base, 4.8) is None
+    assert K.paid_key_refusal(PAID1, {**base, "budgets": [{"scope": "key_limit"}],
+                                      "effective_budget": {"scope": "key_limit"}}, 4.8) is None
+    for bad in ({"fields_missing": ["budgets", "effective_budget"], "budgets": None},
+                {"budgets": {"scope": "member"}}, {"effective_budget": [{"scope": "key_limit"}]}):
+        why = K.paid_key_refusal(PAID1, {**base, **bad}, 4.8)
+        assert why is not None and "budgets" in why, bad
+        assert not K.key_short({**base, **bad}, 4.8)
+    t = FakeTransport(omit=("budgets",))
+    with pytest.raises(X.Refusal, match="did not report budgets"):
+        run(PAID1, sandbox, t)
+    assert t.calls == [] and not K.state()["status"]

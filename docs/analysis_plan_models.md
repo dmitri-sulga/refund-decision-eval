@@ -1472,3 +1472,106 @@ limit, a budget stop" and "any other 403, a content-filter failure").**
   each run and closing nothing, and filter refusals minutes apart closing nothing (R2); a filter refusal whose raw text
   names a limit stopping no arm (R3); a spent key limit reported as a 402 stopping the arm, and a short remaining limit
   closing the paid model so that the queue goes on (R4); and each smaller point.
+
+## Amendment 3, Correction 4 (2026-11-12, after a fourth independent review, before publication and before any request)
+
+**Where this note is and why.** A fourth independent review by a separate AI-agent session read only the change that
+added Correction 3 (`0287331..959a2db`, unpublished) and found two serious problems, both in the text Correction 3
+registered, and seven smaller ones. Amendment 3 and its Corrections 1 to 3 are left exactly as that review read them
+(lines 1–1474 of this file equal `959a2db`); where this Correction 4 says otherwise, it holds over all of them. When
+this was written nothing of the branch had been published, no gist existed, the OpenRouter key had not been read by this
+project's code and no request of the branch had been sent. The author's decisions of C16 are unchanged and still open;
+C24 and C25 add two to them (the account's balance, and no guardrail).
+
+**The documentation.** Read again for this Correction on 2026-11-12 at 16:39 UTC, with public requests and no key: the
+same two pages as Correction 3, byte for byte (`…/docs/api_reference/errors-and-debugging.md`, 33,943 bytes, SHA-256
+`3b7c66409cb68f8d…`; `…/docs/api_reference/limits.md`, 19,661 bytes, SHA-256 `a6c7d364fa408153…`). The words used
+below besides those Correction 3 quotes:
+- Credit limits: "If your account has a negative credit balance, you may see  errors, including for free models.
+  Adding credits to put your balance above zero allows you to use those models again."
+- `GET /api/v1/key`: "`budgets: Budget[]; // Every budget enforced for this key, in the order enforcement checks
+  them`" and "`effective_budget: Budget | null; // The budget that blocks requests first, or null if none`".
+- Guardrail errors: "a request can be blocked before it reaches a provider — for example by a content filter or
+  prompt-injection detector configured via" guardrails.
+- Free usage limits, by credits purchased in all: "| Less than 10 | 20 | 50 |" and "| At least 10 | 20 | 1000 |"
+  (requests per minute, requests per day).
+
+**C22. A provider's content filter: exactly two sends (replaces C20's first point and C12's "sent once more by a later
+run").**
+- A request refused by a content filter (C18) is sent to the provider exactly twice in all: its first send and one
+  more. The second send is made by the first run of the model that starts at least 24 hours and 10 minutes after the
+  first refusal, counted on this machine's clock from the later of the refusal's server date and its journal time;
+  every run before then skips the request. Whether a compared model is counted therefore no longer depends on how many
+  runs happen in the first day: two runs a day apart, and three runs within two hours followed by one a day later,
+  send the same requests the same number of times and give the same status (the review's N2a against N2b). A free
+  model also spends none of its daily quota on the request before then.
+- The outcome of the second send is final. Answered, its answer counts as any answer does. Refused again, the refusal
+  is final: by the server's dates where both refusals carry one and they are at least 24 hours apart, as §9 and C20
+  require; otherwise (a refusal without a server date, or the server's dates less than 24 hours apart although the wait
+  was kept on this machine) by the journal's local times, recorded as a deviation (`filter_final_local_clock` in the
+  run log, counted per model in the report), so that a refusal without a date cannot stay open for ever (the review's
+  m-4). The review proposed sending the request again when the server's dates fall short; this Correction does not, so
+  that no request is sent to a filter a third time.
+- A second send that fails in another way (a wait, an account, infrastructure or permission condition) is not an
+  outcome of the filter; the request is sent again under the rule of that failure.
+- C12's closing and its consequence stand: the model is closed when the work list ends and every missing request has
+  had its one resend served or has a final refusal ("… refused by the provider's content filter on both of their 2
+  sends, at least 24 hours apart"), and a compared model with one such request is not counted.
+- `make check` also fails if a request is sent again earlier than 24 hours and 10 minutes after its first refusal, and
+  if a request is refused by a filter more than twice.
+
+**C23. A 403 that is neither a content filter nor a budget: an exit (adds to C18).**
+- C18's infrastructure or permission condition stays as it is: it stops the run, closes nothing by itself, never counts
+  toward the 24-hour rule and is not one of the 150 errors.
+- If the model's last run stopped on it and, with no answer of the model in between, the same request got the same
+  status and error type on at least 3 runs whose server dates span at least 72 hours (where one of them has no server
+  date, the journal's local times, and the record says so), `--close-incomplete` may close the model, as "forbidden on
+  k runs over h hours by the server's dates (request: HTTP status error type): …", with "not run: " or "incomplete (k
+  of 600 answered): " before it. The documentation does not promise that every `permission_denied` is the author's to
+  remove (a provider's own refusal by region or by account may reach the API as one); without this rule such a 403
+  would leave the model, the models after it in its queue and the branch without an end.
+- Before closing, the operator states what was checked (the key's permissions, guardrails, the network) with
+  `--checked`; it is kept in the run log with a deviation of its own (`forbidden_closed`), which the report prints.
+  Runs minutes or hours apart, or with an answer in between, close nothing, and 48 hours do not.
+- `make check` fails on a model closed this way without that series and that deviation in the files.
+
+**C24. The order of the arms and the account's balance (replaces, for the order, §10's "the queues may alternate" and
+C21's last sentence of "One key for both arms").**
+- The free queue runs to its end before the first paid request: the runner refuses a paid model while any free model
+  is open. With one key for both arms, this removes the case C21 describes (an overrun of the paid arm spending the
+  key's limit while free models are open) and the one the documentation states: "If your account has a negative credit
+  balance, you may see  errors, including for free models." The documentation says the budgets are checked "on every
+  paid request", the nearest it comes to saying they are not checked on free ones.
+- The author records in the checklist, before publication, the account's credit balance before the first request: at
+  least 17 USD (the key's 15 USD limit and 2 USD more, so that the paid arm cannot take the balance below zero), and at
+  least 10 USD purchased in all, which the 1,000 free requests a day of §10 need.
+- The schedule of §10 is otherwise unchanged: the free arm needs at least three days of quota, then the paid arm about
+  two to four hours.
+
+**C25. Smaller points.**
+- **Key use outside the branch (the review's m-1).** Before each paid run the runner compares the key's use against its
+  limit (`limit` − `limit_remaining`) with the branch's journaled spend and records both (`key_used_usd`,
+  `journaled_usd`, in the `budget_stop` of scope `key` and in the deviation below). Use beyond the journal by more than
+  0.05 USD is recorded as a deviation (`key_use_exceeds_journal`), which the report prints. In that case a short key
+  (C19) does not close the model by itself: the run stops, nothing is sent and nothing is closed; the author either
+  runs again once the reading agrees with the journal, or closes the model with `--close-incomplete`, whose reason then
+  states how much of the key's use was outside the journal. A short key whose use agrees with the journal still closes
+  the model as C19 says.
+- **Huge numbers (m-2).** An integer too large for a float (a JSON reader keeps a 400-digit number as an integer) is
+  no reading, as NaN and infinity are not (C21); the check returns false instead of raising.
+- **`budgets` (m-3).** The paid arm refuses a key reading that leaves out `budgets` or gives it as anything but a list
+  (or `effective_budget` as anything but an object or null): a guardrail or workspace budget then cannot be ruled out.
+  An empty list passes; an entry with a scope other than `key_limit` is refused as C19 says.
+- **The key-limit stop (m-5).** A `key_limit_stop` in the run log stops an arm, and lets `--close-incomplete` close a
+  model, only when it records `limit_source` `openrouter_key_limit`.
+- **Guardrails (m-7).** The author records in the checklist that no guardrail is assigned to the account (the
+  workspace default), the member or the key: such a guardrail can block particular complaints "before it reaches a
+  provider" as a 403 (C18), and `budgets` does not show one that has no budget.
+- **Not changed.** The sensitivity row the third review proposed (C21) is still not added.
+- **Tests.** `tests/test_cloud.py` tests each point: the same filter under the two schedules of N2 (the same status and
+  20 sends each), N2 as the review wrote it (no second send, nothing closed), a refusal without a date (final by the
+  local times, recorded), `make check` on a send before the wait and on a third refusal, the 403 exit (48 hours no, 72
+  hours yes and only with `--checked`; runs minutes apart or an answer in between, no; the analysis gives the count),
+  key use outside the branch, a 400-digit integer, a reading without `budgets`, a stop without `limit_source`, and the
+  order of the arms. The review's probes R4b and N3, which expected a key with 0.01 or 1 USD left and almost nothing
+  journaled to close the paid model, now stop it with a deviation instead (m-1).

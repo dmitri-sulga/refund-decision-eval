@@ -5,7 +5,8 @@ independent review (`a192234` reviewed; its findings B1, B2, M1–M7 and m1–m1
 and with Correction 2 after the second (`c01188a` reviewed; its findings MAJOR-1 to MAJOR-3 and m-a to m-m are answered
 by Correction 2, C11–C17), and with Correction 3 after the third (`0287331` reviewed; its findings MAJOR-1 to MAJOR-3
 and m-1 to m-7 are answered by Correction 3, C18–C21, which also records the documentation it was checked against on
-2026-11-12).
+2026-11-12), and with Correction 4 after the fourth (`959a2db` reviewed; its findings MAJOR-1, MAJOR-2 and m-1 to m-7
+are answered by Correction 4, C22–C25, with the documentation read again on 2026-11-12 16:39 UTC).
 The reviewer is a separate session that did not write this code. Every item is checked against the files and the public documentation, not against this list's wording. A
 reviewer who finds a problem writes it down with the file and line; nothing is fixed silently, and any fix is made
 before publication and recorded in `docs/deviations.md`.
@@ -13,11 +14,12 @@ before publication and recorded in `docs/deviations.md`.
 ## A. The plan and the record
 1. `docs/analysis_plan_models.md`: lines 1–779 (lines 1–149, Amendment 1 and Amendment 2) are byte-identical to
    `60dfe9b`, lines 780–1094 (Amendment 3 as first reviewed) to `a192234`, lines 1095–1239 (the Correction as
-   reviewed the second time) to `c01188a`, and lines 1240–1344 (Correction 2 as reviewed the third time) to
-   `0287331`; each correction is only appended after them
+   reviewed the second time) to `c01188a`, lines 1240–1344 (Correction 2 as reviewed the third time) to
+   `0287331`, and lines 1345–1474 (Correction 3 as reviewed the fourth time) to `959a2db`; each correction is only
+   appended after them
    (`cmp <(git show 60dfe9b:docs/analysis_plan_models.md) <(head -n 779 docs/analysis_plan_models.md)`, the same with
-   `a192234` and 1094, with `c01188a` and 1239 and with `0287331` and 1344, and
-   `git diff 0287331 -- docs/analysis_plan_models.md` has no removed line).
+   `a192234` and 1094, with `c01188a` and 1239, with `0287331` and 1344 and with `959a2db` and 1474, and
+   `git diff 959a2db -- docs/analysis_plan_models.md` has no removed line).
    `python -m judge.models --verify` passes (it checks lines 1–149 against `162909f`).
 2. Amendment 3 with its Correction says, and the code does, the same thing on every point (where they differ, the
    Correction holds): models and order (§2 table against
@@ -43,6 +45,11 @@ before publication and recorded in `docs/deviations.md`.
    `verify` and `cloud_analysis.deviations`, C21 against `overrun_excess` and the overrun count in `verify`, `_num`,
    `error_count` and the transient branch of `_run`, and `_http_failure` (usage). Correction 3 quotes the
    documentation it rests on: re-read `api-reference/errors` and `api-reference/limits` on the day and compare.
+   Correction 4: C22 against `filter_state`, `filter_waits`, the filter branch and the end of `_run` and the filter
+   checks of `verify`; C23 against `forbidden_series`, `close_incomplete` (`--checked`) and the closing check of
+   `verify`; C24 against `preflight` (the free queue before the paid arm); C25 against `key_use`, `key_use_stop`, the
+   paid branch of `_run`, `_num`, `PAID_KEY_FIELDS`, `paid_key_config_refusal`, `arm_stopped_by_key` and
+   `cloud_analysis.deviations`. Correction 4 quotes the same pages, read again on 2026-11-12 16:39 UTC.
 3. Nothing in the amendment or its Correction states a result: no answer of any model of the branch exists
    (`results/models/cloud/` holds only `registration.json`, `pre_run_checklist.md` and `snapshot/`).
 4. The twelfth-change entry in `docs/deviations.md`, the records in `results/post_run_changes.json` and the README's
@@ -103,10 +110,13 @@ before publication and recorded in `docs/deviations.md`.
     NOT open or print the real key file; at most `stat -f '%Sp' ~/.openrouter_key` (expect `-rw-------`).
 16. The key readings (`account_readings`) are `GET /api/v1/key` only (no `/credits`, which needs a management key),
     call no model and cost nothing; the paid arm refuses a key whose `limit` is null or not exactly 15 USD, whose
-    limit resets, whose reading leaves out `limit`, `limit_remaining` or `limit_reset`, or whose `budgets` or
-    `effective_budget` names a budget other than `key_limit` (C1, C15, C19), and NaN or infinity is no reading
-    (`test_nan_and_infinity_are_not_key_readings`, C21); a key configured as registered whose `limit_remaining` is
-    short closes the paid model by the budget, so the queue goes on
+    limit resets, whose reading leaves out `limit`, `limit_remaining`, `limit_reset` or `budgets` (or gives `budgets`
+    as anything but a list), or whose `budgets` or `effective_budget` names a budget other than `key_limit` (C1, C15,
+    C19, C25; `test_a_paid_model_refuses_a_reading_without_budgets`), and NaN, infinity or an integer too large for a
+    float is no reading (`test_nan_and_infinity_are_not_key_readings`, C21;
+    `test_huge_integers_are_not_key_readings`, C25); a key configured as registered whose `limit_remaining` is
+    short, and whose use agrees with the branch's journal, closes the paid model by the budget, so the queue goes on;
+    key use beyond the journal by more than 0.05 USD is a recorded deviation and closes nothing by itself (C25)
     (`test_a_short_remaining_key_limit_closes_the_paid_model_so_the_queue_goes_on`,
     `test_a_paid_model_refuses_a_key_under_a_guardrail_or_workspace_budget`, C19); a free run on a key whose reading
     differs from `key_reading` is a recorded deviation (C15). Confirm the field names against `api-reference/limits`
@@ -118,7 +128,9 @@ before publication and recorded in `docs/deviations.md`.
 18. The runner refuses (read `preflight`). `test_preflight_refuses_each_registered_condition` covers an unclosed model
     of Amendment 1 or 2, a changed protected file, a dirty tree outside `results/models/cloud/`, uncommitted results of
     an earlier model, an unpublished HEAD, an earlier model of the queue not closed, a closed model, a paid model after
-    the branch cap, an arm after its key limit was spent (C13) and unlocked labels. The other refusals are tested
+    the branch cap, an arm after its key limit was spent (C13; only with `limit_source`, C25) and unlocked labels, and
+    `test_the_paid_arm_starts_only_after_every_free_model_is_closed` a paid model while a free one is open (C24).
+    The other refusals are tested
     directly, not through `preflight`: an incomplete registration
     (`test_the_registration_refuses_while_empty_and_is_read_once_filled`), a missing or group-readable key file
     (`test_the_key_file_must_be_private_and_nothing_is_sent_without_it`), and a failed listing check, not the
@@ -134,12 +146,20 @@ before publication and recorded in `docs/deviations.md`.
     (`test_a_spent_key_limit_stops_the_arm_and_never_closes_a_model_as_rejected`,
     `test_a_key_limit_spent_with_a_402_stops_the_arm_and_its_models_can_be_closed`); message text and the provider's
     raw text stop nothing (`test_a_content_filter_whose_raw_text_names_a_limit_stops_no_arm`); a 403 with
-    `error_type` `content_policy_violation` or `refusal` fails that one request, the run goes on, and the refusal is
-    final only at a second refusal at least 24 hours after the first by the server's dates
-    (`test_a_content_filter_403_fails_one_request_and_the_run_goes_on`,
-    `test_content_filter_refusals_minutes_apart_do_not_close_a_model`); any other 403 (`permission_denied`, a
-    guardrail block, a CDN's page) stops the run as an infrastructure or permission condition and closes nothing
-    (`test_a_storm_of_other_403s_stops_each_run_and_never_closes_a_model`); a 400 `token_limit_exceeded` is an account
+    `error_type` `content_policy_violation` or `refusal` fails that one request, the run goes on, and the request is
+    sent to the filter exactly twice: once more by the first run at least 24 hours and 10 minutes after the first
+    refusal (runs before then skip it), whose outcome is final, by the server's dates or, failing them, by the
+    journal's local times, recorded (C22; `test_a_content_filter_403_fails_one_request_and_the_run_goes_on`,
+    `test_content_filter_refusals_minutes_apart_do_not_close_a_model`,
+    `test_a_filtered_request_is_sent_exactly_twice_whatever_the_number_of_runs`,
+    `test_a_filter_refusal_without_a_server_date_becomes_final_by_the_local_clock`,
+    `test_make_check_fails_on_a_send_before_the_filter_wait_and_on_a_third_refusal`); any other 403
+    (`permission_denied`, a guardrail block, a CDN's page) stops the run as an infrastructure or permission condition
+    and closes nothing by itself (`test_a_storm_of_other_403s_stops_each_run_and_never_closes_a_model`), until the same
+    403 on the same request on 3 runs over at least 72 hours with no answer in between lets `--close-incomplete MODEL
+    --checked "..."` close the model with a recorded deviation (C23;
+    `test_a_persistent_forbidden_closes_the_model_only_after_3_runs_over_72_hours`,
+    `test_a_persistent_forbidden_series_needs_the_span_and_no_answer_between`); a 400 `token_limit_exceeded` is an account
     condition (`test_a_token_limit_exceeded_400_is_an_account_condition_not_a_rejection`); the in-flight 402 is not one
     of the 150 errors (`test_the_in_flight_402_is_not_counted_among_the_error_answers`); only a moderation flag with
     `reasons` is scored as an answer.
@@ -162,6 +182,11 @@ it; until then the branch is registered as §2 lists it. The reviewer checks tha
     runner refuses a paid model on any other limit, on a resetting limit, on a reading that leaves out `limit`,
     `limit_remaining` or `limit_reset`, and on a key under a guardrail or workspace budget (C19).
     Key created as stated: ______ (yes / no); account or workspace: ______.
+    The account's credit balance before the first request (C24: the documentation says a negative balance can refuse
+    free models too): at least 17 USD, and at least 10 USD purchased in all (the 1,000 free requests a day):
+    balance ______ USD, purchased in all ______ USD, read at ______ UTC.
+    No guardrail (content filter, prompt-injection detector, allowlist or budget) assigned to the account (the
+    workspace default), the member or the key (C25): ______ (yes / no).
 25. The privacy setting for free and for paid models (C9), where it is set, and when:
     free: ______ paid: ______ set in: ______ at ______ UTC.
 26. The paid arm (P1–P3; estimate 2.90 USD, worst case 10.13 USD, never more than the key's 15 USD):
@@ -181,10 +206,9 @@ it; until then the branch is registered as §2 lists it. The reviewer checks tha
 31. `python -m judge.cloud --check-listings` run on the start day, before the first request, to re-read the live
     listings of all seven models (C2); its records committed. A model whose check fails is not replaced; it waits, and
     `--watch-listing MODEL` decides whether it is ever closed.
-32. The order of the arms (Correction 3, C21, "One key for both arms"): both arms use the one key, and if a spent key
-    limit also refuses free models, an overrun of the paid arm that spends the key's 15 USD while free models are open
-    stops the free arm. Running the free queue to its end before the first paid request removes that risk; §10 allows
-    either order, and the runs record the order used.
+32. The order of the arms is fixed (Correction 4, C24, replacing the operator's choice of Correction 3, C21): the free
+    queue runs to its end before the first paid request, and the runner refuses a paid model while a free model is
+    open. On the start day the balance of item 24 is still at least 17 USD and no guardrail has been assigned since.
 
 ## I. What the reviewer reports
 A list of findings, each with severity (blocks publication / should fix / note), file and line, and evidence. Then a

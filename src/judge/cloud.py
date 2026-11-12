@@ -25,9 +25,14 @@ by message text: a 403 is a content-filter refusal only when `metadata.error_typ
 infrastructure or permission condition that closes no model; a budget stop of the arm only when `metadata.limit_source`
 is `openrouter_key_limit` (a 403 or a 402); a second filter refusal of a request counts only at least 24 hours after the
 first by the server's dates; a paid model whose remaining worst case the key's remaining limit cannot cover is closed by
-the budget, so the queue behind it can go on.
+the budget, so the queue behind it can go on. Correction 4 (C22-C25): a request refused by a content filter is sent to
+it exactly twice, the second time by the first run at least 24 hours and 10 minutes after the first refusal (runs before
+then skip it), and that second outcome is final, by the server's dates or, failing them, by the journal's local times
+(recorded); the same 403 that is neither a filter nor a budget on 3 runs over at least 72 hours may close the model, with
+the operator's record of what was checked and a deviation; the paid arm starts only after every free model is closed;
+key use beyond the branch's journal is a recorded deviation and never closes a paid model on its own.
 
-python -m judge.cloud --verify                          # the checks `make check` runs; no network
+python -m judge.cloud --verify                         # the checks `make check` runs; no network
 python -m judge.cloud --estimate                        # projected and worst-case cost; no network
 python -m judge.cloud --status                          # the key's limit and the free-model daily count (no model)
 python -m judge.cloud --check-listings                  # the live listing check of every model (public; no key)
@@ -35,6 +40,7 @@ python -m judge.cloud --watch-listing MODEL             # the listing check once
 python -m judge.cloud --run MODEL                       # one model's four cells, in the registered order
 python -m judge.cloud --run MODEL --resend-unanswered   # after an interruption: one resend of each served request
 python -m judge.cloud --close-incomplete MODEL          # only on a condition of section 9, checked in the files
+python -m judge.cloud --close-incomplete MODEL --checked TEXT   # a persistent 403 (C23): what was checked first
 python -m judge.cloud --break-stale-lock                # after a crash: removes run.lock if its process is gone
 """
 from __future__ import annotations
@@ -156,8 +162,14 @@ IN_FLIGHT_SOURCE = "openrouter_in_flight_budget"
 KEY_LIMIT_SOURCE = "openrouter_key_limit"
 FILTER_TYPES = ("content_policy_violation", "refusal")
 ACCOUNT_TYPES = ("token_limit_exceeded",)
-FILTER_TRIES = 2                                      # a request refused by a content filter: final after two refusals
-#                                                       at least REPEAT_GAP_S apart by the server's dates (C20)
+FILTER_TRIES = 2                                      # a request refused by a content filter is sent to it exactly twice
+FILTER_MARGIN_S = 10 * 60                             # Correction 4, C22: the second send waits REPEAT_GAP_S plus this
+#                                                       after the first refusal (by the later of its server date and its
+#                                                       journal time), so that the server's dates put it 24 hours later
+FORBIDDEN_RUNS = 3                                    # Correction 4, C23: the same 403 that is neither a filter nor a
+FORBIDDEN_SPAN_S = 72 * 3600                          # budget, on this many runs over at least this span, may close
+KEY_JOURNAL_TOLERANCE_USD = 0.05                      # Correction 4, C25: key use beyond the branch's journal by more
+#                                                       than this is spend outside the branch (a recorded deviation)
 NOT_SERVED = ("transient", "rejected", "account", "quota", "refused", "mismatch", "filtered", "key_limit", "forbidden")
 # a key, or a key's label as GET /api/v1/key shows it (the key's first characters, three dots, its last ones:
 # Correction 2, C17)
@@ -718,6 +730,34 @@ def repeated(tag: str, run_log: list[dict], journal: list[dict], cache=None) -> 
     return last if len(times) >= 2 and max(times) - min(times) >= REPEAT_GAP_S else None
 
 
+def forbidden_series(tag: str, run_log: list[dict], journal: list[dict], cache=None) -> dict | None:
+    """Correction 4, C23 (the fourth review's MAJOR-2): the exit for a 403 that is neither a content filter nor a
+    budget (C18's `forbidden`) and that the author cannot remove. The model's last run stopped on it, and with no
+    answer of the model in between, the same request got the same status and error type on at least FORBIDDEN_RUNS
+    runs (the run stops at it, so one per run) whose server dates span at least FORBIDDEN_SPAN_S (72 hours); where a
+    refusal has no server date, the journal's local times are used, and the basis is recorded. Returns that last stop
+    with the series' figures, or None. Runs minutes or hours apart never qualify."""
+    runs = [e for e in run_log if e.get("model") == tag and e.get("event") in ("run_started", "run_stopped")]
+    last = runs[-1] if runs and runs[-1]["event"] == "run_stopped" else None
+    if not last or last.get("verdict") != "forbidden":
+        return None
+    after = last_answer_s(tag, cache)
+    same = [e for e in journal if e.get("key") == last.get("key") and e.get("kind") == "forbidden"
+            and e.get("status") == last.get("status") and e.get("error_type") == last.get("error_type")
+            and (after is None or H._seconds(e["at"]) > after)]
+    if len(same) < FORBIDDEN_RUNS:
+        return None
+    server = [H._server_seconds(e.get("server_date")) for e in same]
+    if all(t is not None for t in server):
+        span, basis = max(server) - min(server), "server"
+    else:
+        local = [H._seconds(e["at"]) for e in same]
+        span, basis = max(local) - min(local), "local clock"
+    if span < FORBIDDEN_SPAN_S:
+        return None
+    return {**last, "runs": len(same), "span_hours": round(span / 3600, 2), "date_basis": basis}
+
+
 def load_registration() -> dict:
     if not REGISTRATION.exists():
         raise Refusal(f"results/models/cloud/{REGISTRATION.name} is missing; refusing.")
@@ -872,6 +912,12 @@ def preflight(tag: str, published_head=None, getter=public_get, transport=None) 
     if arm_stopped_by_key(tag, _jsonl(RUN_LOG)):
         raise Refusal(f"the branch key's limit in OpenRouter was spent during the {arm(tag)} arm; no request of that "
                       "arm is sent after that (Correction 2, C13).")
+    # Correction 4, C24 (the fourth review's m-6): the free queue runs to its end before the first paid request, so a
+    # spent key limit or a negative balance caused by the paid arm cannot stop a free model that is still open
+    open_free = [t for t in FREE_QUEUE if not st["status"].get(t)]
+    if tag not in FREE and open_free:
+        raise Refusal("the free queue is not closed (" + ", ".join(open_free) + "); the paid arm starts only after "
+                      "every free model is closed (Correction 4, C24).")
     from .label import is_locked
     if not is_locked("owner"):
         raise Refusal("the blind labels are not locked; refusing.")
@@ -890,8 +936,11 @@ def preflight(tag: str, published_head=None, getter=public_get, transport=None) 
 
 
 def arm_stopped_by_key(tag: str, run_log: list[dict]) -> bool:
-    """Correction 2, C13: a 403 reporting the branch key's spent limit stopped the arm of `tag`."""
-    return any(e.get("event") == "key_limit_stop" and e.get("arm") == arm(tag) for e in run_log)
+    """Correction 2, C13: a 403 or 402 reporting the branch key's spent limit stopped the arm of `tag`. Only a stop
+    recorded from the structured field counts (Correction 4, C25, the fourth review's m-5): a key_limit_stop without
+    limit_source openrouter_key_limit neither stops an arm nor lets `--close-incomplete` close a model."""
+    return any(e.get("event") == "key_limit_stop" and e.get("arm") == arm(tag)
+               and e.get("limit_source") == KEY_LIMIT_SOURCE for e in run_log)
 
 
 # run_log and spend records written before any request of a model (listing checks, key readings, the estimate, a run
@@ -941,7 +990,9 @@ def only_pre_request_appends(dirty: list[str]) -> bool:
 # is_free_tier, free_model_daily_requests {used, limit, remaining} in the current UTC day)
 KEY_FIELDS = ("limit", "limit_remaining", "limit_reset", "include_byok_in_limit", "usage",
               "usage_daily", "is_free_tier", "free_model_daily_requests", "budgets", "effective_budget")
-PAID_KEY_FIELDS = ("limit", "limit_remaining", "limit_reset")      # must be present in the reading (Correction 2, C15)
+# must be present in the reading (Correction 2, C15); `budgets` too ("Every budget enforced for this key", limits.md,
+# read again 2026-11-12 16:39 UTC): without it a guardrail or workspace budget cannot be seen (Correction 4, C25, m-3)
+PAID_KEY_FIELDS = ("limit", "limit_remaining", "limit_reset", "budgets")
 
 
 def account_readings(transport) -> dict:
@@ -965,8 +1016,14 @@ def account_readings(transport) -> dict:
 
 def _num(x) -> bool:
     """A finite number, not a bool: NaN and infinity (which json.loads accepts) are not readings (Correction 3, C21,
-    the review's m-2)."""
-    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+    the review's m-2). An integer too large for a float (json.loads keeps a 400-digit number as an int, and
+    math.isfinite raises OverflowError on it) is not a reading either (Correction 4, C25, the fourth review's m-2)."""
+    if not isinstance(x, (int, float)) or isinstance(x, bool):
+        return False
+    try:
+        return math.isfinite(x)
+    except OverflowError:
+        return False
 
 
 def other_budgets(before: dict) -> list[str]:
@@ -988,6 +1045,17 @@ def key_short(before: dict, worst: float) -> bool:
     close one before it starts; the next model of the queue may then start."""
     rem = before.get("limit_remaining")
     return paid_key_config_refusal(before) is None and _num(rem) and rem < worst + CREDIT_MARGIN_USD
+
+
+def key_use(before: dict, journaled: float) -> dict:
+    """Correction 4, C25 (the fourth review's m-1): the key's use against its limit (`limit` - `limit_remaining`), the
+    branch's journaled spend, and how far the first exceeds the second (None where the reading does not give both as
+    finite numbers). Use beyond the journal is spend outside the branch, or OpenRouter's accounting ahead of the
+    code's; it is recorded, and it never closes a paid model by itself."""
+    lim, rem = before.get("limit"), before.get("limit_remaining")
+    used = lim - rem if _num(lim) and _num(rem) else None
+    return {"key_used_usd": None if used is None else round(used, 6), "journaled_usd": round(journaled, 6),
+            "beyond_journal_usd": None if used is None else round(used - journaled, 6)}
 
 
 def paid_key_refusal(tag: str, before: dict, worst: float) -> str | None:
@@ -1020,6 +1088,9 @@ def paid_key_config_refusal(before: dict) -> str | None:
         return f"the key's limit is {before['limit']} USD, not exactly the branch cap of {CAP_USD:.0f} USD"
     if before.get("limit_reset") is not None:
         return f"the key's limit resets ({before['limit_reset']}); it must never reset"
+    if not isinstance(before.get("budgets"), list) or not isinstance(before.get("effective_budget"), (dict, type(None))):
+        return ("GET /api/v1/key did not report `budgets` as a list (and `effective_budget` as an object or null), so a "
+                "guardrail or workspace budget cannot be ruled out (Correction 4, C25)")
     others = other_budgets(before)
     if others:
         return (f"GET /api/v1/key lists a budget other than the key's own limit ({', '.join(others)}); the paid arm "
@@ -1093,13 +1164,13 @@ def break_stale_lock() -> str:
 
 
 # ------------------------------------------------------------------ closing
-def close_model(tag: str, reason: str) -> str:
+def close_model(tag: str, reason: str, **extra) -> str:
     st = state()
     answered = sum(1 for k in st["cache"] if split_key(k)[0] == tag)
     n = len(expected_keys(tag, X.item_sets()[0]))
     if not reason.startswith("not run"):
         reason = f"not run: {reason}" if answered == 0 else f"incomplete ({answered} of {n} answered): {reason}"
-    log_event({"event": "closed_incomplete", "model": tag, "answers": answered, "reason": reason})
+    log_event({"event": "closed_incomplete", "model": tag, "answers": answered, "reason": reason, **extra})
     write_model_total(tag)
     return reason
 
@@ -1180,13 +1251,56 @@ def filtered_counts(journal: list[dict], tag: str) -> dict[str, int]:
     return {k: len(v) for k, v in filtered_by_key(journal, tag).items()}
 
 
+def _local_s(e: dict) -> float | None:
+    return H._seconds(e["at"]) if e.get("at") else None
+
+
+def filter_state(entries: list[dict]) -> dict:
+    """Correction 4, C22 (the fourth review's MAJOR-1 and m-4), replacing C20's "once per run": a request refused by a
+    content filter is sent to it exactly twice, whatever the number of runs. Reads the request's journal entries (only
+    its `filtered` refusals decide):
+    - `gate_s`: the second send waits until REPEAT_GAP_S plus FILTER_MARGIN_S after the first refusal, measured from
+      the later of its server date and its journal time, on this machine's clock; every run before that skips the
+      request (so the number of runs within the first day changes nothing);
+    - `final`: the second refusal is final when it came at least REPEAT_GAP_S after the first by the server's dates
+      (`basis` "server") or, where either refusal has no server date or the server's dates put them less than
+      REPEAT_GAP_S apart although the wait was kept, by the journal's local times (`basis` "local clock", a recorded
+      deviation), so that a refusal without a date still becomes final by a rule."""
+    refusals = [e for e in entries if e.get("kind") == "filtered"]
+    out = {"refused": len(refusals), "final": False, "gate_s": None, "basis": None, "server_gap_s": None,
+           "local_gap_s": None}
+    if not refusals:
+        return out
+    s1, l1 = H._server_seconds(refusals[0].get("server_date")), _local_s(refusals[0])
+    known = [t for t in (s1, l1) if t is not None]
+    out["gate_s"] = max(known) + REPEAT_GAP_S + FILTER_MARGIN_S if known else None
+    for n, r in enumerate(refusals[1:], start=1):     # the runner sends one more; a later one only after an edit
+        s2, l2 = H._server_seconds(r.get("server_date")), _local_s(r)
+        out["server_gap_s"] = s2 - s1 if s1 is not None and s2 is not None else None
+        out["local_gap_s"] = l2 - l1 if l1 is not None and l2 is not None else None
+        if out["server_gap_s"] is not None and out["server_gap_s"] >= REPEAT_GAP_S:
+            out.update(final=True, basis="server", final_index=n)
+        elif out["local_gap_s"] is not None and out["local_gap_s"] >= REPEAT_GAP_S:
+            out.update(final=True, basis="local clock", final_index=n)
+        if out["final"]:
+            break
+    return out
+
+
 def filter_final(refusals: list[dict]) -> bool:
-    """Correction 3, C20 (the review's MAJOR-1, R2): a request's content-filter refusal is final only when a second
-    refusal comes at least REPEAT_GAP_S (24 hours) after the first by the server's date headers, as the rejection rule
-    of section 9 requires (Correction, B2), so that the moment of a run cannot pick the result. Refusals without a
-    server date do not count toward it."""
-    times = [t for t in (H._server_seconds(e.get("server_date")) for e in refusals) if t is not None]
-    return len(times) >= FILTER_TRIES and max(times) - min(times) >= REPEAT_GAP_S
+    """Correction 3, C20, as corrected by Correction 4, C22: the request's content-filter refusal is final."""
+    return filter_state(refusals)["final"]
+
+
+def filter_waits(entries: list[dict], at_s: float) -> bool:
+    """Correction 4, C22: the request was refused by a content filter once and its second send is not yet due."""
+    fs = filter_state(entries)
+    return fs["refused"] == 1 and fs["gate_s"] is not None and at_s < fs["gate_s"]
+
+
+def _utc(seconds: float) -> str:
+    from datetime import datetime, timezone
+    return datetime.fromtimestamp(seconds, timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
 def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict:
@@ -1224,12 +1338,29 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
             raise Refusal(f"{tag}: the projection {est['projected_usd']:.4f} USD does not fit under the "
                           f"{'branch' if scope == 'branch' else 'model'} cap; nothing was sent, and it is closed.")
         why = paid_key_refusal(tag, before, est["worst_case_usd"])
-        if why and key_short(before, est["worst_case_usd"]):
+        short = bool(why) and key_short(before, est["worst_case_usd"])
+        use = key_use(before, spend_state()["computed"])
+        if use["beyond_journal_usd"] is not None and use["beyond_journal_usd"] > KEY_JOURNAL_TOLERANCE_USD:
+            # Correction 4, C25 (the fourth review's m-1): the key was used beyond the branch's own journal; recorded
+            # as a deviation, and a short key does not close the model on its own in that case
+            log_event({"event": "deviation", "kind": "key_use_exceeds_journal", "model": tag, **use,
+                       "limit_remaining_usd": before.get("limit_remaining"), "worst_case_usd": est["worst_case_usd"],
+                       "stopped": short})
+            print(f"{tag}: the key reports {use['key_used_usd']} USD used, {use['beyond_journal_usd']} USD more than "
+                  f"the branch's spend journal ({use['journaled_usd']} USD); recorded as a deviation.", flush=True)
+            if short:
+                raise Refusal(
+                    f"{tag}: {why}; {use['beyond_journal_usd']} USD of the key's use is not in the branch's spend "
+                    "journal (spent outside the branch, or OpenRouter's accounting ahead of the code's), so the model "
+                    "is not closed by the budget on its own. Nothing was sent; recorded as a deviation. Run again once "
+                    f"the key's reading agrees with the journal, or close it with --close-incomplete {tag}, which "
+                    "records it as stopped by the budget with this deviation.")
+        if short:
             # Correction 3, C19 (the review's MAJOR-3, R4): the key's remaining limit cannot cover this model, and the
             # limit cannot be raised: a budget stop that closes the model, so the queue behind it is not stuck
             log_event({"event": "budget_stop", "model": tag, "scope": "key", "when": "before the run",
                        "limit_remaining_usd": before.get("limit_remaining"),
-                       "worst_case_usd": est["worst_case_usd"], "margin_usd": CREDIT_MARGIN_USD})
+                       "worst_case_usd": est["worst_case_usd"], "margin_usd": CREDIT_MARGIN_USD, **use})
             reason = close_model(tag, f"stopped by the budget: the key's remaining limit in OpenRouter "
                                       f"({before.get('limit_remaining')} USD) did not cover the worst case of the "
                                       f"model's remaining requests ({est['worst_case_usd']:.4f} USD) plus "
@@ -1250,9 +1381,9 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                "free_sends_allowed": allowance})
     drop = dropped_fields(tag)
     done, sends, last = 0, 0, [0.0]
-    # Correction 2, C12, and Correction 3, C20: content-filter refusals of earlier runs; a request whose refusal is
-    # final (two refusals at least 24 hours apart by the server's dates) is not sent again
-    filtered_before = filtered_by_key(st["journal"], tag)
+    # Correction 4, C22: a request refused by a content filter is sent to it exactly twice: it is skipped until its
+    # second send is due (24 hours and FILTER_MARGIN_S after the first refusal), and never sent after its final refusal
+    waiting: list[str] = []
 
     def record_spend(entry):
         _append(SPEND, {"at": now(), "model": tag, **entry,
@@ -1265,9 +1396,12 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
 
     for version, split, item_id, rec, narrative in work_list(tag, sets, records):
         k = key(tag, version, item_id)
-        if k in st["cache"] or filter_final(filtered_before.get(k, [])):
-            continue
         es = journal.get(k, [])
+        if k in st["cache"] or filter_final(es):
+            continue
+        if filter_waits(es, H._seconds(now())):
+            waiting.append(k)
+            continue
         served = [a for a in attempts(es) if a["served"]]
         if served:
             if resend_served(es):
@@ -1365,14 +1499,26 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
                                   "is closed by it. `--close-incomplete` records a model of this arm that is not "
                                   "closed as stopped by the budget.") from None
                 if verdict == "filtered":
-                    # Correction 2, C12: a failure of this one request, recorded as a deviation; the run goes on, and
-                    # the request is sent once more on a later run
-                    n_f = len(filtered_before.get(k, [])) + 1
-                    log_event({"event": "filtered", "model": tag, "key": k, "attempt": n_f,
-                               "status": he.status, "error_type": he.etype, "reason": message[:300]})
+                    # Correction 2, C12, as corrected by Correction 4, C22: a failure of this one request, recorded as
+                    # a deviation; the run goes on. The request is sent to the filter exactly twice: once more by the
+                    # first run at least 24 hours (and FILTER_MARGIN_S) after this first refusal; that outcome is final
+                    fs = filter_state(es)
+                    log_event({"event": "filtered", "model": tag, "key": k, "attempt": fs["refused"],
+                               "status": he.status, "error_type": he.etype, "reason": message[:300],
+                               **({"final": True, "date_basis": fs["basis"]} if fs["final"] else {})})
+                    if fs["final"] and fs["basis"] != "server":
+                        # m-4: no server date on a refusal, or the server's dates less than 24 hours apart although
+                        # the wait was kept: final by the journal's local times, recorded as such
+                        log_event({"event": "deviation", "kind": "filter_final_local_clock", "model": tag, "key": k,
+                                   "server_gap_hours": None if fs["server_gap_s"] is None
+                                   else round(fs["server_gap_s"] / 3600, 3),
+                                   "local_gap_hours": round(fs["local_gap_s"] / 3600, 3)})
+                    when = (("final (by the server's dates)" if fs["basis"] == "server" else
+                             "final (by the journal's local times, a recorded deviation)")
+                            if fs["final"] else f"sent once more by the first run after {_utc(fs['gate_s'])}"
+                            if fs["refused"] == 1 and fs["gate_s"] else "not final")
                     print(f"[{tag} {version} {split}] {item_id} refused by the provider's content filter "
-                          f"(HTTP {he.status} {he.etype}), refusal {n_f}; it is final only at a second refusal "
-                          "at least 24 hours after the first. The run goes on.",
+                          f"(HTTP {he.status} {he.etype}), refusal {fs['refused']}: {when}. The run goes on.",
                           flush=True)
                     break
                 if verdict == "rejected" and he is not None:
@@ -1473,19 +1619,20 @@ def _run(tag, transport, resend_unanswered, records, pre, sleep, before) -> dict
         final = {k for k in missing if filter_final(filt.get(k, []))}
         again = sorted(k for k in missing if filt.get(k) and k not in final)
         if again:
-            # Correction 2, C12, and Correction 3, C20: each request refused by a content filter is sent again by a
-            # later run, once per run, until it is answered or refused again at least 24 hours after its first refusal
-            print(f"{tag}: {len(again)} request(s) refused by the provider's content filter and not yet refused again "
-                  "24 hours later: " + ", ".join(again[:10]) + f". Each is sent once more by a later --run {tag}; a "
-                  "refusal is final only at least 24 hours after the first by the server's dates; nothing was closed.",
-                  flush=True)
+            # Correction 4, C22: each request refused once by a content filter is sent to it once more, by the first
+            # run at least 24 hours (and FILTER_MARGIN_S) after its first refusal; that second outcome is final
+            due = max(filter_state(filt[k])["gate_s"] or 0 for k in again)
+            print(f"{tag}: {len(again)} request(s) refused once by the provider's content filter: "
+                  + ", ".join(again[:10]) + f". Each is sent to it once more, by the first --run {tag} after 24 hours "
+                  f"and {FILTER_MARGIN_S // 60} minutes from its first refusal (the last at {_utc(due)}); runs before "
+                  "then skip it. Nothing was closed.", flush=True)
             return {"model": tag, "new_answers": done, "missing": len(missing), "filtered_to_send_again": len(again),
-                    "spent_usd": round(spend_state()["computed"], 6)}
+                    "filter_waiting": len(waiting), "spent_usd": round(spend_state()["computed"], 6)}
         if not all(resend_served(journal.get(k, [])) for k in missing - final):
             raise Refusal(f"{tag}: a missing request has not had its one resend; nothing was closed.")
         parts = ([f"{len(missing - final)} request(s) unanswered after their one resend"] if missing - final else []) + (
-            [f"{len(final)} request(s) refused by the provider's content filter on 2 runs at least 24 hours apart"]
-            if final else [])
+            [f"{len(final)} request(s) refused by the provider's content filter on both of their 2 sends, at least "
+             "24 hours apart"] if final else [])
         close_model(tag, "; ".join(parts))
     return {"model": tag, "new_answers": done, "missing": len(missing),
             "spent_usd": round(spend_state()["computed"], 6)}
@@ -1499,7 +1646,20 @@ def guard_item(item_id, allowed, test) -> None:
     X.guard(item_id, allowed, test)
 
 
-def close_incomplete(tag: str) -> str:
+def key_use_stop(tag: str, run_log: list[dict]) -> dict | None:
+    """Correction 4, C25 (the fourth review's m-1): the paid model's last run was refused before any request because
+    the key was short and its use exceeded the branch's journal (a recorded deviation); returns that record, or None
+    if a run started after it."""
+    evs = [e for e in run_log if e.get("model") == tag and (
+        e.get("event") in ("run_started", "run_stopped")
+        or (e.get("event") == "deviation" and e.get("kind") == "key_use_exceeds_journal" and e.get("stopped")))]
+    return evs[-1] if evs and evs[-1].get("event") == "deviation" else None
+
+
+def close_incomplete(tag: str, checked: str | None = None) -> str:
+    """`--close-incomplete MODEL`: closes a model only on a condition of section 9 as corrected, checked in the files.
+    The exit for a persistent `forbidden` (C23) also needs `checked`, the operator's record of what was checked (the
+    key's permissions, guardrails, the network), which is written to the run log with a deviation."""
     acquire_lock()
     try:
         reconcile()
@@ -1510,7 +1670,8 @@ def close_incomplete(tag: str) -> str:
         branch_stop = tag not in FREE and any(e.get("event") == "budget_stop" and e.get("scope") == "branch"
                                               for e in run_log)
         key_stop = arm_stopped_by_key(tag, run_log)
-        if not (branch_stop or key_stop) and not any(e.get("model") == tag and e.get("event") in (
+        use_stop = key_use_stop(tag, run_log) if tag not in FREE else None
+        if not (branch_stop or key_stop or use_stop) and not any(e.get("model") == tag and e.get("event") in (
                 "run_started", "run_stopped") for e in run_log):
             raise Refusal(f"{tag} has not started; there is nothing to close.")
         if any(e.get("event") == "budget_stop" and e.get("model") == tag for e in run_log):
@@ -1520,15 +1681,41 @@ def close_incomplete(tag: str) -> str:
             reason = "stopped by the budget: the branch key's limit in OpenRouter was spent"
         elif branch_stop:
             reason = "stopped by the cap: the branch reached its 15 USD cap"
+        elif use_stop:
+            # Correction 4, C25: closed by the operator, with the key's use outside the journal recorded
+            reason = (f"stopped by the budget: the key's remaining limit in OpenRouter "
+                      f"({use_stop.get('limit_remaining_usd')} USD) did not cover the worst case of the model's "
+                      f"remaining requests ({use_stop.get('worst_case_usd')} USD) plus {CREDIT_MARGIN_USD:.2f}, with "
+                      f"{use_stop.get('beyond_journal_usd')} USD of the key's use outside the branch's spend journal "
+                      "(a recorded deviation)")
         elif error_count(st["journal"], tag) >= MAX_ERRORS_PER_MODEL:
             reason = "error-answer limit reached"
         else:
             last = repeated(tag, run_log, st["journal"])
             if last is None:
-                raise Refusal(f"{tag} cannot be closed: none of the conditions of section 9 holds (a budget stop, the "
-                              "error-answer limit, the same rejection at least 24 hours apart by the server's dates "
-                              "with no answer in between, or the listing check failing on every check of 24 hours "
-                              f"with no gap over two hours and no success in between). Resume with --run {tag}.")
+                fb = forbidden_series(tag, run_log, st["journal"], st["cache"])
+                if fb is None:
+                    raise Refusal(
+                        f"{tag} cannot be closed: none of the conditions of section 9 holds (a budget stop, the "
+                        "error-answer limit, the same rejection at least 24 hours apart by the server's dates with no "
+                        "answer in between, the listing check failing on every check of 24 hours with no gap over two "
+                        f"hours and no success in between, or the same 403 that is neither a filter nor a budget on "
+                        f"{FORBIDDEN_RUNS} runs over at least {FORBIDDEN_SPAN_S // 3600} hours with no answer in "
+                        f"between). Resume with --run {tag}.")
+                if not (checked or "").strip():
+                    raise Refusal(
+                        f"{tag}: the same 403 ({fb.get('key')}: HTTP {fb.get('status')} {fb.get('error_type')}) came "
+                        f"on {fb['runs']} runs over {fb['span_hours']} hours, so it may be closed (Correction 4, C23); "
+                        "first record what was checked (the key's permissions, guardrails, the network) with "
+                        "--checked \"...\". Nothing was closed.")
+                basis = "the server's dates" if fb["date_basis"] == "server" else "the journal's local times"
+                log_event({"event": "deviation", "kind": "forbidden_closed", "model": tag, "key": fb.get("key"),
+                           "status": fb.get("status"), "error_type": fb.get("error_type"), "runs": fb["runs"],
+                           "span_hours": fb["span_hours"], "date_basis": fb["date_basis"],
+                           "checked": scrub(checked)[:500]})
+                return close_model(tag, f"forbidden on {fb['runs']} runs over {fb['span_hours']:g} hours by {basis} "
+                                        f"({fb.get('key')}: HTTP {fb.get('status')} {fb.get('error_type')}): "
+                                        f"{VERDICT_WORDS['forbidden']}", rule="forbidden")
             how = ("on every listing check for at least 24 hours, no two checks more than two hours apart"
                    if last["verdict"] == "unavailable" else "observed at least 24 hours apart")
             reason = f"{VERDICT_WORDS[last['verdict']]}, {how} ({last.get('key') or tag}: {last.get('reason')})"
@@ -1596,6 +1783,17 @@ def verify(records=None) -> list[str]:
         if final_at is not None and any(e.get("kind") in ("send", "resend", "retry") for e in entries[final_at + 1:]):
             problems.append(f"journal: {k} was sent again after its content-filter refusal became final (two "
                             "refusals at least 24 hours apart)")
+        # Correction 4, C22: exactly two sends to the filter, the second not before the wait after the first refusal
+        fs = filter_state(entries)
+        if fs["refused"]:
+            first = next(n for n, e in enumerate(entries) if e.get("kind") == "filtered")
+            if fs["gate_s"] is not None and any(e.get("kind") in ("send", "resend", "retry") and e.get("at")
+                                                and H._seconds(e["at"]) < fs["gate_s"] for e in entries[first + 1:]):
+                problems.append(f"journal: {k} was sent again less than 24 hours and {FILTER_MARGIN_S // 60} minutes "
+                                "after its first content-filter refusal (C22)")
+            if fs["refused"] > FILTER_TRIES:
+                problems.append(f"journal: {k} was refused by a content filter {fs['refused']} times; a request is "
+                                f"sent to the filter {FILTER_TRIES} times at most (C22)")
         # Correction 3, C18-C19: only the structured fields sort an error into a filter refusal or a key-limit stop
         for e in entries:
             if e.get("kind") == "filtered" and (e.get("status") != 403 or e.get("error_type") not in FILTER_TYPES):
@@ -1610,6 +1808,16 @@ def verify(records=None) -> list[str]:
         if e.get("event") == "key_limit_stop" and e.get("limit_source") != KEY_LIMIT_SOURCE:
             problems.append(f"run_log: a key_limit_stop of the {e.get('arm')} arm without limit_source "
                             f"{KEY_LIMIT_SOURCE} (C19: a budget stop is read from the structured field only)")
+    # Correction 4, C23: a model closed on a persistent 403 has the series the rule needs and its recorded deviation
+    cache_by_key = {r["key"]: r for r in cache}
+    for n, e in enumerate(run_log):
+        if e.get("event") == "closed_incomplete" and e.get("rule") == "forbidden":
+            ok = forbidden_series(e["model"], run_log[:n], journal, cache_by_key) is not None and any(
+                d.get("event") == "deviation" and d.get("kind") == "forbidden_closed" and d.get("model") == e["model"]
+                for d in run_log[:n])
+            if not ok:
+                problems.append(f"run_log: {e['model']} was closed on a persistent 403 without {FORBIDDEN_RUNS} runs "
+                                f"over {FORBIDDEN_SPAN_S // 3600} hours of the same 403 and its recorded deviation")
     answers = {e["key"]: e for e in spend if e.get("event") == "answer"}
     overruns = {e["key"] for e in journal if e.get("kind") == "overrun"}
     reserved = {e["id"]: e["cost_usd"] for e in spend if e.get("event") == "reserved"}
@@ -1711,6 +1919,8 @@ def main() -> None:
     g.add_argument("--check-listings", action="store_true")
     g.add_argument("--watch-listing", metavar="MODEL")
     ap.add_argument("--resend-unanswered", action="store_true")
+    ap.add_argument("--checked", metavar="TEXT", help="with --close-incomplete on a persistent 403 (C23): what was "
+                    "checked before closing (the key's permissions, guardrails, the network)")
     ap.add_argument("--key-file", metavar="PATH", help=f"the key file (default: ${KEY_FILE_ENV}, else {DEFAULT_KEY_FILE})")
     a = ap.parse_args()
     if a.key_file:
@@ -1744,7 +1954,7 @@ def main() -> None:
         elif a.run:
             print(json.dumps(run_model(a.run, resend_unanswered=a.resend_unanswered)))
         else:
-            print(f"{a.close_incomplete} closed: {close_incomplete(a.close_incomplete)}")
+            print(f"{a.close_incomplete} closed: {close_incomplete(a.close_incomplete, checked=a.checked)}")
     except SystemExit:
         raise
     except BaseException as exc:                 # noqa: BLE001 - no raw traceback, nothing that could hold the key

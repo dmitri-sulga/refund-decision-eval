@@ -17,7 +17,11 @@ summary also counts the "above" labels that hold at the corrected level (M6), an
 GET /api/v1/key (B1). Correction 2 (C17): each model's recorded deviations are counted and printed (overruns,
 quarantined answers, resends, content-filter refusals, fields left out, answers without a provider field, free runs on
 another key), and the key readings printed are those of the paid runs. Correction 3 (C20): a request counts as refused
-on two runs only when the second refusal came at least 24 hours after the first by the server's dates.
+on two runs only when the second refusal came at least 24 hours after the first by the server's dates. Correction 4
+(C22-C25): a request is sent to a content filter exactly twice, and its refusal is final at the second refusal, by the
+server's dates or, failing them, by the journal's local times (counted as a deviation of its own); a model closed after
+the same 403 on 3 runs over 72 hours, and a key reading whose use exceeded the branch's journal, are counted and printed
+too. A model closed on any of these is closed, so the count is given, and it is listed as not counted.
 
 python -m judge.cloud_analysis            # writes results/models/cloud/analysis.json and prints table and text
 """
@@ -88,8 +92,17 @@ def account(run_log: list[dict]) -> dict:
 DEVIATION_WORDS = (("overruns", "overrun", "overruns"), ("quarantined", "answer kept in quarantine",
                                                              "answers kept in quarantine"),
                    ("resends", "resend", "resends"), ("filtered", "content-filter refusal", "content-filter refusals"),
-                   ("filtered_final", "request refused on two runs at least 24 hours apart",
-                    "requests refused on two runs at least 24 hours apart"),
+                   ("filtered_final", "request refused on both of its 2 sends at least 24 hours apart",
+                    "requests refused on both of their 2 sends at least 24 hours apart"),
+                   ("filtered_final_local", "of them final by the journal's local times (no server date, or the "
+                    "server's dates less than 24 hours apart)", "of them final by the journal's local times (no server "
+                    "date, or the server's dates less than 24 hours apart)"),
+                   ("forbidden_closed", "closing after the same 403, neither a content filter nor a budget, on 3 runs "
+                    "over at least 72 hours", "closings after the same 403, neither a content filter nor a budget, on 3 "
+                    "runs over at least 72 hours"),
+                   ("key_use_exceeds_journal", "key reading whose use exceeded the branch's spend journal by more than "
+                    "0.05 USD (spend outside the branch)", "key readings whose use exceeded the branch's spend journal "
+                    "by more than 0.05 USD (spend outside the branch)"),
                    ("provider_not_reported", "answer without a provider field", "answers without a provider field"),
                    ("key_differs", "free run on another key than the registered one",
                     "free runs on another key than the registered one"))
@@ -107,8 +120,14 @@ def deviations(model: str, journal: list[dict], run_log: list[dict], quarantine:
             "quarantined": sum(r.get("model") == model for r in quarantine),
             "resends": sum(e.get("kind") == "resend" for e in mine),
             "filtered": sum(len(v) for v in per_key.values()),
-            # Correction 3, C20: final only at a second refusal at least 24 hours after the first (server dates)
+            # Correction 3, C20, as corrected by Correction 4, C22: final at the second refusal at least 24 hours
+            # after the first, by the server's dates or, failing them, by the journal's local times
             "filtered_final": sum(K.filter_final(v) for v in per_key.values()),
+            "filtered_final_local": sum(1 for v in per_key.values() if K.filter_state(v)["basis"] == "local clock"),
+            "forbidden_closed": sum(1 for e in run_log if e.get("event") == "deviation"
+                                    and e.get("kind") == "forbidden_closed" and e.get("model") == model),
+            "key_use_exceeds_journal": sum(1 for e in run_log if e.get("event") == "deviation"
+                                           and e.get("kind") == "key_use_exceeds_journal" and e.get("model") == model),
             "provider_not_reported": sum(1 for r in answers if r.get("provider") is None and not r.get("moderated")),
             "key_differs": sum(1 for e in run_log if e.get("event") == "deviation" and e.get("kind") == "key_differs"
                                and e.get("model") == model),
@@ -127,7 +146,8 @@ def deviations_sentence(out: dict) -> str:
             parts.append(f"{t}: " + ", ".join(bits))
     return ("Recorded deviations: " + "; ".join(parts) + ".") if parts else (
         "Recorded deviations: none (no overrun, quarantined answer, resend, content-filter refusal, field left out, "
-        "answer without a provider field or free run on another key).")
+        "answer without a provider field, free run on another key, closing after a persistent 403 or key use outside "
+        "the branch's journal).")
 
 
 def model_status(model, closed, answered, n, run_log) -> tuple[str, bool]:
@@ -293,7 +313,8 @@ def summary(out: dict) -> str:
             if not out["models"][t]["compared"] and out["models"][t]["closed"]]
     if rows:
         s += " Reference rows, descriptive only: " + "; ".join(rows) + "."
-    if any(c["answered"] for m in out["models"].values() for c in m["cells"].values()):
+    if any(c["answered"] for m in out["models"].values() for c in m["cells"].values()) or any(
+            any((m.get("deviations") or {}).values()) for m in out["models"].values()):
         s += " " + deviations_sentence(out)
     s += " " + PERSON_NOTE
     c = out.get("cost")

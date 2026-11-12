@@ -4,3 +4,5 @@
 {"answers": 600, "at": "2026-11-11T21:17:37.714293+00:00", "event": "model_finished", "model": "gemma4:12b"}
 {"at": "2026-11-11T21:22:15.901653+00:00", "event": "run_started", "model": "phi4:14b", "resend_unanswered": false}
 {"answers": 600, "at": "2026-11-11T22:31:46.253244+00:00", "event": "model_finished", "model": "phi4:14b"}
+{"at": "2026-11-11T22:36:54.193501+00:00", "event": "run_started", "model": "mistral-small3.2:24b", "resend_unanswered": false}
+{"answers": 600, "at": "2026-11-12T00:41:00.840763+00:00", "event": "model_finished", "model": "mistral-small3.2:24b"}

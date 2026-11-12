@@ -319,9 +319,11 @@ Who fills each blank (Correction 6, C28, after the sixth review's section 7), ma
 29. The key of item 24 saved in the key file (`--key-file`, `OPENROUTER_KEY_FILE`, or the default in the author's
     home directory), readable only by its owner (`stat -f '%Sp'` gives `-rw-------`). A free run whose key reading
     differs from `key_reading` records a deviation (C15).
-30. The privacy setting of item 25 is in effect on the account's settings page on the start day: ______ (yes / no)
+30. The privacy setting of item 25 is in effect on the account's settings page on the start day: yes
     [operator, start day]. A change made under item 25's rule is recorded here first (setting, UTC time, model, its
-    error): ______.
+    error): none; no change made. Read on 2026-11-12 at about 20:25 UTC [coordinator, start day, read-only on
+    https://openrouter.ai/settings/privacy]: free "train on request data" ON, free "publish prompts" OFF, paid "train
+    on request data" OFF, 1% data discount OFF.
     2026-11-12, about 17:50 UTC [coordinator, before publication; not the start-day reading above]: the privacy
     settings of item 25 read on https://openrouter.ai/settings/privacy, read-only: free "train on request data" ON,
     free "publish prompts" OFF, paid "train on request data" OFF; nothing was changed.
@@ -331,7 +333,10 @@ Who fills each blank (Correction 6, C28, after the sixth review's section 7), ma
 32. The order of the arms is fixed (Correction 4, C24, replacing the operator's choice of Correction 3, C21): the free
     queue runs to its end before the first paid request, and the runner refuses a paid model while a free model is
     open. On the start day the balance of item 24 is still at least 17 USD, auto top-up is still off, and no guardrail
-    has been assigned since: ______ (yes / no) [operator, start day].
+    has been assigned since: yes [operator, start day]. Read on 2026-11-12 at about 20:25 UTC [coordinator,
+    read-only]: balance 25.00 USD on https://openrouter.ai/settings/credits (one transaction of 25.00 USD, so 25.00 USD
+    purchased in all), "Auto Top-Up" shows the button "Enable" (off), and https://openrouter.ai/workspaces/guardrails
+    shows "No workspace guardrails yet".
 33. Under the waiver (item 24 (b), C26), before each paid run (each `--run` of a paid model, a resumed one included):
     the operator reads the account's credit balance and the auto top-up setting on the OpenRouter Credits page and
     appends `{"balance_usd": ..., "read_at": "YYYY-MM-DDTHH:MM:SSZ", "read_by": "...", "source": "OpenRouter

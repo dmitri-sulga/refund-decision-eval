@@ -235,6 +235,12 @@ Who fills each blank (Correction 6, C28, after the sixth review's section 7), ma
   2026-11-12 at about 17:54 UTC (Credits, Guardrails and Privacy pages; nothing was changed), before publication. A
   time known only roughly is written as such ("about 17:54"), and a setting whose start is not known says so.
 - **[owner]**: the owner's own decision; nothing in those readings answers it.
+  The owner delegated these decisions to the coordinator on 2026-11-12 at 17:39:58 UTC, in a chat message to his AI
+  coding assistant (dictated by voice; quoted as transcribed): «Короче, решаю все вопросы сам, с пользой Ропину
+  Рутеров, что все, что тебе нужно, делай и решай вопрос, а работай» ("In short, decide every question yourself,
+  [OpenRouter, garbled in the transcription]: whatever you need, do it, settle the question, and work"). The three
+  [owner] blanks of items 24, 26 and 27 were filled by the coordinator under that delegation, marked
+  [owner, delegated to the coordinator].
 - **[registration]**: filled at registration from `python -m judge.cloud --status` (item 28), before any request.
 - **[operator, start day]**: read again by the operator on the start day and before each paid run (section H).
 24. The key and the guard of the paid arm (C1, C9, C15, C19; Correction 5, C26). One of:
@@ -262,8 +268,8 @@ Who fills each blank (Correction 6, C28, after the sixth review's section 7), ma
     (C26).
     Guard: (b), the owner's waiver, given on 2026-11-12 and recorded in `registration.json` and in C26 (his words
     there, verbatim). If a limit of exactly 15 USD that never resets is later set on the key, (a) applies by itself.
-    Key created for this branch only: ______ (yes / no) [owner]; account or workspace: Personal (one account)
-    [coordinator].
+    Key created for this branch only: no (yes / no) [owner, delegated to the coordinator]; account or workspace:
+    Personal (one account) [coordinator].
     What a "no" costs (Correction 7, C29, the seventh review's m-5): with no key of its own and no limit on it, the
     paid arm runs on the waiver path with C29's known limits (item 34), and any use of the key outside the branch after
     the item 28 reading, beyond 0.05 USD in all, stops every later paid run and so loses the whole paid arm.
@@ -291,9 +297,9 @@ Who fills each blank (Correction 6, C28, after the sixth review's section 7), ma
     `results/models/cloud/`).
 26. The paid arm (P1–P3; estimate 2.90 USD, worst case 10.13 USD, never more than the code's 15 USD cap by the code's
     own accounting; under the waiver of item 24 (b) there is no stop outside the code, see C26, and outside the code
-    only the balance as read with auto top-up off, see C28): ______ (yes / no) [owner].
+    only the balance as read with auto top-up off, see C28): yes (yes / no) [owner, delegated to the coordinator].
 27. The reference row `google/gemma-4-31b-it:free` (600 free requests, about 0.6 of a day's quota; descriptive only,
-    not compared): ______ (keep / drop) [owner].
+    not compared): keep (keep / drop) [owner, delegated to the coordinator].
     A "drop" must not block the paid arm (Correction 5, C27, the fifth review's m-4): the free queue must be closed
     before the first paid request (C24), and a row that is never run can neither run nor be closed. So "drop" is made
     only by a further Correction before the gist whose code also closes the row before any request ("not run: dropped

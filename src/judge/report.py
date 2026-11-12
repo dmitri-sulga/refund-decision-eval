@@ -1120,6 +1120,9 @@ from . import frontpage as F  # noqa: E402  (imported here: it reads the helpers
 
 b_headline, b_practice = F.b_headline, F.b_practice
 
+# Eleventh change (after both arms of the model extension had run): its README sections and full-report sections
+from . import extension_report as E  # noqa: E402
+
 
 # ------------------------------------------- changes after the held-out run (presentation only)
 POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
@@ -1131,11 +1134,13 @@ POST_RUN_FILE = C.RESULTS / "post_run_changes.json"
 # feeds no report number). Ninth change: Amendment 1 of that plan, the extension's runner and analysis (new, frozen
 # hash null; no model was called and they feed no report number), and the Makefile's `models` target and check.
 # Tenth change: Amendment 2 of that plan, a separately registered hosted arm, its runner and analysis (new, frozen
-# hash null; no request was sent and they feed no report number), and the Makefile's `models-hosted` target and check
+# hash null; no request was sent and they feed no report number), and the Makefile's `models-hosted` target and check.
+# Eleventh change: the extension's presentation module (new, frozen hash null), which prints the registered analyses'
+# output for both arms; it computes no frozen number
 PRESENTATION_FILES = ("src/judge/report.py", "src/judge/frontpage.py", "src/judge/posthoc.py", "docs/deviations.md",
                       "Makefile", "src/judge/sql.py", "docs/sql.md", "docs/analysis_plan_models.md",
                       "src/judge/models.py", "src/judge/models_analysis.py", "src/judge/hosted.py",
-                      "src/judge/hosted_analysis.py")
+                      "src/judge/hosted_analysis.py", "src/judge/extension_report.py")
 
 
 def accept_post_run_changes(m: dict) -> dict:
@@ -1189,6 +1194,10 @@ BLOCKS = {            # every block, in the order of results/report.md
     "rehearsal": b_rehearsal,
     "human": F.b_human,
     "human_detail": F.b_human_detail,
+    "other_local_models": E.b_other_local_models,      # eleventh change: the model extension, both arms
+    "hosted_arm": E.b_hosted_arm,
+    "other_local_models_detail": E.b_other_local_models_detail,
+    "hosted_arm_detail": E.b_hosted_arm_detail,
     "frozen": b_frozen,
     "freeze_record": F.b_freeze_record,
     "test_results": b_test_results,
@@ -1199,8 +1208,8 @@ BLOCKS = {            # every block, in the order of results/report.md
     "sql_queries": F.b_sql_queries,     # sixth change, after the held-out run: a pointer to sql/
     "deviations_in_short": F.b_deviations_in_short,   # sixth change: the count of post-run changes from the records
 }
-README_BLOCKS = ("first_screen", "who", "headline", "practice", "inputs", "human", "freeze_record",
-                 "deviation_facts", "data_licence", "sql_queries",
+README_BLOCKS = ("first_screen", "who", "headline", "practice", "inputs", "human", "other_local_models", "hosted_arm",
+                 "freeze_record", "deviation_facts", "data_licence", "sql_queries",
                  "deviations_in_short")   # the README must contain at least these
 
 
@@ -1262,7 +1271,9 @@ def emit(m: dict, check: bool = False) -> list[str]:
     from .analysis import report_markdown
     report_new = report_markdown(m, BLOCKS, lambda text, mm: render(text, mm, root="../"))   # one level down
     problems = []
-    for path, new in ((README, readme_new), (METRICS_FILE, metrics_text), (REPORT_FILE, report_new)):
+    # eleventh change: the two analysis files of the model extension, as the registered modules write them
+    extension = E.analysis_files(m["extension"]) if m.get("extension") else []
+    for path, new in ((README, readme_new), (METRICS_FILE, metrics_text), (REPORT_FILE, report_new), *extension):
         old = path.read_text() if path.exists() else ""
         if old != new:
             if check:
@@ -1295,12 +1306,13 @@ def main() -> None:
 
     m = compute()
     m["posthoc"] = posthoc.compute(m)             # exploratory, after the held-out run
+    m["extension"] = E.compute(m)                 # the model extension, run unchanged (eleventh change)
     problems = emit(m, check)
     if problems:
         print("\n\n".join(problems))
         sys.exit(1)
-    print("check passed: README, metrics.json and report.md match the cached results"
-          if check else "regenerated README.md, results/metrics.json, results/report.md")
+    print("check passed: README, metrics.json, report.md and the extension's analysis files match the cached results"
+          if check else "regenerated README.md, results/metrics.json, results/report.md and the extension's analysis files")
 
 
 if __name__ == "__main__":

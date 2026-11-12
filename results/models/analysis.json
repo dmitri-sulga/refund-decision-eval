@@ -1,0 +1,1950 @@
+{
+ "order": [
+  "qwen3.8:27b",
+  "qwen3.5:9b",
+  "gemma4:12b",
+  "phi4:14b",
+  "mistral-small3.2:24b",
+  "granite4.1:30b",
+  "glm-4.7-flash:latest",
+  "gemma4:31b"
+ ],
+ "record_pays_dev": 60,
+ "n_dev": 200,
+ "lookup_pays_dev": 92,
+ "models": {
+  "qwen3.8:27b": {
+   "status": "reference",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 9.6705,
+      "mean": 11.02871
+     },
+     "pays": 137,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.12020905923344957,
+      "lo": 0.02405459291824315,
+      "hi": 0.2206872121856182
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.19797275894836866,
+        "0.95": [
+         -0.35909338896789006,
+         -0.03643689413679828
+        ],
+        "0.996429": [
+         -0.44223467702252556,
+         0.03372373066558774
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.19797275894836866,
+        "0.95": [
+         -0.35909338896789006,
+         -0.03643689413679828
+        ],
+        "0.996429": [
+         -0.44223467702252556,
+         0.03372373066558774
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "left out": {
+        "value": -0.19797275894836866,
+        "0.95": [
+         -0.35909338896789006,
+         -0.03643689413679828
+        ],
+        "0.996429": [
+         -0.44223467702252556,
+         0.03372373066558774
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": false,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.38500000000000006,
+        "0.95": [
+         0.30000000000000004,
+         0.465
+        ],
+        "0.992857": [
+         0.265,
+         0.495
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.38500000000000006,
+        "0.95": [
+         0.30000000000000004,
+         0.465
+        ],
+        "0.992857": [
+         0.265,
+         0.495
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.38500000000000006,
+        "0.95": [
+         0.30000000000000004,
+         0.465
+        ],
+        "0.992857": [
+         0.265,
+         0.495
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 10.3635,
+      "mean": 11.38428
+     },
+     "pays": 70,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.11347517730496454,
+      "lo": -0.03484580284792699,
+      "hi": 0.25992779783393505
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.10344827586206902,
+       "lo": -0.11057692307692317,
+       "hi": 0.3144363020353568
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.09395973154362415,
+       "lo": -0.02887487553932971,
+       "hi": 0.21875000000000003
+      },
+      "readings_agree": true
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 12.029,
+      "mean": 13.151875
+     },
+     "pays": 22,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.06976744186046518,
+      "lo": -0.05113618684501313,
+      "hi": 0.1972318339100344
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.24841437632135305,
+        "0.95": [
+         -0.42425311822961054,
+         -0.06052792370203835
+        ],
+        "0.996429": [
+         -0.5021459546728109,
+         0.030084621060091386
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.24841437632135305,
+        "0.95": [
+         -0.42425311822961054,
+         -0.06052792370203835
+        ],
+        "0.996429": [
+         -0.5021459546728109,
+         0.030084621060091386
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "left out": {
+        "value": -0.24841437632135305,
+        "0.95": [
+         -0.42425311822961054,
+         -0.06052792370203835
+        ],
+        "0.996429": [
+         -0.5021459546728109,
+         0.030084621060091386
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": false,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 11.689,
+      "mean": 13.00251
+     },
+     "pays": 18,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.14486921529175048,
+      "lo": -0.04738415831928562,
+      "hi": 0.33850666685976893
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.21600000000000008,
+       "lo": 0.0,
+       "hi": 0.4347826086956521
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.19168591224018477,
+       "lo": -0.02224894768490668,
+       "hi": 0.40205011389521644
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  },
+  "qwen3.5:9b": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 2.6369999999999996,
+      "mean": 2.9256
+     },
+     "pays": 168,
+     "kappa_with_reference": 0.29182255478353814,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.04088050314465412,
+      "lo": -0.028281166689067914,
+      "hi": 0.10844236516280001
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.2773013150371641,
+        "0.95": [
+         -0.4202559607441693,
+         -0.13615153905100236
+        ],
+        "0.996429": [
+         -0.48310434287936793,
+         -0.07093798683225801
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.2773013150371641,
+        "0.95": [
+         -0.4202559607441693,
+         -0.13615153905100236
+        ],
+        "0.996429": [
+         -0.48310434287936793,
+         -0.07093798683225801
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.2773013150371641,
+        "0.95": [
+         -0.4202559607441693,
+         -0.13615153905100236
+        ],
+        "0.996429": [
+         -0.48310434287936793,
+         -0.07093798683225801
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.54,
+        "0.95": [
+         0.46,
+         0.6199999999999999
+        ],
+        "0.992857": [
+         0.43355357142857076,
+         0.645
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.54,
+        "0.95": [
+         0.46,
+         0.6199999999999999
+        ],
+        "0.992857": [
+         0.43355357142857076,
+         0.645
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.54,
+        "0.95": [
+         0.46,
+         0.6199999999999999
+        ],
+        "0.992857": [
+         0.43355357142857076,
+         0.645
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 3.1065,
+      "mean": 3.21669
+     },
+     "pays": 82,
+     "kappa_with_reference": 0.46236559139784955,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.03718459495351921,
+      "lo": -0.07843976631748577,
+      "hi": 0.15064102564102566
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.08029197080291987,
+       "lo": -0.10411036301144086,
+       "hi": 0.2668505608748637
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.051407588739290036,
+       "lo": -0.041055718475073354,
+       "hi": 0.14516473669699467
+      },
+      "readings_agree": true
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 3.589,
+      "mean": 3.9360000000000004
+     },
+     "pays": 19,
+     "kappa_with_reference": 0.21238457360130372,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": -0.07988165680473346,
+      "lo": -0.16666783806578594,
+      "hi": 0.01874964594406964
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.3980634749865517,
+        "0.95": [
+         -0.5451280103877811,
+         -0.24087352522003838
+        ],
+        "0.996429": [
+         -0.6240170061674148,
+         -0.1702311639544936
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.3980634749865517,
+        "0.95": [
+         -0.5451280103877811,
+         -0.24087352522003838
+        ],
+        "0.996429": [
+         -0.6240170061674148,
+         -0.1702311639544936
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.3980634749865517,
+        "0.95": [
+         -0.5451280103877811,
+         -0.24087352522003838
+        ],
+        "0.996429": [
+         -0.6240170061674148,
+         -0.1702311639544936
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 3.6085000000000003,
+      "mean": 3.91008
+     },
+     "pays": 10,
+     "kappa_with_reference": 0.2622950819672126,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": -0.07526881720430115,
+      "lo": -0.19926199261992608,
+      "hi": 0.06699010926230069
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.09677419354838708,
+       "lo": -0.09650349650349674,
+       "hi": 0.30205278592375345
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.15584415584415565,
+       "lo": -0.03719653981413377,
+       "hi": 0.3542584216164742
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  },
+  "gemma4:12b": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 3.9825,
+      "mean": 4.47643
+     },
+     "pays": 198,
+     "kappa_with_reference": 0.042987135236899704,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.008620689655172422,
+      "lo": 0.0,
+      "hi": 0.02277736958119032
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.3095611285266458,
+        "0.95": [
+         -0.43353158672165054,
+         -0.18047061585537189
+        ],
+        "0.996429": [
+         -0.49716967507391563,
+         -0.1269683949931518
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.3095611285266458,
+        "0.95": [
+         -0.43353158672165054,
+         -0.18047061585537189
+        ],
+        "0.996429": [
+         -0.49716967507391563,
+         -0.1269683949931518
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.3095611285266458,
+        "0.95": [
+         -0.43353158672165054,
+         -0.18047061585537189
+        ],
+        "0.996429": [
+         -0.49716967507391563,
+         -0.1269683949931518
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.69,
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "0.992857": [
+         0.6,
+         0.7714464285714256
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.69,
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "0.992857": [
+         0.6,
+         0.7714464285714256
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.69,
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "0.992857": [
+         0.6,
+         0.7714464285714256
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 4.859500000000001,
+      "mean": 5.2800400000000005
+     },
+     "pays": 95,
+     "kappa_with_reference": 0.21875000000000014,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": -0.0093167701863355,
+      "lo": -0.08108108108108106,
+      "hi": 0.05189620758483026
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.09352517985611514,
+       "lo": 0.0,
+       "hi": 0.2142857142857142
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.03631284916201113,
+       "lo": 0.008217625389628828,
+       "hi": 0.0779014308426073
+      },
+      "readings_agree": false
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 5.118,
+      "mean": 5.711860000000001
+     },
+     "pays": 52,
+     "kappa_with_reference": 0.4565217391304348,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.08415841584158423,
+      "lo": -0.054613935969868584,
+      "hi": 0.22471498474834745
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.234023402340234,
+        "0.95": [
+         -0.42839434238114094,
+         -0.036099504882516655
+        ],
+        "0.996429": [
+         -0.5238050737742083,
+         0.06640093264135699
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.234023402340234,
+        "0.95": [
+         -0.42839434238114094,
+         -0.036099504882516655
+        ],
+        "0.996429": [
+         -0.5238050737742083,
+         0.06640093264135699
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "left out": {
+        "value": -0.234023402340234,
+        "0.95": [
+         -0.42839434238114094,
+         -0.036099504882516655
+        ],
+        "0.996429": [
+         -0.5238050737742083,
+         0.06640093264135699
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": false,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 5.3065,
+      "mean": 5.76342
+     },
+     "pays": 36,
+     "kappa_with_reference": 0.5126705653021444,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.0333919156414765,
+      "lo": -0.15864527629233494,
+      "hi": 0.2278860636796031
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.34375000000000006,
+       "lo": 0.09090909090909104,
+       "hi": 0.5736040609137055
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.2144177449168207,
+       "lo": 0.01706645954068033,
+       "hi": 0.4024856596558317
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  },
+  "phi4:14b": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 5.173,
+      "mean": 5.985085000000001
+     },
+     "pays": 198,
+     "kappa_with_reference": 0.042987135236899704,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.008620689655172422,
+      "lo": 0.0,
+      "hi": 0.02330743618202004
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.3095611285266458,
+        "0.95": [
+         -0.4341180683188529,
+         -0.18169369909580937
+        ],
+        "0.996429": [
+         -0.4985570907610955,
+         -0.12688526774817754
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.3095611285266458,
+        "0.95": [
+         -0.4341180683188529,
+         -0.18169369909580937
+        ],
+        "0.996429": [
+         -0.4985570907610955,
+         -0.12688526774817754
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.3095611285266458,
+        "0.95": [
+         -0.4341180683188529,
+         -0.18169369909580937
+        ],
+        "0.996429": [
+         -0.4985570907610955,
+         -0.12688526774817754
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.69,
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "0.992857": [
+         0.6,
+         0.775
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.69,
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "0.992857": [
+         0.6,
+         0.775
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.69,
+        "0.95": [
+         0.625,
+         0.75
+        ],
+        "0.992857": [
+         0.6,
+         0.775
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 5.729,
+      "mean": 6.04972
+     },
+     "pays": 96,
+     "kappa_with_reference": 0.17721518987341783,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.04202719406674899,
+      "lo": 0.008620689655172422,
+      "hi": 0.09266409266409274
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.031026252983293465,
+       "lo": 0.0,
+       "hi": 0.1071428571428572
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.02885682574916757,
+       "lo": 0.005681818181818201,
+       "hi": 0.06542056074766349
+      },
+      "readings_agree": false
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 7.1385000000000005,
+      "mean": 8.013875
+     },
+     "pays": 64,
+     "kappa_with_reference": 0.3047830923248054,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.018691588785046745,
+      "lo": -0.11907728590708058,
+      "hi": 0.1597658441254454
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.2994902293967715,
+        "0.95": [
+         -0.4857218684184706,
+         -0.11189673000181923
+        ],
+        "0.996429": [
+         -0.5617404605393813,
+         -0.014737048894217602
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.2994902293967715,
+        "0.95": [
+         -0.4857218684184706,
+         -0.11189673000181923
+        ],
+        "0.996429": [
+         -0.5617404605393813,
+         -0.014737048894217602
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.2994902293967715,
+        "0.95": [
+         -0.4857218684184706,
+         -0.11189673000181923
+        ],
+        "0.996429": [
+         -0.5617404605393813,
+         -0.014737048894217602
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 7.1915,
+      "mean": 7.62271
+     },
+     "pays": 33,
+     "kappa_with_reference": 0.4120654396728017,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": -0.05475763016157958,
+      "lo": -0.24279181853838408,
+      "hi": 0.1406603346901855
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.3090909090909091,
+       "lo": 0.0502512562814072,
+       "hi": 0.5390982966088451
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.2590822179732312,
+       "lo": 0.058823529411764504,
+       "hi": 0.45175848346576464
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  },
+  "mistral-small3.2:24b": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 9.086500000000001,
+      "mean": 10.566605
+     },
+     "pays": 195,
+     "kappa_with_reference": 0.1056283731688512,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.02173913043478263,
+      "lo": 0.004505159133846813,
+      "hi": 0.044837385538364354
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.2964426877470356,
+        "0.95": [
+         -0.42133156914265707,
+         -0.16928630309796375
+        ],
+        "0.996429": [
+         -0.4839709154460746,
+         -0.1136793261425389
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.2964426877470356,
+        "0.95": [
+         -0.42133156914265707,
+         -0.16928630309796375
+        ],
+        "0.996429": [
+         -0.4839709154460746,
+         -0.1136793261425389
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.2964426877470356,
+        "0.95": [
+         -0.42133156914265707,
+         -0.16928630309796375
+        ],
+        "0.996429": [
+         -0.4839709154460746,
+         -0.1136793261425389
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.675,
+        "0.95": [
+         0.61,
+         0.74
+        ],
+        "0.992857": [
+         0.585,
+         0.76
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.675,
+        "0.95": [
+         0.61,
+         0.74
+        ],
+        "0.992857": [
+         0.585,
+         0.76
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.675,
+        "0.95": [
+         0.61,
+         0.74
+        ],
+        "0.992857": [
+         0.585,
+         0.76
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 9.4855,
+      "mean": 10.793050000000001
+     },
+     "pays": 94,
+     "kappa_with_reference": 0.2592592592592594,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.0012484394506865908,
+      "lo": -0.0719754977029097,
+      "hi": 0.06709891072088423
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.06220095693779906,
+       "lo": 0.0,
+       "hi": 0.1630434782608694
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.043869516310461126,
+       "lo": 0.012801396653711076,
+       "hi": 0.09090909090909098
+      },
+      "readings_agree": false
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 12.525500000000001,
+      "mean": 14.301169999999999
+     },
+     "pays": 64,
+     "kappa_with_reference": 0.3047830923248054,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.08878504672897203,
+      "lo": -0.053902733560215084,
+      "hi": 0.22913331719082525
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.2293967714528462,
+        "0.95": [
+         -0.4097085695113489,
+         -0.05170865352566546
+        ],
+        "0.996429": [
+         -0.49493494987892006,
+         0.054941355208567064
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.2293967714528462,
+        "0.95": [
+         -0.4097085695113489,
+         -0.05170865352566546
+        ],
+        "0.996429": [
+         -0.49493494987892006,
+         0.054941355208567064
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "left out": {
+        "value": -0.2293967714528462,
+        "0.95": [
+         -0.4097085695113489,
+         -0.05170865352566546
+        ],
+        "0.996429": [
+         -0.49493494987892006,
+         0.054941355208567064
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": false,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 12.914,
+      "mean": 13.90739
+     },
+     "pays": 38,
+     "kappa_with_reference": 0.48015122873345933,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.04679376083188922,
+      "lo": -0.15040477204942465,
+      "hi": 0.24243267867989482
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.2746113989637306,
+       "lo": 0.01875867561724894,
+       "hi": 0.517241379310345
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.18625678119349012,
+       "lo": -0.003656604549060433,
+       "hi": 0.3731287235199574
+      },
+      "readings_agree": false
+     }
+    }
+   }
+  },
+  "granite4.1:30b": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 11.561499999999999,
+      "mean": 13.619860000000001
+     },
+     "pays": 188,
+     "kappa_with_reference": 0.24377224199288242,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.02366863905325446,
+      "lo": -0.016473955425361446,
+      "hi": 0.06411201179071487
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.2945131791285638,
+        "0.95": [
+         -0.42663161939265326,
+         -0.16226078107996333
+        ],
+        "0.996429": [
+         -0.49267727134435657,
+         -0.10481668797654263
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.2945131791285638,
+        "0.95": [
+         -0.42663161939265326,
+         -0.16226078107996333
+        ],
+        "0.996429": [
+         -0.49267727134435657,
+         -0.10481668797654263
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.2945131791285638,
+        "0.95": [
+         -0.42663161939265326,
+         -0.16226078107996333
+        ],
+        "0.996429": [
+         -0.49267727134435657,
+         -0.10481668797654263
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.6399999999999999,
+        "0.95": [
+         0.5700000000000001,
+         0.705
+        ],
+        "0.992857": [
+         0.5435535714285707,
+         0.73
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.6399999999999999,
+        "0.95": [
+         0.5700000000000001,
+         0.705
+        ],
+        "0.992857": [
+         0.5435535714285707,
+         0.73
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.6399999999999999,
+        "0.95": [
+         0.5700000000000001,
+         0.705
+        ],
+        "0.992857": [
+         0.5435535714285707,
+         0.73
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 10.790500000000002,
+      "mean": 11.71172
+     },
+     "pays": 88,
+     "kappa_with_reference": 0.48275862068965497,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.0025740025740025587,
+      "lo": -0.0998030203545634,
+      "hi": 0.09426366990942633
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.12077294685990327,
+       "lo": -0.019417475728155362,
+       "hi": 0.2731488777205161
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.06213364595545134,
+       "lo": -0.004074505238649629,
+       "hi": 0.13162705667276048
+      },
+      "readings_agree": true
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 13.1445,
+      "mean": 14.743599999999999
+     },
+     "pays": 68,
+     "kappa_with_reference": 0.2537313432835822,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.10550458715596338,
+      "lo": -0.03919575285214046,
+      "hi": 0.24555341667107025
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.21267723102585484,
+        "0.95": [
+         -0.40737904806335584,
+         -0.024303517253402157
+        ],
+        "0.996429": [
+         -0.4995646295661613,
+         0.07160404923548734
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.21267723102585484,
+        "0.95": [
+         -0.40737904806335584,
+         -0.024303517253402157
+        ],
+        "0.996429": [
+         -0.4995646295661613,
+         0.07160404923548734
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "left out": {
+        "value": -0.21267723102585484,
+        "0.95": [
+         -0.40737904806335584,
+         -0.024303517253402157
+        ],
+        "0.996429": [
+         -0.4995646295661613,
+         0.07160404923548734
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": false,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 13.4515,
+      "mean": 14.21253
+     },
+     "pays": 41,
+     "kappa_with_reference": 0.34448462929475565,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.08743633276740218,
+      "lo": -0.1083772887814853,
+      "hi": 0.27947598253275113
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.31969309462915607,
+       "lo": 0.06185567010309285,
+       "hi": 0.5532945084517686
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.277583187390543,
+       "lo": 0.09176898990069177,
+       "hi": 0.45945945945945954
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  },
+  "glm-4.7-flash:latest": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 1.9905,
+      "mean": 2.355215
+     },
+     "pays": 164,
+     "kappa_with_reference": 0.3579664570230609,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.07643312101910826,
+      "lo": 0.006410124815240687,
+      "hi": 0.14753678515293403
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.24174869716270997,
+        "0.95": [
+         -0.3843887005590513,
+         -0.09880936800578438
+        ],
+        "0.996429": [
+         -0.4549802973733099,
+         -0.03118273992120701
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.24174869716270997,
+        "0.95": [
+         -0.3843887005590513,
+         -0.09880936800578438
+        ],
+        "0.996429": [
+         -0.4549802973733099,
+         -0.03118273992120701
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.24174869716270997,
+        "0.95": [
+         -0.3843887005590513,
+         -0.09880936800578438
+        ],
+        "0.996429": [
+         -0.4549802973733099,
+         -0.03118273992120701
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.52,
+        "0.95": [
+         0.44,
+         0.6
+        ],
+        "0.992857": [
+         0.41000000000000003,
+         0.625
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.52,
+        "0.95": [
+         0.44,
+         0.6
+        ],
+        "0.992857": [
+         0.41000000000000003,
+         0.625
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.52,
+        "0.95": [
+         0.44,
+         0.6
+        ],
+        "0.992857": [
+         0.41000000000000003,
+         0.625
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 2.0285,
+      "mean": 2.26419
+     },
+     "pays": 83,
+     "kappa_with_reference": 0.37500000000000006,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.025759577278731752,
+      "lo": -0.0930913852111358,
+      "hi": 0.13342053629823414
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.18446601941747562,
+       "lo": 0.029082774049217105,
+       "hi": 0.3617078318407391
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.1038882138517618,
+       "lo": 0.030769230769230795,
+       "hi": 0.19047619047619047
+      },
+      "readings_agree": true
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 2.733,
+      "mean": 3.077645
+     },
+     "pays": 30,
+     "kappa_with_reference": 0.20704845814977985,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.027777777777777804,
+      "lo": -0.10002933411557684,
+      "hi": 0.1579957227839083
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.29040404040404044,
+        "0.95": [
+         -0.4742154004274067,
+         -0.09917986937705302
+        ],
+        "0.996429": [
+         -0.5728164720994076,
+         -0.01228533788655849
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.29040404040404044,
+        "0.95": [
+         -0.4742154004274067,
+         -0.09917986937705302
+        ],
+        "0.996429": [
+         -0.5728164720994076,
+         -0.01228533788655849
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.29040404040404044,
+        "0.95": [
+         -0.4742154004274067,
+         -0.09917986937705302
+        ],
+        "0.996429": [
+         -0.5728164720994076,
+         -0.01228533788655849
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 2.7805,
+      "mean": 3.0157
+     },
+     "pays": 17,
+     "kappa_with_reference": 0.41135734072022156,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.11257606490872235,
+      "lo": -0.07627629676366533,
+      "hi": 0.3017630313851641
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.10638297872340415,
+       "lo": -0.1170212765957447,
+       "hi": 0.3351955307262569
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.1510538641686182,
+       "lo": -0.054216867469879575,
+       "hi": 0.3558282208588955
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  },
+  "gemma4:31b": {
+   "status": "model_finished",
+   "cells": {
+    "v1|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 9.8215,
+      "mean": 11.11239
+     },
+     "pays": 193,
+     "kappa_with_reference": 0.11571885958225289,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.030612244897959214,
+      "lo": 0.01010101010101011,
+      "hi": 0.05825667980727112
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.287569573283859,
+        "0.95": [
+         -0.4132540884200325,
+         -0.15835319917473975
+        ],
+        "0.996429": [
+         -0.4772882629582996,
+         -0.10366338214611659
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.287569573283859,
+        "0.95": [
+         -0.4132540884200325,
+         -0.15835319917473975
+        ],
+        "0.996429": [
+         -0.4772882629582996,
+         -0.10366338214611659
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       },
+       "left out": {
+        "value": -0.287569573283859,
+        "0.95": [
+         -0.4132540884200325,
+         -0.15835319917473975
+        ],
+        "0.996429": [
+         -0.4772882629582996,
+         -0.10366338214611659
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "below the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     },
+     "B": {
+      "readings": {
+       "as no money back": {
+        "value": 0.665,
+        "0.95": [
+         0.6,
+         0.73
+        ],
+        "0.992857": [
+         0.57,
+         0.75
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "as money back": {
+        "value": 0.665,
+        "0.95": [
+         0.6,
+         0.73
+        ],
+        "0.992857": [
+         0.57,
+         0.75
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       },
+       "left out": {
+        "value": 0.665,
+        "0.95": [
+         0.6,
+         0.73
+        ],
+        "0.992857": [
+         0.57,
+         0.75
+        ],
+        "label": "pays more often than the companies did",
+        "corrected_label": "pays more often than the companies did"
+       }
+      },
+      "label": "pays more often than the companies did",
+      "corrected_level": 0.9928571428571429,
+      "also_at_corrected_level": true,
+      "format_sensitive": 0.0
+     }
+    },
+    "v1|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 10.297,
+      "mean": 11.52695
+     },
+     "pays": 97,
+     "kappa_with_reference": 0.13461538461538472,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.0006150061500613477,
+      "lo": -0.052313932463470554,
+      "hi": 0.04761904761904757
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.06220095693779906,
+       "lo": 0.0,
+       "hi": 0.1630434782608694
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.021499448732083797,
+       "lo": 0.0,
+       "hi": 0.05325443786982246
+      },
+      "readings_agree": true
+     }
+    },
+    "v2|dev": {
+     "n": 200,
+     "answered": 200,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 12.045,
+      "mean": 13.992135000000001
+     },
+     "pays": 38,
+     "kappa_with_reference": 0.41905499612703295,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.0691489361702131,
+      "lo": -0.06490972217407084,
+      "hi": 0.20635828702190256
+     },
+     "A": {
+      "readings": {
+       "as no money back": {
+        "value": -0.24903288201160512,
+        "0.95": [
+         -0.4422998506156366,
+         -0.05100741710436936
+        ],
+        "0.996429": [
+         -0.5286434291960896,
+         0.046372744016241314
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "as money back": {
+        "value": -0.24903288201160512,
+        "0.95": [
+         -0.4422998506156366,
+         -0.05100741710436936
+        ],
+        "0.996429": [
+         -0.5286434291960896,
+         0.046372744016241314
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       },
+       "left out": {
+        "value": -0.24903288201160512,
+        "0.95": [
+         -0.4422998506156366,
+         -0.05100741710436936
+        ],
+        "0.996429": [
+         -0.5286434291960896,
+         0.046372744016241314
+        ],
+        "label": "below the issuer lookup",
+        "corrected_label": "not distinguishable from the issuer lookup"
+       }
+      },
+      "label": "below the issuer lookup",
+      "corrected_level": 0.9964285714285714,
+      "also_at_corrected_level": false,
+      "format_sensitive": 0.0
+     }
+    },
+    "v2|labelled": {
+     "n": 100,
+     "answered": 100,
+     "malformed": 0,
+     "seconds_per_call": {
+      "median": 12.165,
+      "mean": 13.547509999999999
+     },
+     "pays": 19,
+     "kappa_with_reference": 0.6352785145888593,
+     "status": "complete",
+     "kappa_vs_record": {
+      "value": 0.026946107784431215,
+      "lo": -0.15741031985684745,
+      "hi": 0.21638018200202203
+     },
+     "vs_person": {
+      "decided_n": 56,
+      "kappa_decided": {
+       "value": 0.3333333333333333,
+       "lo": 0.10279774742391554,
+       "hi": 0.5578947368421052
+      },
+      "kappa_cannot_tell_as_no": {
+       "value": 0.3451025056947608,
+       "lo": 0.12613981762917936,
+       "hi": 0.545159194282001
+      },
+      "readings_agree": true
+     }
+    }
+   }
+  }
+ },
+ "summary": "On DEV, judge v1 paid more often than the companies did for 7 of 7 models; across the 7 models and both prompts, 14 of 14 comparisons with the issuer lookup were below it, 0 were above it and the rest were not distinguishable (qwen3.5:9b, gemma4:12b, phi4:14b, mistral-small3.2:24b, granite4.1:30b, glm-4.7-flash:latest, gemma4:31b). The design compares each model with the issuer lookup and with the record, not models with one another; it does not show that the results are independent of the model."
+}

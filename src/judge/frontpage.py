@@ -168,7 +168,8 @@ def b_first_screen(m):
         f"the issuer had already refused in {pdn['n_denied']}; a cruder keyword search finds a refusal in "
         f"{R.pct(proxy['n_with'] / m['cues']['n_train'], 0)} of the training complaints. The label is how the "
         "company closed the complaint with the regulator, with money back (goodwill credits included) or without, so "
-        "every figure here is agreement with what the company did, not correctness." + _person_first_screen(m),
+        "every figure here is agreement with what the company did, not correctness." + _person_first_screen(m) +
+        _extension_first_screen(m),
         "",
         f"- **Always answering \"no money back\" matches the record in {R.pct(r['majority']['accuracy']['value'])} of "
         f"the {n} held-out complaints" +
@@ -207,6 +208,12 @@ def b_first_screen(m):
         "on the same complaints into refunds.",
     ]
     return "\n".join(out)
+
+
+def _extension_first_screen(m) -> str:
+    """Eleventh change: the one sentence each amendment of the model extension allows on the first screen."""
+    from . import extension_report
+    return extension_report.first_screen_sentences(m)
 
 
 # ------------------------------------------------------------------ frozen claims and the table
@@ -640,8 +647,9 @@ def b_practice(m):
          "itself" + ("; the LLM configurations automate nothing in any of the three." if llm_never else ".")
          if est and est["realistic"] and
          est["optimistic"] and est["best_on_scored_split"] else "- **Realistic against optimistic**: see the report."),
-        "- **Not tried**: few-shot examples, giving the LLM the issuer's payout rate, a larger or hosted model, a label "
-        "written by trained agents under a written policy. **Not measured**: handle time, money, customer outcomes, "
+        "- **Not tried**: few-shot examples, giving the LLM the issuer's payout rate, a larger or hosted model on the "
+        "held-out split (added later, the same prompts ran on other local and on hosted models, on DEV and the "
+        "labelled sample only), a label written by trained agents under a written policy. **Not measured**: handle time, money, customer outcomes, "
         "appeal rate, chargeback reason codes and scheme deadlines, billing-error time limits, who is accountable, "
         "whether a reviewer can use the output. **Before trying again**: a label that says what should have happened "
         "under a written policy, set by trained agents, not how a company closed a regulator complaint; the system of "
@@ -1104,6 +1112,10 @@ CHANGES_IN_SHORT = {
     10: "registering a separate hosted arm (Amendment 2 of that plan) on three models of one vendor, two compared "
         "and one, whose reasoning cannot be switched off, shown as a reference row, with its own table, a 15 USD "
         "spending cap enforced in code and the run and analysis code, before any request to them",
+    11: "after both arms of the model extension had run, reporting their results as the plan registers them: the "
+        "registered analyses run unchanged, a README section for each arm with its details in the full report, one "
+        "sentence for each on the first screen, and the outputs the plan promises that the registered code does not "
+        "produce, listed",
 }
 _ORDINAL_CHANGE = re.compile(r"\b(" + "|".join(ORDINALS) + r")\s+change\b", re.I)
 

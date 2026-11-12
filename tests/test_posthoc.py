@@ -110,7 +110,12 @@ def test_first_screen_fits_in_the_first_twelve_lines_of_the_readme():
     # paragraph's figures come from metrics.json, so it has to be a generated block, and a block needs its markers.
     # Also in the sixth change: the deviations paragraph became a generated block ('deviations_in_short'), so that its
     # count of post-run changes comes from the records; that adds its two markers, so the cap is 208.
-    assert len(lines) <= 208
+    # Eleventh change (after both arms of the model extension had run): the two sections the plan places in the
+    # README (docs/analysis_plan_models.md, Amendment 1 and Amendment 2, section 10), each a heading and a generated
+    # block (the local arm's two tables of 16 cells, the hosted arm's registered table of 12 cells and the intervals
+    # behind its labels, the registered summaries, limits and pointers), and one line in 'Where the detail is': 120
+    # lines, so the cap is 328. Each table prints once.
+    assert len(lines) <= 328
     assert sum(ln.startswith("| Person (blind") for ln in lines) == 1      # the person's table prints once
 
 

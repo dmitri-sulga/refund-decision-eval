@@ -7272,6 +7272,2880 @@
    }
   ]
  },
+ "extension": {
+  "hosted": {
+   "arm": "hosted (Amendment 2)",
+   "comparisons": {
+    "A": 4,
+    "B": 2
+   },
+   "cost": {
+    "cap_usd": 15.0,
+    "claude-haiku-5-5": {
+     "answers": 600,
+     "charged_without_answer": 0,
+     "input_tokens": 964520,
+     "open_reservations": 0,
+     "output_tokens": 40400,
+     "thinking_tokens": 0,
+     "usd": 0.1167
+    },
+    "claude-opus-5-5": {
+     "answers": 600,
+     "charged_without_answer": 0,
+     "input_tokens": 965120,
+     "open_reservations": 0,
+     "output_tokens": 37640,
+     "thinking_tokens": 78,
+     "usd": 4.6133
+    },
+    "claude-sonnet-5-5": {
+     "answers": 600,
+     "charged_without_answer": 0,
+     "input_tokens": 964520,
+     "open_reservations": 0,
+     "output_tokens": 39279,
+     "thinking_tokens": 0,
+     "usd": 2.3218
+    },
+    "total_usd": 7.0518
+   },
+   "lookup_pays_dev": 92,
+   "models": {
+    "claude-haiku-5-5": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.9875,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.350258,
+           -0.083889
+          ],
+          "0.9875": [
+           -0.387708,
+           -0.047423
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.218803
+         },
+         "as no money back": {
+          "0.95": [
+           -0.350258,
+           -0.083889
+          ],
+          "0.9875": [
+           -0.387708,
+           -0.047423
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.218803
+         },
+         "left out": {
+          "0.95": [
+           -0.350258,
+           -0.083889
+          ],
+          "0.9875": [
+           -0.387708,
+           -0.047423
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.218803
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.975,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.485,
+           0.63
+          ],
+          "0.975": [
+           0.475,
+           0.64
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.56
+         },
+         "as no money back": {
+          "0.95": [
+           0.485,
+           0.63
+          ],
+          "0.975": [
+           0.475,
+           0.64
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.56
+         },
+         "left out": {
+          "0.95": [
+           0.485,
+           0.63
+          ],
+          "0.975": [
+           0.475,
+           0.64
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.56
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.159951,
+        "lo": 0.044876,
+        "value": 0.099379
+       },
+       "kappa_with_reference": 0.386587,
+       "malformed": 0,
+       "n": 200,
+       "pays": 172,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 1.265255,
+        "median": 1.164
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 200
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       }
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.111183,
+        "lo": -0.091405,
+        "value": 0.013583
+       },
+       "kappa_with_reference": 0.460227,
+       "malformed": 0,
+       "n": 100,
+       "pays": 87,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 1.29536,
+        "median": 1.1945
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 100
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       },
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.17154,
+         "lo": 0.046434,
+         "value": 0.099764
+        },
+        "kappa_decided": {
+         "hi": 0.302615,
+         "lo": 0.038309,
+         "value": 0.156627
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.9875,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.455815,
+           -0.15449
+          ],
+          "0.9875": [
+           -0.491716,
+           -0.111708
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.311772
+         },
+         "as no money back": {
+          "0.95": [
+           -0.455815,
+           -0.15449
+          ],
+          "0.9875": [
+           -0.491716,
+           -0.111708
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.311772
+         },
+         "left out": {
+          "0.95": [
+           -0.455815,
+           -0.15449
+          ],
+          "0.9875": [
+           -0.491716,
+           -0.111708
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.311772
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.08313,
+        "lo": -0.057692,
+        "value": 0.00641
+       },
+       "kappa_with_reference": 0.175412,
+       "malformed": 0,
+       "n": 200,
+       "pays": 6,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 1.430835,
+        "median": 1.341
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 200
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       }
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.157895,
+        "lo": -0.071439,
+        "value": 0.036281
+       },
+       "kappa_with_reference": 0.319066,
+       "malformed": 0,
+       "n": 100,
+       "pays": 4,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 1.39255,
+        "median": 1.3145
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 100
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       },
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.31454,
+         "lo": -0.019576,
+         "value": 0.140401
+        },
+        "kappa_decided": {
+         "hi": 0.275862,
+         "lo": 0.0,
+         "value": 0.122616
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "closed": true,
+     "compared": true,
+     "row_note": null,
+     "status": "complete"
+    },
+    "claude-opus-5-5": {
+     "cells": {
+      "v1|dev": {
+       "A_descriptive": {
+        "0.95": [
+         -0.364448,
+         -0.082078
+        ],
+        "value": -0.225122
+       },
+       "B_descriptive": {
+        "0.95": [
+         0.46,
+         0.61
+        ],
+        "value": 0.535
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.160175,
+        "lo": 0.028749,
+        "value": 0.09306
+       },
+       "kappa_with_reference": 0.468156,
+       "malformed": 0,
+       "n": 200,
+       "pays": 167,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 2.46723,
+        "median": 2.156
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 200
+       },
+       "thinking_tokens": {
+        "max": 78,
+        "median": 0.0,
+        "total": 78
+       }
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.152824,
+        "lo": -0.081613,
+        "value": 0.037185
+       },
+       "kappa_with_reference": 0.569892,
+       "malformed": 0,
+       "n": 100,
+       "pays": 82,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 2.40488,
+        "median": 2.172
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 100
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       },
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.230013,
+         "lo": 0.075145,
+         "value": 0.143207
+        },
+        "kappa_decided": {
+         "hi": 0.465211,
+         "lo": 0.131171,
+         "value": 0.284672
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A_descriptive": {
+        "0.95": [
+         -0.390645,
+         -0.026754
+        ],
+        "value": -0.211039
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.247748,
+        "lo": -0.034439,
+        "value": 0.107143
+       },
+       "kappa_with_reference": 0.205252,
+       "malformed": 0,
+       "n": 200,
+       "pays": 46,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 2.418625,
+        "median": 2.41
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 200
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       }
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.190456,
+        "lo": -0.198984,
+        "value": -0.009174
+       },
+       "kappa_with_reference": 0.516129,
+       "malformed": 0,
+       "n": 100,
+       "pays": 30,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 2.33511,
+        "median": 2.379
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 100
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       },
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.5,
+         "lo": 0.099093,
+         "value": 0.306931
+        },
+        "kappa_decided": {
+         "hi": 0.674419,
+         "lo": 0.216531,
+         "value": 0.448819
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "closed": true,
+     "compared": false,
+     "row_note": "reasoning on, cannot be disabled; 4096 max_tokens; not part of the comparisons",
+     "status": "complete"
+    },
+    "claude-sonnet-5-5": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.9875,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.355616,
+           -0.095981
+          ],
+          "0.9875": [
+           -0.392136,
+           -0.06346
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.227968
+         },
+         "as no money back": {
+          "0.95": [
+           -0.355616,
+           -0.095981
+          ],
+          "0.9875": [
+           -0.392136,
+           -0.06346
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.227968
+         },
+         "left out": {
+          "0.95": [
+           -0.355616,
+           -0.095981
+          ],
+          "0.9875": [
+           -0.392136,
+           -0.06346
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.227968
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.975,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.515,
+           0.655
+          ],
+          "0.975": [
+           0.505,
+           0.66
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.585
+         },
+         "as no money back": {
+          "0.95": [
+           0.515,
+           0.655
+          ],
+          "0.975": [
+           0.505,
+           0.66
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.585
+         },
+         "left out": {
+          "0.95": [
+           0.515,
+           0.655
+          ],
+          "0.975": [
+           0.505,
+           0.66
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.585
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.142857,
+        "lo": 0.043478,
+        "value": 0.090214
+       },
+       "kappa_with_reference": 0.356733,
+       "malformed": 0,
+       "n": 200,
+       "pays": 177,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 2.308905,
+        "median": 1.9565
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 200
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       }
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.138823,
+        "lo": -0.071112,
+        "value": 0.035948
+       },
+       "kappa_with_reference": 0.472222,
+       "malformed": 0,
+       "n": 100,
+       "pays": 85,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 2.11293,
+        "median": 1.9235
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 100
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       },
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.16719,
+         "lo": 0.015045,
+         "value": 0.086826
+        },
+        "kappa_decided": {
+         "hi": 0.321429,
+         "lo": 0.002639,
+         "value": 0.152542
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.9875,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.529052,
+           -0.206473
+          ],
+          "0.9875": [
+           -0.569883,
+           -0.155473
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.373095
+         },
+         "as no money back": {
+          "0.95": [
+           -0.529052,
+           -0.206473
+          ],
+          "0.9875": [
+           -0.569883,
+           -0.155473
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.373095
+         },
+         "left out": {
+          "0.95": [
+           -0.529052,
+           -0.206473
+          ],
+          "0.9875": [
+           -0.569883,
+           -0.155473
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.373095
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.055852,
+        "lo": -0.157126,
+        "value": -0.054913
+       },
+       "kappa_with_reference": 0.424136,
+       "malformed": 0,
+       "n": 200,
+       "pays": 23,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 1.75992,
+        "median": 1.6705
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 200
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       }
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.3083,
+        "lo": -0.074423,
+        "value": 0.112576
+       },
+       "kappa_with_reference": 0.757618,
+       "malformed": 0,
+       "n": 100,
+       "pays": 17,
+       "refusal_categories": [],
+       "routed_elsewhere": 0,
+       "seconds_per_call": {
+        "mean": 1.68211,
+        "median": 1.5495
+       },
+       "status": "complete",
+       "stop_reasons": {
+        "end_turn": 100
+       },
+       "thinking_tokens": {
+        "max": 0,
+        "median": 0.0,
+        "total": 0
+       },
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.416667,
+         "lo": -0.0,
+         "value": 0.209602
+        },
+        "kappa_decided": {
+         "hi": 0.466276,
+         "lo": 0.046147,
+         "value": 0.251337
+        },
+        "readings_agree": false
+       }
+      }
+     },
+     "closed": true,
+     "compared": true,
+     "row_note": null,
+     "status": "complete"
+    }
+   },
+   "n_dev": 200,
+   "order": [
+    "claude-haiku-5-5",
+    "claude-sonnet-5-5",
+    "claude-opus-5-5"
+   ],
+   "record_pays_dev": 60,
+   "reference": "qwen3.8:27b",
+   "resends_and_losses": {
+    "claude-haiku-5-5": {
+     "losses": [],
+     "resent": []
+    },
+    "claude-opus-5-5": {
+     "losses": [],
+     "resent": []
+    },
+    "claude-sonnet-5-5": {
+     "losses": [],
+     "resent": []
+    }
+   },
+   "summary": "Hosted arm, on DEV: judge v1 paid more often than the companies did for 2 of 2 models; across the 2 models and both prompts, 4 of 4 comparisons with the issuer lookup were below it, 0 were above it and the rest were not distinguishable (claude-haiku-5-5, claude-sonnet-5-5). The design compares each model with the issuer lookup and with the record, not models with one another; it does not show that the results are independent of the model. Reference rows, descriptive only: claude-opus-5-5 (reasoning on, cannot be disabled; 4096 max_tokens; not part of the comparisons; complete). claude-opus-5-5 ran with adaptive thinking, which it does not allow to be turned off, at effort low and max_tokens 4096. Its thinking tokens are given per cell in the table. It is a reference row, not part of the comparisons. claude-haiku-5-5 and claude-sonnet-5-5 ran without up-front thinking and max_tokens 512, as the local models did. The one person who labelled the sample agreed with the record at kappa 0.202 [-0.054, 0.456] on his 56 decided labels, so neither the record nor this person is a gold standard. Each model's closeness to the record and to this person is given with its interval; the models are not ranked, and no model is called the best. Same vendor. The three models under test are Anthropic's. So is the AI coding assistant that wrote this repository, drafted both judge prompts, proposed these three models and their settings, and wrote this amendment and this arm's code; the model behind the earlier drafting of the prompts is not recorded here. The agent that wrote this arm's code ran on `claude-opus-5-5`, one of the three models evaluated here, and so did every independent review of this amendment; the coordinating assistant ran on `claude-fable-5-2`. The translation the annotator read beside each labelled complaint was made by `claude-fable-5-2`, also Anthropic's, though not one of the three. This amendment is published, and the hosted run starts, only after all seven local models are closed. This arm does not measure whether any of this favours the vendor's models. Cost: claude-haiku-5-5 0.12 USD (600 answers, 0 charged without an answer; 964520 input, 40400 output and 0 thinking tokens); claude-sonnet-5-5 2.32 USD (600 answers, 0 charged without an answer; 964520 input, 39279 output and 0 thinking tokens); claude-opus-5-5 4.61 USD (600 answers, 0 charged without an answer; 965120 input, 37640 output and 78 thinking tokens); 7.05 USD in all, under a cap of 15 USD. No request was resent or charged without an answer.",
+   "table": "| Model | Cell | Answered | Malformed | Pays | Kappa vs record | Label against the issuer lookup | Payout label | Kappa vs the person (decided) | Thinking tokens (median / max) | Routing not global | Other stops |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| `claude-haiku-5-5` | v1|dev | 200 of 200 | 0 | 172 | 0.099 [0.045, 0.160] | below the issuer lookup | pays more often than the companies did | - | 0 / 0 | 0 | - |\n| `claude-haiku-5-5` | v1|labelled | 100 of 100 | 0 | 87 | 0.014 [-0.091, 0.111] | - | - | 0.157 [0.038, 0.303] | 0 / 0 | 0 | - |\n| `claude-haiku-5-5` | v2|dev | 200 of 200 | 0 | 6 | 0.006 [-0.058, 0.083] | below the issuer lookup | - | - | 0 / 0 | 0 | - |\n| `claude-haiku-5-5` | v2|labelled | 100 of 100 | 0 | 4 | 0.036 [-0.071, 0.158] | - | - | 0.123 [0.000, 0.276] | 0 / 0 | 0 | - |\n| `claude-sonnet-5-5` | v1|dev | 200 of 200 | 0 | 177 | 0.090 [0.043, 0.143] | below the issuer lookup | pays more often than the companies did | - | 0 / 0 | 0 | - |\n| `claude-sonnet-5-5` | v1|labelled | 100 of 100 | 0 | 85 | 0.036 [-0.071, 0.139] | - | - | 0.153 [0.003, 0.321] | 0 / 0 | 0 | - |\n| `claude-sonnet-5-5` | v2|dev | 200 of 200 | 0 | 23 | -0.055 [-0.157, 0.056] | below the issuer lookup | - | - | 0 / 0 | 0 | - |\n| `claude-sonnet-5-5` | v2|labelled | 100 of 100 | 0 | 17 | 0.113 [-0.074, 0.308] | - | - | 0.251 [0.046, 0.466] | 0 / 0 | 0 | - |\n| `claude-opus-5-5` (reasoning on, cannot be disabled; 4096 max_tokens; not part of the comparisons) | v1|dev | 200 of 200 | 0 | 167 | 0.093 [0.029, 0.160] | descriptive only | descriptive only | - | 0 / 78 | 0 | - |\n| `claude-opus-5-5` (reasoning on, cannot be disabled; 4096 max_tokens; not part of the comparisons) | v1|labelled | 100 of 100 | 0 | 82 | 0.037 [-0.082, 0.153] | - | - | 0.285 [0.131, 0.465] | 0 / 0 | 0 | - |\n| `claude-opus-5-5` (reasoning on, cannot be disabled; 4096 max_tokens; not part of the comparisons) | v2|dev | 200 of 200 | 0 | 46 | 0.107 [-0.034, 0.248] | descriptive only | - | - | 0 / 0 | 0 | - |\n| `claude-opus-5-5` (reasoning on, cannot be disabled; 4096 max_tokens; not part of the comparisons) | v2|labelled | 100 of 100 | 0 | 30 | -0.009 [-0.199, 0.190] | - | - | 0.449 [0.217, 0.674] | 0 / 0 | 0 | - |"
+  },
+  "hosted_runs": {
+   "fields_dropped": 0,
+   "first": "2026-11-12T06:08:29.482214+00:00",
+   "last": "2026-11-12T07:16:38.500537+00:00",
+   "models": {
+    "claude-haiku-5-5": {
+     "fields_dropped": 0,
+     "first": "2026-11-12T06:08:29.482214+00:00",
+     "last": "2026-11-12T06:22:01.102097+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "claude-opus-5-5": {
+     "fields_dropped": 0,
+     "first": "2026-11-12T06:52:18.052041+00:00",
+     "last": "2026-11-12T07:16:38.500537+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "claude-sonnet-5-5": {
+     "fields_dropped": 0,
+     "first": "2026-11-12T06:28:18.014258+00:00",
+     "last": "2026-11-12T06:48:17.121055+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    }
+   },
+   "other_events": [],
+   "resends": 0,
+   "sends": 1800
+  },
+  "local": {
+   "lookup_pays_dev": 92,
+   "models": {
+    "gemma4:12b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.433532,
+           -0.180471
+          ],
+          "0.996429": [
+           -0.49717,
+           -0.126968
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.309561
+         },
+         "as no money back": {
+          "0.95": [
+           -0.433532,
+           -0.180471
+          ],
+          "0.996429": [
+           -0.49717,
+           -0.126968
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.309561
+         },
+         "left out": {
+          "0.95": [
+           -0.433532,
+           -0.180471
+          ],
+          "0.996429": [
+           -0.49717,
+           -0.126968
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.309561
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.625,
+           0.75
+          ],
+          "0.992857": [
+           0.6,
+           0.771446
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.69
+         },
+         "as no money back": {
+          "0.95": [
+           0.625,
+           0.75
+          ],
+          "0.992857": [
+           0.6,
+           0.771446
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.69
+         },
+         "left out": {
+          "0.95": [
+           0.625,
+           0.75
+          ],
+          "0.992857": [
+           0.6,
+           0.771446
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.69
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.022777,
+        "lo": 0.0,
+        "value": 0.008621
+       },
+       "kappa_with_reference": 0.042987,
+       "malformed": 0,
+       "n": 200,
+       "pays": 198,
+       "seconds_per_call": {
+        "mean": 4.47643,
+        "median": 3.9825
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.051896,
+        "lo": -0.081081,
+        "value": -0.009317
+       },
+       "kappa_with_reference": 0.21875,
+       "malformed": 0,
+       "n": 100,
+       "pays": 95,
+       "seconds_per_call": {
+        "mean": 5.28004,
+        "median": 4.8595
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.077901,
+         "lo": 0.008218,
+         "value": 0.036313
+        },
+        "kappa_decided": {
+         "hi": 0.214286,
+         "lo": 0.0,
+         "value": 0.093525
+        },
+        "readings_agree": false
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": false,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.428394,
+           -0.0361
+          ],
+          "0.996429": [
+           -0.523805,
+           0.066401
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.234023
+         },
+         "as no money back": {
+          "0.95": [
+           -0.428394,
+           -0.0361
+          ],
+          "0.996429": [
+           -0.523805,
+           0.066401
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.234023
+         },
+         "left out": {
+          "0.95": [
+           -0.428394,
+           -0.0361
+          ],
+          "0.996429": [
+           -0.523805,
+           0.066401
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.234023
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.224715,
+        "lo": -0.054614,
+        "value": 0.084158
+       },
+       "kappa_with_reference": 0.456522,
+       "malformed": 0,
+       "n": 200,
+       "pays": 52,
+       "seconds_per_call": {
+        "mean": 5.71186,
+        "median": 5.118
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.227886,
+        "lo": -0.158645,
+        "value": 0.033392
+       },
+       "kappa_with_reference": 0.512671,
+       "malformed": 0,
+       "n": 100,
+       "pays": 36,
+       "seconds_per_call": {
+        "mean": 5.76342,
+        "median": 5.3065
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.402486,
+         "lo": 0.017066,
+         "value": 0.214418
+        },
+        "kappa_decided": {
+         "hi": 0.573604,
+         "lo": 0.090909,
+         "value": 0.34375
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "gemma4:31b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.413254,
+           -0.158353
+          ],
+          "0.996429": [
+           -0.477288,
+           -0.103663
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.28757
+         },
+         "as no money back": {
+          "0.95": [
+           -0.413254,
+           -0.158353
+          ],
+          "0.996429": [
+           -0.477288,
+           -0.103663
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.28757
+         },
+         "left out": {
+          "0.95": [
+           -0.413254,
+           -0.158353
+          ],
+          "0.996429": [
+           -0.477288,
+           -0.103663
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.28757
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.6,
+           0.73
+          ],
+          "0.992857": [
+           0.57,
+           0.75
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.665
+         },
+         "as no money back": {
+          "0.95": [
+           0.6,
+           0.73
+          ],
+          "0.992857": [
+           0.57,
+           0.75
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.665
+         },
+         "left out": {
+          "0.95": [
+           0.6,
+           0.73
+          ],
+          "0.992857": [
+           0.57,
+           0.75
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.665
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.058257,
+        "lo": 0.010101,
+        "value": 0.030612
+       },
+       "kappa_with_reference": 0.115719,
+       "malformed": 0,
+       "n": 200,
+       "pays": 193,
+       "seconds_per_call": {
+        "mean": 11.11239,
+        "median": 9.8215
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.047619,
+        "lo": -0.052314,
+        "value": 0.000615
+       },
+       "kappa_with_reference": 0.134615,
+       "malformed": 0,
+       "n": 100,
+       "pays": 97,
+       "seconds_per_call": {
+        "mean": 11.52695,
+        "median": 10.297
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.053254,
+         "lo": 0.0,
+         "value": 0.021499
+        },
+        "kappa_decided": {
+         "hi": 0.163043,
+         "lo": 0.0,
+         "value": 0.062201
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": false,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.4423,
+           -0.051007
+          ],
+          "0.996429": [
+           -0.528643,
+           0.046373
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.249033
+         },
+         "as no money back": {
+          "0.95": [
+           -0.4423,
+           -0.051007
+          ],
+          "0.996429": [
+           -0.528643,
+           0.046373
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.249033
+         },
+         "left out": {
+          "0.95": [
+           -0.4423,
+           -0.051007
+          ],
+          "0.996429": [
+           -0.528643,
+           0.046373
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.249033
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.206358,
+        "lo": -0.06491,
+        "value": 0.069149
+       },
+       "kappa_with_reference": 0.419055,
+       "malformed": 0,
+       "n": 200,
+       "pays": 38,
+       "seconds_per_call": {
+        "mean": 13.992135,
+        "median": 12.045
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.21638,
+        "lo": -0.15741,
+        "value": 0.026946
+       },
+       "kappa_with_reference": 0.635279,
+       "malformed": 0,
+       "n": 100,
+       "pays": 19,
+       "seconds_per_call": {
+        "mean": 13.54751,
+        "median": 12.165
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.545159,
+         "lo": 0.12614,
+         "value": 0.345103
+        },
+        "kappa_decided": {
+         "hi": 0.557895,
+         "lo": 0.102798,
+         "value": 0.333333
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "glm-4.7-flash:latest": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.384389,
+           -0.098809
+          ],
+          "0.996429": [
+           -0.45498,
+           -0.031183
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.241749
+         },
+         "as no money back": {
+          "0.95": [
+           -0.384389,
+           -0.098809
+          ],
+          "0.996429": [
+           -0.45498,
+           -0.031183
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.241749
+         },
+         "left out": {
+          "0.95": [
+           -0.384389,
+           -0.098809
+          ],
+          "0.996429": [
+           -0.45498,
+           -0.031183
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.241749
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.44,
+           0.6
+          ],
+          "0.992857": [
+           0.41,
+           0.625
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.52
+         },
+         "as no money back": {
+          "0.95": [
+           0.44,
+           0.6
+          ],
+          "0.992857": [
+           0.41,
+           0.625
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.52
+         },
+         "left out": {
+          "0.95": [
+           0.44,
+           0.6
+          ],
+          "0.992857": [
+           0.41,
+           0.625
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.52
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.147537,
+        "lo": 0.00641,
+        "value": 0.076433
+       },
+       "kappa_with_reference": 0.357966,
+       "malformed": 0,
+       "n": 200,
+       "pays": 164,
+       "seconds_per_call": {
+        "mean": 2.355215,
+        "median": 1.9905
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.133421,
+        "lo": -0.093091,
+        "value": 0.02576
+       },
+       "kappa_with_reference": 0.375,
+       "malformed": 0,
+       "n": 100,
+       "pays": 83,
+       "seconds_per_call": {
+        "mean": 2.26419,
+        "median": 2.0285
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.190476,
+         "lo": 0.030769,
+         "value": 0.103888
+        },
+        "kappa_decided": {
+         "hi": 0.361708,
+         "lo": 0.029083,
+         "value": 0.184466
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.474215,
+           -0.09918
+          ],
+          "0.996429": [
+           -0.572816,
+           -0.012285
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.290404
+         },
+         "as no money back": {
+          "0.95": [
+           -0.474215,
+           -0.09918
+          ],
+          "0.996429": [
+           -0.572816,
+           -0.012285
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.290404
+         },
+         "left out": {
+          "0.95": [
+           -0.474215,
+           -0.09918
+          ],
+          "0.996429": [
+           -0.572816,
+           -0.012285
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.290404
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.157996,
+        "lo": -0.100029,
+        "value": 0.027778
+       },
+       "kappa_with_reference": 0.207048,
+       "malformed": 0,
+       "n": 200,
+       "pays": 30,
+       "seconds_per_call": {
+        "mean": 3.077645,
+        "median": 2.733
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.301763,
+        "lo": -0.076276,
+        "value": 0.112576
+       },
+       "kappa_with_reference": 0.411357,
+       "malformed": 0,
+       "n": 100,
+       "pays": 17,
+       "seconds_per_call": {
+        "mean": 3.0157,
+        "median": 2.7805
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.355828,
+         "lo": -0.054217,
+         "value": 0.151054
+        },
+        "kappa_decided": {
+         "hi": 0.335196,
+         "lo": -0.117021,
+         "value": 0.106383
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "granite4.1:30b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.426632,
+           -0.162261
+          ],
+          "0.996429": [
+           -0.492677,
+           -0.104817
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.294513
+         },
+         "as no money back": {
+          "0.95": [
+           -0.426632,
+           -0.162261
+          ],
+          "0.996429": [
+           -0.492677,
+           -0.104817
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.294513
+         },
+         "left out": {
+          "0.95": [
+           -0.426632,
+           -0.162261
+          ],
+          "0.996429": [
+           -0.492677,
+           -0.104817
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.294513
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.57,
+           0.705
+          ],
+          "0.992857": [
+           0.543554,
+           0.73
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.64
+         },
+         "as no money back": {
+          "0.95": [
+           0.57,
+           0.705
+          ],
+          "0.992857": [
+           0.543554,
+           0.73
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.64
+         },
+         "left out": {
+          "0.95": [
+           0.57,
+           0.705
+          ],
+          "0.992857": [
+           0.543554,
+           0.73
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.64
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.064112,
+        "lo": -0.016474,
+        "value": 0.023669
+       },
+       "kappa_with_reference": 0.243772,
+       "malformed": 0,
+       "n": 200,
+       "pays": 188,
+       "seconds_per_call": {
+        "mean": 13.61986,
+        "median": 11.5615
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.094264,
+        "lo": -0.099803,
+        "value": 0.002574
+       },
+       "kappa_with_reference": 0.482759,
+       "malformed": 0,
+       "n": 100,
+       "pays": 88,
+       "seconds_per_call": {
+        "mean": 11.71172,
+        "median": 10.7905
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.131627,
+         "lo": -0.004075,
+         "value": 0.062134
+        },
+        "kappa_decided": {
+         "hi": 0.273149,
+         "lo": -0.019417,
+         "value": 0.120773
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": false,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.407379,
+           -0.024304
+          ],
+          "0.996429": [
+           -0.499565,
+           0.071604
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.212677
+         },
+         "as no money back": {
+          "0.95": [
+           -0.407379,
+           -0.024304
+          ],
+          "0.996429": [
+           -0.499565,
+           0.071604
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.212677
+         },
+         "left out": {
+          "0.95": [
+           -0.407379,
+           -0.024304
+          ],
+          "0.996429": [
+           -0.499565,
+           0.071604
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.212677
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.245553,
+        "lo": -0.039196,
+        "value": 0.105505
+       },
+       "kappa_with_reference": 0.253731,
+       "malformed": 0,
+       "n": 200,
+       "pays": 68,
+       "seconds_per_call": {
+        "mean": 14.7436,
+        "median": 13.1445
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.279476,
+        "lo": -0.108377,
+        "value": 0.087436
+       },
+       "kappa_with_reference": 0.344485,
+       "malformed": 0,
+       "n": 100,
+       "pays": 41,
+       "seconds_per_call": {
+        "mean": 14.21253,
+        "median": 13.4515
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.459459,
+         "lo": 0.091769,
+         "value": 0.277583
+        },
+        "kappa_decided": {
+         "hi": 0.553295,
+         "lo": 0.061856,
+         "value": 0.319693
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "mistral-small3.2:24b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.421332,
+           -0.169286
+          ],
+          "0.996429": [
+           -0.483971,
+           -0.113679
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.296443
+         },
+         "as no money back": {
+          "0.95": [
+           -0.421332,
+           -0.169286
+          ],
+          "0.996429": [
+           -0.483971,
+           -0.113679
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.296443
+         },
+         "left out": {
+          "0.95": [
+           -0.421332,
+           -0.169286
+          ],
+          "0.996429": [
+           -0.483971,
+           -0.113679
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.296443
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.61,
+           0.74
+          ],
+          "0.992857": [
+           0.585,
+           0.76
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.675
+         },
+         "as no money back": {
+          "0.95": [
+           0.61,
+           0.74
+          ],
+          "0.992857": [
+           0.585,
+           0.76
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.675
+         },
+         "left out": {
+          "0.95": [
+           0.61,
+           0.74
+          ],
+          "0.992857": [
+           0.585,
+           0.76
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.675
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.044837,
+        "lo": 0.004505,
+        "value": 0.021739
+       },
+       "kappa_with_reference": 0.105628,
+       "malformed": 0,
+       "n": 200,
+       "pays": 195,
+       "seconds_per_call": {
+        "mean": 10.566605,
+        "median": 9.0865
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.067099,
+        "lo": -0.071975,
+        "value": 0.001248
+       },
+       "kappa_with_reference": 0.259259,
+       "malformed": 0,
+       "n": 100,
+       "pays": 94,
+       "seconds_per_call": {
+        "mean": 10.79305,
+        "median": 9.4855
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.090909,
+         "lo": 0.012801,
+         "value": 0.04387
+        },
+        "kappa_decided": {
+         "hi": 0.163043,
+         "lo": 0.0,
+         "value": 0.062201
+        },
+        "readings_agree": false
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": false,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.409709,
+           -0.051709
+          ],
+          "0.996429": [
+           -0.494935,
+           0.054941
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.229397
+         },
+         "as no money back": {
+          "0.95": [
+           -0.409709,
+           -0.051709
+          ],
+          "0.996429": [
+           -0.494935,
+           0.054941
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.229397
+         },
+         "left out": {
+          "0.95": [
+           -0.409709,
+           -0.051709
+          ],
+          "0.996429": [
+           -0.494935,
+           0.054941
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.229397
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.229133,
+        "lo": -0.053903,
+        "value": 0.088785
+       },
+       "kappa_with_reference": 0.304783,
+       "malformed": 0,
+       "n": 200,
+       "pays": 64,
+       "seconds_per_call": {
+        "mean": 14.30117,
+        "median": 12.5255
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.242433,
+        "lo": -0.150405,
+        "value": 0.046794
+       },
+       "kappa_with_reference": 0.480151,
+       "malformed": 0,
+       "n": 100,
+       "pays": 38,
+       "seconds_per_call": {
+        "mean": 13.90739,
+        "median": 12.914
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.373129,
+         "lo": -0.003657,
+         "value": 0.186257
+        },
+        "kappa_decided": {
+         "hi": 0.517241,
+         "lo": 0.018759,
+         "value": 0.274611
+        },
+        "readings_agree": false
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "phi4:14b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.434118,
+           -0.181694
+          ],
+          "0.996429": [
+           -0.498557,
+           -0.126885
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.309561
+         },
+         "as no money back": {
+          "0.95": [
+           -0.434118,
+           -0.181694
+          ],
+          "0.996429": [
+           -0.498557,
+           -0.126885
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.309561
+         },
+         "left out": {
+          "0.95": [
+           -0.434118,
+           -0.181694
+          ],
+          "0.996429": [
+           -0.498557,
+           -0.126885
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.309561
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.625,
+           0.75
+          ],
+          "0.992857": [
+           0.6,
+           0.775
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.69
+         },
+         "as no money back": {
+          "0.95": [
+           0.625,
+           0.75
+          ],
+          "0.992857": [
+           0.6,
+           0.775
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.69
+         },
+         "left out": {
+          "0.95": [
+           0.625,
+           0.75
+          ],
+          "0.992857": [
+           0.6,
+           0.775
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.69
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.023307,
+        "lo": 0.0,
+        "value": 0.008621
+       },
+       "kappa_with_reference": 0.042987,
+       "malformed": 0,
+       "n": 200,
+       "pays": 198,
+       "seconds_per_call": {
+        "mean": 5.985085,
+        "median": 5.173
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.092664,
+        "lo": 0.008621,
+        "value": 0.042027
+       },
+       "kappa_with_reference": 0.177215,
+       "malformed": 0,
+       "n": 100,
+       "pays": 96,
+       "seconds_per_call": {
+        "mean": 6.04972,
+        "median": 5.729
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.065421,
+         "lo": 0.005682,
+         "value": 0.028857
+        },
+        "kappa_decided": {
+         "hi": 0.107143,
+         "lo": 0.0,
+         "value": 0.031026
+        },
+        "readings_agree": false
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.485722,
+           -0.111897
+          ],
+          "0.996429": [
+           -0.56174,
+           -0.014737
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.29949
+         },
+         "as no money back": {
+          "0.95": [
+           -0.485722,
+           -0.111897
+          ],
+          "0.996429": [
+           -0.56174,
+           -0.014737
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.29949
+         },
+         "left out": {
+          "0.95": [
+           -0.485722,
+           -0.111897
+          ],
+          "0.996429": [
+           -0.56174,
+           -0.014737
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.29949
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.159766,
+        "lo": -0.119077,
+        "value": 0.018692
+       },
+       "kappa_with_reference": 0.304783,
+       "malformed": 0,
+       "n": 200,
+       "pays": 64,
+       "seconds_per_call": {
+        "mean": 8.013875,
+        "median": 7.1385
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.14066,
+        "lo": -0.242792,
+        "value": -0.054758
+       },
+       "kappa_with_reference": 0.412065,
+       "malformed": 0,
+       "n": 100,
+       "pays": 33,
+       "seconds_per_call": {
+        "mean": 7.62271,
+        "median": 7.1915
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.451758,
+         "lo": 0.058824,
+         "value": 0.259082
+        },
+        "kappa_decided": {
+         "hi": 0.539098,
+         "lo": 0.050251,
+         "value": 0.309091
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "qwen3.5:9b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.420256,
+           -0.136152
+          ],
+          "0.996429": [
+           -0.483104,
+           -0.070938
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.277301
+         },
+         "as no money back": {
+          "0.95": [
+           -0.420256,
+           -0.136152
+          ],
+          "0.996429": [
+           -0.483104,
+           -0.070938
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.277301
+         },
+         "left out": {
+          "0.95": [
+           -0.420256,
+           -0.136152
+          ],
+          "0.996429": [
+           -0.483104,
+           -0.070938
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.277301
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.46,
+           0.62
+          ],
+          "0.992857": [
+           0.433554,
+           0.645
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.54
+         },
+         "as no money back": {
+          "0.95": [
+           0.46,
+           0.62
+          ],
+          "0.992857": [
+           0.433554,
+           0.645
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.54
+         },
+         "left out": {
+          "0.95": [
+           0.46,
+           0.62
+          ],
+          "0.992857": [
+           0.433554,
+           0.645
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.54
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.108442,
+        "lo": -0.028281,
+        "value": 0.040881
+       },
+       "kappa_with_reference": 0.291823,
+       "malformed": 0,
+       "n": 200,
+       "pays": 168,
+       "seconds_per_call": {
+        "mean": 2.9256,
+        "median": 2.637
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.150641,
+        "lo": -0.07844,
+        "value": 0.037185
+       },
+       "kappa_with_reference": 0.462366,
+       "malformed": 0,
+       "n": 100,
+       "pays": 82,
+       "seconds_per_call": {
+        "mean": 3.21669,
+        "median": 3.1065
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.145165,
+         "lo": -0.041056,
+         "value": 0.051408
+        },
+        "kappa_decided": {
+         "hi": 0.266851,
+         "lo": -0.10411,
+         "value": 0.080292
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.545128,
+           -0.240874
+          ],
+          "0.996429": [
+           -0.624017,
+           -0.170231
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.398063
+         },
+         "as no money back": {
+          "0.95": [
+           -0.545128,
+           -0.240874
+          ],
+          "0.996429": [
+           -0.624017,
+           -0.170231
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.398063
+         },
+         "left out": {
+          "0.95": [
+           -0.545128,
+           -0.240874
+          ],
+          "0.996429": [
+           -0.624017,
+           -0.170231
+          ],
+          "corrected_label": "below the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.398063
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.01875,
+        "lo": -0.166668,
+        "value": -0.079882
+       },
+       "kappa_with_reference": 0.212385,
+       "malformed": 0,
+       "n": 200,
+       "pays": 19,
+       "seconds_per_call": {
+        "mean": 3.936,
+        "median": 3.589
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.06699,
+        "lo": -0.199262,
+        "value": -0.075269
+       },
+       "kappa_with_reference": 0.262295,
+       "malformed": 0,
+       "n": 100,
+       "pays": 10,
+       "seconds_per_call": {
+        "mean": 3.91008,
+        "median": 3.6085
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.354258,
+         "lo": -0.037197,
+         "value": 0.155844
+        },
+        "kappa_decided": {
+         "hi": 0.302053,
+         "lo": -0.096503,
+         "value": 0.096774
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "model_finished"
+    },
+    "qwen3.8:27b": {
+     "cells": {
+      "v1|dev": {
+       "A": {
+        "also_at_corrected_level": false,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.359093,
+           -0.036437
+          ],
+          "0.996429": [
+           -0.442235,
+           0.033724
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.197973
+         },
+         "as no money back": {
+          "0.95": [
+           -0.359093,
+           -0.036437
+          ],
+          "0.996429": [
+           -0.442235,
+           0.033724
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.197973
+         },
+         "left out": {
+          "0.95": [
+           -0.359093,
+           -0.036437
+          ],
+          "0.996429": [
+           -0.442235,
+           0.033724
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.197973
+         }
+        }
+       },
+       "B": {
+        "also_at_corrected_level": true,
+        "corrected_level": 0.992857,
+        "format_sensitive": 0.0,
+        "label": "pays more often than the companies did",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           0.3,
+           0.465
+          ],
+          "0.992857": [
+           0.265,
+           0.495
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.385
+         },
+         "as no money back": {
+          "0.95": [
+           0.3,
+           0.465
+          ],
+          "0.992857": [
+           0.265,
+           0.495
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.385
+         },
+         "left out": {
+          "0.95": [
+           0.3,
+           0.465
+          ],
+          "0.992857": [
+           0.265,
+           0.495
+          ],
+          "corrected_label": "pays more often than the companies did",
+          "label": "pays more often than the companies did",
+          "value": 0.385
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.220687,
+        "lo": 0.024055,
+        "value": 0.120209
+       },
+       "malformed": 0,
+       "n": 200,
+       "pays": 137,
+       "seconds_per_call": {
+        "mean": 11.02871,
+        "median": 9.6705
+       },
+       "status": "complete"
+      },
+      "v1|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.259928,
+        "lo": -0.034846,
+        "value": 0.113475
+       },
+       "malformed": 0,
+       "n": 100,
+       "pays": 70,
+       "seconds_per_call": {
+        "mean": 11.38428,
+        "median": 10.3635
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.21875,
+         "lo": -0.028875,
+         "value": 0.09396
+        },
+        "kappa_decided": {
+         "hi": 0.314436,
+         "lo": -0.110577,
+         "value": 0.103448
+        },
+        "readings_agree": true
+       }
+      },
+      "v2|dev": {
+       "A": {
+        "also_at_corrected_level": false,
+        "corrected_level": 0.996429,
+        "format_sensitive": 0.0,
+        "label": "below the issuer lookup",
+        "readings": {
+         "as money back": {
+          "0.95": [
+           -0.424253,
+           -0.060528
+          ],
+          "0.996429": [
+           -0.502146,
+           0.030085
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.248414
+         },
+         "as no money back": {
+          "0.95": [
+           -0.424253,
+           -0.060528
+          ],
+          "0.996429": [
+           -0.502146,
+           0.030085
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.248414
+         },
+         "left out": {
+          "0.95": [
+           -0.424253,
+           -0.060528
+          ],
+          "0.996429": [
+           -0.502146,
+           0.030085
+          ],
+          "corrected_label": "not distinguishable from the issuer lookup",
+          "label": "below the issuer lookup",
+          "value": -0.248414
+         }
+        }
+       },
+       "answered": 200,
+       "kappa_vs_record": {
+        "hi": 0.197232,
+        "lo": -0.051136,
+        "value": 0.069767
+       },
+       "malformed": 0,
+       "n": 200,
+       "pays": 22,
+       "seconds_per_call": {
+        "mean": 13.151875,
+        "median": 12.029
+       },
+       "status": "complete"
+      },
+      "v2|labelled": {
+       "answered": 100,
+       "kappa_vs_record": {
+        "hi": 0.338507,
+        "lo": -0.047384,
+        "value": 0.144869
+       },
+       "malformed": 0,
+       "n": 100,
+       "pays": 18,
+       "seconds_per_call": {
+        "mean": 13.00251,
+        "median": 11.689
+       },
+       "status": "complete",
+       "vs_person": {
+        "decided_n": 56,
+        "kappa_cannot_tell_as_no": {
+         "hi": 0.40205,
+         "lo": -0.022249,
+         "value": 0.191686
+        },
+        "kappa_decided": {
+         "hi": 0.434783,
+         "lo": 0.0,
+         "value": 0.216
+        },
+        "readings_agree": true
+       }
+      }
+     },
+     "status": "reference"
+    }
+   },
+   "n_dev": 200,
+   "order": [
+    "qwen3.8:27b",
+    "qwen3.5:9b",
+    "gemma4:12b",
+    "phi4:14b",
+    "mistral-small3.2:24b",
+    "granite4.1:30b",
+    "glm-4.7-flash:latest",
+    "gemma4:31b"
+   ],
+   "record_pays_dev": 60,
+   "summary": "On DEV, judge v1 paid more often than the companies did for 7 of 7 models; across the 7 models and both prompts, 14 of 14 comparisons with the issuer lookup were below it, 0 were above it and the rest were not distinguishable (qwen3.5:9b, gemma4:12b, phi4:14b, mistral-small3.2:24b, granite4.1:30b, glm-4.7-flash:latest, gemma4:31b). The design compares each model with the issuer lookup and with the record, not models with one another; it does not show that the results are independent of the model."
+  },
+  "local_runs": {
+   "fields_dropped": 0,
+   "first": "2026-11-11T19:44:52.477193+00:00",
+   "last": "2026-11-12T05:45:56.097012+00:00",
+   "models": {
+    "gemma4:12b": {
+     "fields_dropped": 0,
+     "first": "2026-11-11T20:25:11.873380+00:00",
+     "last": "2026-11-11T21:17:32.150169+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "gemma4:31b": {
+     "fields_dropped": 0,
+     "first": "2026-11-12T03:40:33.813082+00:00",
+     "last": "2026-11-12T05:45:56.097012+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "glm-4.7-flash:latest": {
+     "fields_dropped": 0,
+     "first": "2026-11-12T03:07:18.112518+00:00",
+     "last": "2026-11-12T03:34:11.072962+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "granite4.1:30b": {
+     "fields_dropped": 0,
+     "first": "2026-11-12T00:45:53.314363+00:00",
+     "last": "2026-11-12T03:03:27.773586+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "mistral-small3.2:24b": {
+     "fields_dropped": 0,
+     "first": "2026-11-11T22:36:54.194192+00:00",
+     "last": "2026-11-12T00:40:47.451095+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "phi4:14b": {
+     "fields_dropped": 0,
+     "first": "2026-11-11T21:22:15.902554+00:00",
+     "last": "2026-11-11T22:31:39.392068+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    },
+    "qwen3.5:9b": {
+     "fields_dropped": 0,
+     "first": "2026-11-11T19:44:52.477193+00:00",
+     "last": "2026-11-11T20:19:36.566613+00:00",
+     "other_events": [],
+     "other_journal_kinds": [],
+     "resends": 0,
+     "runs": 1,
+     "sends": 600
+    }
+   },
+   "other_events": [],
+   "resends": 0,
+   "sends": 4200
+  },
+  "n_labelled": 100,
+  "record_pays_labelled": 34
+ },
  "fact_model": {
   "C": 1.0,
   "coef": [
@@ -7344,8 +10218,8 @@
    {
     "file": "docs/deviations.md",
     "frozen_sha256": null,
-    "sha256": "2d7419794d41e241c5e14b935c836dd658afee506f6efb9bd5df39f7ae7f5927",
-    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out. Fifth change: the fifth post-run change recorded, including the removal of three unused personal-data columns from data/live_api_metadata.csv.gz and why; the v3 entry says that the plan anticipated the small halves. Sixth change: the sixth post-run change recorded (the baselines in SQL, and wording corrections to the version published at 72b077a); the fifth-change entry marks the person's kappa on each half as registered. Seventh change: the seventh post-run change recorded (a clause about the author's own level removed from the introduction of docs/sql.md, with no change to who is stated to have written the SQL; links made clickable); the same clause removed from the sixth-change entry. Eighth change: the eighth post-run change recorded (a plan to run the same task on four other local models, registered before any of them was sent a complaint; not run). Ninth change: the ninth post-run change recorded (Amendment 1 of the local-models plan, three more models, the runner and analysis code and the public record, before any request). Tenth change: the tenth post-run change recorded (Amendment 2 of the local-models plan, a hosted arm, and its code, before any request to it; not run)."
+    "sha256": "f4b8cddbb5b53da6f0decc8b16cacde6d1b0d500e7c9c530d6f47ff852d2423f",
+    "what": "added after the held-out run: the deviations list moved out of the README, with the second post-run change added. Third change: the third post-run change recorded, the four freezes named, the wording of AI-agent reviews and of frozen files, and the labelling-aid entry rewritten without grading the annotator. Fourth change: the fourth post-run change recorded, including that commit 7194269 was made with four failing tests and why; the registered v3 step recorded as not carried out. Fifth change: the fifth post-run change recorded, including the removal of three unused personal-data columns from data/live_api_metadata.csv.gz and why; the v3 entry says that the plan anticipated the small halves. Sixth change: the sixth post-run change recorded (the baselines in SQL, and wording corrections to the version published at 72b077a); the fifth-change entry marks the person's kappa on each half as registered. Seventh change: the seventh post-run change recorded (a clause about the author's own level removed from the introduction of docs/sql.md, with no change to who is stated to have written the SQL; links made clickable); the same clause removed from the sixth-change entry. Eighth change: the eighth post-run change recorded (a plan to run the same task on four other local models, registered before any of them was sent a complaint; not run). Ninth change: the ninth post-run change recorded (Amendment 1 of the local-models plan, three more models, the runner and analysis code and the public record, before any request). Tenth change: the tenth post-run change recorded (Amendment 2 of the local-models plan, a hosted arm, and its code, before any request to it; not run). Eleventh change: the eleventh post-run change recorded (the results of the model extension, both arms, with the run facts, what was computed, where the registered code does not produce what the plan promises, and what was added after the results were seen)."
    },
    {
     "file": "docs/sql.md",
@@ -7354,10 +10228,16 @@
     "what": "added after the held-out run and after the blind labels were locked (sixth change): a plain-English walk-through of every query in sql/, clause by clause, written by the AI coding assistant; it explains every query clause by clause for a reader new to SQL; it says which printed figures were already reported and which are printed for the first time (descriptive), and what a run on PostgreSQL 14 showed; its expected outputs are written by python -m judge.sql --docs and checked by a snapshot test. Computes nothing. Seventh change (at the author's decision): a clause about the author's own level was removed from the introduction; it still says that the AI coding assistant that wrote the rest of the code chose and wrote the queries, the loader, the tests and the walk-through, after the held-out run and the human labels, because a review by a separate AI-agent session asked what the SQL for the issuer-rate baseline and the same-issuer pairs would be and the author then asked for an SQL section, and that the walk-through explains every query clause by clause for a reader new to SQL. This record's sixth-change text was edited the same way. Computes nothing."
    },
    {
+    "file": "src/judge/extension_report.py",
+    "frozen_sha256": null,
+    "sha256": "39eca91ffde82cd63a4942a9cfe2e5c037e3e3a414718378d23dee34e2dedbe6",
+    "what": "added after the held-out run, after the blind labels were locked and after both arms of the model extension had run (eleventh change): the README sections and full-report sections of the extension (docs/analysis_plan_models.md, Amendments 1 and 2). It runs models_analysis.analyse and hosted_analysis.analyse unchanged and prints their output, the arms' run records from their journals and run logs, the registered summary sentences word for word, the intervals and corrected-level words the registered code computes but does not print, the one first-screen sentence per amendment, a list of the registered outputs the code does not produce, and a short note headed 'Exploratory (not registered)' with descriptive payout counts. Computes no new metric, interval or label; presentation only."
+   },
+   {
     "file": "src/judge/frontpage.py",
     "frozen_sha256": null,
-    "sha256": "d2f5bd5952a8ab4726d4bd3ccb56accae5d36836dd7f581e7139427702fe11c9",
-    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers. Fifth change (after final reviews): the first screen splits the sentence over three denominators, words the within-issuer result and the error counts, states the person's interval and the systems' spread without implying a tested equivalence, says the fake note was appended and the TF-IDF sentence written with the feature list in view; 'Who did what' gives the author's part first; the judges against the person and the registered check of the two readings leave out a figure whose side of zero moves with the bootstrap seed and list registered and descriptive figures apart; the 'cannot tell' paragraph describes this annotator; the second screen as the record shows it; the undo before the lock; the hashes of the locked labels; the per-half 'cannot tell' rates; the v3 paragraph; the error-direction, automation-slice, cost and 'before trying again' wording; the scrubbing misses in the data block. Sixth change (after the held-out run and the human labels): the 'sql_queries' block, a paragraph that points to the SQL in sql/, names the reported figures its queries recompute and the descriptive breakdown they print for the first time, from metrics.json; the 'deviations_in_short' block, the README's deviations paragraph with the number of post-run changes counted from results/post_run_changes.json (it had said 'five times' after the sixth change); 'Who did what' says that the assistant chose and wrote the SQL queries after the held-out run, when the author asked for an SQL section. After an independent review, wording corrections: the 'cannot tell' paragraph gives the counts under and over a minute and the answer re-entered after the undo, and no longer weighs the reader against the texts or speaks of other readers; 'his labels cover' the decided cases; judge v2 'reported' a prior refusal; the full tag on the first screen's range of the systems; one parenthesis in the held-out summary; 'depends on the bootstrap seed'; 'sorted one by one'; 'run on his own laptop'; the person's cost line (what the cap does, and labels against decisions). Seventh change (after the held-out run and the human labels, at the author's decision): where a block points the reader to sql/, docs/sql.md or docs/deviations.md, the first such mention in the block is a relative Markdown link with the path kept as code ('who', 'practice', the v3 paragraph of 'human', 'exploratory', 'sql_queries', 'deviations_in_short'); the deviations paragraph describes the seventh change. No number changed. Eighth change (after the held-out run and the human labels): one line in the summary of post-run changes, for the registered plan to run the same two prompts on four other local models; the deviations paragraph counts eight changes. No number changed. Ninth change: one line in the summary of post-run changes, for Amendment 1 of the local-models plan and its code; the deviations paragraph counts nine changes. No number changed. Tenth change: one line in the summary of post-run changes, for Amendment 2 of the local-models plan and its code; the deviations paragraph counts ten changes; two more ordinals for later changes. No number changed."
+    "sha256": "aab8e35d660089ca888e4ffb7f6a50216a21c6c7ff6f3699dcac3ba391d051ef",
+    "what": "added after the held-out run: the README's first screen, the held-out claims and table, the practitioner section, the exploratory section, the freeze record and the human-label sections. Presentation only. Third change (after two re-reviews): the first screen without the post-hoc best system, plainer sentences and a definition of 'judge'; the frozen verdicts verbatim; exploratory columns marked; the within-issuer, repeatability, automation-slice, company-rule and filter wording corrected; the freeze record names all four freezes and the gist's server fields; the human-label sections print what the registered plan lists, marked registered or not wherever they print; the data and licence block. Fourth change (after the blind labels were locked): the held-out section gives a short registered summary of the human labels and the full tables print once, in the human-label section; one sentence on the first screen; time per label without a bare total, stated as including breaks; the person's cost line says it is the median time per label times 1,000; the 'cannot tell' paragraph; the decision not to write a v3 prompt; the 'Who did what' block in the past tense. Also in the fourth change: the human-label section prints the hash of the labelled-run answers. Fifth change (after final reviews): the first screen splits the sentence over three denominators, words the within-issuer result and the error counts, states the person's interval and the systems' spread without implying a tested equivalence, says the fake note was appended and the TF-IDF sentence written with the feature list in view; 'Who did what' gives the author's part first; the judges against the person and the registered check of the two readings leave out a figure whose side of zero moves with the bootstrap seed and list registered and descriptive figures apart; the 'cannot tell' paragraph describes this annotator; the second screen as the record shows it; the undo before the lock; the hashes of the locked labels; the per-half 'cannot tell' rates; the v3 paragraph; the error-direction, automation-slice, cost and 'before trying again' wording; the scrubbing misses in the data block. Sixth change (after the held-out run and the human labels): the 'sql_queries' block, a paragraph that points to the SQL in sql/, names the reported figures its queries recompute and the descriptive breakdown they print for the first time, from metrics.json; the 'deviations_in_short' block, the README's deviations paragraph with the number of post-run changes counted from results/post_run_changes.json (it had said 'five times' after the sixth change); 'Who did what' says that the assistant chose and wrote the SQL queries after the held-out run, when the author asked for an SQL section. After an independent review, wording corrections: the 'cannot tell' paragraph gives the counts under and over a minute and the answer re-entered after the undo, and no longer weighs the reader against the texts or speaks of other readers; 'his labels cover' the decided cases; judge v2 'reported' a prior refusal; the full tag on the first screen's range of the systems; one parenthesis in the held-out summary; 'depends on the bootstrap seed'; 'sorted one by one'; 'run on his own laptop'; the person's cost line (what the cap does, and labels against decisions). Seventh change (after the held-out run and the human labels, at the author's decision): where a block points the reader to sql/, docs/sql.md or docs/deviations.md, the first such mention in the block is a relative Markdown link with the path kept as code ('who', 'practice', the v3 paragraph of 'human', 'exploratory', 'sql_queries', 'deviations_in_short'); the deviations paragraph describes the seventh change. No number changed. Eighth change (after the held-out run and the human labels): one line in the summary of post-run changes, for the registered plan to run the same two prompts on four other local models; the deviations paragraph counts eight changes. No number changed. Ninth change: one line in the summary of post-run changes, for Amendment 1 of the local-models plan and its code; the deviations paragraph counts nine changes. No number changed. Tenth change: one line in the summary of post-run changes, for Amendment 2 of the local-models plan and its code; the deviations paragraph counts ten changes; two more ordinals for later changes. No number changed. Eleventh change (after both arms of the model extension had run): the first screen gets the one sentence each amendment of the extension allows, word for word, with a link to its section and no figure; the practitioner section's 'Not tried' clause on a larger or hosted model says 'on the held-out split'; one line in the summary of post-run changes; the deviations paragraph counts eleven changes. No number changed."
    },
    {
     "file": "src/judge/hosted.py",
@@ -7392,8 +10272,8 @@
    {
     "file": "src/judge/report.py",
     "frozen_sha256": "42dbb2aabaea40d0e76a740daa9c12f96867f13bac2c1d417710fabf6197f093",
-    "sha256": "7587c9ebc6f63b3329f12aad1a09c04aa00e2728ba732752528c6f683dce5c98",
-    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README. Fifth change (after final reviews): the Summary no longer prints the person's table a second time and points to the human-label section; the figure link in report.md is relative to results/; the error-reading sections say the author went through the 24 sorted cases with the timing the record shows, and that the blind labels bear on the hypothesis, which no registered test decides. Sixth change (after the held-out run and the human labels): the SQL loader and its walk-through are listed among the files a post-run change may touch; two blocks are added and required in the README, 'sql_queries' (a pointer to the SQL in sql/) and 'deviations_in_short' (the README's deviations paragraph, with the number of post-run changes counted from these records); after an independent review, the issuer sentence calls the range of rates the smoothed relief rate and says that the issuer above one half is counted on its raw rate, and the second-screen sentences say 'sorted one by one' instead of 'individually sorted'. No computation of a reported number was changed. Seventh change (after the held-out run and the human labels, at the author's decision): render passes the path from the rendered file to the repository root, so that the links the blocks write resolve from the README and from results/report.md alike. No computation of a reported number was changed. Eighth change (after the held-out run and the human labels): docs/analysis_plan_models.md, the plan for running the same task on other local models, is added to the files a post-run change may touch. No computation of a reported number was changed. Ninth change: src/judge/models.py and src/judge/models_analysis.py, the local-models extension's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Tenth change: src/judge/hosted.py and src/judge/hosted_analysis.py, the hosted arm's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed."
+    "sha256": "a9d7a85ded9362df57956118e4acdf7371e6bc7787b545db9a6af309a9e2b9b0",
+    "what": "presentation only, after the held-out run. First change (dac4cfb): blocks for the README's first screen ('headline') and practitioner section ('practice'), a shorter list of blocks the README must contain, post-run wording of the DEV lead, the line in this section that lists this record, and the check that reads this record. Second change: those post-run blocks moved to src/judge/frontpage.py; the settings table says how many resamples the AUC intervals use; the DEV summary no longer puts the person in a DEV column; the gaming notes say what 'none' means for power; the frozen section says what happened instead of what was to happen; the estimates table names its interval method and adds the Wilson interval; the noise-pass sentence gives the byte-identical counts; the check accepts the files listed in PRESENTATION_FILES (a file added after the freeze is recorded with a null frozen hash) and fails if the answer files of the run commit or the gist hashes no longer match; report generation adds the exploratory figures of src/judge/posthoc.py. No computation of a reported number was changed. Third change (after two re-reviews): the noise-pass sentence and the speed note of the cost section no longer give an unmeasured cause; a block for the README's data and licence section; the Makefile is accepted as a post-run file. Fourth change (after the blind labels were locked): the DEV lead and the error-reading sections state the locked state (the author's review of the 24 individually sorted cases after the lock; the other drafted readings unconfirmed) instead of 'being collected' and 'has read 0'; the error-groups table header; a 'who' block, required in the README. Fifth change (after final reviews): the Summary no longer prints the person's table a second time and points to the human-label section; the figure link in report.md is relative to results/; the error-reading sections say the author went through the 24 sorted cases with the timing the record shows, and that the blind labels bear on the hypothesis, which no registered test decides. Sixth change (after the held-out run and the human labels): the SQL loader and its walk-through are listed among the files a post-run change may touch; two blocks are added and required in the README, 'sql_queries' (a pointer to the SQL in sql/) and 'deviations_in_short' (the README's deviations paragraph, with the number of post-run changes counted from these records); after an independent review, the issuer sentence calls the range of rates the smoothed relief rate and says that the issuer above one half is counted on its raw rate, and the second-screen sentences say 'sorted one by one' instead of 'individually sorted'. No computation of a reported number was changed. Seventh change (after the held-out run and the human labels, at the author's decision): render passes the path from the rendered file to the repository root, so that the links the blocks write resolve from the README and from results/report.md alike. No computation of a reported number was changed. Eighth change (after the held-out run and the human labels): docs/analysis_plan_models.md, the plan for running the same task on other local models, is added to the files a post-run change may touch. No computation of a reported number was changed. Ninth change: src/judge/models.py and src/judge/models_analysis.py, the local-models extension's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Tenth change: src/judge/hosted.py and src/judge/hosted_analysis.py, the hosted arm's runner and analysis, are added to the files a post-run change may touch. No computation of a reported number was changed. Eleventh change (after both arms of the model extension had run): four blocks for the extension, two of them required in the README ('other_local_models', 'hosted_arm') and two in the full report only (their detail), from the new src/judge/extension_report.py, which is added to the files a post-run change may touch; report generation runs the extension's registered analyses unchanged, and the check compares results/models/analysis.json and results/models/hosted/analysis.json with what they regenerate. No computation of a reported number was changed."
    },
    {
     "file": "src/judge/sql.py",
